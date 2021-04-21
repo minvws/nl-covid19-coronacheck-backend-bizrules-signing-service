@@ -1,0 +1,233 @@
+{
+"$id": "https://ec.europa.eu/dgc/DGC.schema.json",
+"$schema": "https://json-schema.org/draft/2020-12/schema",
+"title": "EU DGC",
+"description": "EU Digital Green Certificate",
+"$defs": {
+"posint_100_t": {
+"description": "Positive Integer",
+"type": "integer",
+"minimum": 1,
+"$comment": "TODO: Should we limit 0-9 here?",
+"exclusiveMaximum": 100
+},
+"date_t": {
+"description": "Date type ISO 8601 - date part only",
+"type": "string",
+"$comment": "The regex covers the year range 1900 - 2099, which should be enough ;)",
+"pattern": "[19|20][0-9][0-9]-(0[0-9]|1[0-2])-([0-2][0-9]|3[0|1])"
+},
+"datetime_t": {
+"description": "Date type ISO 8601 - date and time",
+"type": "string",
+"$comment": "TODO: check spec for time format",
+"pattern": "[19|20][0-9][0-9]-(0[0-9]|1[0-2])-([0-2][0-9]|3[0|1])T*"
+},
+"tg_t": {
+"description": "Disease or Agent Targeted",
+"type": "string",
+"$comment": "TODO: enumeration here for codeable concept? An arbitrary min of 3 chars here",
+"minLength": 3
+},
+"co_t": {
+"description": "Country of Vaccination / Test, ISO 3166",
+"type": "string",
+"pattern": "[A-Z][A-Z]"
+},
+"is_t": {
+"description": "Certificate Issuer",
+"type": "string"
+},
+"ci_t": {
+"description": "Certificate Identifier",
+"type": "string",
+"$comment": "TODO: check spec for Cert ID: eHN Recovery referred to Vacc UVCI for this field, so they _may_ all be in the same format as UVCI - or not...",
+"unique": true
+},
+"vi_t": {
+"description": "Vaccination Item",
+"type": "object",
+"tg": {
+"type": "tg_t"
+},
+"vp": {
+"description": "vaccine or prophylaxis",
+"type": "string",
+"$comment": "TODO: check if we can/should limit to known value set - changes regularly"
+},
+"mp": {
+"description": "vaccine medicinal product",
+"type": "string",
+"$comment": "TODO: check if we can/should limit to known value set - changes regularly"
+},
+"ma": {
+"description": "Marketing Authorization Holder - if no MAH present, then manufacturer",
+"type": "string"
+},
+"dn": {
+"description": "Dose Number",
+"type": "posint_100_t"
+},
+"sd": {
+"description": "Total Series of Doses",
+"type": "posint_100_t"
+},
+"dt": {
+"description": "Date of Vaccination",
+"type": "date_t"
+},
+"co": {
+"description": "Country of Vaccination",
+"type": "co_t"
+},
+"is": {
+"description": "Certificate Issuer",
+"type": "is_t"
+},
+"ci": {
+"description": "Unique Certificate Identifier: UVCI",
+"type": "ci_t"
+}
+},
+"ti_t": {
+"description": "Test Item",
+"type": "object",
+"tg": {
+"type": "tg_t"
+},
+"tt": {
+"description": "Type of Test",
+"type": "string"
+},
+"nm": {
+"description": "Test Name",
+"type": "string"
+},
+"ma": {
+"description": "Test Manufacturer",
+"type": "string"
+},
+"sc": {
+"description": "Date/Time of Sample Collection",
+"type": "datetime_t"
+},
+"dr": {
+"description": "Date/Time of Test Result",
+"type": "datetime_t"
+},
+"rt": {
+"description": "Test Result",
+"type": "string",
+"$comment": "TODO: check enum values",
+"enum": [
+"pos",
+"neg"
+]
+},
+"tc": {
+"description": "Testing Centre",
+"type": "string",
+"$comment": "TODO: check if any formatting for address - but address formats are notoriously variable... so maybe just leave as string?"
+},
+"co": {
+"description": "Country of Test",
+"type": "co_t"
+},
+"is": {
+"description": "Certificate Issuer",
+"type": "is_t"
+},
+"ci": {
+"description": "Unique Certificate Identifier",
+"type": "ci_t"
+}
+},
+"ri_t": {
+"description": "Recovery Item",
+"type": "object",
+"tg": {
+"type": "tg_t"
+},
+"fr": {
+"description": "Date of First Positive Test Result",
+"type": "date_t"
+},
+"co": {
+"description": "Country of Test",
+"type": "co_t"
+},
+"is": {
+"description": "Certificate Issuer",
+"type": "is_t"
+},
+"df": {
+"description": "Certificate Valid From",
+"type": "date_t",
+"$comment": "TODO: check if this just date or datetime"
+},
+"du": {
+"description": "Certificate Valid Until",
+"type": "date_t",
+"$comment": "TODO: check if this just date or datetime"
+},
+"ci": {
+"description": "Unique Certificate Identifier",
+"type": "ci_t"
+}
+}
+},
+"type": "object",
+"dgc": {
+"nam": {
+"description": "Surname(s), forename(s) - in that order",
+"type": "array",
+"pn": {
+"type": "string"
+},
+"$comment": "Sometimes the name is stored as just one long string, so a min of 1 array entry",
+"minPn": 1
+},
+"dob": {
+"description": "Date of Birth, ISO 8601",
+"type": "string"
+},
+"dsc": {
+"description": "Document Signing Certificate",
+"type": "string"
+},
+"v": {
+"description": "Vaccination Group",
+"type": "array",
+"entry": {
+"$ref": "#/$defs/vi_t"
+},
+"minEntry": 1
+},
+"t": {
+"description": "Test Group",
+"type": "array",
+"entry": {
+"$ref": "#/$defs/ti_t"
+},
+"minEntry": 1
+},
+"r": {
+"description": "Recovery Group",
+"type": "array",
+"entry": {
+"$ref": "#/$defs/ri_t"
+},
+"minEntry": 1
+},
+"required": [
+"nam",
+"dob",
+"dsc"
+],
+"anyOf": [
+"v",
+"t",
+"r"
+]
+}
+}
