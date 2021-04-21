@@ -1,0 +1,21 @@
+-c requirements.txt
+
+black
+pylint
+bandit
+mypy
+autoflake
+coverage
+coverage-badge
+sqlalchemy
+pytest
+pytest-cov
+pytest-mock
+pytest-django
+testcontainers
+tblib
+pytz
+mccabe
+flake8
+pyflakes
+rope

@@ -1,0 +1,14 @@
+# Dependency management
+pip-tools
+
+# Database access
+psycopg2-binary
+
+# Communication with services
+requests
+
+# Crypto support
+PyNaCl
+
+# Framework support
+django
