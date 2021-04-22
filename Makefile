@@ -18,9 +18,12 @@ venv: .venv/make_venv_complete ## Create virtual environment
 	. .venv/bin/activate && ${env} pip install -Ur requirements-dev.txt
 	touch .venv/make_venv_complete
 
-test: venv ## Run unittests
+test: venv keys ## Run unittests
     # Runs all testcases and delivers a coverage report to your terminal
 	. .venv/bin/activate && ${env} coverage run -m pytest --nomigrations -vv
+
+test-report: venv
+	. .venv/bin/activate && ${env} coverage report
 
 testcase: venv ## Perform a single testcase, for example make testcase case=my_test
 	# Perform a single testcase, for example:
@@ -50,7 +53,7 @@ audit: venv ## Run security audit
 	@. .venv/bin/activate && ${env} python3 -m bandit --configfile bandit.yaml -r ${pysrcdirs}
 
 lint: venv  ## Do basic linting
-	@. .venv/bin/activate && ${env} pylint app tools tests
+	@. .venv/bin/activate && ${env} pylint --load-plugins pylint_django --django-settings-module=inge4.development_settings  ${pysrcdirs}
 
 pip-compile: ## synchronizes the .venv with the state of requirements.txt
 	. .venv/bin/activate && ${env} python3 -m piptools compile requirements.in
@@ -71,3 +74,7 @@ clean: clean_venv
 clean_venv:  # Remove venv
 	@echo "Cleaning venv"
 	@rm -rf .venv
+
+keys: secrets/vcbe_db_nacl_fields.key ## Generate random keys needed to run the application.
+secrets/vcbe_db_nacl_fields.key:
+	. .venv/bin/activate && ${env} python3 signing/tests/generate_test_keys.py

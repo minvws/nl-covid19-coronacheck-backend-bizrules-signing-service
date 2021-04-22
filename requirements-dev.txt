@@ -86,8 +86,15 @@ pyflakes==2.3.1
     #   -r requirements-dev.in
     #   autoflake
     #   flake8
-pylint==2.7.4
+pylint-django==2.4.3
     # via -r requirements-dev.in
+pylint-plugin-utils==0.6
+    # via pylint-django
+pylint==2.7.4
+    # via
+    #   -r requirements-dev.in
+    #   pylint-django
+    #   pylint-plugin-utils
 pyparsing==2.4.7
     # via packaging
 pytest-cov==2.11.1

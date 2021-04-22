@@ -5,7 +5,10 @@ Todo, check: A "Proof of Vaccination" consists out of hundreds of sequential Tes
 
 ## Process overview
 
-This software currently supports one process:
+This software currently supports two processses:
+
+### Process 1: health professional
+A citizen goes to their health professional and asks for a "Proof of Vaccination".
 
 1) Doctor enters a "Statement of Vaccination" via Inge3
 2) This service receives it and has this information signed by:
@@ -15,6 +18,22 @@ This software currently supports one process:
 4) Based on these signatures ("Proof of Vaccination") QR data is generated and passed to the caller
 
 This process might become asynchronous depending on the load and speed of the signing services.
+
+
+### Process 2: dutch citizen opt-in
+A citizen uses an app and asks for a "Proof of Vaccination".
+
+1) Citizen uses a "app3" app.
+2) App requests if citizen is known using a surrogate BSN
+3) This service receives surrgate BSN and will see + log if the citizen is known
+4) This feedback is supplied to the citizen
+5) If the citizen wants a "Proof of Vaccination"
+   - Citizen data is ammended with data from SBV-Z
+   - Steps 2 - 4 from Process 1 is performed
+
+## Data overview
+
+
 
 
 ## Data documentation

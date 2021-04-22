@@ -14,8 +14,12 @@ chardet==4.0.0
     # via requests
 click==7.1.2
     # via pip-tools
-django==3.2
+django-nacl-fields==4.0.0
     # via -r requirements.in
+django==3.2
+    # via
+    #   -r requirements.in
+    #   django-nacl-fields
 idna==2.10
     # via requests
 pep517==0.10.0
@@ -27,7 +31,9 @@ psycopg2-binary==2.8.6
 pycparser==2.20
     # via cffi
 pynacl==1.4.0
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   django-nacl-fields
 pytz==2021.1
     # via django
 requests==2.25.1

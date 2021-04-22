@@ -2,6 +2,7 @@
 
 black
 pylint
+pylint-django
 bandit
 mypy
 autoflake

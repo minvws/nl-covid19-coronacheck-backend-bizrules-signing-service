@@ -8,6 +8,7 @@ psycopg2-binary
 requests
 
 # Crypto support
+django-nacl-fields
 PyNaCl
 
 # Framework support

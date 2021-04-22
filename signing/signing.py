@@ -2,7 +2,33 @@ from typing import Any, Dict
 
 import requests
 
+from signing.models import VCBEDBVaccinatieEvent
+
 DOMESTIC_AUTHORITY_URL = ""
+
+
+def sign_via_inge3(statement_of_vaccination: Dict[str, Any]):
+    if not is_trusted(statement_of_vaccination):
+        return {}
+
+    if not is_valid(statement_of_vaccination):
+        return {}
+
+    # Todo: how to sign the data? What data needs to be signed?
+
+    raise NotImplementedError
+
+
+def sign_via_app_step_1(bsn_external) -> Dict[str, bool]:
+    return {'known': do_we_know_this_person(bsn_external)}
+
+
+def do_we_know_this_person(bsn_external) -> bool:
+    return VCBEDBVaccinatieEvent.objects.all().filter(bsn_external=bsn_external).exists()
+
+
+def sign_via_app_step_2():
+    raise NotImplementedError
 
 
 def sign_statement_of_vaccination(statement_of_vaccination: Dict[str, Any]) -> Dict[str, Any]:
@@ -42,11 +68,11 @@ def sign_with_domestic_authority(statement_of_vaccination: Dict[str, Any]):
 
     # Todo: carefully read what is sent and received per call.
     data = {
-        'BSN': None,
-        'first_name': None,
-        'last_name': None,
-        'day_of_birth': None,
-        'identity_hash': None,
+        'BSN': statement_of_vaccination['BSN'],
+        'first_name': statement_of_vaccination['first_name'],
+        'last_name': statement_of_vaccination['last_name'],
+        'day_of_birth': statement_of_vaccination['day_of_birth'],
+        'identity_hash': statement_of_vaccination['identity_hash'],
     }
 
     data['secret_hash_key'] = calculate_vws_integrity_hash(
@@ -62,14 +88,15 @@ def sign_with_domestic_authority(statement_of_vaccination: Dict[str, Any]):
 
     data = response.json()
 
-    raise NotImplementedError
+    qr_data = {}
+    return qr_data
 
 
 def sign_with_international_authority(statement_of_vaccination: Dict[str, Any]):
     # todo: Implement "RVIG Ondertekenings Service"
-    raise NotImplementedError
+    return {}
 
 
 def log_signing_request(statement_of_vaccination: Dict[str, Any]):
     # todo: implement a form of logging where the health professional is mentioned, but not neccesarily PII
-    raise NotImplementedError
+    return {}

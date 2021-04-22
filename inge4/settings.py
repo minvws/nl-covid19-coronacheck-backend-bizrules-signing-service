@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'inge4',
     'signing',
 ]
 
@@ -77,11 +78,26 @@ WSGI_APPLICATION = 'inge4.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DATABASE_NAME'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': os.getenv('POSTGRES_HOST'),
-        'PORT': os.getenv('POSTGRES_PORT', 5432),
+        'NAME': os.getenv('DEFAULT_POSTGRES_DATABASE_NAME'),
+        'USER': os.getenv('DEFAULT_POSTGRES_USER'),
+        'PASSWORD': os.getenv('DEFAULT_POSTGRES_PASSWORD'),
+        'HOST': os.getenv('DEFAULT_POSTGRES_HOST'),
+        'PORT': os.getenv('DEFAULT_POSTGRES_PORT', "5432"),
+        'OPTIONS': {
+            'sslmode': 'verify-full',
+            'sslrootcert': '/home/{user}/.postgresql/default_root.crt',
+            'sslcert': '/home/{user}/.postgresql/default.crt',
+            'sslkey': '/home/{user}/.postgresql/default.key',
+        },
+    },
+    # RIVM Vaccination registration
+    'vcbe_db': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('VCBE_DB_POSTGRES_DATABASE_NAME'),
+        'USER': os.getenv('VCBE_DB_POSTGRES_USER'),
+        'PASSWORD': os.getenv('VCBE_DB_POSTGRES_PASSWORD'),
+        'HOST': os.getenv('VCBE_DB_POSTGRES_HOST'),
+        'PORT': os.getenv('VCBE_DB_POSTGRES_PORT', "5432"),
         'OPTIONS': {
             'sslmode': 'verify-full',
             'sslrootcert': '/home/{user}/.postgresql/default_root.crt',
@@ -91,6 +107,7 @@ DATABASES = {
     },
 }
 
+DATABASE_ROUTERS = ['signing.database_routers.vcbe_db.VCBEDatabaseRouter']
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -129,3 +146,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+NACL_FIELDS_KEY = open('signing/secrets/vcbe_db_nacl_fields.key', 'rb').read()
