@@ -1,0 +1,30 @@
+// The format of this file is json5: use a json5 parser to read this file.
+// Database with all vaccination providers and secrets.
+[
+  {
+    // Unique identifier for the vaccination event provider
+    // Providers with the words "EXAMPLE" or "TEST" in the name are skipped in production
+    "identifier": "EXAMPLE",
+
+    // Location where a "do you know me" can be performed.
+    "unomi_url": "https://example.com/unomi/v2/",
+
+    // Location where vaccination events can be retrieved
+    "event_url": "https://example.com/events/v2/data/",
+
+    // Used in SHA256 hmac, needs to be at least as long as the digest size.
+    // This needs to be different per provider(!)
+    "identity_hash_secret": "735770c3112175051c99c3e2c3023ab7ed99f98c965c4e15a7c01da7370c5717",
+
+    // This needs to be different per provider(!)
+    "bsn_cryptography": {
+      "public_key": "pFWnrVkdUbKeU1B5Pj18AqKfE0wsbeUNH0Gh19Dz+EY=",
+      "private_key": "ozFVVdY9QCcWwo2J9FZVTgXzDqGxfohynembzcyGJps=",
+    },
+
+    // not used in example code. Why?
+    "cms": "todo",
+    "tls": "todo",
+
+  }
+]

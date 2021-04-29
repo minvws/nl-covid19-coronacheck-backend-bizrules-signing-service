@@ -3,6 +3,12 @@
 This service signs "Statement of Vaccination" documents, converting them to a "Proof of Vaccination"
 Todo, check: A "Proof of Vaccination" consists out of hundreds of sequential Test Statements, each valid for 40 hours.
 
+## Requirements
+- Respond within 2 seconds
+- No data storage at all (to prevent creating a database with tons of PII, and for maximum scalability)
+- Enrichment per request
+
+
 ## Process overview
 
 This software currently supports two processses:
@@ -11,38 +17,81 @@ This software currently supports two processses:
 A citizen goes to their health professional and asks for a "Proof of Vaccination".
 
 1) Doctor enters a "Statement of Vaccination" via Inge3
-2) This service receives it and has this information signed by:
- - "VWS Ondertekenings Service" - For domestic use
- - "RVIG Ondertekenings Service" - For traveling abroad
-3) Signing request is logged (Health professional etc)
+2) This service receives it and has this information signed by various signing providers:
+3) (?) Signing request is logged (Health professional etc)
 4) Based on these signatures ("Proof of Vaccination") QR data is generated and passed to the caller
-
-This process might become asynchronous depending on the load and speed of the signing services.
 
 
 ### Process 2: dutch citizen opt-in
 A citizen uses an app and asks for a "Proof of Vaccination".
 
 1) Citizen uses a "app3" app.
-2) App requests if citizen is known using a surrogate BSN
-3) This service receives surrgate BSN and will see + log if the citizen is known
+2) App requests a lot of data, this app returns a JWT token that can be used to retrieve vaccination info.
+3) This service receives surrogate BSN and will see + log if the citizen is known
 4) This feedback is supplied to the citizen
 5) If the citizen wants a "Proof of Vaccination"
    - Citizen data is ammended with data from SBV-Z
    - Steps 2 - 4 from Process 1 is performed
 
-## Data overview
+
+### Expected input
+
+```json5
+{
+    "protocolVersion": "3.0",
+    "providerIdentifier": "XXX",
+    "status": "complete", // This refers to the data-completeness, not vaccination status.
+    "holder": {
+        "identityHash": "", // The identity-hash belonging to this person.
+        "firstName": "",
+        "lastName": "",
+        "birthDate": "1970-01-01" // ISO 8601
+    },
+    "events": [
+        {
+            "type": "vaccination",
+            "unique": "ee5afb32-3ef5-4fdf-94e3-e61b752dbed9",
+            "vaccination": {
+                "date": "2021-01-01",
+                "hpkCode": "2924528",  // If available: type/brand can be left blank.
+                "type": "C19-mRNA",
+                "brand": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+                "batchNumber": "EW2243",
+                "administeringCenter": "" // Can be left blank if unknown
+                "country": "NLD", // ISO 3166-1
+            }
+        },
+        {
+            "type": "vaccinationCompleted",
+            "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
+            "vaccinationCompleted": {
+                "date": "2021-01-01",
+                "hpkCode": "2924528",  // If available: type/brand can be left blank.
+                "type": "C19-mRNA",
+                "brand": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+                "batchNumbers": ["EW2243","ER9480"], // Optional
+                "administeringCenter": "", // Can be left blank if unknown
+                "country": "NLD" // ISO 3166-1
+            }
+        }
+    ]    
+}
+```
 
 
+### expected output
+Below example shows a QR code for a domestic signer.
+```json5
+{
+   "domestic_nl_vws": "todo, how to concatenate results into a single barcode. What QR code type?"
+}
+```
 
 
 ## Data documentation
-See Docs!
+See Docs folder.
 https://github.com/minvws/nl-covid19-coronacheck-app-coordination/blob/main/docs/providing-vaccination-events.md
-
-
-## Future versions
-Also accept "Statement of Vaccination" by a Dutch citizen.
+Database: https://github.com/91divoc-ln/databases/tree/main/vcbe_db/v1.0.0
 
 
 ## Software Architecture

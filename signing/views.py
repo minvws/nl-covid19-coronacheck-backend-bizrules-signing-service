@@ -2,7 +2,7 @@ import json
 
 from django.http import JsonResponse
 
-from signing.signing import sign_via_inge3, sign_via_app_step_1, sign_via_app_step_2
+from signing.api import sign_via_inge3, sign_via_app_step_1, sign_via_app_step_2
 
 
 def json_data(request):
@@ -19,15 +19,17 @@ def _hello(request) -> JsonResponse:
 
 # the Health professional route
 def _sign_via_inge3(request) -> JsonResponse:
-    return JsonResponse(sign_via_inge3(json_data(request)))
+    data = json_data(request)
+    return JsonResponse(sign_via_inge3(data=data))
 
 
 # the citizen
+# todo: no API key needed?
 def _sign_via_app_step_1(request) -> JsonResponse:
     data = json_data(request)
-    surrogate_bsn = data.get('surrogate_bsn', '')
-    return JsonResponse(sign_via_app_step_1(surrogate_bsn))
+    return JsonResponse(sign_via_app_step_1(data), safe=False)
 
 
 def _sign_via_app_step_2(request) -> JsonResponse:
-    return JsonResponse(sign_via_app_step_2())
+    data = json_data(request)
+    return JsonResponse(sign_via_app_step_2(data))

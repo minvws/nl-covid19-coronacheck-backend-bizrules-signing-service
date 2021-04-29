@@ -20,3 +20,5 @@ mccabe
 flake8
 pyflakes
 rope
+requests-mock
+freezegun

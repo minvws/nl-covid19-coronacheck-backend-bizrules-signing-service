@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from base64 import b85encode
 import os
 import secrets as secrets_module
 
@@ -12,12 +11,11 @@ def create_test_keys(secrets_dir: str = './signing/secrets/'):
     :return:
     """
 
-    # Binary file in 'secrets/keiko_nacl.key' for NACL_FIELDS_KEY
-    # base64 encoded key that matches the key size of the crypto_class used, default 32 bytes.
-    token = secrets_module.token_bytes(32)
-    if not os.path.isfile(f"{secrets_dir}vcbe_db_nacl_fields.key"):
-        with open(f"{secrets_dir}vcbe_db_nacl_fields.key", "wb") as f:
-            f.write(b85encode(token))
+    # Needs to be the digest size of the SHA256 algorithm, 32 bytes at least
+    token = secrets_module.token_hex(32)
+    if not os.path.isfile(f"{secrets_dir}vws_identity_hash_key.key"):
+        with open(f"{secrets_dir}vws_identity_hash_key.key", "w") as f:
+            f.write(token)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://CIBG.SBV.Interface.XIS.Webservice/dec14" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="http://CIBG.SBV.Interface.XIS.Webservice/dec14" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://CIBG.SBV.Interface.XIS.Webservice/dec14">
+      <s:element name="OpvragenVerifieren">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="OpvragenVerifierenVraagBericht" type="tns:OpvragenVerifierenVraagBericht" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="OpvragenVerifierenVraagBericht">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Vraag" type="tns:OpvragenVerifierenVraagType" />
+          <s:element minOccurs="0" maxOccurs="1" name="LokaalKenmerk" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="OpvragenVerifierenVraagType">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Persoon" type="tns:VraagTypePersoon" />
+          <s:element minOccurs="0" maxOccurs="1" name="Adres" type="tns:VraagTypeAdres" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="VraagTypePersoon">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="BSN" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Voornamen" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Voorletter" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="VoorvoegselGeslachtsnaam" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Geslachtsnaam" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Geboortedatum" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Geboorteplaats" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Geboorteland" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Geslachtsaanduiding" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="VraagTypeAdres">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="GemeenteVanInschrijving" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Straatnaam" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Huisnummer" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Huisletter" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Huisnummertoevoeging" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="AanduidingBijHuisnummer" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Postcode" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="OpvragenVerifierenResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="OpvragenVerifierenAntwoordBericht" type="tns:OpvragenVerifierenAntwoordBericht" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="OpvragenVerifierenAntwoordBericht">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Vraag" type="tns:OpvragenVerifierenVraagType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Antwoord" type="tns:OpvragenVerifierenAntwoordType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Resultaat" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Melding" type="tns:MeldingType" />
+          <s:element minOccurs="0" maxOccurs="1" name="LokaalKenmerk" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="OpvragenVerifierenAntwoordType">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AntwoordType" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="AntwoordType">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Persoon" type="tns:AntwoordTypePersoon" />
+          <s:element minOccurs="0" maxOccurs="1" name="Adres" type="tns:AntwoordTypeAdres" />
+          <s:element minOccurs="0" maxOccurs="1" name="Inschrijving" type="tns:AntwoordTypeInschrijving" />
+          <s:element minOccurs="0" maxOccurs="1" name="Overlijden" type="tns:AntwoordTypeOverlijden" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="AntwoordTypePersoon">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="BSN" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Voornamen" type="tns:AfwijkendType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Voorletter" type="tns:AfwijkendType" />
+          <s:element minOccurs="0" maxOccurs="1" name="AdellijkeTitelPredikaat" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="VoorvoegselGeslachtsnaam" type="tns:AfwijkendType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Geslachtsnaam" type="tns:AfwijkendType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Geboortedatum" type="tns:AfwijkendType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Geboorteplaats" type="tns:AfwijkendType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Geboorteland" type="tns:AfwijkendType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Geslachtsaanduiding" type="tns:AfwijkendType" />
+          <s:element minOccurs="0" maxOccurs="1" name="AanduidingGegevensInOnderzoekPersoon" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DatumIngangOnderzoekPersoon" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="AfwijkendType">
+        <s:simpleContent>
+          <s:extension base="s:string">
+            <s:attribute name="Afwijkend" type="s:boolean" use="required" />
+          </s:extension>
+        </s:simpleContent>
+      </s:complexType>
+      <s:complexType name="AntwoordTypeAdres">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="GemeenteVanInschrijving" type="tns:AfwijkendType" />
+          <s:element minOccurs="0" maxOccurs="1" name="FunctieAdres" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Gemeentedeel" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Straatnaam" type="tns:AfwijkendType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Huisnummer" type="tns:AfwijkendType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Huisletter" type="tns:AfwijkendType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Huisnummertoevoeging" type="tns:AfwijkendType" />
+          <s:element minOccurs="0" maxOccurs="1" name="AanduidingBijHuisnummer" type="tns:AfwijkendType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Postcode" type="tns:AfwijkendType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Locatiebeschrijving" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="LandVanwaarIngeschreven" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="AanduidingGegevensInOnderzoekAdres" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DatumIngangOnderzoekAdres" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Woonplaatsnaam" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Regel1AdresBuitenland" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Regel2AdresBuitenland" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Regel3AdresBuitenland" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="LandAdresBuitenland" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DatumAanvangAdresBuitenland" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="AntwoordTypeInschrijving">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="OmschrijvingRedenOpschorting" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="IndicatieGeheim" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="AntwoordTypeOverlijden">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="DatumOverlijden" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="AanduidingGegevensInOnderzoekOverlijden" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DatumIngangOnderzoekOverlijden" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MeldingType">
+        <s:simpleContent>
+          <s:extension base="s:string">
+            <s:attribute name="Soort" type="s:string" />
+            <s:attribute name="Code" type="s:string" />
+          </s:extension>
+        </s:simpleContent>
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="OpvragenVerifierenSoapIn">
+    <wsdl:part name="parameters" element="tns:OpvragenVerifieren" />
+  </wsdl:message>
+  <wsdl:message name="OpvragenVerifierenSoapOut">
+    <wsdl:part name="parameters" element="tns:OpvragenVerifierenResponse" />
+  </wsdl:message>
+  <wsdl:portType name="OpvragenVerifierenSoap">
+    <wsdl:operation name="OpvragenVerifieren">
+      <wsdl:input message="tns:OpvragenVerifierenSoapIn" />
+      <wsdl:output message="tns:OpvragenVerifierenSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="OpvragenVerifierenSoap" type="tns:OpvragenVerifierenSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="OpvragenVerifieren">
+      <soap:operation soapAction="http://CIBG.SBV.Interface.XIS.Webservice/dec14/OpvragenVerifieren" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="OpvragenVerifieren">
+    <wsdl:port name="OpvragenVerifierenSoap" binding="tns:OpvragenVerifierenSoap">
+      <soap:address location="https://webservice.sbv-z.nl/cibg.sbv.interface.xis.webservice.dec14/opvragenverifieren.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

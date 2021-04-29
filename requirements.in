@@ -13,3 +13,12 @@ PyNaCl
 
 # Framework support
 django
+
+# Mobile app step 1
+PyJWT
+json5
+cryptography
+
+# SBVZ enrichment
+unidecode
+zeep

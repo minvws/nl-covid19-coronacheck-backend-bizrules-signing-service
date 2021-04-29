@@ -45,7 +45,8 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # todo: setup signing keys
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -147,4 +148,19 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-NACL_FIELDS_KEY = open('signing/secrets/vcbe_db_nacl_fields.key', 'rb').read()
+# according to the author json5 is slow.
+# It's loaded once per application run, so any changes to this file requires an application reboot.
+# This approach prevents the usage of a database for just 30 records of data and makes the entire
+# set very portable.
+import json5
+
+with open('signing/requesters/mobile_app_data/vaccinationproviders.json5') as f:
+    APP_STEP_1_VACCINATION_PROVIDERS = json5.load(f)
+
+
+APP_STEP_1_JWT_PRIVATE_KEY = open('signing/secrets/jwt_private.key', 'rb').read()
+
+# dev prod staging
+SBVZ_WSDL_ENVIRONMENT = "dev"
+
+SBVZ_CERT = 'signing/secrets/svbz-connect.test.brba.nl.cert'
