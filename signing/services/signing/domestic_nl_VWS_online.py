@@ -2,16 +2,15 @@ from typing import Any, Dict
 
 import requests
 
-from signing.eligibility import conforms_to_basic_checks
+from signing.eligibility import vaccinations_conform_to_vaccination_policy
 
 SIGNING_URL = ""
 
 
 def is_eligible(data):
-    pii = data.get('holder', {})
-    vaccination_events = data.get('events', {})
+    # todo: check for flow, and for commitments in the request.
 
-    if not conforms_to_basic_checks(pii, vaccination_events):
+    if not vaccinations_conform_to_vaccination_policy(data):
         return False
 
     return False

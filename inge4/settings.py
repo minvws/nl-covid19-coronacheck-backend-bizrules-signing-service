@@ -164,3 +164,5 @@ APP_STEP_1_JWT_PRIVATE_KEY = open('signing/secrets/jwt_private.key', 'rb').read(
 SBVZ_WSDL_ENVIRONMENT = "dev"
 
 SBVZ_CERT = 'signing/secrets/svbz-connect.test.brba.nl.cert'
+
+DOMESTIC_NL_VWS_PAPER_SIGNING_URL = ""

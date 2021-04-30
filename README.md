@@ -34,19 +34,21 @@ A citizen uses an app and asks for a "Proof of Vaccination".
    - Steps 2 - 4 from Process 1 is performed
 
 
-### Expected input
+### Expected input from Inge3
 
 ```json5
 {
     "protocolVersion": "3.0",
     "providerIdentifier": "XXX",
     "status": "complete", // This refers to the data-completeness, not vaccination status.
-    "holder": {
-        "identityHash": "", // The identity-hash belonging to this person.
+   "identityHash": "", // The identity-hash belonging to this person. 
+   "holder": {
         "firstName": "",
         "lastName": "",
         "birthDate": "1970-01-01" // ISO 8601
     },
+   
+   // one event per vaccination. A set of rules determines eligibility for getting a proof.
     "events": [
         {
             "type": "vaccination",
@@ -57,7 +59,7 @@ A citizen uses an app and asks for a "Proof of Vaccination".
                 "type": "C19-mRNA",
                 "brand": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
                 "batchNumber": "EW2243",
-                "administeringCenter": "" // Can be left blank if unknown
+                "administeringCenter": "", // Can be left blank if unknown
                 "country": "NLD", // ISO 3166-1
             }
         },

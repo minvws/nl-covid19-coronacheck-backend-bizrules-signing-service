@@ -42,9 +42,10 @@ Generic eligibility methods used in checking eligibility in signing services.
 }
 """
 
-# type vaccination + pfizer + vaccinationCompleted
-# 1x jansen = genoeg
-# 1x pfizer + ix vaccination completed.
+HPK_ASTRAZENECA = 2925508
+HPK_PFIZER = 2924528
+HPK_MODERNA = 2924536
+HPK_JANSSEN = 2934701
 
 
 def normalize_vaccination_events(vaccination_events):
@@ -54,15 +55,37 @@ def normalize_vaccination_events(vaccination_events):
     raise NotImplementedError
 
 
-def conforms_to_basic_checks(pii, vaccination_events):
-    if not pii or not vaccination_events:
+def vaccinations_conform_to_vaccination_policy(data):
+    # Todo: get latest ruleset, this is going to be complex, so every rule needs a self-describing helper function with
+    #  a simple check.
+    # Todo: each of these rules needs to be thouroughly documented, for example with news articles
+    #  or announcements. Its very easy to loose track of them otherwise.
+    vaccination_events = data.get('events', {})
+
+    if not_vaccinated_at_all(vaccination_events):
         return False
 
-    # todo: more generic validation
+    if had_one_time_janssen(vaccination_events):
+        return True
 
-    return True
+    if had_two_vaccinations_or_more(vaccination_events):
+        return True
+
+    return False
 
 
-def had_two_identical_vaccins(vaccination_events):
-    # Had two vaccins, or had explanation of prior covid etc etc etc.
-    raise NotImplementedError
+def had_one_time_janssen(vaccination_events):
+    for vaccination_events in vaccination_events:
+        # todo: regardless of type of event (types of event need to be specified):
+        if vaccination_events[vaccination_events['type']]['hpkCode'] == HPK_JANSSEN:
+            return True
+
+
+def had_two_vaccinations_or_more(vaccination_events):
+    # todo: this is probably a very nearsighted implementation.
+    if len(vaccination_events) > 2:
+        return True
+
+
+def not_vaccinated_at_all(vaccination_events):
+    return not vaccination_events
