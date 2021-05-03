@@ -94,5 +94,4 @@ venv
 *.vscode
 
 .idea
-*.key
 /csv

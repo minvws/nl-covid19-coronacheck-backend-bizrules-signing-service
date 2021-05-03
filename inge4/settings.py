@@ -183,20 +183,28 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
+DOMESTIC_NL_VWS_PAPER_SIGNING_URL = ""
+
+
+# dev prod staging
+SBVZ_WSDL_ENVIRONMENT = "dev"
+
+
+SECRETS_FOLDER = "signing/secrets"
+
 # according to the author json5 is slow.
 # It's loaded once per application run, so any changes to this file requires an application reboot.
 # This approach prevents the usage of a database for just 30 records of data and makes the entire
 # set very portable.
 # Example file: signing/requesters/mobile_app_data/vaccinationproviders.sample.json5
-with open('signing/secrets/vaccinationproviders.json5') as f:
-    APP_STEP_1_VACCINATION_PROVIDERS = json5.load(f)
+# todo: make this try/except nicer and sane...
+try:
+    with open(f'{SECRETS_FOLDER}/vaccinationproviders.json5') as f:
+        APP_STEP_1_VACCINATION_PROVIDERS = json5.load(f)
 
+    APP_STEP_1_JWT_PRIVATE_KEY = open(f'{SECRETS_FOLDER}/jwt_private.key', 'rb').read()
 
-APP_STEP_1_JWT_PRIVATE_KEY = open('signing/secrets/jwt_private.key', 'rb').read()
-
-# dev prod staging
-SBVZ_WSDL_ENVIRONMENT = "dev"
-
-SBVZ_CERT = 'signing/secrets/svbz-connect.test.brba.nl.cert'
-
-DOMESTIC_NL_VWS_PAPER_SIGNING_URL = ""
+    SBVZ_CERT = f'{SECRETS_FOLDER}/svbz-connect.test.brba.nl.cert'
+except FileNotFoundError as file_error:
+    print(f"Could not find all decryption keys. Tests will work, but this will not work in production. {file_error}")

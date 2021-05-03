@@ -18,7 +18,7 @@ venv: .venv/make_venv_complete ## Create virtual environment
 	. .venv/bin/activate && ${env} pip install -Ur requirements-dev.txt
 	touch .venv/make_venv_complete
 
-test: venv keys ## Run unittests
+test: venv ## Run unittests
     # Runs all testcases and delivers a coverage report to your terminal
 	. .venv/bin/activate && ${env} coverage run -m pytest --nomigrations -vv
 

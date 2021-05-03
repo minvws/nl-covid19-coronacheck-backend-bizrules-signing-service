@@ -9,16 +9,11 @@ def file(path):
 
 
 @freeze_time('2020-02-02')
-def test_sign_via_app_step_1(client, requests_mock, current_path, settings, mocker):
+def test_sign_via_app_step_1(client, requests_mock, testsecrets, current_path, settings, mocker):
     requests_mock.post(
         url='https://raadplegen.sbv-z.nl/cibg.sbv.testtool.webservice.dec14/opvragenpersoonsgegevens.asmx',
         text=file(f'{current_path}/sbvz/direct_match_correct_response.xml'),
     )
-
-    # Create a test provider, ignore any other providers.
-    provider = settings.APP_STEP_1_VACCINATION_PROVIDERS[0]
-    provider['identifier'] = "GGD Region 5715"
-    settings.APP_STEP_1_VACCINATION_PROVIDERS = [provider]
 
     # Make sure the nonce is always the same
     mocker.patch('nacl.utils.random', return_value=b"012345678901234567890123")
