@@ -65,6 +65,9 @@ def vaccinations_conform_to_vaccination_policy(data):
     #  a simple check.
     # Todo: each of these rules needs to be thouroughly documented, for example with news articles
     #  or announcements. Its very easy to loose track of them otherwise.
+
+    # We want _all_ data, as policy can be very complex and confusing and perhaps depending on various countries.
+    # Because of this uncertainty the entire vaccination_event_api data is used here.
     vaccination_events = data.get('events', {})
 
     if not_vaccinated_at_all(vaccination_events):
@@ -72,6 +75,7 @@ def vaccinations_conform_to_vaccination_policy(data):
         return False
 
     if had_one_time_janssen(vaccination_events):
+        log.debug("1x janssen found, eligible for signing.")
         return True
 
     if had_two_vaccinations_or_more(vaccination_events):
@@ -84,7 +88,7 @@ def vaccinations_conform_to_vaccination_policy(data):
 def had_one_time_janssen(vaccination_events):
     for vaccination_event in vaccination_events:
         # todo: regardless of type of event (types of event need to be specified):
-        if vaccination_event[vaccination_event['type']]['hpkCode'] == HPK_JANSSEN:
+        if vaccination_event[vaccination_event['type']]['hpkCode'] == str(HPK_JANSSEN):
             return True
     return False
 

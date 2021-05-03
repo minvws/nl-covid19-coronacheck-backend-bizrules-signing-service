@@ -9,6 +9,12 @@ Todo, check: A "Proof of Vaccination" consists out of hundreds of sequential Tes
 - No data storage at all (to prevent creating a database with tons of PII, and for maximum scalability)
 - Enrichment per request
 
+
+## Signing architecture:
+There are N requesters (printportaal, inge3, mobile_app). There are also N signing services (domestic on paper, 
+domestic on app, european). The N to N relation is performed in api.py.
+
+
 ## Process overview
 
 This software currently supports two processses:

@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
-from functools import lru_cache
 from typing import Dict, List, Tuple
 
 from . import AbstractSecureSOAPService
-from .models import Adres, OpvragenVerifierenAntwoordBericht, Persoon, Resultaat
+from .models import OpvragenVerifierenAntwoordBericht, Persoon, Resultaat
 
 
 def _extract_afwijkingen(vraag: Dict, antwoord) -> List[Tuple[str, Resultaat]]:
@@ -45,48 +44,6 @@ def _extract_afwijkingen(vraag: Dict, antwoord) -> List[Tuple[str, Resultaat]]:
         )
 
     return result
-
-
-class BSNOpvragenVerifierenService(AbstractSecureSOAPService):
-    # BSN Service to validate and retrieve person details.
-
-    def __init__(self, wsdl_file, cert_file):
-        super().__init__(wsdl_file=wsdl_file, cert_file=cert_file)
-
-    def init_service(self):
-        self.service = self.client.service.OpvragenVerifieren
-
-    # lru_cache to prevent people hitting F5 :)
-    # During tests, make sure to provide various parameters, otherwise a cached response is given(!)
-    @lru_cache(maxsize=16)
-    def request(self, persoon: Persoon, adres: Adres) -> Tuple[OpvragenVerifierenAntwoordBericht, Dict[str, Resultaat]]:
-
-        persoon_vraag = self.factory.VraagTypePersoon(
-            BSN=persoon.BSN,
-            Geboortedatum=persoon.Geboortedatum,
-            Geslachtsaanduiding=persoon.Geslachtsaanduiding,
-        )
-        adres_vraag = self.factory.VraagTypeAdres(
-            Postcode=adres.Postcode,
-            Huisnummer=adres.Huisnummer,
-            Huisletter=adres.Huisletter,
-            Huisnummertoevoeging=adres.Huisnummertoevoeging,
-            AanduidingBijHuisnummer=adres.AanduidingBijHuisnummer,
-        )
-
-        vraag = self.factory.OpvragenVerifierenVraagType(Persoon=persoon_vraag, Adres=adres_vraag)
-
-        message = self.factory.OpvragenVerifierenVraagBericht(Vraag=vraag)
-        # The call_api only works with ComplexTypes, not subclasses.
-        result: OpvragenVerifierenAntwoordBericht = self.call_api(message)
-
-        afwijkingen: Dict[str, Resultaat] = {}
-        if result.Antwoord:
-            afwijkingen_persoon = _extract_afwijkingen(persoon_vraag, result.Antwoord.Persoon)
-            afwijkingen_adres = _extract_afwijkingen(adres_vraag, result.Antwoord.Adres)
-            afwijkingen = dict([*afwijkingen_persoon, *afwijkingen_adres])
-
-        return result, afwijkingen
 
 
 class BSNOpvragenService(AbstractSecureSOAPService):

@@ -1,14 +1,16 @@
 from typing import Any, Dict
-
-import requests
+from django.conf import settings
 
 from signing.eligibility import vaccinations_conform_to_vaccination_policy
+from signing.services.signing.domestic_nl_VWS_paper import vaccination_event_data_to_signing_data
+from signing.utils import request_post_with_retries
 
-SIGNING_URL = ""
 
-
-def is_eligible(data):
+def is_eligible(data) -> bool:
     # todo: check for flow, and for commitments in the request.
+    # todo: what flow has printportaal? What is the entry port for printportaal?
+    if not data.get('source', None) in ["mobile_app", "printportaal"]:
+        return False
 
     if not vaccinations_conform_to_vaccination_policy(data):
         return False
@@ -16,18 +18,8 @@ def is_eligible(data):
     return False
 
 
-def sign(data):
-    # todo: Implement "VWS Ondertekenings Service"
-    # Todo: see https://github.com/minvws/nl-covid19-coronacheck-app-backend-private/tree/main/src/IssuerApi
-
+def sign(data) -> Dict[str, Any]:
     """
-    # de dynamic route geeft commits mee (ISM)
-    # de static route krijgt "een string/qr code" -> geeft geen commitments, maar de rest wel.
-    # Static = papieren flow. Static en dynamic domestic signing provider maken.
-    # todo: alle data dat terugkomt van signing providers direct doorgeven, en niet apart nog een qr voor maken.
-
-    This is what the domestic signer expects. The App creates the nonce. The commitments are also a given.
-    What is the source of this format?
     {
         "attributes": {
             # difference between static and dynamic
@@ -61,18 +53,15 @@ def sign(data):
     :param data:
     :return:
     """
+    request_data = vaccination_event_data_to_signing_data(data)
 
-    request_data = {'nonce': data['nonce'], 'commitments': data['commitments']}
-
-    # todo: exponential backoff
-    # todo: what is the url, what is the format?
-    response = requests.post(
-        url=SIGNING_URL,
+    response = request_post_with_retries(
+        settings.DOMESTIC_NL_VWS_ONLINE_SIGNING_URL,
         data=request_data,
-        header={'accept': 'application/json', "Content-Type": "application/json"},
+        headers={'accept': 'application/json', "Content-Type": "application/json"},
     )
+    response.raise_for_status()
 
-    # Todo: documentation / source of this example?
     """
     # The response looks like this:
     {
@@ -92,10 +81,3 @@ def sign(data):
     }
     """
     return response.json()
-
-
-def qr(signing_response_data: Dict[str, Any]) -> str:
-    # Converts a domestic response into a single barcode.
-    # Todo: how to validate the data returned?
-    # todo: what field of the signature is relevant, if not all
-    return ""

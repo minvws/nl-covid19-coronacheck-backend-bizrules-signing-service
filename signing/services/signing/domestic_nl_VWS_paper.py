@@ -3,11 +3,11 @@ from datetime import date, timedelta
 from math import ceil
 from typing import Any, Dict, List
 
-import requests
 from django.utils import timezone
 from django.conf import settings
 
 from signing.eligibility import vaccinations_conform_to_vaccination_policy
+from signing.utils import request_post_with_retries
 
 log = logging.getLogger(__package__)
 
@@ -23,11 +23,11 @@ def is_eligible(data):
     """
 
     # only "GP"'s are allowed to directly request a proof of vaccination.
-    if not data.get('source', None) == "inge3":
+    if not data.get('source', None) in ["inge3"]:
         log.debug("Source of vaccination is not inge3, not elibile for signing.")
         return False
 
-    # todo: if has commitments: no go. (perhaps nn because of inge3)
+    # The source inge3 has no commitments, so there is no need to check.
 
     if vaccinations_conform_to_vaccination_policy(data):
         return True
@@ -86,7 +86,7 @@ def vaccination_event_data_to_signing_data(data):
 
     person_date = date.fromisoformat(data['holder']['birthDate'])
 
-    return {
+    request_data = {
         "attributes": {
             "sampleTime": timezone.now(),
             "firstNameInitial": data['holder']['firstName'][0:1],
@@ -98,6 +98,15 @@ def vaccination_event_data_to_signing_data(data):
         "key": "inge4",
     }
 
+    # The mobile app also sends commitments and a nonce, but the rest of the requests, the rest is the same.
+    if data.get('nonce', None):
+        request_data['nonce'] = data['nonce']
+
+    if data.get('commitments', None):
+        request_data['commitments'] = data['commitments']
+
+    return request_data
+
 
 STATEMENT_OF_VACCINATION_VALIDITY_HOURS = 40
 PROOF_OF_VACCINATION_VALIDITY_HOURS = 180 * 24
@@ -105,10 +114,9 @@ PROOF_OF_VACCINATION_VALIDITY_HOURS = 180 * 24
 
 def sign(data) -> List[Dict[str, Any]]:
     """
-    Returns a list of "testbewijzen". A proof of vaccination is valid for 180 days, but a testbewijs only 40 hours.
+    Returns a list of "statement of vaccination".
+    A proof of vaccination is valid for 180 days, but a "statement of vaccination" only 40 hours.
     So you need (180*24) = 4320 hours / 40 = 108 testbewijzen. Hope they don't have to print it.
-
-    todo: do they have to print 108 pieces of paper now? Or do they fit multiple qr's on a page?
 
     :param data:
     :return:
@@ -121,9 +129,10 @@ def sign(data) -> List[Dict[str, Any]]:
 
     for call in range(0, amount_of_calls):
 
-        # todo: exponential backoff, etc. 108 requests is pretty massive, so you also need a delay.
-        #  but the whole process needs to be done in 2 seconds. so: 18 milliseconds per call. Not gonna happen.
-        #  For now there will be a slighly longer delay.
+        # Note: 108 requests is pretty massive. So the backend has to scale very well.
+        # For the whole process to be completed in 2 seconds, it will be 18 milliseconds per call.
+        # This can be done in a threadpool, but at the same time just doing it syncronous will be 'good enough'
+        # and allows for simpler solutions.
         """
         # The response looks like this:
         {
@@ -157,11 +166,12 @@ def sign(data) -> List[Dict[str, Any]]:
           "error": 0
         }
         """
-        response = requests.post(
-            url=settings.DOMESTIC_NL_VWS_PAPER_SIGNING_URL,
+        response = request_post_with_retries(
+            settings.DOMESTIC_NL_VWS_PAPER_SIGNING_URL,
             data=signing_data,
             headers={'accept': 'application/json', "Content-Type": "application/json"},
         )
+        response.raise_for_status()
 
         # update the sample time:
         signing_data['attributes']['sampleTime'] += timedelta(hours=40)

@@ -185,6 +185,7 @@ STATIC_URL = '/static/'
 
 
 DOMESTIC_NL_VWS_PAPER_SIGNING_URL = ""
+DOMESTIC_NL_VWS_ONLINE_SIGNING_URL = ""
 
 
 # dev prod staging
