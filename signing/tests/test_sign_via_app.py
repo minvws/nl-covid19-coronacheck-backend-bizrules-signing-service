@@ -17,7 +17,7 @@ def test_sign_via_app_step_1(client, requests_mock, current_path, settings, mock
 
     # Create a test provider, ignore any other providers.
     provider = settings.APP_STEP_1_VACCINATION_PROVIDERS[0]
-    provider['identifier'] = "TEST"
+    provider['identifier'] = "GGD Region 5715"
     settings.APP_STEP_1_VACCINATION_PROVIDERS = [provider]
 
     # Make sure the nonce is always the same
@@ -35,7 +35,7 @@ def test_sign_via_app_step_1(client, requests_mock, current_path, settings, mock
     assert json_content == [
         {
             'event': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqd3QudGVzdC5jb3JvbmFjaGVjay5ubCIsImF1ZCI6Imh0dHBzOi8vZXhhbXBsZS5jb20vZXZlbnRzL3YyL2RhdGEvIiwiYnNuIjoiTURFeU16UTFOamM0T1RBeE1qTTBOVFkzT0Rrd01USXorNFZXTUJjelpJOHFMUGNoU1pzN0JwRFoySExVS1Q3UkVRPT0iLCJub25jZSI6Ik1ERXlNelExTmpjNE9UQXhNak0wTlRZM09Ea3dNVEl6IiwiaWF0IjoxNTgwNjAxNjAwLCJuYmYiOjE1ODA2MDE2MDAsImV4cCI6MTU4MDY4ODAwMCwiaWRlbnRpdHlfaGFzaCI6IktIVDdzU25yNGdoYlBaL1VQWk1tQWpyVFFpQjFFbDFtajJ3OEcyZksyZGc9In0.fHJDNiaDLE4vE1aB4r0S7sc-xfmh5Q5ptsMDwDg8db8',
-            'provider_identifier': 'TEST',
+            'provider_identifier': 'GGD Region 5715',
             'unomi': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqd3QudGVzdC5jb3JvbmFjaGVjay5ubCIsImF1ZCI6Imh0dHBzOi8vZXhhbXBsZS5jb20vdW5vbWkvdjIvIiwiaWF0IjoxNTgwNjAxNjAwLCJuYmYiOjE1ODA2MDE2MDAsImV4cCI6MTU4MDY4ODAwMCwiaWRlbnRpdHlfaGFzaCI6IktIVDdzU25yNGdoYlBaL1VQWk1tQWpyVFFpQjFFbDFtajJ3OEcyZksyZGc9In0.Wrz5fK4u4y8Ky3gNWPFfU9JK_ArUn50vp4QEInLdnqo',
         }
     ]

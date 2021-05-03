@@ -187,7 +187,8 @@ STATIC_URL = '/static/'
 # It's loaded once per application run, so any changes to this file requires an application reboot.
 # This approach prevents the usage of a database for just 30 records of data and makes the entire
 # set very portable.
-with open('signing/requesters/mobile_app_data/vaccinationproviders.json5') as f:
+# Example file: signing/requesters/mobile_app_data/vaccinationproviders.sample.json5
+with open('signing/secrets/vaccinationproviders.json5') as f:
     APP_STEP_1_VACCINATION_PROVIDERS = json5.load(f)
 
 

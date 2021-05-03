@@ -49,7 +49,7 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
     for vaccination_provider in settings.APP_STEP_1_VACCINATION_PROVIDERS:
 
         # Do not run the example.
-        if "EXAMPLE" in vaccination_provider['identifier']:
+        if "EXAMPLE" in vaccination_provider['identifier'] or "TEST" in vaccination_provider['identifier']:
             continue
 
         hash_input = "-".join([pii['BSN'], pii['first_name'], pii['last_name'], pii['day_of_birth']])

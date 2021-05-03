@@ -124,7 +124,6 @@ Below example shows a QR code for a domestic signer.
             "birthMonth": "4",
             "isSpecimen": "0",
             "isPaperProof": "1",
-            "testType": "pcr",
           },
         },
         "status": "ok",
