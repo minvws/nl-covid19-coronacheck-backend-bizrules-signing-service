@@ -6,9 +6,8 @@ def pending():
     return {'state': 'pending'}
 
 
-def qr(qr_data):
-    qr_data['state'] = "finished"
-    return qr_data
+def signatures(data):
+    return {'signatures': data, 'state': "finished"}
 
 
 def error(errors: List[str]):

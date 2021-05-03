@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+import json5
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -128,6 +131,38 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': "[%(levelname)s] [%(asctime)-15s] [%(name)s:%(lineno)s] %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S",
+        },
+        'syslogformat': {
+            'format': "inge4 [%(levelname)s] [%(asctime)-15s] [%(name)s:%(lineno)s] %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S",
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'syslog': {
+            'class': 'logging.handlers.SysLogHandler',
+            'formatter': 'syslogformat',
+            'facility': 'user',
+            'address': '/dev/log',
+        },
+    },
+    'loggers': {
+        'django': {'handlers': ['console'], 'level': 'INFO', 'disabled': False, 'propagate': True},
+        'inge4': {'handlers': ['syslog'], 'level': 'INFO', 'propagate': True},
+        'signing': {'handlers': ['syslog'], 'level': 'INFO', 'propagate': True},
+        'two_factor': {'handlers': ['console'], 'level': 'INFO'},
+    },
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
@@ -152,8 +187,6 @@ STATIC_URL = '/static/'
 # It's loaded once per application run, so any changes to this file requires an application reboot.
 # This approach prevents the usage of a database for just 30 records of data and makes the entire
 # set very portable.
-import json5
-
 with open('signing/requesters/mobile_app_data/vaccinationproviders.json5') as f:
     APP_STEP_1_VACCINATION_PROVIDERS = json5.load(f)
 

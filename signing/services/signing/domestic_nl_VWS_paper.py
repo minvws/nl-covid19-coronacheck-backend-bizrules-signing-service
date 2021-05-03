@@ -1,3 +1,4 @@
+import logging
 from datetime import date, timedelta
 from math import ceil
 from typing import Any, Dict, List
@@ -7,6 +8,8 @@ from django.utils import timezone
 from django.conf import settings
 
 from signing.eligibility import vaccinations_conform_to_vaccination_policy
+
+log = logging.getLogger(__package__)
 
 
 def is_eligible(data):
@@ -21,14 +24,15 @@ def is_eligible(data):
 
     # only "GP"'s are allowed to directly request a proof of vaccination.
     if not data.get('source', None) == "inge3":
+        log.debug("Source of vaccination is not inge3, not elibile for signing.")
         return False
 
-    # if has commitments: no go.
+    # todo: if has commitments: no go. (perhaps nn because of inge3)
 
-    if not vaccinations_conform_to_vaccination_policy(data):
-        return False
+    if vaccinations_conform_to_vaccination_policy(data):
+        return True
 
-    return True
+    return False
 
 
 def vaccination_event_data_to_signing_data(data):
@@ -70,7 +74,7 @@ def vaccination_event_data_to_signing_data(data):
             "birthDay": "27",
             "birthMonth": "4",
 
-            # todo: what is specimen? fake data? that increases complexity. Prefer to mocked data over extra attributes
+            # Used for testing in production.
             "isSpecimen": true
         },
         "key": "VWS-TEST-0"
@@ -89,7 +93,7 @@ def vaccination_event_data_to_signing_data(data):
             "lastNameInitial": data['holder']['lastName'][0:1],
             "birthDay": person_date.day,
             "birthMonth": person_date.month,
-            "isSpecimen": False,
+            "isSpecimen": data.get('isSpecimen', False),
         },
         "key": "inge4",
     }
@@ -115,7 +119,7 @@ def sign(data) -> List[Dict[str, Any]]:
 
     proof_of_vaccination = []
 
-    for call in range(0, amount_of_calls + 1):
+    for call in range(0, amount_of_calls):
 
         # todo: exponential backoff, etc. 108 requests is pretty massive, so you also need a delay.
         #  but the whole process needs to be done in 2 seconds. so: 18 milliseconds per call. Not gonna happen.
@@ -156,7 +160,7 @@ def sign(data) -> List[Dict[str, Any]]:
         response = requests.post(
             url=settings.DOMESTIC_NL_VWS_PAPER_SIGNING_URL,
             data=signing_data,
-            header={'accept': 'application/json', "Content-Type": "application/json"},
+            headers={'accept': 'application/json', "Content-Type": "application/json"},
         )
 
         # update the sample time:

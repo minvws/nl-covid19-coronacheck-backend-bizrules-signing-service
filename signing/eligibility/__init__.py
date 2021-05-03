@@ -42,10 +42,15 @@ Generic eligibility methods used in checking eligibility in signing services.
 }
 """
 
+import logging
+
 HPK_ASTRAZENECA = 2925508
 HPK_PFIZER = 2924528
 HPK_MODERNA = 2924536
 HPK_JANSSEN = 2934701
+
+
+log = logging.getLogger(__package__)
 
 
 def normalize_vaccination_events(vaccination_events):
@@ -63,6 +68,7 @@ def vaccinations_conform_to_vaccination_policy(data):
     vaccination_events = data.get('events', {})
 
     if not_vaccinated_at_all(vaccination_events):
+        log.debug("No vaccination received at all: not eligible for signing.")
         return False
 
     if had_one_time_janssen(vaccination_events):
@@ -71,20 +77,23 @@ def vaccinations_conform_to_vaccination_policy(data):
     if had_two_vaccinations_or_more(vaccination_events):
         return True
 
+    log.debug("Failed to meet any signing condition: not eligible for signing.")
     return False
 
 
 def had_one_time_janssen(vaccination_events):
-    for vaccination_events in vaccination_events:
+    for vaccination_event in vaccination_events:
         # todo: regardless of type of event (types of event need to be specified):
-        if vaccination_events[vaccination_events['type']]['hpkCode'] == HPK_JANSSEN:
+        if vaccination_event[vaccination_event['type']]['hpkCode'] == HPK_JANSSEN:
             return True
+    return False
 
 
 def had_two_vaccinations_or_more(vaccination_events):
     # todo: this is probably a very nearsighted implementation.
-    if len(vaccination_events) > 2:
+    if len(vaccination_events) >= 2:
         return True
+    return False
 
 
 def not_vaccinated_at_all(vaccination_events):

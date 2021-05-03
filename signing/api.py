@@ -26,16 +26,16 @@ def sign_via_app_step_2(data):
     return process(mobile_app, data)
 
 
-def process(module: [inge3, mobile_app], data: Dict[str, Any]):
+def process(signing_requester: [inge3, mobile_app], data: Dict[str, Any]):
     # Abstracted because the process is the same, only the initial data is different.
 
     # If there already a request, then don't start a new one. Only need to start one request.
-    errors = module.validate(data)
+    errors = signing_requester.validate(data)
     if errors:
         return responses.error(errors)
 
     # Probably a call to SBV-Z.
-    enriched_data = module.enrich()
+    enriched_data = signing_requester.enrich(data)
 
     # Due to (geo)political reasons there might be multiple signing providers, for example for certain counties
     # outside the EU. Or a provider might be obsoleted.
@@ -44,4 +44,4 @@ def process(module: [inge3, mobile_app], data: Dict[str, Any]):
         if module.is_eligible(enriched_data):
             qr_data[provider_name] = module.sign(enriched_data)
 
-    return responses.qr(qr_data)
+    return responses.signatures(qr_data)

@@ -55,7 +55,7 @@ def validate(data) -> List[str]:
 
     errors = []
 
-    holder = data.get('holder', None)
+    holder = data.get('holder', {})
     if not holder:
         errors += ['Missing holder information.']
 
@@ -70,7 +70,7 @@ def validate(data) -> List[str]:
 
     try:
         date.fromisoformat(data['holder']['birthDate'])
-    except ValueError:
+    except (ValueError, KeyError):
         errors += ['Birthdate not in ISO format.']
 
     # the rule engine determines eligibility. This is very complex. We only expect just one vaccination event here.

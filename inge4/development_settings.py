@@ -36,3 +36,25 @@ DATABASES = {
         'PASSWORD': 'postgres',
     },
 }
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': "inge4 [%(levelname)s] [%(asctime)-15s] [%(name)s:%(lineno)s] %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S",
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {'handlers': ['console'], 'level': 'DEBUG', 'disabled': False, 'propagate': True},
+        'inge4': {'handlers': ['console'], 'level': 'DEBUG', 'propagate': True},
+        'signing': {'handlers': ['console'], 'level': 'DEBUG', 'propagate': True},
+    },
+}
