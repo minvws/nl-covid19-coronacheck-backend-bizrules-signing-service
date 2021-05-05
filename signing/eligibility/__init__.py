@@ -54,28 +54,60 @@ log = logging.getLogger(__package__)
 
 
 def normalize_vaccination_events(vaccination_events):
-    # Todo: how are vaccination events normalized.
+    # Todo: how are vaccination events normalized. Can they be normalized?
     # when the hpkcode is entered, the type and brand can be empty.
     # What kind can i expect? Is this specified in open API somewhere?
     raise NotImplementedError
 
 
 def vaccinations_conform_to_vaccination_policy(data):
-    # Todo: get latest ruleset, this is going to be complex, so every rule needs a self-describing helper function with
-    #  a simple check.
-    # Todo: each of these rules needs to be thouroughly documented, for example with news articles
-    #  or announcements. Its very easy to loose track of them otherwise.
+    """
+    The vaccination passport rules change on a day to day basis. What you see here, and below may be
+    outdated by far when you read this. Don't currently take below code as an absolute.
 
-    # We want _all_ data, as policy can be very complex and confusing and perhaps depending on various countries.
-    # Because of this uncertainty the entire vaccination_event_api data is used here.
+    https://docs.google.com/spreadsheets/d/1d66HXvh9bxZTwlTqaxxqE-IKmv22MkB8isZj87a-kaQ/edit#gid=0
+
+    There might be differences in EU and NL regulations, depending on allowing half-vaccination passports.
+
+    We all have the rule that a medical health professional (GP) "OK" (vaccinationCompleted).
+
+    Perhaps the return value of this method is the duration in days of validity of signing.
+    It's not clear where that duration has to be placed, sent or communicated to anything.
+
+    todo: how to check on 1 positive serological test
+    todo: how to check on 1 antigen test
+    todo: how to check on 1 breathalizer test (?)
+    todo: how to deal with two different vaccines
+    todo: how to deal with 1/2 scenarios
+    todo: how to deal with 1 positive PCR test?
+    todo: how to deal with vaccination information from other eu states
+    todo: what happens if there is a mix of vaccinations and brands?
+
+    :param data:
+    :return:
+    """
+
+    # Because of the complexity of the rules, we want all data that was submitted to obtain a proof of vaccination.
+    # There might be more complex rules in the future depending on unknown factors.
     vaccination_events = data.get('events', {})
 
     if not_vaccinated_at_all(vaccination_events):
         log.debug("No vaccination received at all: not eligible for signing.")
         return False
 
-    if had_one_time_janssen(vaccination_events):
-        log.debug("1x janssen found, eligible for signing.")
+    # Health professional is authoritative, so that case goes first.
+    if health_professional_states_patient_is_sufficiently_vaccinated(vaccination_events):
+        # health professional / GP says that the patient is sufficiently vaccinated. This can be for many
+        # reasons that go beyond the documentation here. Some examples:
+        # - Patient stated or was recorded with prior covid
+        # - Patient received vaccination elsewhere (foreign country) but lost their recording
+        # - Anything else where a GP is confident the person is immune to covid.
+        log.debug("Health professional stated patient is vaccinated.")
+        return True
+
+    # At least once.
+    if had_vaccine_that_only_needs_one_vaccination(vaccination_events):
+        log.debug("Person had a vaccine that requires only one dose, eligible for signing.")
         return True
 
     if had_two_vaccinations_or_more(vaccination_events):
@@ -85,10 +117,14 @@ def vaccinations_conform_to_vaccination_policy(data):
     return False
 
 
-def had_one_time_janssen(vaccination_events):
+def had_vaccine_that_only_needs_one_vaccination(vaccination_events):
+    # todo: there might / will be different codes from other countries.
+    # Via a doctor this can always be solved with a vaccinationcompleted.
+
+    vaccines_that_need_one_dose = [str(HPK_JANSSEN)]
     for vaccination_event in vaccination_events:
         # todo: regardless of type of event (types of event need to be specified):
-        if vaccination_event[vaccination_event['type']]['hpkCode'] == str(HPK_JANSSEN):
+        if vaccination_event[vaccination_event['type']]['hpkCode'] in vaccines_that_need_one_dose:
             return True
     return False
 
@@ -97,6 +133,13 @@ def had_two_vaccinations_or_more(vaccination_events):
     # todo: this is probably a very nearsighted implementation.
     if len(vaccination_events) >= 2:
         return True
+    return False
+
+
+def health_professional_states_patient_is_sufficiently_vaccinated(vaccination_events):
+    for vaccination_event in vaccination_events:
+        if vaccination_event['type'] == "vaccinationCompleted":
+            return True
     return False
 
 
