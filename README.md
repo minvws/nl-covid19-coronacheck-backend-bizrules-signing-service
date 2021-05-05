@@ -15,6 +15,29 @@ There are N requesters (printportaal, inge3, mobile_app). There are also N signi
 domestic on app, european). The N to N relation is performed in api.py.
 
 
+## Installation
+Create the required secrets that are used in settings.py. Usually these are stored in 
+`SECRETS_FOLDER`, defaulting to "signing/secrets".
+
+The secrets needed are:
+
+- vaccinationproviders.json5 - a database of vaccination providers, used for the mobile app
+- jwt_private.key - For jwt sigingin in the mobile app
+- svbz-connect.test.brba.nl.cert - For data enrichment in the mobile app
+
+Some examples are stored in 'signing/tests/secrets'. Do NOT use these examples in production!
+
+For development run:
+`make run`
+
+For production use the wsgi file in inge4.
+
+You can test if the service is running by requesting:
+```txt
+http://localhost:8000/signing/
+```
+
+
 ## Process overview
 
 This software currently supports two processses:

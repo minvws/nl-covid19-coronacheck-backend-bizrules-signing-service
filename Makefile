@@ -74,7 +74,3 @@ clean: clean_venv
 clean_venv:  # Remove venv
 	@echo "Cleaning venv"
 	@rm -rf .venv
-
-keys: secrets/vcbe_db_nacl_fields.key ## Generate random keys needed to run the application.
-secrets/vcbe_db_nacl_fields.key:
-	. .venv/bin/activate && ${env} python3 signing/tests/generate_test_keys.py
