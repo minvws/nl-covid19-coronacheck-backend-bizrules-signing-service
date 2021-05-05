@@ -37,6 +37,11 @@ You can test if the service is running by requesting:
 http://localhost:8000/signing/
 ```
 
+For inge3, send your vaccination events to here: 
+```txt
+http://localhost:8000/signing/sign_via_inge3/
+```
+
 
 ## Process overview
 
