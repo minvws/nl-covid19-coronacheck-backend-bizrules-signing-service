@@ -81,7 +81,8 @@ def test_sign_via_app_step_1(client, requests_mock, testsecrets, current_path, m
     public_key = PublicKey(base64.b64decode(vaccination_provider['bsn_cryptography']['public_key'].encode('UTF-8')))
     box = Box(private_key, public_key)
 
-    # todo: nonce is not used when decrypting. Its just to add some noise to the data?
+    # nonce is not used when decrypting. Its just to add some noise to the data. It's not a nonce gathered externally.
+    # todo: better document/explain why the nonce is discarded.
     bsn = box.decrypt(base64.b64decode(event['bsn'])).decode('UTF-8')
     assert bsn == '999999138'
 
