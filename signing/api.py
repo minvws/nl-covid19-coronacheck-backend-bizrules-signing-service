@@ -1,6 +1,7 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 from signing import responses
 from signing.requesters import inge3, mobile_app, mobile_app_step_1
+from signing.services.enrichment.sbvz import enrich_for_health_professional_inge3
 
 from signing.services.signing import domestic_nl_VWS_paper, domestic_nl_VWS_online, international_eu_RVIG
 
@@ -11,6 +12,11 @@ signing_providers = {
     'domestic_nl_vws_dynamic': domestic_nl_VWS_online,
     'international_eu_rvig': international_eu_RVIG,
 }
+
+
+def enrich_data_for_health_professional_inge3(data) -> Tuple[List[str], Dict[str, str]]:
+    bsn = data.get("bsn", "")
+    return enrich_for_health_professional_inge3(bsn)
 
 
 def sign_via_inge3(data: Dict[str, Any]):

@@ -3,6 +3,10 @@
 This service signs "Statement of Vaccination" documents, converting them to a "Proof of Vaccination"
 Todo, check: A "Proof of Vaccination" consists out of hundreds of sequential Test Statements, each valid for 40 hours.
 
+# todo
+
+- Add token for functionality.
+
 ## Requirements
 
 - Respond within 2 seconds

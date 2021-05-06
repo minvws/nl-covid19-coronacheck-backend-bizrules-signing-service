@@ -78,18 +78,46 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
             "nonce": base64.b64encode(nonce).decode('UTF-8'),
         }
 
-        log.error({**unomi_data, **generic_data})
-        log.error({**event_data, **generic_data})
+        # todo: the messages seem to change per day or so. There is some instability in the test.
+        # adjusting the clock doesn't work, so something else is dynamic
+        # The joining of {**generic_data, **unomi_data} results in different dictionaries depending on data.
+        """
+        unomi:
+        {
+            'iss': 'jwt.test.coronacheck.nl', 
+            'aud': 'https://example.com/unomi/v2/', 
+            'iat': FakeDatetime(2020, 2, 2, 0, 0, tzinfo=<UTC>), 
+            'nbf': FakeDatetime(2020, 2, 2, 0, 0, tzinfo=<UTC>), 
+            'exp': FakeDatetime(2020, 2, 3, 0, 0, tzinfo=<UTC>), 
+            'identity_hash': 'RiPfA9OZhj0aXXXRCr1g11Zbp0MTnheFl/bI0H2SBHM='
+        }
+
+        event:
+        {
+            'iss': 'jwt.test.coronacheck.nl', 
+            'aud': 'https://example.com/events/v2/data/', 
+            'bsn': 'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz+4VWMBczZI8qLPchSZs7BpDZ2HLUKT7REQ==', 
+            'nonce': 'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz', 
+            'iat': FakeDatetime(2020, 2, 2, 0, 0, tzinfo=<UTC>), 
+            'nbf': FakeDatetime(2020, 2, 2, 0, 0, tzinfo=<UTC>), 
+            'exp': FakeDatetime(2020, 2, 3, 0, 0, tzinfo=<UTC>), 
+            'identity_hash': 'RiPfA9OZhj0aXXXRCr1g11Zbp0MTnheFl/bI0H2SBHM='
+        }
+        """
+        # Note that the order of the dictionary matters for the jwt encoding.
+        # And by merging dictionaries by kwargs, the order is unreliably shuffled it seems, therefore
+        # it was not possible to create a stable test case.
+        # Therefore sort the dictionaries by key to create a consistent call.
+        unomi_jwt_data = {**generic_data, **unomi_data}
+        event_jwt_data = {**generic_data, **event_data}
+        unomi_jwt_data = dict(sorted(unomi_jwt_data.items(), key=lambda kv: kv[0]))
+        event_jwt_data = dict(sorted(event_jwt_data.items(), key=lambda kv: kv[0]))
 
         tokens.append(
             {
                 "provider_identifier": vaccination_provider['identifier'],
-                "unomi": jwt.encode(
-                    {**unomi_data, **generic_data}, settings.APP_STEP_1_JWT_PRIVATE_KEY, algorithm="HS256"
-                ),
-                "event": jwt.encode(
-                    {**event_data, **generic_data}, settings.APP_STEP_1_JWT_PRIVATE_KEY, algorithm="HS256"
-                ),
+                "unomi": jwt.encode(unomi_jwt_data, settings.APP_STEP_1_JWT_PRIVATE_KEY, algorithm="HS256"),
+                "event": jwt.encode(event_jwt_data, settings.APP_STEP_1_JWT_PRIVATE_KEY, algorithm="HS256"),
             }
         )
 

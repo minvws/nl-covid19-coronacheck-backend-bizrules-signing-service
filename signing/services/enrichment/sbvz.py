@@ -76,8 +76,19 @@ def call_app_step_1(bsn: str) -> Tuple[List[str], Dict[str, str]]:
 
     # todo: is normalizing coorrect? this cause some misrepresentation with icelandic names for example.
     return [], {
-        'BSN': str(bsn),
+        # Do not return a complete bsn, to minimize the pii exchanged
+        'BSN': censor_bsn(bsn),
         'first_name': unidecode(first_name),
         'last_name': unidecode(last_name),
         'day_of_birth': day_of_birth,
     }
+
+
+def enrich_for_health_professional_inge3(bsn: str) -> Tuple[List[str], Dict[str, str]]:
+    # health professional can ask to enrich data
+    # this is optional, in case a person has no BSN, the same data as requested is sent.
+    return call_app_step_1(bsn)
+
+
+def censor_bsn(bsn):
+    return f"******{str(bsn)[-3:]}"
