@@ -1,0 +1,104 @@
+@startuml
+' Training by Ben Peachy
+' https://plantuml.com/sequence-diagram
+' Manual: https://plantuml-documentation.readthedocs.io/en/latest/index.html
+' QA: https://forum.plantuml.net/
+' Use Plantuml for pycharm
+' Rendering:
+' Plattext.com
+' http://www.plantuml.com/plantuml/
+' Alle shapes: https://plantuml.com/deployment-diagram
+' Shared methods or skinparams / includes: https://plantuml.com/preprocessing#393335a6fd28a804
+' Messages in this UML scheme are shown in openapi.yaml
+
+skinparam {
+
+    ' True for "uncertain things" protip by Ben
+    Handwritten false
+    Monochrome false
+    shadowing false
+
+    defaultFontName RijksoverheidSansWebText
+
+    boundary {
+        BorderColor #1D71B8
+        BackgroundColor #white
+    }
+
+    database {
+        BorderColor #1D71B8
+        BackgroundColor #white
+    }
+
+    NoteBorderColor #CC0
+
+    sequence {
+        arrowColor #1D71B8
+
+        boxBorderColor none
+        boxBackgroundColor #EEE
+
+        actor {
+            BorderColor #5715CC
+            BackgroundColor white
+        }
+
+
+        participant {
+            BorderColor #1D71B8
+            BackgroundColor #white
+        }
+
+        lifeLine {
+            BorderColor #1D71B8
+            BackgroundColor #92D2EF
+        }
+    }
+}
+
+participant "Inge 3" as inge3
+participant "Inge 4 /  Signing Router" as inge4
+participant "SBV-Z / BVBSN / BRP" as sbvz
+participant "DomesticPaperSigningProvider (VWS)" as provider
+
+
+== ACTORS ==
+
+inge3 --> inge4
+inge4 --> sbvz
+inge4 --> provider
+
+== FLOW ==
+
+autonumber
+
+alt enrich pii using BSN
+    inge3 -> inge4: PIIEnrichmentRequest **(encrypted BSN)**
+    activate inge4
+        inge4 -> sbvz : OpvragenPersoonsgegevensVraagBericht
+        sbvz -> inge4 : OpvragenPersoonsgegevensAntwoordBericht
+        inge4 -> inge4 : minimize data
+        inge4 -> inge3 : EnrichedPII
+    deactivate inge4
+end alt
+
+
+autonumber 100
+
+inge3 -> inge4 : StatementOfVaccination
+activate inge4
+    inge4 -> inge4 : Check eligibility
+    alt not eligible
+       inge4 -> inge3 : ErrorResponse
+    end alt
+    inge4 -> inge4 : minimize data / create PaperSigningRequest
+    inge4 -> provider : PaperSigningRequest (108x)
+    alt signing error
+        inge4 -> inge3 : ErrorResponse
+    end alt
+    provider -> inge4: SingleDomesticVaccinationResponse
+
+    inge4 -> inge3: SignaturePerProviderResponse
+deactivate inge4
+
+@enduml

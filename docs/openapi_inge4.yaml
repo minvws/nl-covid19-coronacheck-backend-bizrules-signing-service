@@ -1,0 +1,304 @@
+components:
+  responses:
+    BadRequestResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestResponse'
+      description: Bad request
+    UnauthorisedResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedResponse'
+      description: Bad request
+    HelloMessage:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HelloMessage'
+      description: Hello Message
+    SignaturePerProviderResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SignaturePerProviderResponse'
+      description: Signing codes from all applicable signers
+  schemas:
+    HelloMessage:
+      properties:
+        message:
+          description: "A welcome message"
+          type: string
+          example: "Hello from Inge-4"
+    ErrorReply:
+      properties:
+        errors:
+          items:
+            type: string
+          type: array
+          example: [
+              "Some error occurred"
+          ]
+    BadRequestResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorReply'
+    UnauthorizedResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorReply'
+
+    StatementOfVaccination:
+      type: object
+      properties:
+        protocolVersion:
+          type: string
+          example: "3.0"
+          description: "The semantic version of this API"
+        providerIdentifier:
+          type: string
+          example: "XXX"
+          description: "todo"
+        status:
+          type: string
+          example: "complete"
+          enum: [complete, todo]
+        identityHash:
+          type: string
+          example: "todo"
+          description: "The identity-hash belonging to this person"
+        holder:
+          $ref: '#/components/schemas/Holder'
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/VaccinationEvent'
+
+    Holder:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: "Herman"
+          description: "First name of this person. Todo: how is this used"
+        lastName:
+          type: string
+          example: "Acker"
+          description: "Last name of this person."
+        birthDate:
+          type: string
+          example: "1970-01-01"
+          description: "ISO 8601 date string (large to small, YYYY-MM-DD)"
+
+    VaccinationEvent:
+      properties:
+        type:
+          type: string
+          enum: [Vaccination, VaccinationCompleted]
+          example: 'Vaccination'
+          description: 'At least 64 characters. A wrong token will lock you out for a few seconds.'
+        unique:
+          type: string
+          pattern: ^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$
+          example: '7b1c6012-5717-1337-98e7-5e4e3dc4b664'
+          description: 'UUID that is a unique vaccination code.'
+        # todo how to inherit this in vaccinationcompleted?
+        vaccination:
+          type: object
+          properties:
+            type:
+              type: string
+            date:
+              type: string
+            brand:
+              type: string
+            batchNumber:
+              type: string
+              example: "EJ6795"
+              description: "Batch number of the vaccin."
+            mah:
+              type: string
+              description: "Manufacturer of the vaccin."
+            country:
+              type: string
+              description: "ISO 3166-1 (3 letter code) of a country. This is the country where the vaccination has been administered."
+            administeringCenter:
+              type: string
+              description: "Can be left blank"
+          required: [type, date, brand, batchNumber, mah, country]
+      required: [type, unique, vaccination]
+
+
+
+    # {
+    #        "ism": {
+    #            "proof": {
+    #                "c": "tHk+nswA/VSgQR41o+NlPEZUlBCdVbV7IK50/lrK0jo=",
+    #                "e_response": "PfjLNp/UBFogQb88UQEArTQj4/mkg6zTFOg0UUGVsa9EQBCaZYG07AVgzrr7X5CterCGYcbV6DZEqCoP/UyknzL2fOeC5f1kqp/W69GIRqVFV2Cyjz6aITNQQBaiM4KkM21Cs2i32cmsPMC1GSW72ORpU0mPmP1RzWf0MuUdIQ=="
+    #            },
+    #            "signature": {
+    #                "A": "ONKxjtJQUqMXolC0OltT2JWPua/7XqcFSuuCxNo25jh71C2S98JDYlSc2rkVC0G/RTNdY/gPfRWfzNOGIJvxSS3zRrnPBLFvG6Zo4rzIjsF+sQoIeUE/FNSAHTi7yART7MJIEbkHxn95Jw/dG8hTppbt1ALYpTXdKao6yFKRF0E=",
+    #                "e": "EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa2ORygGdQClk2+FZuHl/",
+    #                "v": "DJurgTXsDZgXHihHYpXwH81gmH+gan22XUPT07SiwuGdqNi1ikHDcXWSuf7Yae+nSIWh3fyIEoyIdNvloycrljVU7cClklrOLAsOyU45W07cjbBQATQmavoBsyZZaG/b/4aJFhfcuYHv6J72/8rm1UVqyk0i/0ROw/JukxbOFwkXm6FpfF2XUf3HvnSgEAbxPebxm5UKej7DxXx3fpHdELMKiyBICQjN0r6MwCU3PhbynISrjdbQsveeBh9id3O/kFISqMANSp6QmNPZ0jd4pOivOLFS",
+    #                "KeyshareP": null
+    #            }
+    #        },
+    #        "attributes": ["", ""]
+    #    }
+    DomesticDynamicVaccinationResponse:
+      type: object
+      properties:
+        ism:
+          type: object
+          properties:
+            proof:
+              type: object
+              properties:
+                c:
+                  type: string
+                  example: "tHk+nswA/VSgQR41o+NlPEZUlBCdVbV7IK50/lrK0jo="
+                  description: "todo: describe"
+                e_response:
+                  type: string
+                  example: "PfjLNp/UBFogQb88UQEArTQj4/mkg6zTFOg0UUGVsa9EQBCaZYG0..."
+                  description: "todo: describe"
+            signature:
+              type: object
+              properties:
+                A:
+                  type: object
+                  example: "NKxjtJQUqMXolC0OltT2JWPua/7XqcFSuuCxNo25..."
+                  description: "todo: describe"
+                e:
+                  type: object
+                  example: "EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA..."
+                  description: "todo: describe"
+                v:
+                  type: object
+                  example: "DJurgTXsDZgXHihHYpXwH81gmH+gan22XUPT07Siw..."
+                  description: "todo: describe"
+                KeyshareP:
+                  type: object
+                  example: ""
+        "attributes":
+          type: object
+          example: "NKxjtJQUqMXolC0OltT2JWPua/7XqcFSuuCxNo25..."
+          description: "todo: describe"
+
+    SingleDomesticStaticVaccinationResponse:
+      type: object
+      properties:
+        qr:
+          type: string
+          example: 'TF+*JY+21:6 T%NCQ+ PVHDDP+Z-WQ8-TG/O3NLFLH3:FHS-RIFVQ:UV57K/.:R6+. .....'
+          description: 'QR Code data (todo: encoded in)'
+        attributesIssued:
+          type: object
+          properties:
+            sampleTime:
+              type: string
+              example: 'Unix timestamp cast as a string of integers.'
+              description: "At which time the QR was issued. From this moment the QR is valid for a limited time.
+                  Usually this is 40 hours."
+            firstNameInitial:
+              type: string
+              example: 'E'
+              description: "First letter of the first name of the person the QR is issued for."
+            lastNameInitial:
+              type: string
+              example: 'J'
+              description: "First letter of the last name of the person the QR is issued for."
+            birthDay:
+              # todo: make list of values
+              type: string
+              example: '27'
+              description: "Day (not date!) of birth."
+            birthMonth:
+              type: string
+              example: '4'
+              description: "Month (not date!) of birth."
+            isSpecimen:
+              enum:
+                - "1"
+                - "0"
+              type: string
+              example: '1'
+              description: "Boolean cast as string, if this is a testcase. To facilitate testing in production."
+            isPaperProof:
+              # todo: make list of values.
+              type: string
+              example: '1'
+              description: "Boolean cast as string. If this is used on a paper proof of vaccination"
+        status:
+          # todo: make list of values.
+          type: string
+          example: "ok"
+        error:
+          type: integer
+          example: 0
+          description: "??"
+
+    MultipleDomesticStaticVaccinationResponse:
+        type: array
+        description: 'A series of 108 QR codes with PII data in that QR.'
+        items:
+            $ref: '#/components/schemas/SingleDomesticStaticVaccinationResponse'
+
+
+    SignaturePerProviderResponse:
+      type: object
+      description: "Only returned if applicable"
+      properties:
+        domestic_nl_vws_static:
+          $ref: '#/components/schemas/MultipleDomesticStaticVaccinationResponse'
+        domestic_nl_vws_dynamic:
+          $ref: '#/components/schemas/DomesticDynamicVaccinationResponse'
+
+  # todo
+  # securitySchemes:
+  #   API_KEY:
+  #     type: apiKey
+  #     in: query
+  #     name: ACCESS_TOKEN
+info:
+  contact:
+    email: support@brba.nl
+    name: BRBA Support Desk
+  description: ""
+  license:
+    name: EUPL 1.2
+    url: https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  termsOfService: ''
+  title: Inge-4 API Specification
+  version: 0.0.1
+  x-logo:
+    altText: Inge-4 Logo
+    backgroundColor: '#FFFFFF'
+    url: https://todo
+openapi: 3.0.3
+paths:
+  /:
+    get:
+      description: 'Server hello message, to verify the server is running.'
+      operationId: metadata_report
+      responses:
+        '200':
+          $ref: '#/components/responses/HelloMessage'
+      summary: Hello
+  /signing/sign_via_inge3/:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatementOfVaccination'
+        required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/SignaturePerProviderResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorisedResponse'
+      summary: Sign for half a year at the GP's office. (Static / Paper flow)
+# security:
+#   - API_KEY: [ ]

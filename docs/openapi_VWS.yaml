@@ -1,0 +1,116 @@
+components:
+  responses:
+    SingleDomesticStaticVaccinationResponse:
+      content:
+        application/json:
+          schema:
+            $ref: 'openapi_inge4.yaml#/components/schemas/SingleDomesticStaticVaccinationResponse'
+      description: Multiple Vaccination responses valid for half a year (108 pieces)
+    DomesticDynamicVaccinationResponse:
+      content:
+        application/json:
+          schema:
+            $ref: 'openapi_inge4.yaml#/components/schemas/DomesticDynamicVaccinationResponse'
+      description: todo
+  schemas:
+
+    # {
+    #   "attributes": {
+    #            "sampleTime": "2021-04-22T12:00:00Z",
+    #            "firstNameInitial": "B",
+    #            "lastNameInitial": "B",
+    #            "birthDay": "27",
+    #            "birthMonth": "4",
+    #
+    #            # Used for testing in production.
+    #            "isSpecimen": true
+    #        },
+    #        "key": "VWS-TEST-0"
+    #    }
+    PaperSigningRequest:
+      type: object
+      properties:
+        attributes:
+          type: object
+          properties:
+            sampleTime:
+              type: datetime
+              example: "2021-04-22T12:00:00Z"
+              description: "ISO datetime with timezone information"
+            firstNameInitial:
+              example: "E"
+              type: string
+              description: "First letter of the first name of this person"
+            lastNameInitial:
+              example: "J"
+              type: string
+              description: "First letter of the last name of this person"
+            birthDay:
+              # todo: make list of values
+              type: string
+              example: '27'
+              description: "Day (not date!) of birth."
+            birthMonth:
+              type: string
+              example: '4'
+              description: "Month (not date!) of birth."
+            isSpecimen:
+              enum: [ "0", "1" ]
+              type: string
+              example: '1'
+              description: "Boolean cast as string, if this is a testcase. To facilitate testing in production."
+        key:
+          type: string
+          example: "VWS-TEST-0"
+          description: "todo"
+
+    OnlineSigningRequest:
+      type: object
+      properties:
+        nonce:
+          example: "MB4CEEl6phUEfUcOWLWHEHQ6/zYTClZXUy1URVNULTA="
+          type: string
+          description: "todo: explain how this is made"
+        commitments:
+          example: "todo: explain how this is made"
+          type: string
+          description: "Encrypted data (todo how) with information..."
+      allOf:
+       - $ref: '#/components/schemas/PaperSigningRequest'
+
+info:
+  description: "VWS Services for signing for Domestic NL Use."
+  license:
+    name: EUPL 1.2
+    url: https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  termsOfService: ''
+  title: VWS API Specification
+  version: 0.0.1
+openapi: 3.0.3
+paths:
+  /static/:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaperSigningRequest'
+        required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleDomesticStaticVaccinationResponse'
+      summary: Static Request, used for GP's office
+  /Dynamic/:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnlineSigningRequest'
+        required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/DomesticDynamicVaccinationResponse'
+      summary: Dynamic Request used for mobile apps
+# security:
+#   - API_KEY: [ ]
