@@ -153,6 +153,6 @@ try:
 
     APP_STEP_1_JWT_PRIVATE_KEY = open(f'{SECRETS_FOLDER}/jwt_private.key', 'rb').read()
 
-    SBVZ_CERT = f'{SECRETS_FOLDER}/svbz-connect.test.brba.nl.cert'
+    SBVZ_CERT = f'{SECRETS_FOLDER}/sbvz-connect.test.brba.nl.cert'
 except FileNotFoundError as file_error:
     print(f"Could not find all decryption keys. Tests will work, but this will not work in production. {file_error}")

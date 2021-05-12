@@ -24,6 +24,6 @@ def testsecrets(settings, current_path):
 
     settings.APP_STEP_1_JWT_PRIVATE_KEY = open(f'{settings.SECRETS_FOLDER}/jwt_private.key', 'rb').read()
 
-    settings.SBVZ_CERT = f'{settings.SECRETS_FOLDER}/svbz-connect.test.brba.nl.cert'
+    settings.SBVZ_CERT = f'{settings.SECRETS_FOLDER}/sbvz-connect.test.brba.nl.cert'
 
     yield settings

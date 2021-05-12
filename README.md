@@ -27,7 +27,7 @@ The secrets needed are:
 
 - vaccinationproviders.json5 - a database of vaccination providers, used for the mobile app
 - jwt_private.key - For jwt sigingin in the mobile app
-- svbz-connect.test.brba.nl.cert - For data enrichment in the mobile app
+- sbvz-connect.test.brba.nl.cert - For data enrichment in the mobile app
 
 Some examples are stored in 'signing/tests/secrets'. Do NOT use these examples in production!
 
