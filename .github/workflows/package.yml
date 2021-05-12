@@ -26,7 +26,7 @@ jobs:
         run: 'echo "{ \"version\": \"${{ env.RELEASE_VERSION }}\", \"git_ref\": \"$GITHUB_SHA\"}" > inge4/version.json'
         shell: bash
       - name: Create tar
-        run: tar -czf inge4_${{ env.RELEASE_VERSION }}.tar.gz .
+        run: tar -czf inge4_${{ env.RELEASE_VERSION }}.tar.gz docs inge4 signing tests LICEN* Makefile README* manage.py require* setup.cfg *.json5
       - name: Upload release tar
         uses: actions/upload-artifact@v1
         with:
