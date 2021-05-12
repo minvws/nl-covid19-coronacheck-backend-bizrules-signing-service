@@ -46,6 +46,9 @@ For inge3, send your vaccination events to here:
 http://localhost:8000/signing/sign_via_inge3/
 ```
 
+## Caveats:
+Adding vaccination providers to vaccinationproviders.json requires an app restart.
+
 
 ## Process overview
 

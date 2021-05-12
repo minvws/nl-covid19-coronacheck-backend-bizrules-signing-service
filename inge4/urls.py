@@ -16,12 +16,14 @@ Including another URLconf
 """
 
 from django.conf import settings
+from django.http import JsonResponse
 from django.urls import include
 from django.contrib import admin
 from django.urls import path
 
 urlpatterns = [
     path('signing/', include(('signing.urls', 'signing'), namespace="signing")),
+    path('health/', lambda request: JsonResponse({'running': True}))
 ]
 
 # disable admin in production
