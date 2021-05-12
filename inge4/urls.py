@@ -23,7 +23,7 @@ from django.urls import path
 
 urlpatterns = [
     path('signing/', include(('signing.urls', 'signing'), namespace="signing")),
-    path('health/', lambda request: JsonResponse({'running': True}))
+    path('health/', lambda request: JsonResponse({'running': True})),
 ]
 
 # disable admin in production

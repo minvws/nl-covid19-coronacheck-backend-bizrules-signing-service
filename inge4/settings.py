@@ -139,7 +139,12 @@ DOMESTIC_NL_VWS_ONLINE_SIGNING_URL = ""
 SBVZ_WSDL_ENVIRONMENT = "dev"
 
 
-SECRETS_FOLDER = "signing/secrets"
+SECRETS_FOLDER = os.getenv("INGE4_SECRETS_FOLDER", "signing/secrets")
+VACCINATION_DATABASE_FILENAME = os.getenv(
+    "INGE4_DYNAMIC_FLOW_VACCINATION_DATABASE_FILENAME", "vaccinationproviders.json5"
+)
+JWT_PRIVATE_KEY = os.getenv("INGE4_DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME", "jwt_private.key")
+SBVZ_CERT = os.getenv("INGE4_ENRICHMENT_SBVZ_CERT_FILENAME", "sbvz-connect.test.brba.nl.cert")
 
 # according to the author json5 is slow.
 # It's loaded once per application run, so any changes to this file requires an application reboot.
@@ -148,11 +153,14 @@ SECRETS_FOLDER = "signing/secrets"
 # Example file: signing/requesters/mobile_app_data/vaccinationproviders.sample.json5
 # todo: make this try/except nicer and sane...
 try:
-    with open(f'{SECRETS_FOLDER}/vaccinationproviders.json5') as f:
+    with open(f'{SECRETS_FOLDER}/{VACCINATION_DATABASE_FILENAME}') as f:
         APP_STEP_1_VACCINATION_PROVIDERS = json5.load(f)
 
-    APP_STEP_1_JWT_PRIVATE_KEY = open(f'{SECRETS_FOLDER}/jwt_private.key', 'rb').read()
+    APP_STEP_1_JWT_PRIVATE_KEY = open(f'{SECRETS_FOLDER}/{JWT_PRIVATE_KEY}', 'rb').read()
 
-    SBVZ_CERT = f'{SECRETS_FOLDER}/sbvz-connect.test.brba.nl.cert'
+    SBVZ_CERT = f'{SECRETS_FOLDER}/{SBVZ_CERT}'
 except FileNotFoundError as file_error:
-    print(f"Could not find all decryption keys. Tests will work, but this will not work in production. {file_error}")
+    print(
+        f"inge4 ERROR: "
+        f"Could not find all decryption keys. Tests will work, but this will not work in production. {file_error}"
+    )

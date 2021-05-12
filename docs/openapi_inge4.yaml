@@ -24,6 +24,12 @@ components:
           schema:
             $ref: '#/components/schemas/SignaturePerProviderResponse'
       description: Signing codes from all applicable signers
+    EnrichedPIIResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EnrichedPIIResponse'
+      description: Signing codes from all applicable signers
   schemas:
     HelloMessage:
       properties:
@@ -253,6 +259,34 @@ components:
         domestic_nl_vws_dynamic:
           $ref: '#/components/schemas/DomesticDynamicVaccinationResponse'
 
+    PIIEnrichmentRequest:
+      type: object
+      properties:
+        BSN:
+          type: string
+          example: "JQUqMXolC0OltT2JWPu..."
+          description: "Encrypted BSN"
+
+
+    EnrichedPIIResponse:
+      type: object
+      properties:
+        first_name:
+          type: string
+          example: "Herman"
+        last_name:
+          type: string
+          example: "Acker"
+        day_of_birth:
+          type: string
+          example: "28"
+          description: "Zerofilled day of birth"
+        month_of_birth:
+          example: "12"
+          type: string
+          description: "Zerofilled month of birth"
+
+
   # todo
   # securitySchemes:
   #   API_KEY:
@@ -284,6 +318,22 @@ paths:
         '200':
           $ref: '#/components/responses/HelloMessage'
       summary: Hello
+  /signing/enrich_for_health_professional/:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PIIEnrichmentRequest'
+        required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/EnrichedPIIResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorisedResponse'
+      summary: Enrich PII (Prefill for Health Professional) todo - needs token auth
   /signing/sign_via_inge3/:
     post:
       requestBody:

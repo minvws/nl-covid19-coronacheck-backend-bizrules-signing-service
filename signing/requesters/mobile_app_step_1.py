@@ -32,6 +32,8 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
     :return:
     """
 
+    # todo: normalize
+
     now = timezone.now()
     generic_data = {
         "iat": now,  # Current time
@@ -52,7 +54,7 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
         if "EXAMPLE" in vaccination_provider['identifier'] or "TEST" in vaccination_provider['identifier']:
             continue
 
-        hash_input = "-".join([pii['BSN'], pii['first_name'], pii['last_name'], pii['day_of_birth']])
+        hash_input = "-".join([bsn, pii['first_name'], pii['last_name'], pii['day_of_birth']])
         generic_data['identity_hash'] = base64.b64encode(
             calculate_vws_identity_hash(
                 message=hash_input.encode(), key=vaccination_provider['identity_hash_secret'].encode()

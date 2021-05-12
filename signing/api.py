@@ -15,6 +15,7 @@ signing_providers = {
 
 
 def enrich_data_for_health_professional_inge3(data) -> Tuple[List[str], Dict[str, str]]:
+    # todo: decrypt BSN with sealbox
     bsn = data.get("bsn", "")
     return enrich_for_health_professional_inge3(bsn)
 

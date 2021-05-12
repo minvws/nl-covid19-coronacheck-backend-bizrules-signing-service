@@ -72,15 +72,19 @@ def call_app_step_1(bsn: str) -> Tuple[List[str], Dict[str, str]]:
     date_of_birth: str = resultaat_list['Geboortedatum'].Werkelijk
 
     first_name = all_names.split(" ")[0]
-    day_of_birth = date_of_birth[-2:]
+    # example date of birth: "20000229"
+    day_of_birth = date_of_birth[6:8]
+    month_of_birth = date_of_birth[4:6]
 
     # todo: is normalizing coorrect? this cause some misrepresentation with icelandic names for example.
     return [], {
         # Do not return a complete bsn, to minimize the pii exchanged
-        'BSN': censor_bsn(bsn),
+        # no; don't return the BSN at all, because you already have this(!)
+        # 'BSN': censor_bsn(bsn),
         'first_name': unidecode(first_name),
         'last_name': unidecode(last_name),
         'day_of_birth': day_of_birth,
+        'month_of_birth': month_of_birth,
     }
 
 
@@ -88,7 +92,3 @@ def enrich_for_health_professional_inge3(bsn: str) -> Tuple[List[str], Dict[str,
     # health professional can ask to enrich data
     # this is optional, in case a person has no BSN, the same data as requested is sent.
     return call_app_step_1(bsn)
-
-
-def censor_bsn(bsn):
-    return f"******{str(bsn)[-3:]}"

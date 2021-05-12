@@ -32,9 +32,9 @@ def test_sign_via_app_step_1(client, requests_mock, testsecrets, current_path, m
 
     assert json_content == [
         {
-            'event': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tL2V2ZW50cy92Mi9kYXRhLyIsImJzbiI6Ik1ERXlNelExTmpjNE9UQXhNak0wTlRZM09Ea3dNVEl6KzRWV01CY3paSThxTFBjaFNaczdCcERaMkhMVUtUN1JFUT09IiwiZXhwIjoxNTgwNjg4MDAwLCJpYXQiOjE1ODA2MDE2MDAsImlkZW50aXR5X2hhc2giOiJSaVBmQTlPWmhqMGFYWFhSQ3IxZzExWmJwME1UbmhlRmwvYkkwSDJTQkhNPSIsImlzcyI6Imp3dC50ZXN0LmNvcm9uYWNoZWNrLm5sIiwibmJmIjoxNTgwNjAxNjAwLCJub25jZSI6Ik1ERXlNelExTmpjNE9UQXhNak0wTlRZM09Ea3dNVEl6In0.y86nWT53p90BjTyO4aFOs0nXL-AGA8lZpnrFrvllVU4',
+            'event': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tL2V2ZW50cy92Mi9kYXRhLyIsImJzbiI6Ik1ERXlNelExTmpjNE9UQXhNak0wTlRZM09Ea3dNVEl6KzRWV01CY3paSThxTFBjaFNaczdCcERaMkhMVUtUN1JFUT09IiwiZXhwIjoxNTgwNjg4MDAwLCJpYXQiOjE1ODA2MDE2MDAsImlkZW50aXR5X2hhc2giOiJLSFQ3c1NucjRnaGJQWi9VUFpNbUFqclRRaUIxRWwxbWoydzhHMmZLMmRnPSIsImlzcyI6Imp3dC50ZXN0LmNvcm9uYWNoZWNrLm5sIiwibmJmIjoxNTgwNjAxNjAwLCJub25jZSI6Ik1ERXlNelExTmpjNE9UQXhNak0wTlRZM09Ea3dNVEl6In0.apEVco0RvsVr8PFSUBJ9-EeplvWlYpGEYFCj9xFRfyk',
             'provider_identifier': 'GGD Region 5715',
-            'unomi': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tL3Vub21pL3YyLyIsImV4cCI6MTU4MDY4ODAwMCwiaWF0IjoxNTgwNjAxNjAwLCJpZGVudGl0eV9oYXNoIjoiUmlQZkE5T1poajBhWFhYUkNyMWcxMVpicDBNVG5oZUZsL2JJMEgyU0JITT0iLCJpc3MiOiJqd3QudGVzdC5jb3JvbmFjaGVjay5ubCIsIm5iZiI6MTU4MDYwMTYwMH0.uu-IFL4BKtgzBJSzcDfWzJv2aggaqQMPvGP4_oCaxj4',
+            'unomi': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tL3Vub21pL3YyLyIsImV4cCI6MTU4MDY4ODAwMCwiaWF0IjoxNTgwNjAxNjAwLCJpZGVudGl0eV9oYXNoIjoiS0hUN3NTbnI0Z2hiUFovVVBaTW1BanJUUWlCMUVsMW1qMnc4RzJmSzJkZz0iLCJpc3MiOiJqd3QudGVzdC5jb3JvbmFjaGVjay5ubCIsIm5iZiI6MTU4MDYwMTYwMH0.vT2IqFAUueSzakNWCo4hiHxYuec9xWp_mb040fCA7p4',
         }
     ]
 
@@ -51,7 +51,7 @@ def test_sign_via_app_step_1(client, requests_mock, testsecrets, current_path, m
         'aud': 'https://example.com/unomi/v2/',
         'exp': 1580688000,
         'iat': 1580601600,
-        'identity_hash': 'RiPfA9OZhj0aXXXRCr1g11Zbp0MTnheFl/bI0H2SBHM=',
+        'identity_hash': 'KHT7sSnr4ghbPZ/UPZMmAjrTQiB1El1mj2w8G2fK2dg=',
         'iss': 'jwt.test.coronacheck.nl',
         'nbf': 1580601600,
     }
@@ -67,7 +67,7 @@ def test_sign_via_app_step_1(client, requests_mock, testsecrets, current_path, m
         'bsn': 'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz+4VWMBczZI8qLPchSZs7BpDZ2HLUKT7REQ==',
         'exp': 1580688000,
         'iat': 1580601600,
-        'identity_hash': 'RiPfA9OZhj0aXXXRCr1g11Zbp0MTnheFl/bI0H2SBHM=',
+        'identity_hash': 'KHT7sSnr4ghbPZ/UPZMmAjrTQiB1El1mj2w8G2fK2dg=',
         'iss': 'jwt.test.coronacheck.nl',
         'nbf': 1580601600,
         'nonce': 'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz',
@@ -103,7 +103,7 @@ def test_enrich_for_health_professional(client, requests_mock, testsecrets, curr
     json_content = json.loads(response.content.decode('UTF-8'))
 
     assert json_content == {
-        'BSN': '******138',
+        'month_of_birth': '02',
         'day_of_birth': '29',
         'first_name': 'Test_Voornamen',
         'last_name': 'Test_Geslachtsnaam',
