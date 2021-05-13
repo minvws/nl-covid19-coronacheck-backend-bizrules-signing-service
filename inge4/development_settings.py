@@ -1,6 +1,9 @@
 from inge4.settings import *  # noqa
 
+CONFIG_FILE = 'development.conf'
+
 DEBUG = True
+
 
 SECRET_KEY = 'n!yv__49$8a7ep-!rkh+a5717ydfgg&_e*-@+!l+4k)(e_()yp'  # nosec
 

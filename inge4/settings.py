@@ -14,22 +14,49 @@ import os
 
 import json5
 
+import configparser
+
+from os import path
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = [os.getenv('APPLICATION_URL'), os.getenv('POD_IP')]
 
+CONFIG_FILE = '/etc/inge4.conf'
+
+if path.exists(CONFIG_FILE):
+    config = configparser.ConfigParser()
+    config.read(CONFIG_FILE)
+    # SECURITY WARNING: keep the secret key used in production secret!
+    SECRET_KEY = config['GENERAL']['SECRET_KEY']
+
+    ALLOWED_HOSTS = [config['GENERAL']['APPLICATION_URL'], config['GENERAL']['POD_IP']]
+
+    SECRETS_FOLDER = config['GENERAL']['SECRETS_FOLDER']
+    VACCINATION_DATABASE_FILENAME = config['GENERAL']['DYNAMIC_FLOW_VACCINATION_DATABASE_FILENAME']
+    JWT_PRIVATE_KEY = config['GENERAL']['DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME']
+    SBVZ_CERT = config['GENERAL']['ENRICHMENT_SBVZ_CERT_FILENAME']
+else:
+    # SECURITY WARNING: keep the secret key used in production secret!
+    SECRET_KEY = os.getenv('SECRET_KEY')
+
+    ALLOWED_HOSTS = [os.getenv('APPLICATION_URL'), os.getenv('POD_IP')]
+
+    SECRETS_FOLDER = os.getenv("INGE4_SECRETS_FOLDER", "signing/secrets")
+    VACCINATION_DATABASE_FILENAME = os.getenv(
+        "INGE4_DYNAMIC_FLOW_VACCINATION_DATABASE_FILENAME", "vaccinationproviders.json5"
+    )
+
+    JWT_PRIVATE_KEY = os.getenv("INGE4_DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME", "jwt_private.key")
+    SBVZ_CERT = os.getenv("INGE4_ENRICHMENT_SBVZ_CERT_FILENAME", "sbvz-connect.test.brba.nl.cert")
 
 # Application definition
 
@@ -138,13 +165,6 @@ DOMESTIC_NL_VWS_ONLINE_SIGNING_URL = ""
 # dev prod staging
 SBVZ_WSDL_ENVIRONMENT = "dev"
 
-
-SECRETS_FOLDER = os.getenv("INGE4_SECRETS_FOLDER", "signing/secrets")
-VACCINATION_DATABASE_FILENAME = os.getenv(
-    "INGE4_DYNAMIC_FLOW_VACCINATION_DATABASE_FILENAME", "vaccinationproviders.json5"
-)
-JWT_PRIVATE_KEY = os.getenv("INGE4_DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME", "jwt_private.key")
-SBVZ_CERT = os.getenv("INGE4_ENRICHMENT_SBVZ_CERT_FILENAME", "sbvz-connect.test.brba.nl.cert")
 
 # according to the author json5 is slow.
 # It's loaded once per application run, so any changes to this file requires an application reboot.
