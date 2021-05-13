@@ -190,4 +190,4 @@ what exactly had to be built and how scalable it should be.
 ## Authors
 
 - Implementation / Docs: Elger Jonker
-- Process: Nick ten Cate, Anne-Jan Brouwer, Mendel Mobach
+- Process: Nick ten Cate, Anne Jan Brouwer, Mendel Mobach
