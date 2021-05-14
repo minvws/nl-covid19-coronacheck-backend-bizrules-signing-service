@@ -4,3 +4,7 @@ def is_eligible(data):
 
 def sign(data):
     return {}
+
+
+def StatementOfVaccinationToEuropeanOnlineSigningRequest():
+    pass

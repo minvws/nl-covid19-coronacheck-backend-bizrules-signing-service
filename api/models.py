@@ -56,7 +56,8 @@ class VaccinationData(BaseModel):
     )
     mah: str = Field(description="Manufacturer")
     country: str = Field(
-        description="ISO 3166-1 (3 letter code) of a country. This is the country where the vaccination has been administered."
+        description="ISO 3166-1 (3 letter code) of a country. "
+        "This is the country where the vaccination has been administered."
     )
     administeringCenter: Optional[str] = Field(example="-")
 
@@ -79,3 +80,75 @@ class StatementOfVaccination(BaseModel):
     events: List[VaccinationEvent]
     source: str = Field(description="Used internally in inge4, will be overwritten.", default="")
     isSpecimen: str = Field("Boolean as an integer: 0 or 1.")
+
+
+class DomesticPaperSigningAttributes(BaseModel):
+    """
+    Created based on StatementOfVaccination
+    """
+
+    sampleTime: str = Field(description="ISO datetime with timezone information", example="2021-04-22T12:00:00Z")
+    firstNameInitial: str = Field(example="E", description="First letter of the first name of this person")
+    lastNameInitial: str = Field(example="J", description="First letter of the last name of this person")
+    birthDay: str = Field(example="27", description="Day (not date!) of birth.")
+    birthMonth: str = Field(example="12", description="Month (not date!) of birth.")
+    # todo: enum, is this a boolean?
+    isSpecimen: str = Field(
+        example="0",
+        description="Boolean cast as string, if this is a testcase. " "To facilitate testing in production.",
+    )
+
+
+class DomesticPaperSigningRequest(BaseModel):
+    attributes: DomesticPaperSigningAttributes
+    key: str = Field(description="todo", default="VWS-TEST-0")
+
+
+class DomesticOnlineSigningRequest(DomesticPaperSigningAttributes):
+    nonce: str = Field(description="", example="MB4CEEl6phUEfUcOWLWHEHQ6/zYTClZXUy1URVNULTA=")
+    commitments: str = Field(description="", example="")
+
+
+# vaccination tests en recovery is een array...
+class EuropeanVaccination(BaseModel):
+    pass
+
+
+class EuropeanTest(BaseModel):
+    pass
+
+
+class EuropeanRecovery(BaseModel):
+    fr = Field(description="date of first positive test result. recovery.sampleDate", example="todo")
+    df = Field(description="certificate valid from. recovery.validFrom", example="todo")
+    du = Field(
+        description="certificate valid until. not more than 180 days after the date of first positive "
+        "test result. recovery.validUntil",
+        example="todo",
+    )
+
+
+class EuropeanOnlineSigningRequest(BaseModel):
+    # Docs: https://docs.google.com/spreadsheets/d/1hatNyvZMJBP7jSU_OtMQOAISBulT2O1aXgHDH73V-EA/edit#gid=0
+    fn = Field(description="Family name, based on holder.lastName", example="Acker")
+    # Yes, signer will take care of generating this normalized version
+    fnt = Field(description="Transliterated family name (A-Z, unidecoded) with<instead of space.", example="Acker")
+    gn = Field(description="Given name, based on holder.firstName", example="Herman")
+    # Yes, signer will take care of generating this normalized version
+    gnt = Field(description="The given name(s) of the person transliterated")
+    # Signer should convert "1975-XX-XX" to "1975" as the EU DGC can't handle the XX's of unknown birthmonth/day
+    dob = Field(
+        description="Date of Birth of the person addressed in the DGC. "
+        "ISO 8601 date format restricted to range 1900-2099"
+    )
+    # https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/disease-agent-targeted.json
+    # Signer will assume covid as we're not covering other diseases yet
+    tg = Field(description="disease or agent targeted", example="840539006", default="840539006")
+    ci = Field(
+        description="Certificate Identifier, format as per UVCI (*), "
+        "Yes (conversion of unique to V-XXX-YYYYYYYY-Z, provider only needs to provide unique"
+    )
+    co = Field(description="Member State, ISO 3166", default="NLD")
+    # todo: this is not
+    is_ = Field(description="certificate issuer, Will be set by signer to a fixed minvws string")
+    isSpecimen = Field(description="Used to create specimen certificates (not available in EU QR's!)", default="FALSE")
