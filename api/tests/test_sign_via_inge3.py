@@ -1,6 +1,8 @@
 import json
 
 from freezegun import freeze_time
+from fastapi.testclient import TestClient
+from api.main import app
 
 
 def file(path):
@@ -9,7 +11,8 @@ def file(path):
 
 
 @freeze_time('2020-02-02')
-def test_sign_via_app_step_1(client, requests_mock, settings):
+def test_sign_via_inge3(requests_mock):
+
     signing_response_data = {
         "qr": {
             "data": "TF+*JY+21:6 T%NCQ+ PVHDDP+Z-WQ8-TG/O3NLFLH3:FHS-RIFVQ:UV57K/.:R6+.MX:U$HIQG3FVY%6NIN0:O.KCG9F997/.\
@@ -41,11 +44,12 @@ def test_sign_via_app_step_1(client, requests_mock, settings):
         "error": 0,
     }
 
-    settings.DOMESTIC_NL_VWS_PAPER_SIGNING_URL = "https://signing.local"
-    requests_mock.post(url="https://signing.local", json=json.dumps(signing_response_data))
+    requests_mock.post("http://testserver/inge3/sign/", real_http=True)
+    requests_mock.post(url="https://signing.local/static", json=json.dumps(signing_response_data))
 
+    client = TestClient(app)
     response = client.post(
-        '/signing/sign_via_inge3/',
+        '/inge3/sign/',
         json.dumps(
             {
                 "protocolVersion": "3.0",
@@ -61,6 +65,7 @@ def test_sign_via_app_step_1(client, requests_mock, settings):
                             "date": "2021-01-01",
                             "hpkCode": "2924528",
                             "type": "C19-mRNA",
+                            "mah": "PFIZER",
                             "brand": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
                             "batchNumber": "EW2243",
                             "administeringCenter": "",
@@ -74,6 +79,7 @@ def test_sign_via_app_step_1(client, requests_mock, settings):
                             "date": "2021-04-01",
                             "hpkCode": "2924528",
                             "type": "C19-mRNA",
+                            "mah": "PFIZER",
                             "brand": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
                             "batchNumber": "EW2243",
                             "administeringCenter": "",
@@ -83,10 +89,10 @@ def test_sign_via_app_step_1(client, requests_mock, settings):
                 ],
             }
         ),
-        content_type="application/json",
     )
 
-    data = response.json()
+    signatures = response.json()
+    print(signatures)
     # 108 QR codes.
-    assert len(data['signatures']['domestic_nl_vws_static']) == 108
-    assert data['signatures']['domestic_nl_vws_static'][0] == json.dumps(signing_response_data)
+    assert len(signatures['domestic_nl_vws_static']) == 108
+    assert signatures['domestic_nl_vws_static'][0] == json.dumps(signing_response_data)

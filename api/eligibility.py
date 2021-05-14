@@ -43,6 +43,9 @@ Generic eligibility methods used in checking eligibility in signing services.
 """
 
 import logging
+from typing import List
+
+from api.models import VaccinationEvent, StatementOfVaccination
 
 HPK_ASTRAZENECA = 2925508
 HPK_PFIZER = 2924528
@@ -60,7 +63,7 @@ def normalize_vaccination_events(vaccination_events):
     raise NotImplementedError
 
 
-def vaccinations_conform_to_vaccination_policy(data):
+def vaccinations_conform_to_vaccination_policy(data: StatementOfVaccination):
     """
     The vaccination passport rules change on a day to day basis. What you see here, and below may be
     outdated by far when you read this. Don't currently take below code as an absolute.
@@ -89,7 +92,7 @@ def vaccinations_conform_to_vaccination_policy(data):
 
     # Because of the complexity of the rules, we want all data that was submitted to obtain a proof of vaccination.
     # There might be more complex rules in the future depending on unknown factors.
-    vaccination_events = data.get('events', {})
+    vaccination_events = data.events
 
     if not_vaccinated_at_all(vaccination_events):
         log.debug("No vaccination received at all: not eligible for signing.")
@@ -124,21 +127,21 @@ def had_vaccine_that_only_needs_one_vaccination(vaccination_events):
     vaccines_that_need_one_dose = [str(HPK_JANSSEN)]
     for vaccination_event in vaccination_events:
         # todo: regardless of type of event (types of event need to be specified):
-        if vaccination_event[vaccination_event['type']]['hpkCode'] in vaccines_that_need_one_dose:
+        if vaccination_event.vaccination.hpkCode in vaccines_that_need_one_dose:
             return True
     return False
 
 
-def had_two_vaccinations_or_more(vaccination_events):
+def had_two_vaccinations_or_more(vaccination_events: List[VaccinationEvent]):
     # todo: this is probably a very nearsighted implementation.
     if len(vaccination_events) >= 2:
         return True
     return False
 
 
-def health_professional_states_patient_is_sufficiently_vaccinated(vaccination_events):
+def health_professional_states_patient_is_sufficiently_vaccinated(vaccination_events: List[VaccinationEvent]):
     for vaccination_event in vaccination_events:
-        if vaccination_event['type'] == "vaccinationCompleted":
+        if vaccination_event.type == "vaccinationCompleted":
             return True
     return False
 

@@ -1,9 +1,14 @@
 import json
+from datetime import datetime
+
 import jwt
+import pytz
 from nacl.public import Box, PublicKey, PrivateKey
 import base64
+from fastapi.testclient import TestClient
 
 from freezegun import freeze_time
+from api.main import app
 
 
 def file(path):
@@ -12,27 +17,33 @@ def file(path):
 
 
 @freeze_time('2020-02-02')
-def test_sign_via_app_step_1(client, requests_mock, testsecrets, current_path, mocker, settings):
+def test_sign_via_app_step_1(requests_mock, current_path, mocker):
+    from api.settings import settings
+
     requests_mock.post(
         url='https://raadplegen.sbv-z.nl/cibg.sbv.testtool.webservice.dec14/opvragenpersoonsgegevens.asmx',
         text=file(f'{current_path}/sbvz/direct_match_correct_response.xml'),
     )
+    requests_mock.post(url="http://testserver/app/sign_step_1/", real_http=True)
 
     # Make sure the nonce is always the same
+    # todo: Does this work at all when running a 'real' server? Why does this run as a real server?
     mocker.patch('nacl.utils.random', return_value=b"012345678901234567890123")
+    mocker.patch('api.requesters.mobile_app_step_1.datetime_now', return_value=datetime(2020, 2, 2, tzinfo=pytz.utc))
 
     # Example client is disabled by default, so no answer
     # todo: add test keys for testing consistently during build and on other dev machines.
+    # todo: this is a real server, so it doesn't understand fake datetimes(!)
+    client = TestClient(app)
     response = client.post(
-        '/signing/sign_via_app_step_1/',
+        '/app/sign_step_1/',
         json.dumps({'bsn': '999999138'}),
-        content_type="application/json",
     )
     json_content = json.loads(response.content.decode('UTF-8'))
 
     assert json_content == [
         {
-            'event': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tL2V2ZW50cy92Mi9kYXRhLyIsImJzbiI6Ik1ERXlNelExTmpjNE9UQXhNak0wTlRZM09Ea3dNVEl6KzRWV01CY3paSThxTFBjaFNaczdCcERaMkhMVUtUN1JFUT09IiwiZXhwIjoxNTgwNjg4MDAwLCJpYXQiOjE1ODA2MDE2MDAsImlkZW50aXR5X2hhc2giOiJLSFQ3c1NucjRnaGJQWi9VUFpNbUFqclRRaUIxRWwxbWoydzhHMmZLMmRnPSIsImlzcyI6Imp3dC50ZXN0LmNvcm9uYWNoZWNrLm5sIiwibmJmIjoxNTgwNjAxNjAwLCJub25jZSI6Ik1ERXlNelExTmpjNE9UQXhNak0wTlRZM09Ea3dNVEl6In0.apEVco0RvsVr8PFSUBJ9-EeplvWlYpGEYFCj9xFRfyk',
+            'event': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tL2V2ZW50cy92Mi9kYXRhLyIsImJzbiI6IkNFWjBqaFF3NGEvS0sxemZFNUtRL080WHcxdjd4Yk42aHpQQnY2Z0s2NHN2MWQzcXBrbjVIL3FSWlVTVnAvQWs0UT09IiwiZXhwIjoxNTgwNjg4MDAwLCJpYXQiOjE1ODA2MDE2MDAsImlkZW50aXR5X2hhc2giOiJLSFQ3c1NucjRnaGJQWi9VUFpNbUFqclRRaUIxRWwxbWoydzhHMmZLMmRnPSIsImlzcyI6Imp3dC50ZXN0LmNvcm9uYWNoZWNrLm5sIiwibmJmIjoxNTgwNjAxNjAwLCJub25jZSI6IkNFWjBqaFF3NGEvS0sxemZFNUtRL080WHcxdjd4Yk42In0.rMGbT0XWG7i6C5AI1x89pRiiiocWfkmMtz4qnwXWeX4',
             'provider_identifier': 'GGD Region 5715',
             'unomi': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tL3Vub21pL3YyLyIsImV4cCI6MTU4MDY4ODAwMCwiaWF0IjoxNTgwNjAxNjAwLCJpZGVudGl0eV9oYXNoIjoiS0hUN3NTbnI0Z2hiUFovVVBaTW1BanJUUWlCMUVsMW1qMnc4RzJmSzJkZz0iLCJpc3MiOiJqd3QudGVzdC5jb3JvbmFjaGVjay5ubCIsIm5iZiI6MTU4MDYwMTYwMH0.vT2IqFAUueSzakNWCo4hiHxYuec9xWp_mb040fCA7p4',
         }
@@ -88,17 +99,18 @@ def test_sign_via_app_step_1(client, requests_mock, testsecrets, current_path, m
 
 
 @freeze_time('2020-02-02')
-def test_enrich_for_health_professional(client, requests_mock, testsecrets, current_path):
-    # todo: this might move to another place.
+def test_enrich_for_health_professional(requests_mock, current_path):
+    # todo: this might move to another pelace.
     requests_mock.post(
         url='https://raadplegen.sbv-z.nl/cibg.sbv.testtool.webservice.dec14/opvragenpersoonsgegevens.asmx',
         text=file(f'{current_path}/sbvz/direct_match_correct_response.xml'),
     )
+    requests_mock.post(url="http://testserver/inge3/enrich_for_health_professional/", real_http=True)
 
+    client = TestClient(app)
     response = client.post(
-        '/signing/enrich_for_health_professional/',
+        '/inge3/enrich_for_health_professional/',
         json.dumps({'bsn': '999999138'}),
-        content_type="application/json",
     )
     json_content = json.loads(response.content.decode('UTF-8'))
 

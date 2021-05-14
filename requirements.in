@@ -1,18 +1,11 @@
 # Dependency management
 pip-tools
 
-# Database access
-psycopg2-binary
-
-# Communication with services
+# Communication with signers and enrichment
 requests
 
 # Crypto support
-django-nacl-fields
 PyNaCl
-
-# Framework support
-django
 
 # Mobile app step 1
 PyJWT
@@ -22,3 +15,9 @@ cryptography
 # SBVZ enrichment
 unidecode
 zeep
+
+# FastAPI
+fastapi[all]
+
+# UTC timezone
+pytz

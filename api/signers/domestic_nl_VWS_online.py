@@ -1,15 +1,15 @@
 from typing import Any, Dict
-from django.conf import settings
+from api.settings import settings
 
-from signing.eligibility import vaccinations_conform_to_vaccination_policy
-from signing.services.signing.domestic_nl_VWS_paper import vaccination_event_data_to_signing_data
-from signing.utils import request_post_with_retries
+from api.eligibility import vaccinations_conform_to_vaccination_policy
+from api.signers.domestic_nl_VWS_paper import vaccination_event_data_to_signing_data
+from api.utils import request_post_with_retries
 
 
 def is_eligible(data) -> bool:
     # todo: check for flow, and for commitments in the request.
     # todo: what flow has printportaal? What is the entry port for printportaal?
-    if not data.get('source', None) in ["mobile_app", "printportaal"]:
+    if data.source not in ["mobile_app", "printportaal"]:
         return False
 
     if not vaccinations_conform_to_vaccination_policy(data):

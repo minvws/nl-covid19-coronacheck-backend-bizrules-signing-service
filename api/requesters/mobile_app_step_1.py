@@ -1,23 +1,28 @@
 # SPDX-License-Identifier: EUPL-1.2
 __author__ = 'Elger Jonker, Nick ten Cate for minvws'
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 import base64
 from typing import List, Any, Dict
 import logging
 
 import jwt
+import pytz
 from nacl.utils import random
 
 from cryptography.hazmat.primitives import hashes, hmac
-from django.conf import settings
+from api.settings import settings
 
-from django.utils import timezone
 from nacl.public import Box, PublicKey, PrivateKey
 
-from signing.services.enrichment import sbvz
+from api.enrichment import sbvz
 
 log = logging.getLogger(__package__)
+
+
+def datetime_now():
+    # added for testing / mocking purposes
+    return datetime.now(pytz.utc)
 
 
 def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
@@ -34,7 +39,7 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
 
     # todo: normalize
 
-    now = timezone.now()
+    now = datetime_now()
     generic_data = {
         "iat": now,  # Current time
         "nbf": now,  # Not valid before

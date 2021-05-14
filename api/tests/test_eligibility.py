@@ -1,6 +1,7 @@
 import logging
 
-from signing.eligibility import vaccinations_conform_to_vaccination_policy
+from api.eligibility import vaccinations_conform_to_vaccination_policy
+from api.models import StatementOfVaccination
 
 
 def test_vaccinations_conform_to_vaccination_policy(caplog):
@@ -8,8 +9,10 @@ def test_vaccinations_conform_to_vaccination_policy(caplog):
 
     # not vaccinated at all
     with caplog.at_level(logging.DEBUG, logger="signing"):
-        vaccination_events = {'events': []}
-        assert vaccinations_conform_to_vaccination_policy(vaccination_events) is False
+        sov = StatementOfVaccination()
+        # todo: this doesn't work anymore because the input is validated against a model and at least
+        #  one event has to be added.
+        assert vaccinations_conform_to_vaccination_policy(sov) is False
         assert "No vaccination received at all: not eligible for signing." in caplog.text
 
     # 1x janssen / 1x vaccine that takes one dose

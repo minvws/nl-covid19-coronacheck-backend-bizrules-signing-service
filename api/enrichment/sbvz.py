@@ -1,21 +1,20 @@
 # SPDX-License-Identifier: EUPL-1.2
 __author__ = 'Elger Jonker (elger@johnkr.com) for minvws'
 
-from django.conf import settings
+from api.settings import settings
 from typing import List, Dict, Tuple
 import requests
 from unidecode import unidecode
 
-from signing.services.enrichment.sbvz_api.models import Persoon
-from signing.services.enrichment.sbvz_api.sbvz import BSNOpvragenService
+from api.enrichment.sbvz_api.models import Persoon
+from api.enrichment.sbvz_api.sbvz import BSNOpvragenService
 
 
 #  /Users/elger_1/Documents/_webdevelopment/braniebananie/inge4/signing/services/enrichment/sbvz/wsdl/dev/opvragenpersoonsgegevens.wsdl
 #  /Users/elger_1/Documents/_webdevelopment/braniebananie/inge4/signing/services/enrichment/sbvz/wsdl/dev/opvragenverifieren.wsdl
 def sbvz_pii_service_call(bsn: str):
     service = BSNOpvragenService(
-        wsdl_file="signing/services/enrichment/sbvz_api/wsdl/"
-        f"{settings.SBVZ_WSDL_ENVIRONMENT}/opvragenpersoonsgegevens.wsdl",
+        wsdl_file="api/enrichment/sbvz_api/wsdl/" f"{settings.SBVZ_WSDL_ENVIRONMENT}/opvragenpersoonsgegevens.wsdl",
         cert_file=settings.SBVZ_CERT,
     )
     person = Persoon(BSN=bsn)

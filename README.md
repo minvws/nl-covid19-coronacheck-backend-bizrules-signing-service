@@ -21,7 +21,7 @@ domestic on app, european). The N to N relation is performed in api.py.
 
 ## Installation
 Create the required secrets that are used in settings.py. Usually these are stored in 
-`SECRETS_FOLDER`, defaulting to "signing/secrets".
+`SECRETS_FOLDER`, defaulting to "./secrets".
 
 The secrets needed are:
 
@@ -38,13 +38,20 @@ For production use the wsgi file in inge4.
 
 You can test if the service is running by requesting:
 ```txt
-http://localhost:8000/signing/
+http://localhost:8000/health/
 ```
 
 For inge3, send your vaccination events to here: 
 ```txt
-http://localhost:8000/signing/sign_via_inge3/
+http://localhost:8000/sign_via_inge3/
 ```
+
+## Configuration:
+Configuration is read from two files:
+
+- /etc/inge4.conf, fallback to inge4_development.conf
+- /etc/inge4_logging.yaml, fallback to inge4_logging.yaml
+
 
 ## Caveats:
 Adding vaccination providers to vaccinationproviders.json requires an app restart.

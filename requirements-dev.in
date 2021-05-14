@@ -2,7 +2,6 @@
 
 black
 pylint
-pylint-django
 bandit
 mypy
 autoflake
@@ -12,13 +11,9 @@ sqlalchemy
 pytest
 pytest-cov
 pytest-mock
-pytest-django
-testcontainers
-tblib
 pytz
 mccabe
 flake8
 pyflakes
-rope
 requests-mock
 freezegun

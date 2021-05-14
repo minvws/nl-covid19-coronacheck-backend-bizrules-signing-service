@@ -1,18 +1,20 @@
 import logging
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from math import ceil
 from typing import Any, Dict, List
 
-from django.utils import timezone
-from django.conf import settings
+import pytz
 
-from signing.eligibility import vaccinations_conform_to_vaccination_policy
-from signing.utils import request_post_with_retries
+from api.models import StatementOfVaccination
+from api.settings import settings
+
+from api.eligibility import vaccinations_conform_to_vaccination_policy
+from api.utils import request_post_with_retries
 
 log = logging.getLogger(__package__)
 
 
-def is_eligible(data):
+def is_eligible(data) -> bool:
     """
     The paper-variant of the domestic proof of vaccination does not have commitments (like from the app).
     It just contains some vaccination data and the response message of the signing service is much simpler
@@ -23,7 +25,7 @@ def is_eligible(data):
     """
 
     # only "GP"'s are allowed to directly request a proof of vaccination.
-    if not data.get('source', None) in ["inge3"]:
+    if data.source not in ["inge3"]:
         log.debug("Source of vaccination is not inge3, not elibile for signing.")
         return False
 
@@ -35,7 +37,7 @@ def is_eligible(data):
     return False
 
 
-def vaccination_event_data_to_signing_data(data):
+def vaccination_event_data_to_signing_data(data: StatementOfVaccination):
     """
     In:
     {
@@ -84,26 +86,25 @@ def vaccination_event_data_to_signing_data(data):
     :return:
     """
 
-    person_date = date.fromisoformat(data['holder']['birthDate'])
+    person_date = date.fromisoformat(data.holder.birthDate)
 
     request_data = {
         "attributes": {
-            "sampleTime": timezone.now(),
-            "firstNameInitial": data['holder']['firstName'][0:1],
-            "lastNameInitial": data['holder']['lastName'][0:1],
+            "sampleTime": datetime.now(pytz.utc),
+            "firstNameInitial": data.holder.firstName[0:1],
+            "lastNameInitial": data.holder.lastName[0:1],
             "birthDay": person_date.day,
             "birthMonth": person_date.month,
-            "isSpecimen": data.get('isSpecimen', False),
+            "isSpecimen": data.isSpecimen,
         },
         "key": "inge4",
     }
 
-    # The mobile app also sends commitments and a nonce, but the rest of the requests, the rest is the same.
-    if data.get('nonce', None):
-        request_data['nonce'] = data['nonce']
-
-    if data.get('commitments', None):
-        request_data['commitments'] = data['commitments']
+    # Todo: The mobile app also sends commitments and a nonce, but the rest of the requests, the rest is the same.
+    # if data.get('nonce', None):
+    #     request_data['nonce'] = data['nonce']
+    # if data.get('commitments', None):
+    #     request_data['commitments'] = data['commitments']
 
     return request_data
 
