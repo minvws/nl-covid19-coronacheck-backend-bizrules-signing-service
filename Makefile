@@ -40,8 +40,6 @@ check: venv ## Check for source issues
 
 
 fix: venv ## Automatically fix style issues
-    # The single double quote is explained in https://black.readthedocs.io/en/stable/the_black_code_style.html
-	# We're allowing single quotes out of habit.
 	@. .venv/bin/activate && ${env} python3 -m black ${pysrcdirs}
 
 	# autoflake removes unused imports and unused variables from Python code. It makes use of pyflakes to do this.

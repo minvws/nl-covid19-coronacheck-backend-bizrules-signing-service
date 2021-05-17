@@ -8,7 +8,7 @@ import pytz
 from api.models import StatementOfVaccination
 from api.settings import settings
 
-from api.eligibility import vaccinations_conform_to_vaccination_policy
+from api.eligibility import statement_matches_to_vaccination_policy
 from api.utils import request_post_with_retries
 
 log = logging.getLogger(__package__)
@@ -31,7 +31,7 @@ def is_eligible(data) -> bool:
 
     # The source inge3 has no commitments, so there is no need to check.
 
-    if vaccinations_conform_to_vaccination_policy(data):
+    if statement_matches_to_vaccination_policy(data):
         return True
 
     return False
@@ -54,7 +54,7 @@ def vaccination_event_data_to_signing_data(data: StatementOfVaccination):
             {
                 "type": "vaccination",
                 "unique": "ee5afb32-3ef5-4fdf-94e3-e61b752dbed9",
-                "vaccination": {
+                "data": {
                     "type": "C19-mRNA",
                     "date": "1970-01-01",
                     "brand": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
@@ -99,7 +99,7 @@ def vaccination_event_data_to_signing_data(data: StatementOfVaccination):
             "lastNameInitial": data.holder.lastName[0:1],
             "birthDay": person_date.day,
             "birthMonth": person_date.month,
-            "isSpecimen": data.isSpecimen,
+            # Todo: do we still need to support isSpecimen? And on what is that based then?
         },
         "key": "inge4",
     }
@@ -174,12 +174,12 @@ def sign(data) -> List[Dict[str, Any]]:
         response = request_post_with_retries(
             settings.DOMESTIC_NL_VWS_PAPER_SIGNING_URL,
             data=signing_data,
-            headers={'accept': 'application/json', "Content-Type": "application/json"},
+            headers={"accept": "application/json", "Content-Type": "application/json"},
         )
         response.raise_for_status()
 
         # update the sample time:
-        signing_data['attributes']['sampleTime'] += timedelta(hours=40)
+        signing_data["attributes"]["sampleTime"] += timedelta(hours=40)
 
         proof_of_vaccination.append(response.json())
 

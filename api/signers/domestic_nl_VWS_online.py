@@ -1,7 +1,7 @@
 from typing import Any, Dict
 from api.settings import settings
 
-from api.eligibility import vaccinations_conform_to_vaccination_policy
+from api.eligibility import statement_matches_to_vaccination_policy
 from api.signers.domestic_nl_VWS_paper import vaccination_event_data_to_signing_data
 from api.utils import request_post_with_retries
 
@@ -12,7 +12,7 @@ def is_eligible(data) -> bool:
     if data.source not in ["mobile_app", "printportaal"]:
         return False
 
-    if not vaccinations_conform_to_vaccination_policy(data):
+    if not statement_matches_to_vaccination_policy(data):
         return False
 
     return False
@@ -58,7 +58,7 @@ def sign(data) -> Dict[str, Any]:
     response = request_post_with_retries(
         settings.DOMESTIC_NL_VWS_ONLINE_SIGNING_URL,
         data=request_data,
-        headers={'accept': 'application/json', "Content-Type": "application/json"},
+        headers={"accept": "application/json", "Content-Type": "application/json"},
     )
     response.raise_for_status()
 

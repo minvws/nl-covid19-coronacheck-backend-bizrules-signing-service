@@ -9,7 +9,7 @@ from zeep.transports import Transport
 from zeep.wsse.signature import Signature
 from zeep.xsd import AnySimpleType, ComplexType
 
-_NAMESPACE = 'ns0'
+_NAMESPACE = "ns0"
 
 
 class AbstractService(ABC):

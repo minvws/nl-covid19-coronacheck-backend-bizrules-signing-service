@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-__author__ = 'Elger Jonker, Nick ten Cate for minvws'
+__author__ = "Elger Jonker, Nick ten Cate for minvws"
 
 from datetime import timedelta, datetime
 import base64
@@ -51,15 +51,15 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
     for vaccination_provider in settings.APP_STEP_1_VACCINATION_PROVIDERS:
 
         # Do not run the example.
-        if "EXAMPLE" in vaccination_provider['identifier'] or "TEST" in vaccination_provider['identifier']:
+        if "EXAMPLE" in vaccination_provider["identifier"] or "TEST" in vaccination_provider["identifier"]:
             continue
 
-        hash_input = "-".join([bsn, pii['first_name'], pii['last_name'], pii['day_of_birth']])
-        generic_data['identity_hash'] = base64.b64encode(
+        hash_input = "-".join([bsn, pii["first_name"], pii["last_name"], pii["day_of_birth"]])
+        generic_data["identity_hash"] = base64.b64encode(
             calculate_vws_identity_hash(
-                message=hash_input.encode(), key=vaccination_provider['identity_hash_secret'].encode()
+                message=hash_input.encode(), key=vaccination_provider["identity_hash_secret"].encode()
             )
-        ).decode('UTF-8')
+        ).decode("UTF-8")
 
         unomi_data = {
             "iss": "jwt.test.coronacheck.nl",  # Issuer Claim
@@ -69,15 +69,15 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
         # Send the BSN encrypted to respect privacy
         nonce = random(Box.NONCE_SIZE)
         private_key = PrivateKey(
-            base64.b64decode(vaccination_provider['bsn_cryptography']['private_key'].encode('UTF-8'))
+            base64.b64decode(vaccination_provider["bsn_cryptography"]["private_key"].encode("UTF-8"))
         )
-        public_key = PublicKey(base64.b64decode(vaccination_provider['bsn_cryptography']['public_key'].encode('UTF-8')))
+        public_key = PublicKey(base64.b64decode(vaccination_provider["bsn_cryptography"]["public_key"].encode("UTF-8")))
         box = Box(private_key, public_key)
         event_data = {
             "iss": "jwt.test.coronacheck.nl",  # Issuer Claim
             "aud": vaccination_provider["event_url"],  # Audience Claim
-            "bsn": base64.b64encode(box.encrypt(bsn.encode(), nonce=nonce)).decode('UTF-8'),
-            "nonce": base64.b64encode(nonce).decode('UTF-8'),
+            "bsn": base64.b64encode(box.encrypt(bsn.encode(), nonce=nonce)).decode("UTF-8"),
+            "nonce": base64.b64encode(nonce).decode("UTF-8"),
         }
 
         # todo: the messages seem to change per day or so. There is some instability in the test.
@@ -117,7 +117,7 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
 
         tokens.append(
             {
-                "provider_identifier": vaccination_provider['identifier'],
+                "provider_identifier": vaccination_provider["identifier"],
                 "unomi": jwt.encode(unomi_jwt_data, settings.APP_STEP_1_JWT_PRIVATE_KEY, algorithm="HS256"),
                 "event": jwt.encode(event_jwt_data, settings.APP_STEP_1_JWT_PRIVATE_KEY, algorithm="HS256"),
             }

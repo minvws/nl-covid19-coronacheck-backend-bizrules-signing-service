@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-__author__ = 'Elger Jonker (elger@johnkr.com) for minvws'
+__author__ = "Elger Jonker (elger@johnkr.com) for minvws"
 
 from api.settings import settings
 from typing import List, Dict, Tuple
@@ -25,17 +25,17 @@ def standard_service_errors(answer) -> List[str]:
     errors: List[str] = []
 
     # a single, direct hit with full matches on the request. No errors == success!
-    if answer.Resultaat == 'G':
+    if answer.Resultaat == "G":
         return errors
 
     if answer.Antwoord is None:
         # Having no answer at all is possible when there is no match.
-        errors.append('No answer found for this query.')
+        errors.append("No answer found for this query.")
 
     # If the gender, zipcode, BSN, house_number deviate, there is no match. The rest of
     # the data will deviate from the question because it wasn't asked.
 
-    if answer.Resultaat == 'F':
+    if answer.Resultaat == "F":
         errors.append("Error occurred when retrieving data. Check errors for more details.")
 
     for melding in answer.Melding:
@@ -64,11 +64,11 @@ def call_app_step_1(bsn: str) -> Tuple[List[str], Dict[str, str]]:
         if errors:
             return errors, {}
     except requests.RequestException:
-        return ['Network error accessing SBVZ service'], {}
+        return ["Network error accessing SBVZ service"], {}
 
-    all_names: str = resultaat_list['Voornamen'].Werkelijk
-    last_name: str = resultaat_list['Geslachtsnaam'].Werkelijk
-    date_of_birth: str = resultaat_list['Geboortedatum'].Werkelijk
+    all_names: str = resultaat_list["Voornamen"].Werkelijk
+    last_name: str = resultaat_list["Geslachtsnaam"].Werkelijk
+    date_of_birth: str = resultaat_list["Geboortedatum"].Werkelijk
 
     first_name = all_names.split(" ")[0]
     # example date of birth: "20000229"
@@ -80,10 +80,10 @@ def call_app_step_1(bsn: str) -> Tuple[List[str], Dict[str, str]]:
         # Do not return a complete bsn, to minimize the pii exchanged
         # no; don't return the BSN at all, because you already have this(!)
         # 'BSN': censor_bsn(bsn),
-        'first_name': unidecode(first_name),
-        'last_name': unidecode(last_name),
-        'day_of_birth': day_of_birth,
-        'month_of_birth': month_of_birth,
+        "first_name": unidecode(first_name),
+        "last_name": unidecode(last_name),
+        "day_of_birth": day_of_birth,
+        "month_of_birth": month_of_birth,
     }
 
 

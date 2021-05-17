@@ -61,10 +61,10 @@ async def sign_via_app_step_2(data):
 
 signing_providers = {
     # printportaal, paper proof of vaccination 180 day validity
-    'domestic_nl_vws_static': domestic_nl_VWS_paper,
+    "domestic_nl_vws_static": domestic_nl_VWS_paper,
     # app, 40 hour validity = based on sampletime + 40 hours every request. 180 days / 40 hours requests.
-    'domestic_nl_vws_dynamic': domestic_nl_VWS_online,
-    'international_eu_rvig': international_eu,
+    "domestic_nl_vws_dynamic": domestic_nl_VWS_online,
+    "international_eu_rvig": international_eu,
 }
 
 

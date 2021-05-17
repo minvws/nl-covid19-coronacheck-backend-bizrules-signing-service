@@ -1,5 +1,5 @@
 # Automatic documentation: http://localhost:8000/redoc or http://localhost:8000/docs
-from typing import List, Optional
+from typing import List, Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -46,48 +46,82 @@ class Holder(BaseModel):
 
 
 class VaccinationEnum(str, Enum):
-    Vaccination = 'Vaccination'
-    VaccinationCompleted = 'VaccinationCompleted'
+    Vaccination = "Vaccination"
+    VaccinationCompleted = "VaccinationCompleted"
 
 
-class VaccinationData(BaseModel):
-    type: str = Field(example="C19-mRNA")
+class vaccination(BaseModel):  # noqa
+    """
+    When supplying data and you want to make it easy:
+    - use a HPK Code and just the amount of events.
+
+    not use a HPK and then supply non-normalized names and doseNumber/totalDoses: this makes the
+    logic evermore complex and prone to errors when incorrectly normalizing input.
+
+    """
+
     date: str = Field(example="2021-01-01")
-    brand: str = Field(example="COVID-19 VACCIN PFIZER INJVLST 0,3ML")
-    hpkCode: str = Field(example="2924528", description="hpkcode.nl")
-    batchNumber: str = Field(
-        example="EJ6795",
-        description="The most important field, will be the primary check on what"
-        "vaccin has been administered and saves normalization steps.",
+    hpkCode: Optional[str] = Field(example="2924528", description="hpkcode.nl, will be used to fill EU fields")
+    type: Optional[str] = Field(example="1119349007", description="Can be left blank if hpkCode is entered.")
+    manufacturer: Optional[str] = Field(description="Can be left blank if hpkCode is entered.", example="ORG-100030215")
+    brand: str = Field(example="EU/1/20/1507")  # todo: what format is this? how?
+    completedByMedicalStatement: Optional[bool] = Field(
+        description="If this vaccination is enough to be fully vaccinated"
     )
-    mah: str = Field(description="Manufacturer")
-    country: str = Field(
-        description="ISO 3166-1 (3 letter code) of a country. "
-        "This is the country where the vaccination has been administered."
+
+    country: Optional[str] = Field(
+        description="Optional iso 3166 3-letter country field, will be set to NLD if "
+        "left out. Can be used if shot was administered abroad",
+        example="NLD",
+        default="NLD",
     )
-    administeringCenter: Optional[str] = Field(example="-")
+    doseNumber: Optional[int] = Field(example=1, description="will be based on business rules / brand info if left out")
+    totalDoses: Optional[int] = Field(example=2, description="will be based on business rules / brand info if left out")
 
 
-class VaccinationEvent(BaseModel):
-    # todo: use VaccinationEnum to limit choices.
-    type: str = Field(description="Type of event")
+class test(BaseModel):  # noqa
+    sampleDate: str = Field(example="2021-01-01")
+    resultDate: str = Field(example="2021-01-02")
+    negativeResult: bool = Field(example=True)
+    facility: str = Field(example="GGD XL Amsterdam")
+    # this is not specified yet
+    type: str = Field(example="???")
+    name: str = Field(example="???")
+    manufacturer: str = Field(example="1232")
+
+
+class recovery(BaseModel):  # noqa
+    sampleDate: str = Field(example="2021-01-01")
+    validFrom: str = Field(example="2021-01-12")
+    validUntil: str = Field(example="2021-06-30")
+
+
+class EventType(str, Enum):
+    recovery = "recovery"
+    test = "test"
+    vaccination = "vaccination"
+
+
+class Event(BaseModel):
+    # There is no discriminator support here, so no luck. It IS a feature of openAPI.
+    # It IS possible to create different events with field duplication, but why would we do that
+    # Todo: see responses on: https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/pull/70
+    type: EventType = Field(description="Type of event")
     unique: UUID = Field(description="todo", example="ee5afb32-3ef5-4fdf-94e3-e61b752dbed9")
-    # todo: this should not switch between Vaccination and VaccinationCompleted: therefore the type field is already
-    #  used and it adds a lot of unneeded complexity to parsing and sending vaccination data.
-    vaccination: VaccinationData
+    isSpecimen: bool = Field("Boolean as an integer: 0 or 1.")
+    data: Union[vaccination, test, recovery] = Field(description="Structure is based on the 'type' discriminator.")
 
 
+# Todo: add subtypes for negative test event, recovery statement
 # https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/providing-vaccination-events.md
 # https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/data-structures-overview.md
 class StatementOfVaccination(BaseModel):
     protocolVersion: str = Field(description="The semantic version of this API", default=3.0)
     providerIdentifier: str = Field(description="todo")
     status: str = Field(description="todo, enum probably", default="complete")
-    identityHash: Optional[str] = Field(description="The identity-hash belonging to this person")
     holder: Holder
-    events: List[VaccinationEvent]
-    source: str = Field(description="Used internally in inge4, will be overwritten.", default="")
-    isSpecimen: str = Field("Boolean as an integer: 0 or 1.")
+    events: List[Event]
+    source: Optional[str] = Field(description="Used internally in inge4, will be overwritten.", default="")
 
 
 class DomesticPaperSigningAttributes(BaseModel):

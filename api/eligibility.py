@@ -15,7 +15,7 @@ Generic eligibility methods used in checking eligibility in signing services.
         {
             "type": "vaccination",
             "unique": "ee5afb32-3ef5-4fdf-94e3-e61b752dbed9",
-            "vaccination": {
+            "data": {
                 "date": "2021-01-01",
                 "hpkCode": "2924528",  // If available: type/brand can be left blank.
                 "type": "C19-mRNA",
@@ -26,9 +26,9 @@ Generic eligibility methods used in checking eligibility in signing services.
             }
         },
         {
-            "type": "vaccinationCompleted",
+            "type": "vaccination",
             "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
-            "vaccinationCompleted": {
+            "data": {
                 "date": "2021-01-01",
                 "hpkCode": "2924528",  // If available: type/brand can be left blank.
                 "type": "C19-mRNA",
@@ -45,7 +45,7 @@ Generic eligibility methods used in checking eligibility in signing services.
 import logging
 from typing import List
 
-from api.models import VaccinationEvent, StatementOfVaccination
+from api.models import vaccination, StatementOfVaccination
 
 HPK_ASTRAZENECA = 2925508
 HPK_PFIZER = 2924528
@@ -60,10 +60,11 @@ def normalize_vaccination_events(vaccination_events):
     # Todo: how are vaccination events normalized. Can they be normalized?
     # when the hpkcode is entered, the type and brand can be empty.
     # What kind can i expect? Is this specified in open API somewhere?
+    # todo: HPK codes need to be normailzed to EU events.
     raise NotImplementedError
 
 
-def vaccinations_conform_to_vaccination_policy(data: StatementOfVaccination):
+def statement_matches_to_vaccination_policy(data: StatementOfVaccination):
     """
     The vaccination passport rules change on a day to day basis. What you see here, and below may be
     outdated by far when you read this. Don't currently take below code as an absolute.
@@ -92,7 +93,14 @@ def vaccinations_conform_to_vaccination_policy(data: StatementOfVaccination):
 
     # Because of the complexity of the rules, we want all data that was submitted to obtain a proof of vaccination.
     # There might be more complex rules in the future depending on unknown factors.
-    vaccination_events = data.events
+    vaccination_events = [event.data for event in data.events if event.type == "vaccination"]
+    recovery_events = [event.data for event in data.events if event.type == "recovery"]
+    test_events = [event.data for event in data.events if event.type == "test"]
+
+    # Patient recovered, for EU they don't need anything else.
+    # todo: possibly split eligibility between EU and domestic.
+    if len(recovery_events) > 0:
+        return True
 
     if not_vaccinated_at_all(vaccination_events):
         log.debug("No vaccination received at all: not eligible for signing.")
@@ -120,28 +128,28 @@ def vaccinations_conform_to_vaccination_policy(data: StatementOfVaccination):
     return False
 
 
-def had_vaccine_that_only_needs_one_vaccination(vaccination_events):
+def had_vaccine_that_only_needs_one_vaccination(vaccination_events: List[vaccination]):
     # todo: there might / will be different codes from other countries.
     # Via a doctor this can always be solved with a vaccinationcompleted.
 
     vaccines_that_need_one_dose = [str(HPK_JANSSEN)]
     for vaccination_event in vaccination_events:
         # todo: regardless of type of event (types of event need to be specified):
-        if vaccination_event.vaccination.hpkCode in vaccines_that_need_one_dose:
+        if vaccination_event.hpkCode in vaccines_that_need_one_dose:
             return True
     return False
 
 
-def had_two_vaccinations_or_more(vaccination_events: List[VaccinationEvent]):
+def had_two_vaccinations_or_more(vaccination_events: List[vaccination]):
     # todo: this is probably a very nearsighted implementation.
     if len(vaccination_events) >= 2:
         return True
     return False
 
 
-def health_professional_states_patient_is_sufficiently_vaccinated(vaccination_events: List[VaccinationEvent]):
+def health_professional_states_patient_is_sufficiently_vaccinated(vaccination_events: List[vaccination]):
     for vaccination_event in vaccination_events:
-        if vaccination_event.type == "vaccinationCompleted":
+        if vaccination_event.completedByMedicalStatement:
             return True
     return False
 

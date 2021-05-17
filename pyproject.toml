@@ -2,7 +2,7 @@
 line-length = 120
 target-version = ['py38']
 include = '\.pyi?$'
-skip-string-normalization = true
+skip-string-normalization = false
 exclude = '''
 # A regex preceded with ^/ will apply only to files and directories
 # in the root of the project.

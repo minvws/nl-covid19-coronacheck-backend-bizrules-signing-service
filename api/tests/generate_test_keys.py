@@ -3,7 +3,7 @@ import os
 import secrets as secrets_module
 
 
-def create_test_keys(secrets_dir: str = './signing/secrets/'):
+def create_test_keys(secrets_dir: str = "./signing/secrets/"):
     """
     Generate two key files in the secret directory that are used for field encryption and decryption.
 

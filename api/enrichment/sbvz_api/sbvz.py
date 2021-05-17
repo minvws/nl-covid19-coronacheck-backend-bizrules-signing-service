@@ -15,20 +15,20 @@ def _extract_afwijkingen(vraag: Dict, antwoord) -> List[Tuple[str, Resultaat]]:
             return result
 
         for attr in vraag:
-            result.append((attr, Resultaat(Afwijkend=True, Opgegeven=vraag[attr], Werkelijk='')))
+            result.append((attr, Resultaat(Afwijkend=True, Opgegeven=vraag[attr], Werkelijk="")))
         return result
 
     # What kind of type is making happen that a Persoon or Adres can be treated like a dict
     for attr in antwoord:
-        opgegeven = vraag[attr] if vraag is not None and attr in vraag else ''
+        opgegeven = vraag[attr] if vraag is not None and attr in vraag else ""
 
         if antwoord[attr] is None:
             result.append((attr, Resultaat(Afwijkend=True, Opgegeven=opgegeven, Werkelijk=None)))
             continue
-        if antwoord[attr] == '':
-            result.append((attr, Resultaat(Afwijkend=opgegeven == '', Opgegeven=opgegeven, Werkelijk='')))
+        if antwoord[attr] == "":
+            result.append((attr, Resultaat(Afwijkend=opgegeven == "", Opgegeven=opgegeven, Werkelijk="")))
             continue
-        if 'Afwijkend' not in antwoord[attr]:
+        if "Afwijkend" not in antwoord[attr]:
             result.append(
                 (attr, Resultaat(Afwijkend=opgegeven != antwoord[attr], Opgegeven=opgegeven, Werkelijk=antwoord[attr]))
             )
@@ -38,7 +38,7 @@ def _extract_afwijkingen(vraag: Dict, antwoord) -> List[Tuple[str, Resultaat]]:
             (
                 attr,
                 Resultaat(
-                    Afwijkend=antwoord[attr]['Afwijkend'], Opgegeven=opgegeven, Werkelijk=antwoord[attr]['_value_1']
+                    Afwijkend=antwoord[attr]["Afwijkend"], Opgegeven=opgegeven, Werkelijk=antwoord[attr]["_value_1"]
                 ),
             )
         )

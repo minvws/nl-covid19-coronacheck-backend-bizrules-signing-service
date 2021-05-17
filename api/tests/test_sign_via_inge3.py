@@ -6,11 +6,11 @@ from api.main import app
 
 
 def file(path):
-    with open(path, 'rt') as f:
+    with open(path, "rt") as f:
         return f.read()
 
 
-@freeze_time('2020-02-02')
+@freeze_time("2020-02-02")
 def test_sign_via_inge3(requests_mock):
     signing_response_data = {
         "qr": {
@@ -48,19 +48,18 @@ def test_sign_via_inge3(requests_mock):
 
     client = TestClient(app)
     response = client.post(
-        '/inge3/sign/',
+        "/inge3/sign/",
         # todo: cat to new specs
         json={
             "protocolVersion": "3.0",
             "providerIdentifier": "XXX",
             "status": "complete",
-            "identityHash": "",
             "holder": {"firstName": "Herman", "lastName": "Acker", "birthDate": "1970-01-01"},
             "events": [
                 {
                     "type": "vaccination",
                     "unique": "ee5afb32-3ef5-4fdf-94e3-e61b752dbed9",
-                    "vaccination": {
+                    "data": {
                         "date": "2021-01-01",
                         "hpkCode": "2924528",
                         "type": "C19-mRNA",
@@ -74,7 +73,7 @@ def test_sign_via_inge3(requests_mock):
                 {
                     "type": "vaccination",
                     "unique": "ee5afb32-3ef5-4fdf-94e3-e61b752dbed9",
-                    "vaccination": {
+                    "data": {
                         "date": "2021-04-01",
                         "hpkCode": "2924528",
                         "type": "C19-mRNA",
@@ -91,5 +90,5 @@ def test_sign_via_inge3(requests_mock):
 
     signatures = response.json()
     # 108 QR codes.
-    assert len(signatures['domestic_nl_vws_static']) == 108
-    assert signatures['domestic_nl_vws_static'][0] == json.dumps(signing_response_data)
+    assert len(signatures["domestic_nl_vws_static"]) == 108
+    assert signatures["domestic_nl_vws_static"][0] == json.dumps(signing_response_data)
