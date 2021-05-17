@@ -167,12 +167,48 @@ class DomesticStaticQrResponse(BaseModel):
     error: int = Field(description="", example=0)
 
 
+class DomesticDynamicQrResponse(BaseModel):
+    """
+    {
+        "ism": {
+            "proof": {
+                "c": "tHk+nswA/VSgQR41o+NlPEZUlBCdVbV7IK50/lrK0jo=",
+                "e_response": "PfjLNp/UBFogQb88UQEArTQj4/mkg6zTFOg0UUGVsa9EQBCaZYG07AVgzrr7X5CterCGYcbV6DZEqCoP/UyknzL2fOeC5f1kqp/W69GIRqVFV2Cyjz6aITNQQBaiM4KkM21Cs2i32cmsPMC1GSW72ORpU0mPmP1RzWf0MuUdIQ=="
+            },
+            "signature": {
+                "A": "ONKxjtJQUqMXolC0OltT2JWPua/7XqcFSuuCxNo25jh71C2S98JDYlSc2rkVC0G/RTNdY/gPfRWfzNOGIJvxSS3zRrnPBLFvG6Zo4rzIjsF+sQoIeUE/FNSAHTi7yART7MJIEbkHxn95Jw/dG8hTppbt1ALYpTXdKao6yFKRF0E=",
+                "e": "EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa2ORygGdQClk2+FZuHl/",
+                "v": "DJurgTXsDZgXHihHYpXwH81gmH+gan22XUPT07SiwuGdqNi1ikHDcXWSuf7Yae+nSIWh3fyIEoyIdNvloycrljVU7cClklrOLAsOyU45W07cjbBQATQmavoBsyZZaG/b/4aJFhfcuYHv6J72/8rm1UVqyk0i/0ROw/JukxbOFwkXm6FpfF2XUf3HvnSgEAbxPebxm5UKej7DxXx3fpHdELMKiyBICQjN0r6MwCU3PhbynISrjdbQsveeBh9id3O/kFISqMANSp6QmNPZ0jd4pOivOLFS",
+                "KeyshareP": null
+            }
+        },
+        "attributes": ["", ""]
+    }
+    """
+    class DomesticDynamicQr(BaseModel):
+        class DomesticDynamicProof(BaseModel):
+            c: str = Field(example="tHk+nswA/VSgQR41o+NlPEZUlBCdVbV7IK50/lrK0jo=")
+            e_response: str = Field(example="PfjLNp/UBFogQb88UQEArTQj4/mkg6zTFOg0UUGVsa9EQBCaZYG07AVgzrr7X5CterCGYcbV6DZEqCoP/UyknzL2fOeC5f1kqp/W69GIRqVFV2Cyjz6aITNQQBaiM4KkM21Cs2i32cmsPMC1GSW72ORpU0mPmP1RzWf0MuUdIQ==")
+
+        class DomesticDynamicSignature(BaseModel):
+            A: str = Field(example="ONKxjtJQUqMXolC0OltT2JWPua/7XqcFSuuCxNo25jh71C2S98JDYlSc2rkVC0G/RTNdY/gPfRWfzNOGIJvxSS3zRrnPBLFvG6Zo4rzIjsF+sQoIeUE/FNSAHTi7yART7MJIEbkHxn95Jw/dG8hTppbt1ALYpTXdKao6yFKRF0E=")
+            e: str = Field(example="EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa2ORygGdQClk2+FZuHl/")
+            v: str = Field(example="tHk+nswA/VSgQR41o+NlPEZUlBCdVbV7IK50/lrK0jo=")
+            KeyshareP: Optional[str] = Field(example="Todo: what?")
+
+        proof: DomesticDynamicProof
+        signature: DomesticDynamicSignature
+
+    attributes: List[str]
+    ism: DomesticDynamicQr
+
+
 class ProofOfVaccination(BaseModel):
     nl_domestic_static: Optional[List[DomesticStaticQrResponse]] = Field(description="Paper vaccination")
-    nl_domestic_dynamic: Optional[List[DomesticStaticQrResponse]] = Field(description="Mobile app vaccination")
+    nl_domestic_dynamic: Optional[List[DomesticDynamicQrResponse]] = Field(description="Mobile app vaccination")
     eu_international: Optional[List[DomesticStaticQrResponse]] = Field(description="todo: EU vaccination for both mobile / paper")
 
-
+# Todo: add EU response
 class DomesticPaperSigningAttributes(BaseModel):
     """
     Created based on StatementOfVaccination
