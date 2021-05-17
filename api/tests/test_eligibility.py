@@ -16,6 +16,8 @@ def test_vaccinations_conform_to_vaccination_policy(caplog):
 
     # 1x janssen / 1x vaccine that takes one dose
     with caplog.at_level(logging.DEBUG, logger="signing"):
+        # todo: how to convert a json request to a StatementOfVaccination. Just like when a request is made
+        #  and this mapping is performed?
         vaccination_events = {
             'events': [
                 {
@@ -33,6 +35,7 @@ def test_vaccinations_conform_to_vaccination_policy(caplog):
                 }
             ]
         }
+        bla = StatementOfVaccination(**vaccination_events)
         assert vaccinations_conform_to_vaccination_policy(vaccination_events) is True
         assert "Person had a vaccine that requires only one dose, eligible for signing." in caplog.text
 
