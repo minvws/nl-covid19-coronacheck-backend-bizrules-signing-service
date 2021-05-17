@@ -71,6 +71,8 @@ class VaccinationEvent(BaseModel):
     vaccination: VaccinationData
 
 
+# https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/providing-vaccination-events.md
+# https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/data-structures-overview.md
 class StatementOfVaccination(BaseModel):
     protocolVersion: str = Field(description="The semantic version of this API", default=3.0)
     providerIdentifier: str = Field(description="todo")
@@ -119,9 +121,9 @@ class EuropeanTest(BaseModel):
 
 
 class EuropeanRecovery(BaseModel):
-    fr = Field(description="date of first positive test result. recovery.sampleDate", example="todo")
-    df = Field(description="certificate valid from. recovery.validFrom", example="todo")
-    du = Field(
+    fr: str = Field(description="date of first positive test result. recovery.sampleDate", example="todo")
+    df: str = Field(description="certificate valid from. recovery.validFrom", example="todo")
+    du: str = Field(
         description="certificate valid until. not more than 180 days after the date of first positive "
         "test result. recovery.validUntil",
         example="todo",
@@ -130,25 +132,35 @@ class EuropeanRecovery(BaseModel):
 
 class EuropeanOnlineSigningRequest(BaseModel):
     # Docs: https://docs.google.com/spreadsheets/d/1hatNyvZMJBP7jSU_OtMQOAISBulT2O1aXgHDH73V-EA/edit#gid=0
-    fn = Field(description="Family name, based on holder.lastName", example="Acker")
+    fn: str = Field(description="Family name, based on holder.lastName", example="Acker")
     # Yes, signer will take care of generating this normalized version
-    fnt = Field(description="Transliterated family name (A-Z, unidecoded) with<instead of space.", example="Acker")
-    gn = Field(description="Given name, based on holder.firstName", example="Herman")
+    fnt: str = Field(description="Transliterated family name (A-Z, unidecoded) with<instead of space.", example="Acker")
+    gn: str = Field(description="Given name, based on holder.firstName", example="Herman")
     # Yes, signer will take care of generating this normalized version
-    gnt = Field(description="The given name(s) of the person transliterated")
+    gnt: str = Field(description="The given name(s) of the person transliterated")
     # Signer should convert "1975-XX-XX" to "1975" as the EU DGC can't handle the XX's of unknown birthmonth/day
-    dob = Field(
+    dob: str = Field(
         description="Date of Birth of the person addressed in the DGC. "
         "ISO 8601 date format restricted to range 1900-2099"
     )
     # https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/disease-agent-targeted.json
     # Signer will assume covid as we're not covering other diseases yet
-    tg = Field(description="disease or agent targeted", example="840539006", default="840539006")
-    ci = Field(
+    tg: str = Field(description="disease or agent targeted", example="840539006", default="840539006")
+    ci: str = Field(
         description="Certificate Identifier, format as per UVCI (*), "
         "Yes (conversion of unique to V-XXX-YYYYYYYY-Z, provider only needs to provide unique"
     )
-    co = Field(description="Member State, ISO 3166", default="NLD")
+    co: str = Field(description="Member State, ISO 3166", default="NLD")
     # todo: this is not
-    is_ = Field(description="certificate issuer, Will be set by signer to a fixed minvws string")
-    isSpecimen = Field(description="Used to create specimen certificates (not available in EU QR's!)", default="FALSE")
+    is_: str = Field(description="certificate issuer, Will be set by signer to a fixed minvws string")
+    # isSpecimen = Field(description="Used to create specimen certificates (not available in EU QR's!)", default="FALSE")
+
+
+"""
+Message To EU Signer
+{
+	OID           string -> determined on the contents of the data  Prio OID = Vaccination, Recovery, Test.
+	ExpirationTime int64 - hoe lang moet die geldig zijn. Denken 180 dagen. Maar dat zal wijzigen.
+	DGC map[string]interface{} - de daadwerkelijke data: dgc. de fbm fbtm gn en dergelijke.
+}
+"""

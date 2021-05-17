@@ -5,7 +5,7 @@ from fastapi import FastAPI, HTTPException
 
 
 from api.requesters import inge3, mobile_app, mobile_app_step_1
-from api.signers import domestic_nl_VWS_paper, domestic_nl_VWS_online, international_eu_RVIG
+from api.signers import domestic_nl_VWS_paper, domestic_nl_VWS_online, international_eu
 from api.models import EncryptedBSNRequest, PIIEnrichmentResponse, ErrorList, StatementOfVaccination
 from api.enrichment.sbvz import enrich_for_health_professional_inge3
 
@@ -64,7 +64,7 @@ signing_providers = {
     'domestic_nl_vws_static': domestic_nl_VWS_paper,
     # app, 40 hour validity = based on sampletime + 40 hours every request. 180 days / 40 hours requests.
     'domestic_nl_vws_dynamic': domestic_nl_VWS_online,
-    'international_eu_rvig': international_eu_RVIG,
+    'international_eu_rvig': international_eu,
 }
 
 
