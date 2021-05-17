@@ -71,7 +71,7 @@ class vaccination(BaseModel):  # noqa
 
     country: Optional[str] = Field(
         description="Optional iso 3166 3-letter country field, will be set to NLD if "
-        "left out. Can be used if shot was administered abroad",
+                    "left out. Can be used if shot was administered abroad",
         example="NLD",
         default="NLD",
     )
@@ -124,6 +124,55 @@ class StatementOfVaccination(BaseModel):
     source: Optional[str] = Field(description="Used internally in inge4, will be overwritten.", default="")
 
 
+class DomesticStaticQrAttributes(BaseModel):
+    sampleTime: str = Field(description="Unix Timestamp", example="1619092800")
+    firstNameInitial: str = Field(example="E", description="First letter of the first name of this person")
+    lastNameInitial: str = Field(example="J", description="First letter of the last name of this person")
+    birthDay: str = Field(example="27", description="Day (not date!) of birth.")
+    birthMonth: str = Field(example="12", description="Month (not date!) of birth.")
+    isPaperProof: str = Field(example="1", default="1")
+    # todo: enum, is this a boolean?
+    isSpecimen: str = Field(
+        example="0",
+        description="Boolean cast as string, if this is a testcase. " "To facilitate testing in production.",
+    )
+
+
+class DomesticStaticQrCode(BaseModel):
+    data: str = Field(example="TF+*JY+21:6 T%NCQ+ PVHDDP+Z-WQ8-TG/O3NLFLH3:FH:O.KCG9F997/...")
+    attributesIssued: DomesticStaticQrAttributes
+
+
+class DomesticStaticQrResponse(BaseModel):
+    """
+    {
+        "qr": {
+            "data": "TF+*JY+21:6 T%NCQ+ PVHDDP+Z-WQ8-TG/O3NLFLH3:FHS-RIFVQ:UV57K/.:R6+.MX:U$HIQG3FVY%6NIN0:O.KCG9F997/",
+            "attributesIssued": {
+                "sampleTime": "1619092800",
+                "firstNameInitial": "B",
+                "lastNameInitial": "B",
+                "birthDay": "27",
+                "birthMonth": "4",
+                "isSpecimen": "1",
+                "isPaperProof": "1",
+            }
+        },
+        "status": "ok",
+        "error": 0
+    }
+    """
+    qr: DomesticStaticQrCode
+    status: str = Field(description="", example="ok")
+    error: int = Field(description="", example=0)
+
+
+class ProofOfVaccination(BaseModel):
+    nl_domestic_static: Optional[List[DomesticStaticQrResponse]] = Field(description="Paper vaccination")
+    nl_domestic_dynamic: Optional[List[DomesticStaticQrResponse]] = Field(description="Mobile app vaccination")
+    eu_international: Optional[List[DomesticStaticQrResponse]] = Field(description="todo: EU vaccination for both mobile / paper")
+
+
 class DomesticPaperSigningAttributes(BaseModel):
     """
     Created based on StatementOfVaccination
@@ -165,7 +214,7 @@ class EuropeanRecovery(BaseModel):
     df: str = Field(description="certificate valid from. recovery.validFrom", example="todo")
     du: str = Field(
         description="certificate valid until. not more than 180 days after the date of first positive "
-        "test result. recovery.validUntil",
+                    "test result. recovery.validUntil",
         example="todo",
     )
 
@@ -181,14 +230,14 @@ class EuropeanOnlineSigningRequest(BaseModel):
     # Signer should convert "1975-XX-XX" to "1975" as the EU DGC can't handle the XX's of unknown birthmonth/day
     dob: str = Field(
         description="Date of Birth of the person addressed in the DGC. "
-        "ISO 8601 date format restricted to range 1900-2099"
+                    "ISO 8601 date format restricted to range 1900-2099"
     )
     # https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/disease-agent-targeted.json
     # Signer will assume covid as we're not covering other diseases yet
     tg: str = Field(description="disease or agent targeted", example="840539006", default="840539006")
     ci: str = Field(
         description="Certificate Identifier, format as per UVCI (*), "
-        "Yes (conversion of unique to V-XXX-YYYYYYYY-Z, provider only needs to provide unique"
+                    "Yes (conversion of unique to V-XXX-YYYYYYYY-Z, provider only needs to provide unique"
     )
     co: str = Field(description="Member State, ISO 3166", default="NLD")
     # todo: this is not

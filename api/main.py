@@ -1,12 +1,12 @@
 import os
-from typing import Dict, Any, Tuple, List
+from typing import Dict, Any, Tuple, List, Optional
 
 from fastapi import FastAPI, HTTPException
 
 
 from api.requesters import inge3, mobile_app, mobile_app_step_1
 from api.signers import domestic_nl_VWS_paper, domestic_nl_VWS_online, international_eu
-from api.models import EncryptedBSNRequest, PIIEnrichmentResponse, StatementOfVaccination
+from api.models import EncryptedBSNRequest, PIIEnrichmentResponse, StatementOfVaccination, ProofOfVaccination
 from api.enrichment.sbvz import enrich_for_health_professional_inge3
 
 from logging import config
@@ -37,7 +37,7 @@ async def enrich_for_health_professional(request: EncryptedBSNRequest) -> PIIEnr
     return data
 
 
-@app.post("/inge3/sign/")
+@app.post("/inge3/sign/", response_model=ProofOfVaccination)
 async def sign_via_inge3(data: StatementOfVaccination):
     errors, signatures = process(inge3, data)
     if errors:
@@ -51,7 +51,7 @@ async def sign_via_app_step_1(request: EncryptedBSNRequest):
     return mobile_app_step_1.identity_provider_calls(request.bsn)
 
 
-@app.post("/app/sign_step_2/")
+@app.post("/app/sign_step_2/", response_model=ProofOfVaccination)
 async def sign_via_app_step_2(data):
     errors, signatures = process(mobile_app, data)
     if errors:
@@ -61,14 +61,14 @@ async def sign_via_app_step_2(data):
 
 signing_providers = {
     # printportaal, paper proof of vaccination 180 day validity
-    "domestic_nl_vws_static": domestic_nl_VWS_paper,
+    "nl_domestic_static": domestic_nl_VWS_paper,
     # app, 40 hour validity = based on sampletime + 40 hours every request. 180 days / 40 hours requests.
-    "domestic_nl_vws_dynamic": domestic_nl_VWS_online,
-    "international_eu_rvig": international_eu,
+    "nl_domestic_dynamic": domestic_nl_VWS_online,
+    "eu_international": international_eu,
 }
 
 
-def process(signing_requester: [inge3, mobile_app], data: Dict[str, Any]) -> Tuple[List[str], Any]:
+def process(signing_requester: [inge3, mobile_app], data: StatementOfVaccination) -> Tuple[List[str], Optional[ProofOfVaccination]]:
     # Abstracted because the process is the same, only the initial data is different.
 
     # If there already a request, then don't start a new one. Only need to start one request.
@@ -86,4 +86,4 @@ def process(signing_requester: [inge3, mobile_app], data: Dict[str, Any]) -> Tup
         if module.is_eligible(enriched_data):
             qr_data[provider_name] = module.sign(enriched_data)
 
-    return [], qr_data
+    return [], ProofOfVaccination(**qr_data)

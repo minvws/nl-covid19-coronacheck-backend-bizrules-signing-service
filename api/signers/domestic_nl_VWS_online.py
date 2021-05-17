@@ -24,7 +24,6 @@ def sign(data) -> Dict[str, Any]:
         "attributes": {
             # difference between static and dynamic
             "sampleTime": "2021-04-20T03:00:00Z",
-            "testType": "",  # will be deleted
             "firstNameInitial": "B",
             "lastNameInitial": "B",
             "birthDay": "28",

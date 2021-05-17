@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import date, timedelta, datetime
 from math import ceil
@@ -130,7 +131,7 @@ def sign(data) -> List[Dict[str, Any]]:
 
     signing_data = vaccination_event_data_to_signing_data(data)
 
-    proof_of_vaccination = []
+    proof_of_vaccination: List[Dict[str, Any]] = []
 
     for call in range(0, amount_of_calls):
 
@@ -164,7 +165,6 @@ def sign(data) -> List[Dict[str, Any]]:
               "birthMonth": "4",
               "isSpecimen": "1",
               "isPaperProof": "1",
-              "testType": "pcr"
             }
           },
           "status": "ok",
@@ -181,6 +181,6 @@ def sign(data) -> List[Dict[str, Any]]:
         # update the sample time:
         signing_data["attributes"]["sampleTime"] += timedelta(hours=40)
 
-        proof_of_vaccination.append(response.json())
+        proof_of_vaccination.append(json.loads(response.json()))
 
     return proof_of_vaccination
