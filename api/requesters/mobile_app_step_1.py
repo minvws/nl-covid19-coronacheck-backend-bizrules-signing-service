@@ -20,11 +20,6 @@ from api.enrichment import sbvz
 log = logging.getLogger(__package__)
 
 
-def datetime_now():
-    # added for testing / mocking purposes
-    return datetime.now(pytz.utc)
-
-
 def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
     """
     In order to reliably determine a system contains information about a certain person without revealing who that
@@ -39,7 +34,7 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
 
     # todo: normalize
 
-    now = datetime_now()
+    now = datetime.now(pytz.utc)
     generic_data = {
         "iat": now,  # Current time
         "nbf": now,  # Not valid before
