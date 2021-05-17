@@ -1,5 +1,5 @@
 import os
-from typing import Dict, Any, Tuple, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from fastapi import FastAPI, HTTPException
 
@@ -68,7 +68,9 @@ signing_providers = {
 }
 
 
-def process(signing_requester: [inge3, mobile_app], data: StatementOfVaccination) -> Tuple[List[str], Optional[ProofOfVaccination]]:
+def process(
+    signing_requester: [inge3, mobile_app], data: StatementOfVaccination
+) -> Tuple[List[str], Optional[ProofOfVaccination]]:
     # Abstracted because the process is the same, only the initial data is different.
 
     # If there already a request, then don't start a new one. Only need to start one request.
