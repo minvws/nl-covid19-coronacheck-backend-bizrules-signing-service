@@ -1,12 +1,12 @@
 import os
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, List
 
 from fastapi import FastAPI, HTTPException
 
 
 from api.requesters import inge3, mobile_app, mobile_app_step_1
 from api.signers import domestic_nl_VWS_paper, domestic_nl_VWS_online, international_eu
-from api.models import EncryptedBSNRequest, PIIEnrichmentResponse, ErrorList, StatementOfVaccination
+from api.models import EncryptedBSNRequest, PIIEnrichmentResponse, StatementOfVaccination
 from api.enrichment.sbvz import enrich_for_health_professional_inge3
 
 from logging import config
@@ -68,13 +68,13 @@ signing_providers = {
 }
 
 
-def process(signing_requester: [inge3, mobile_app], data: Dict[str, Any]) -> Tuple[ErrorList, Any]:
+def process(signing_requester: [inge3, mobile_app], data: Dict[str, Any]) -> Tuple[List[str], Any]:
     # Abstracted because the process is the same, only the initial data is different.
 
     # If there already a request, then don't start a new one. Only need to start one request.
     errors = signing_requester.validate(data)
     if errors:
-        return ErrorList(errors), None
+        return errors, None
 
     # Probably a call to SBV-Z.
     enriched_data = signing_requester.enrich(data)
@@ -86,4 +86,4 @@ def process(signing_requester: [inge3, mobile_app], data: Dict[str, Any]) -> Tup
         if module.is_eligible(enriched_data):
             qr_data[provider_name] = module.sign(enriched_data)
 
-    return ErrorList([]), qr_data
+    return [], qr_data

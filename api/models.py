@@ -30,7 +30,13 @@ class PIIEnrichmentResponse(BaseModel):
 
 class ErrorList(BaseModel):
     # todo: add init, add count so it's easy to check if there are errors.
-    errors: List[str]
+
+    def __init__(self, errors, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if errors:
+            self.errors = errors
+
+    errors: Optional[List[str]] = Field(description="")
 
 
 class Holder(BaseModel):

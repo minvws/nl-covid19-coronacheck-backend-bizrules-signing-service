@@ -12,7 +12,6 @@ def file(path):
 
 @freeze_time('2020-02-02')
 def test_sign_via_inge3(requests_mock):
-
     signing_response_data = {
         "qr": {
             "data": "TF+*JY+21:6 T%NCQ+ PVHDDP+Z-WQ8-TG/O3NLFLH3:FHS-RIFVQ:UV57K/.:R6+.MX:U$HIQG3FVY%6NIN0:O.KCG9F997/.\
@@ -44,55 +43,53 @@ def test_sign_via_inge3(requests_mock):
         "error": 0,
     }
 
+    requests_mock.post("https://signing.local/static", json=json.dumps(signing_response_data))
     requests_mock.post("http://testserver/inge3/sign/", real_http=True)
-    requests_mock.post(url="https://signing.local/static", json=json.dumps(signing_response_data))
 
     client = TestClient(app)
     response = client.post(
         '/inge3/sign/',
-        json.dumps(
-            {
-                "protocolVersion": "3.0",
-                "providerIdentifier": "XXX",
-                "status": "complete",
-                "identityHash": "",
-                "holder": {"firstName": "Herman", "lastName": "Acker", "birthDate": "1970-01-01"},
-                "events": [
-                    {
-                        "type": "vaccination",
-                        "unique": "ee5afb32-3ef5-4fdf-94e3-e61b752dbed9",
-                        "vaccination": {
-                            "date": "2021-01-01",
-                            "hpkCode": "2924528",
-                            "type": "C19-mRNA",
-                            "mah": "PFIZER",
-                            "brand": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
-                            "batchNumber": "EW2243",
-                            "administeringCenter": "",
-                            "country": "NLD",
-                        },
+        # todo: cat to new specs
+        json={
+            "protocolVersion": "3.0",
+            "providerIdentifier": "XXX",
+            "status": "complete",
+            "identityHash": "",
+            "holder": {"firstName": "Herman", "lastName": "Acker", "birthDate": "1970-01-01"},
+            "events": [
+                {
+                    "type": "vaccination",
+                    "unique": "ee5afb32-3ef5-4fdf-94e3-e61b752dbed9",
+                    "vaccination": {
+                        "date": "2021-01-01",
+                        "hpkCode": "2924528",
+                        "type": "C19-mRNA",
+                        "mah": "PFIZER",
+                        "brand": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+                        "batchNumber": "EW2243",
+                        "administeringCenter": "",
+                        "country": "NLD",
                     },
-                    {
-                        "type": "vaccination",
-                        "unique": "ee5afb32-3ef5-4fdf-94e3-e61b752dbed9",
-                        "vaccination": {
-                            "date": "2021-04-01",
-                            "hpkCode": "2924528",
-                            "type": "C19-mRNA",
-                            "mah": "PFIZER",
-                            "brand": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
-                            "batchNumber": "EW2243",
-                            "administeringCenter": "",
-                            "country": "NLD",
-                        },
+                },
+                {
+                    "type": "vaccination",
+                    "unique": "ee5afb32-3ef5-4fdf-94e3-e61b752dbed9",
+                    "vaccination": {
+                        "date": "2021-04-01",
+                        "hpkCode": "2924528",
+                        "type": "C19-mRNA",
+                        "mah": "PFIZER",
+                        "brand": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+                        "batchNumber": "EW2243",
+                        "administeringCenter": "",
+                        "country": "NLD",
                     },
-                ],
-            }
-        ),
+                },
+            ],
+        },
     )
 
     signatures = response.json()
-    print(signatures)
     # 108 QR codes.
     assert len(signatures['domestic_nl_vws_static']) == 108
     assert signatures['domestic_nl_vws_static'][0] == json.dumps(signing_response_data)
