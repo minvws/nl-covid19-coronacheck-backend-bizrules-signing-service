@@ -2,7 +2,7 @@ import json
 
 from freezegun import freeze_time
 from fastapi.testclient import TestClient
-from api.main import app
+from api import app
 from api.models import DomesticStaticQrResponse, ProofOfVaccination
 
 

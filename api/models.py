@@ -45,11 +45,6 @@ class Holder(BaseModel):
     birthDate: str = Field(description="ISO 8601 date string (large to small, YYYY-MM-DD)", example="1970-01-01")
 
 
-class VaccinationEnum(str, Enum):
-    Vaccination = "Vaccination"
-    VaccinationCompleted = "VaccinationCompleted"
-
-
 class vaccination(BaseModel):  # noqa
     """
     When supplying data and you want to make it easy:
@@ -124,25 +119,6 @@ class StatementOfVaccination(BaseModel):
     source: Optional[str] = Field(description="Used internally in inge4, will be overwritten.", default="")
 
 
-class DomesticStaticQrAttributes(BaseModel):
-    sampleTime: str = Field(description="Unix Timestamp", example="1619092800")
-    firstNameInitial: str = Field(example="E", description="First letter of the first name of this person")
-    lastNameInitial: str = Field(example="J", description="First letter of the last name of this person")
-    birthDay: str = Field(example="27", description="Day (not date!) of birth.")
-    birthMonth: str = Field(example="12", description="Month (not date!) of birth.")
-    isPaperProof: str = Field(example="1", default="1")
-    # todo: enum, is this a boolean?
-    isSpecimen: str = Field(
-        example="0",
-        description="Boolean cast as string, if this is a testcase. " "To facilitate testing in production.",
-    )
-
-
-class DomesticStaticQrCode(BaseModel):
-    data: str = Field(example="TF+*JY+21:6 T%NCQ+ PVHDDP+Z-WQ8-TG/O3NLFLH3:FH:O.KCG9F997/...")
-    attributesIssued: DomesticStaticQrAttributes
-
-
 class DomesticStaticQrResponse(BaseModel):
     """
     {
@@ -162,6 +138,23 @@ class DomesticStaticQrResponse(BaseModel):
         "error": 0
     }
     """
+
+    class DomesticStaticQrCode(BaseModel):
+        class DomesticStaticQrAttributes(BaseModel):
+            sampleTime: str = Field(description="Unix Timestamp", example="1619092800")
+            firstNameInitial: str = Field(example="E", description="First letter of the first name of this person")
+            lastNameInitial: str = Field(example="J", description="First letter of the last name of this person")
+            birthDay: str = Field(example="27", description="Day (not date!) of birth.")
+            birthMonth: str = Field(example="12", description="Month (not date!) of birth.")
+            isPaperProof: str = Field(example="1", default="1")
+            # todo: enum, is this a boolean?
+            isSpecimen: str = Field(
+                example="0",
+                description="Boolean cast as string, if this is a testcase. " "To facilitate testing in production.",
+            )
+
+        data: str = Field(example="TF+*JY+21:6 T%NCQ+ PVHDDP+Z-WQ8-TG/O3NLFLH3:FH:O.KCG9F997/...")
+        attributesIssued: DomesticStaticQrAttributes
 
     qr: DomesticStaticQrCode
     status: str = Field(description="", example="ok")

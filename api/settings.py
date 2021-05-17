@@ -6,7 +6,7 @@ from pydantic import BaseSettings
 
 import json5
 
-CONFIG_FILE = "/etc/inge4.conf"
+CONFIG_FILE = "/etc/inge4/inge4.conf"
 
 config = configparser.ConfigParser()
 

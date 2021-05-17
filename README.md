@@ -49,8 +49,8 @@ http://localhost:8000/sign_via_inge3/
 ## Configuration:
 Configuration is read from two files:
 
-- /etc/inge4.conf, fallback to inge4_development.conf
-- /etc/inge4_logging.yaml, fallback to inge4_logging.yaml
+- /etc/inge4/inge4.conf, fallback to inge4_development.conf
+- /etc/inge4/logging.yaml, fallback to inge4_logging.yaml
 
 
 ## Caveats:

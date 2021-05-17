@@ -45,7 +45,7 @@ Generic eligibility methods used in checking eligibility in signing services.
 import logging
 from typing import List
 
-from api.models import vaccination, StatementOfVaccination
+from api.models import vaccination, StatementOfVaccination, EventType
 
 HPK_ASTRAZENECA = 2925508
 HPK_PFIZER = 2924528
@@ -57,10 +57,9 @@ log = logging.getLogger(__package__)
 
 
 def normalize_vaccination_events(vaccination_events):
-    # Todo: how are vaccination events normalized. Can they be normalized?
+    # todo: HPK codes need to be normailzed to EU events. EU events are leading.
     # when the hpkcode is entered, the type and brand can be empty.
     # What kind can i expect? Is this specified in open API somewhere?
-    # todo: HPK codes need to be normailzed to EU events.
     raise NotImplementedError
 
 
@@ -69,6 +68,7 @@ def statement_matches_to_vaccination_policy(data: StatementOfVaccination):
     The vaccination passport rules change on a day to day basis. What you see here, and below may be
     outdated by far when you read this. Don't currently take below code as an absolute.
 
+    The state of the art is cryptically defined here:
     https://docs.google.com/spreadsheets/d/1d66HXvh9bxZTwlTqaxxqE-IKmv22MkB8isZj87a-kaQ/edit#gid=0
 
     There might be differences in EU and NL regulations, depending on allowing half-vaccination passports.
@@ -78,24 +78,15 @@ def statement_matches_to_vaccination_policy(data: StatementOfVaccination):
     Perhaps the return value of this method is the duration in days of validity of signing.
     It's not clear where that duration has to be placed, sent or communicated to anything.
 
-    todo: how to check on 1 positive serological test
-    todo: how to check on 1 antigen test
-    todo: how to check on 1 breathalizer test (?)
-    todo: how to deal with two different vaccines
-    todo: how to deal with 1/2 scenarios
-    todo: how to deal with 1 positive PCR test?
-    todo: how to deal with vaccination information from other eu states
-    todo: what happens if there is a mix of vaccinations and brands?
-
     :param data:
     :return:
     """
 
     # Because of the complexity of the rules, we want all data that was submitted to obtain a proof of vaccination.
     # There might be more complex rules in the future depending on unknown factors.
-    vaccination_events = [event.data for event in data.events if event.type == "vaccination"]
-    recovery_events = [event.data for event in data.events if event.type == "recovery"]
-    test_events = [event.data for event in data.events if event.type == "test"]
+    vaccination_events = [event.data for event in data.events if event.type == EventType.vaccination]
+    recovery_events = [event.data for event in data.events if event.type == EventType.recovery]
+    test_events = [event.data for event in data.events if event.type == EventType.test]
 
     # Patient recovered, for EU they don't need anything else.
     # todo: possibly split eligibility between EU and domestic.

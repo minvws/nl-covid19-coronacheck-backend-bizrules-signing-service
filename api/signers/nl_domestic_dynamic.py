@@ -2,7 +2,7 @@ from typing import Any, Dict
 from api.settings import settings
 
 from api.eligibility import statement_matches_to_vaccination_policy
-from api.signers.domestic_nl_VWS_paper import vaccination_event_data_to_signing_data
+from api.signers.nl_domestic_static import vaccination_event_data_to_signing_data
 from api.utils import request_post_with_retries
 
 

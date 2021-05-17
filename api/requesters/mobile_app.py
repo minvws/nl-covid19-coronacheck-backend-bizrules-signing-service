@@ -3,7 +3,6 @@
 from typing import List
 
 from api.models import StatementOfVaccination
-from api.requesters import validate_vaccination_event_data
 
 
 def enrich(data: StatementOfVaccination):
@@ -14,5 +13,5 @@ def enrich(data: StatementOfVaccination):
 
 def validate(data) -> List[str]:
     errors = []
-    errors += validate_vaccination_event_data(data)
+    # errors += validate_vaccination_event_data(data)
     return errors
