@@ -1,5 +1,8 @@
 import logging
 
+import pytest
+from pydantic.error_wrappers import ValidationError
+
 from api.eligibility import vaccinations_conform_to_vaccination_policy
 from api.models import StatementOfVaccination
 
@@ -7,13 +10,9 @@ from api.models import StatementOfVaccination
 def test_vaccinations_conform_to_vaccination_policy(caplog):
     assert caplog.text == ""
 
-    # not vaccinated at all
-    with caplog.at_level(logging.DEBUG, logger="signing"):
-        sov = StatementOfVaccination()
-        # todo: this doesn't work anymore because the input is validated against a model and at least
-        #  one event has to be added.
-        assert vaccinations_conform_to_vaccination_policy(sov) is False
-        assert "No vaccination received at all: not eligible for signing." in caplog.text
+    # Sending in an empty SoV will result in all kinds of validation errors (sanity check for pydantic)
+    with pytest.raises(ValidationError, match=" validation errors"):
+        StatementOfVaccination()
 
     # 1x janssen / 1x vaccine that takes one dose
     with caplog.at_level(logging.DEBUG, logger="signing"):
