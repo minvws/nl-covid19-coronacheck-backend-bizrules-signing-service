@@ -18,6 +18,7 @@ skinparam {
     Monochrome false
     shadowing false
 
+    ' "Comic Sans MS"
     defaultFontName RijksoverheidSansWebText
 
     boundary {

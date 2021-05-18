@@ -8,9 +8,9 @@ appdirs==1.4.4
     # via
     #   -c requirements.txt
     #   black
-astroid==2.5.3
+astroid==2.5.6
     # via pylint
-attrs==20.3.0
+attrs==21.2.0
     # via
     #   -c requirements.txt
     #   pytest
@@ -18,7 +18,7 @@ autoflake==1.4
     # via -r requirements-dev.in
 bandit==1.7.0
     # via -r requirements-dev.in
-black==20.8b1
+black==21.5b1
     # via -r requirements-dev.in
 certifi==2020.12.5
     # via
@@ -38,19 +38,15 @@ coverage==5.5
     # via
     #   -r requirements-dev.in
     #   pytest-cov
-deprecation==2.1.0
-    # via testcontainers
-docker==5.0.0
-    # via testcontainers
-flake8==3.9.1
+flake8==3.9.2
     # via -r requirements-dev.in
 freezegun==1.1.0
     # via -r requirements-dev.in
 gitdb==4.0.7
     # via gitpython
-gitpython==3.1.15
+gitpython==3.1.17
     # via bandit
-greenlet==1.0.0
+greenlet==1.1.0
     # via sqlalchemy
 idna==2.10
     # via
@@ -74,12 +70,10 @@ mypy-extensions==0.4.3
 mypy==0.812
     # via -r requirements-dev.in
 packaging==20.9
-    # via
-    #   deprecation
-    #   pytest
+    # via pytest
 pathspec==0.8.1
     # via black
-pbr==5.5.1
+pbr==5.6.0
     # via stevedore
 pluggy==0.13.1
     # via pytest
@@ -92,28 +86,18 @@ pyflakes==2.3.1
     #   -r requirements-dev.in
     #   autoflake
     #   flake8
-pylint-django==2.4.3
+pylint==2.8.2
     # via -r requirements-dev.in
-pylint-plugin-utils==0.6
-    # via pylint-django
-pylint==2.7.4
-    # via
-    #   -r requirements-dev.in
-    #   pylint-django
-    #   pylint-plugin-utils
 pyparsing==2.4.7
     # via packaging
 pytest-cov==2.11.1
     # via -r requirements-dev.in
-pytest-django==4.2.0
+pytest-mock==3.6.1
     # via -r requirements-dev.in
-pytest-mock==3.5.1
-    # via -r requirements-dev.in
-pytest==6.2.3
+pytest==6.2.4
     # via
     #   -r requirements-dev.in
     #   pytest-cov
-    #   pytest-django
     #   pytest-mock
 python-dateutil==2.8.1
     # via freezegun
@@ -122,35 +106,29 @@ pytz==2021.1
     #   -c requirements.txt
     #   -r requirements-dev.in
 pyyaml==5.4.1
-    # via bandit
+    # via
+    #   -c requirements.txt
+    #   bandit
 regex==2021.4.4
     # via black
-requests-mock==1.9.1
+requests-mock==1.9.2
     # via -r requirements-dev.in
 requests==2.25.1
     # via
     #   -c requirements.txt
-    #   docker
     #   requests-mock
-rope==0.19.0
-    # via -r requirements-dev.in
-six==1.15.0
+six==1.16.0
     # via
     #   -c requirements.txt
     #   bandit
     #   python-dateutil
     #   requests-mock
-    #   websocket-client
 smmap==4.0.0
     # via gitdb
-sqlalchemy==1.4.10
+sqlalchemy==1.4.15
     # via -r requirements-dev.in
 stevedore==3.3.0
     # via bandit
-tblib==1.7.0
-    # via -r requirements-dev.in
-testcontainers==3.4.0
-    # via -r requirements-dev.in
 toml==0.10.2
     # via
     #   -c requirements.txt
@@ -158,21 +136,14 @@ toml==0.10.2
     #   pylint
     #   pytest
 typed-ast==1.4.3
+    # via mypy
+typing-extensions==3.10.0.0
     # via
-    #   black
-    #   mypy
-typing-extensions==3.7.4.3
-    # via
-    #   black
-    #   gitpython
+    #   -c requirements.txt
     #   mypy
 urllib3==1.26.4
     # via
     #   -c requirements.txt
     #   requests
-websocket-client==0.58.0
-    # via docker
 wrapt==1.12.1
-    # via
-    #   astroid
-    #   testcontainers
+    # via astroid

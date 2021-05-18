@@ -1,0 +1,39 @@
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  standard:
+    format: "[%(levelname)s] [%(asctime)-15s] [%(name)s:%(lineno)s] %(message)s"
+    'datefmt': "%d/%b/%Y %H:%M:%S"
+
+  syslogformat:
+    format: "inge4 [%(levelname)s] [%(asctime)-15s] [%(name)s:%(lineno)s] %(message)s"
+    'datefmt': "%d/%b/%Y %H:%M:%S"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    formatter: standard
+    level: DEBUG
+    stream: ext://sys.stdout
+
+  syslog:
+    class: logging.handlers.SysLogHandler
+    formatter: syslogformat
+    facility: user
+    address: /dev/log
+
+loggers:
+  uvicorn:
+    error:
+      propagate: true
+  api:
+    error:
+      handlers: [console]
+      level: debug
+      propagate: true
+
+root:
+  level: DEBUG
+  handlers: [console]
+  propagate: yes
