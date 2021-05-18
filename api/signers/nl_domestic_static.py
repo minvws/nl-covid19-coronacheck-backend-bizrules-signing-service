@@ -89,15 +89,11 @@ def vaccination_event_data_to_signing_data(data: StatementOfVaccination):
 
     person_date = date.fromisoformat(data.holder.birthDate)
 
-    # todo: normalization is this:
-    #  https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/providing-test-results.md#initial-normalization
-    # Testdata: https://github.com/minvws/nl-covid19-coronacheck-app-coronatestprovider-portal/blob/main/default-test-cases.csv
-    # More testdata: https://docs.google.com/spreadsheets/d/1JuUyqmhtrqe1ibuSWOK-DOOaqec4p8bKBFvxCurGQWU/edit?usp=sharing
     request_data = {
         "attributes": {
             "sampleTime": datetime.now(pytz.utc),
-            "firstNameInitial": data.holder.firstName[0:1],
-            "lastNameInitial": data.holder.lastName[0:1],
+            "firstNameInitial": data.holder.first_name_initial,
+            "lastNameInitial": data.holder.last_name_initial,
             "birthDay": person_date.day,
             "birthMonth": person_date.month,
             # Todo: do we still need to support isSpecimen? And on what is that based then?
