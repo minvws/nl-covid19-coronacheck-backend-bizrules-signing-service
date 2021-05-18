@@ -6,7 +6,7 @@ import base64
 from fastapi.testclient import TestClient
 
 from freezegun import freeze_time
-from api import app
+from api.app import app
 
 
 def file(path):
