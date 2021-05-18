@@ -45,7 +45,8 @@ async def sign_via_inge3(data: StatementOfVaccination):
 
 @app.post("/app/sign_step_1/")
 async def sign_via_app_step_1(request: EncryptedBSNRequest):
-    # todo: decrypt BSN
+    # todo: decrypt BSN ->
+    # todo: will be an extra call to retrieve the BSN from the token.
     return mobile_app_step_1.identity_provider_calls(request.bsn)
 
 

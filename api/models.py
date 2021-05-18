@@ -205,6 +205,46 @@ class DomesticDynamicQrResponse(BaseModel):
 
 
 class ProofOfVaccination(BaseModel):
+    """
+    Todo: store nonce to redis in mobile steps.
+
+    Todo: split the static and dynamic routes
+
+    Todo: will be converted to this:
+    {
+        "domesticProof": {
+            # Samenvatting.
+            "issuedAt": 1621264322,
+            "validTo": 1623683522,
+            # wat heeft de rule engine bepaald om dit ding te bouwen.
+            # De rule engine moet dus dit gaan teruggeven.
+            "origin": ["vaccination", "test"],
+            "credentials": [
+                {"id": 1, "ccm": "Het objectje met proof en signature"},
+                {"id": 2, "ccm": "ccm here"},
+                {"id": 3, "ccm": "ccm here"},
+                {"id": 4, "ccm": "ccm here"},
+                {"id": 5, "ccm": "ccm here"},
+                {"id": 6, "ccm": "ccm here"}
+            ]
+        },
+        "euProofs": [
+            {
+                "type": "eu_test",
+                "expirationTime": 1623683522,
+                "issuedAt": 1621264322,
+                "qrData": "0oRNogEmBEgAAAAAAAAAAKIBAAT2WQE1pAFiTkwEGmGO/TkGGmChrzk5AQOhAaRjdmVyZTEuMC4wY25hbaRjZm50ckFDSFRFUk5BQU08RU48TkFBTWJnbmlWb29yIE5hYW1jZ250aVZPT1I8TkFBTWJmbnJBY2h0ZXJuYWFtIGVuIG5hYW1jZG9iajE5NTMtMDktMDNhdoGqYnZwajExMTkzNDkwMDdibXBqQkJJQlAtQ29yVmJkbvtAIAAAAAAAAGJkdGoyMDIxLTAyLTE4YnRnaTg0MDUzOTAwNmJzZPtAIAAAAAAAAGJjb2BiaXN4JE1pbmlzdHJ5IG9mIEhlYWx0aCBXZWxmYXJlIGFuZCBTcG9ydGJjaXgvdXJuOnV2Y2k6MDE6Tkw6MzMzODUwMjQ0NzVlNGM1NmExN2I3NDlmOTI0MDQwMzlibWFgWEDEcYN/qqfm6jaHgTrRoc/7OlchwSoMVCLPzA3V1jG5JEkVhTPsNUQJNn9ltmnDxL554K+WFBWKUEQxiRBbxqRv"
+            },
+            {
+                "type": "eu_allinone",
+                "expirationTime": 1623683522,
+                "issuedAt": 1621264322,
+                "qrData": "0oRNogEmBEgAAAAAAAAAAKIBAAT2WQE1pAFiTkwEGmGO/TkGGmChrzk5AQOhAaRjdmVyZTEuMC4wY25hbaRjZm50ckFDSFRFUk5BQU08RU48TkFBTWJnbmlWb29yIE5hYW1jZ250aVZPT1I8TkFBTWJmbnJBY2h0ZXJuYWFtIGVuIG5hYW1jZG9iajE5NTMtMDktMDNhdoGqYnZwajExMTkzNDkwMDdibXBqQkJJQlAtQ29yVmJkbvtAIAAAAAAAAGJkdGoyMDIxLTAyLTE4YnRnaTg0MDUzOTAwNmJzZPtAIAAAAAAAAGJjb2BiaXN4JE1pbmlzdHJ5IG9mIEhlYWx0aCBXZWxmYXJlIGFuZCBTcG9ydGJjaXgvdXJuOnV2Y2k6MDE6Tkw6MzMzODUwMjQ0NzVlNGM1NmExN2I3NDlmOTI0MDQwMzlibWFgWEDEcYN/qqfm6jaHgTrRoc/7OlchwSoMVCLPzA3V1jG5JEkVhTPsNUQJNn9ltmnDxL554K+WFBWKUEQxiRBbxqRv"
+            }
+        ]
+    }
+    """
+
     nl_domestic_static: Optional[List[DomesticStaticQrResponse]] = Field(description="Paper vaccination")
     nl_domestic_dynamic: Optional[List[DomesticDynamicQrResponse]] = Field(description="Mobile app vaccination")
     eu_international: Optional[List[DomesticStaticQrResponse]] = Field(
