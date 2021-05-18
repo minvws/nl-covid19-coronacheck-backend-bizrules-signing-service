@@ -14,7 +14,7 @@ import yaml
 
 logging_config = "/etc/inge4/logging.yaml" if os.path.isfile("/etc/inge4/logging.yaml") else "inge4_logging.yaml"
 with open(logging_config) as f:
-    config.dictConfig(yaml.load(f, Loader=yaml.FullLoader))
+    config.dictConfig(yaml.safe_load(f))
 
 app = FastAPI()
 
