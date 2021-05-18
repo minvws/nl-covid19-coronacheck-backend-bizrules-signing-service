@@ -1,9 +1,11 @@
 # Automatic documentation: http://localhost:8000/redoc or http://localhost:8000/docs
+from enum import Enum
+import re
 from typing import List, Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field
-from enum import Enum
+from unidecode import unidecode
 
 
 class EncryptedBSNRequest(BaseModel):
@@ -40,9 +42,39 @@ class ErrorList(BaseModel):
 
 
 class Holder(BaseModel):
+    _first_alphabetic = re.compile("('[a-z]-|[^a-zA-Z])*([a-zA-Z]).*")
+
     firstName: str = Field(description="", example="Herman")
     lastName: str = Field(description="", example="Acker")
     birthDate: str = Field(description="ISO 8601 date string (large to small, YYYY-MM-DD)", example="1970-01-01")
+
+    @classmethod
+    def _name_initial(cls, name, default=""):
+        """
+        This function produces a normalized initial as documented on
+        obsolete link: https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/providing-events-by-token.md#initial-normalization
+        new link: https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/feature/normalization-1/architecture/Domestic%20Data%20Normalisation.md
+
+        The parameter default is returned if `unidecode(name)` does not contain a character matchin [a-zA-Z], for
+        example if it is the empty string
+
+        Testdata: https://github.com/minvws/nl-covid19-coronacheck-app-coronatestprovider-portal/blob/main/default-test-cases.csv
+        More testdata: https://docs.google.com/spreadsheets/d/1JuUyqmhtrqe1ibuSWOK-DOOaqec4p8bKBFvxCurGQWU/edit?usp=sharing
+        """
+        match = cls._first_alphabetic.match(unidecode(name))
+        if match and match.group(2):
+            return match.group(2).upper()
+        return default
+
+    @property
+    def first_name_initial(self, default=""):
+        """See documentation of `_name_initial`"""
+        return self._name_initial(self.firstName, default=default)
+
+    @property
+    def last_name_initial(self, default=""):
+        """See dcomentation of `_name_initial`"""
+        return self._name_initial(self.lastName, default=default)
 
 
 class vaccination(BaseModel):  # noqa
@@ -328,8 +360,8 @@ class EuropeanOnlineSigningRequest(BaseModel):
 """
 Message To EU Signer
 {
-	OID           string -> determined on the contents of the data  Prio OID = Vaccination, Recovery, Test.
-	ExpirationTime int64 - hoe lang moet die geldig zijn. Denken 180 dagen. Maar dat zal wijzigen.
-	DGC map[string]interface{} - de daadwerkelijke data: dgc. de fbm fbtm gn en dergelijke.
+    OID           string -> determined on the contents of the data  Prio OID = Vaccination, Recovery, Test.
+    ExpirationTime int64 - hoe lang moet die geldig zijn. Denken 180 dagen. Maar dat zal wijzigen.
+    DGC map[string]interface{} - de daadwerkelijke data: dgc. de fbm fbtm gn en dergelijke.
 }
 """
