@@ -1,15 +1,14 @@
 import json
 import logging
-from datetime import date, timedelta, datetime
+from datetime import date, datetime, timedelta
 from math import ceil
-from typing import Any, Dict, List
+from typing import List
 
 import pytz
 
-from api.models import StatementOfVaccination
+from api.eligibility import is_eligible_for_domestic_signing
+from api.models import DomesticStaticQrResponse, StatementOfVaccination
 from api.settings import settings
-
-from api.eligibility import statement_matches_to_vaccination_policy
 from api.utils import request_post_with_retries
 
 log = logging.getLogger(__package__)
@@ -32,7 +31,7 @@ def is_eligible(data) -> bool:
 
     # The source inge3 has no commitments, so there is no need to check.
 
-    if statement_matches_to_vaccination_policy(data):
+    if is_eligible_for_domestic_signing(data):
         return True
 
     return False
@@ -115,7 +114,7 @@ PROOF_OF_VACCINATION_VALIDITY_HOURS = 180 * 24
 
 
 # todo: is it possible to make this 1 call where we give a date range? to make 1 request instead of 180 -> confer
-def sign(data) -> List[Dict[str, Any]]:
+def sign(data) -> List[DomesticStaticQrResponse]:
     """
     Returns a list of "statement of vaccination".
     A proof of vaccination is valid for 180 days, but a "statement of vaccination" only 40 hours.
@@ -128,9 +127,9 @@ def sign(data) -> List[Dict[str, Any]]:
 
     signing_data = vaccination_event_data_to_signing_data(data)
 
-    proof_of_vaccination: List[Dict[str, Any]] = []
+    proof_of_vaccination: List[DomesticStaticQrResponse] = []
 
-    for call in range(0, amount_of_calls):
+    for _ in range(0, amount_of_calls):
 
         # Note: 108 requests is pretty massive. So the backend has to scale very well.
         # For the whole process to be completed in 2 seconds, it will be 18 milliseconds per call.
@@ -178,6 +177,6 @@ def sign(data) -> List[Dict[str, Any]]:
         # update the sample time:
         signing_data["attributes"]["sampleTime"] += timedelta(hours=40)
 
-        proof_of_vaccination.append(json.loads(response.json()))
+        proof_of_vaccination.append(DomesticStaticQrResponse(**json.loads(response.json())))
 
     return proof_of_vaccination

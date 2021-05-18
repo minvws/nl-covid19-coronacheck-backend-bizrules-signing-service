@@ -1,25 +1,18 @@
-from typing import Any, Dict
-from api.settings import settings
+# pylint: disable=duplicate-code
+# Messages are long and thus might be duplicates quickly.
 
-from api.eligibility import statement_matches_to_vaccination_policy
+from typing import List
+
+from api.models import DomesticProofMessage, DomesticStaticQrResponse, StatementOfVaccination
+from api.settings import settings
 from api.signers.nl_domestic_static import vaccination_event_data_to_signing_data
 from api.utils import request_post_with_retries
 
 
-def is_eligible(data) -> bool:
-    # todo: check for flow, and for commitments in the request.
-    # todo: what flow has printportaal? What is the entry port for printportaal?
-    if data.source not in ["mobile_app", "printportaal"]:
-        return False
-
-    if not statement_matches_to_vaccination_policy(data):
-        return False
-
-    return False
-
-
-def sign(data) -> Dict[str, Any]:
+def sign(data: StatementOfVaccination) -> DomesticProofMessage:
     """
+    Todo: it's unclear if there will be one or more requests, probably covering 10 days of 24 hour codes.
+    Todo: implement this for multiple days. How many, is that a param / config variable?
     {
         "attributes": {
             # difference between static and dynamic
@@ -67,16 +60,45 @@ def sign(data) -> Dict[str, Any]:
         "ism": {
             "proof": {
                 "c": "tHk+nswA/VSgQR41o+NlPEZUlBCdVbV7IK50/lrK0jo=",
-                "e_response": "PfjLNp/UBFogQb88UQEArTQj4/mkg6zTFOg0UUGVsa9EQBCaZYG07AVgzrr7X5CterCGYcbV6DZEqCoP/UyknzL2fOeC5f1kqp/W69GIRqVFV2Cyjz6aITNQQBaiM4KkM21Cs2i32cmsPMC1GSW72ORpU0mPmP1RzWf0MuUdIQ=="
+                "e_response": "PfjLNp/UBFogQb88UQEArTQj4/mkg6zTFOg0UUGVsa9EQBCaZYG07AVgzrr7X5CterCGYcbV6DZEqCoP/UyknzL2f
+                OeC5f1kqp/W69GIRqVFV2Cyjz6aITNQQBaiM4KkM21Cs2i32cmsPMC1GSW72ORpU0mPmP1RzWf0MuUdIQ=="
             },
             "signature": {
-                "A": "ONKxjtJQUqMXolC0OltT2JWPua/7XqcFSuuCxNo25jh71C2S98JDYlSc2rkVC0G/RTNdY/gPfRWfzNOGIJvxSS3zRrnPBLFvG6Zo4rzIjsF+sQoIeUE/FNSAHTi7yART7MJIEbkHxn95Jw/dG8hTppbt1ALYpTXdKao6yFKRF0E=",
-                "e": "EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa2ORygGdQClk2+FZuHl/",
-                "v": "DJurgTXsDZgXHihHYpXwH81gmH+gan22XUPT07SiwuGdqNi1ikHDcXWSuf7Yae+nSIWh3fyIEoyIdNvloycrljVU7cClklrOLAsOyU45W07cjbBQATQmavoBsyZZaG/b/4aJFhfcuYHv6J72/8rm1UVqyk0i/0ROw/JukxbOFwkXm6FpfF2XUf3HvnSgEAbxPebxm5UKej7DxXx3fpHdELMKiyBICQjN0r6MwCU3PhbynISrjdbQsveeBh9id3O/kFISqMANSp6QmNPZ0jd4pOivOLFS",
+                "A": "ONKxjtJQUqMXolC0OltT2JWPua/7XqcFSuuCxNo25jh71C2S98JDYlSc2rkVC0G/RTNdY/gPfRWfzNOGIJvxSS3zRrnPBLFvG6
+                Zo4rzIjsF+sQoIeUE/FNSAHTi7yART7MJIEbkHxn95Jw/dG8hTppbt1ALYpTXdKao6yFKRF0E=",
+                "e": "EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa2ORygGdQClk2+FZuH
+                l/",
+                "v": "DJurgTXsDZgXHihHYpXwH81gmH+gan22XUPT07SiwuGdqNi1ikHDcXWSuf7Yae+nSIWh3fyIEoyIdNvloycrljVU7cClklrOLA
+                sOyU45W07cjbBQATQmavoBsyZZaG/b/4aJFhfcuYHv6J72/8rm1UVqyk0i/0ROw/JukxbOFwkXm6FpfF2XUf3HvnSgEAbxPebxm5UKej
+                7DxXx3fpHdELMKiyBICQjN0r6MwCU3PhbynISrjdbQsveeBh9id3O/kFISqMANSp6QmNPZ0jd4pOivOLFS",
                 "KeyshareP": null
             }
         },
         "attributes": ["", ""]
     }
     """
-    return response.json()
+
+    return to_domestic_proof_message([DomesticStaticQrResponse(**response.json())])
+
+
+def to_domestic_proof_message(data: List[DomesticStaticQrResponse]) -> DomesticProofMessage:
+    """
+    "issuedAt": 1621264322,
+    "validTo": 1623683522,
+    # wat heeft de rule engine bepaald om dit ding te bouwen.
+    # De rule engine moet dus dit gaan teruggeven.
+    "origin": ["vaccination", "test"],
+    "credentials": [
+        {"id": 1, "ccm": "Het objectje met proof en signature"},
+        {"id": 2, "ccm": "ccm here"},
+        {"id": 3, "ccm": "ccm here"},
+        {"id": 4, "ccm": "ccm here"},
+        {"id": 5, "ccm": "ccm here"},
+        {"id": 6, "ccm": "ccm here"}
+    ]
+    :param data:
+    :return:
+    """
+
+    # todo: implement
+    return data

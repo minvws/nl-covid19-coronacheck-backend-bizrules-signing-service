@@ -40,6 +40,8 @@ check: venv ## Check for source issues
 
 
 fix: venv ## Automatically fix style issues
+	# @. .venv/bin/activate && ${env} python3 -m isort ${pysrcdirs}
+
 	@. .venv/bin/activate && ${env} python3 -m black ${pysrcdirs}
 
 	# autoflake removes unused imports and unused variables from Python code. It makes use of pyflakes to do this.

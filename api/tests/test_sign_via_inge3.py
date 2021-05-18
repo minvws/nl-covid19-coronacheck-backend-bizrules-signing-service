@@ -1,14 +1,10 @@
 import json
 
-from freezegun import freeze_time
 from fastapi.testclient import TestClient
+from freezegun import freeze_time
+
 from api.app import app
-from api.models import DomesticStaticQrResponse, ProofOfVaccination
-
-
-def file(path):
-    with open(path, "rt") as f:
-        return f.read()
+from api.models import DomesticStaticQrResponse, PaperProofOfVaccination
 
 
 @freeze_time("2020-02-02")
@@ -39,12 +35,11 @@ def test_sign_via_inge3(requests_mock):
     client = TestClient(app)
     response = client.post(
         "/inge3/sign/",
-        # todo: cat to new specs
-        json={
+        json={  # pylint: disable=duplicate-code
             "protocolVersion": "3.0",
             "providerIdentifier": "XXX",
             "status": "complete",
-            "holder": {"firstName": "Herman", "lastName": "Acker", "birthDate": "1970-01-01"},
+            "holder": {"firstName": "Henk", "lastName": "Akker", "birthDate": "1970-01-01"},
             "events": [
                 {
                     "type": "vaccination",
@@ -76,10 +71,10 @@ def test_sign_via_inge3(requests_mock):
         },
     )
 
-    signatures: ProofOfVaccination = ProofOfVaccination(**response.json())
+    signatures: PaperProofOfVaccination = PaperProofOfVaccination(**response.json())
     # 108 QR codes.
-    assert len(signatures.nl_domestic_static) == 108
-    assert signatures.nl_domestic_static[0] == DomesticStaticQrResponse(**signing_response_data)
+    assert len(signatures.domesticProof) == 108
+    assert signatures.domesticProof[0] == DomesticStaticQrResponse(**signing_response_data)
 
     # Make sure the response value complies with the models specified:
     # This is already done in the app via pydantic.

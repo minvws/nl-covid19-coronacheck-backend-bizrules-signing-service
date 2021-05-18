@@ -1,6 +1,9 @@
+# Pydantic models have no methods in many cases.
+# We want to force the casing in certain places in the API: invalid-name
+# pylint: disable=too-few-public-methods,invalid-name
 # Automatic documentation: http://localhost:8000/redoc or http://localhost:8000/docs
-from enum import Enum
 import re
+from enum import Enum
 from typing import List, Optional, Union
 from uuid import UUID
 
@@ -22,6 +25,11 @@ class EncryptedBSNRequest(BaseModel):
         }
 
 
+class BSNRetrievalToken(BaseModel):
+    # todo: Sent to inge6, returns the attributes.
+    access_resource: str = Field(description="XYZ")
+
+
 class PIIEnrichmentResponse(BaseModel):
     # How to add descriptions to the fields?
     first_name: str = Field(description="", example="Herman")
@@ -31,13 +39,6 @@ class PIIEnrichmentResponse(BaseModel):
 
 
 class ErrorList(BaseModel):
-    # todo: add init, add count so it's easy to check if there are errors.
-
-    def __init__(self, errors, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if errors:
-            self.errors = errors
-
     errors: Optional[List[str]] = Field(description="")
 
 
@@ -52,14 +53,17 @@ class Holder(BaseModel):
     def _name_initial(cls, name, default=""):
         """
         This function produces a normalized initial as documented on
-        obsolete link: https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/providing-events-by-token.md#initial-normalization
-        new link: https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/feature/normalization-1/architecture/Domestic%20Data%20Normalisation.md
+        obsolete link: https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/providin
+        g-events-by-token.md#initial-normalization
+        new link: https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/feature/normalization-1
+        /architecture/Domestic%20Data%20Normalisation.md
 
         The parameter default is returned if `unidecode(name)` does not contain a character matchin [a-zA-Z], for
         example if it is the empty string
 
-        Testdata: https://github.com/minvws/nl-covid19-coronacheck-app-coronatestprovider-portal/blob/main/default-test-cases.csv
-        More testdata: https://docs.google.com/spreadsheets/d/1JuUyqmhtrqe1ibuSWOK-DOOaqec4p8bKBFvxCurGQWU/edit?usp=sharing
+        Testdata: https://github.com/minvws/nl-covid19-coronacheck-app-coronatestprovider-portal/blob/main/default-test-
+        cases.csv
+        More testdata: https://docs.google.com/spreadsheets/d/1JuUyqmhtrqe1ibuSWOK-DOOaqec4p8bKBFvxCurGQWU/edit
         """
         match = cls._first_alphabetic.match(unidecode(name))
         if match and match.group(2):
@@ -67,14 +71,15 @@ class Holder(BaseModel):
         return default
 
     @property
-    def first_name_initial(self, default=""):
+    # todo: R0206: Cannot have defined parameters for properties (property-with-parameters)
+    def first_name_initial(self):
         """See documentation of `_name_initial`"""
-        return self._name_initial(self.firstName, default=default)
+        return self._name_initial(self.firstName, default="")
 
     @property
-    def last_name_initial(self, default=""):
+    def last_name_initial(self):
         """See dcomentation of `_name_initial`"""
-        return self._name_initial(self.lastName, default=default)
+        return self._name_initial(self.lastName, default="")
 
 
 class vaccination(BaseModel):  # noqa
@@ -140,7 +145,8 @@ class Event(BaseModel):
 
 
 # Todo: add subtypes for negative test event, recovery statement
-# https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/providing-vaccination-events.md
+# https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/providing-vaccination-events
+# .md
 # https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/data-structures-overview.md
 class StatementOfVaccination(BaseModel):
     protocolVersion: str = Field(description="The semantic version of this API", default=3.0)
@@ -148,7 +154,6 @@ class StatementOfVaccination(BaseModel):
     status: str = Field(description="todo, enum probably", default="complete")
     holder: Holder
     events: List[Event]
-    source: Optional[str] = Field(description="Used internally in inge4, will be overwritten.", default="")
 
 
 class DomesticStaticQrResponse(BaseModel):
@@ -199,12 +204,17 @@ class DomesticDynamicQrResponse(BaseModel):
         "ism": {
             "proof": {
                 "c": "tHk+nswA/VSgQR41o+NlPEZUlBCdVbV7IK50/lrK0jo=",
-                "e_response": "PfjLNp/UBFogQb88UQEArTQj4/mkg6zTFOg0UUGVsa9EQBCaZYG07AVgzrr7X5CterCGYcbV6DZEqCoP/UyknzL2fOeC5f1kqp/W69GIRqVFV2Cyjz6aITNQQBaiM4KkM21Cs2i32cmsPMC1GSW72ORpU0mPmP1RzWf0MuUdIQ=="
+                "e_response": "PfjLNp/UBFogQb88UQEArTQj4/mkg6zTFOg0UUGVsa9EQBCaZYG07AVgzrr7X5CterCGYcbV6DZEqCoP/UyknzL2f
+                OeC5f1kqp/W69GIRqVFV2Cyjz6aITNQQBaiM4KkM21Cs2i32cmsPMC1GSW72ORpU0mPmP1RzWf0MuUdIQ=="
             },
             "signature": {
-                "A": "ONKxjtJQUqMXolC0OltT2JWPua/7XqcFSuuCxNo25jh71C2S98JDYlSc2rkVC0G/RTNdY/gPfRWfzNOGIJvxSS3zRrnPBLFvG6Zo4rzIjsF+sQoIeUE/FNSAHTi7yART7MJIEbkHxn95Jw/dG8hTppbt1ALYpTXdKao6yFKRF0E=",
-                "e": "EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa2ORygGdQClk2+FZuHl/",
-                "v": "DJurgTXsDZgXHihHYpXwH81gmH+gan22XUPT07SiwuGdqNi1ikHDcXWSuf7Yae+nSIWh3fyIEoyIdNvloycrljVU7cClklrOLAsOyU45W07cjbBQATQmavoBsyZZaG/b/4aJFhfcuYHv6J72/8rm1UVqyk0i/0ROw/JukxbOFwkXm6FpfF2XUf3HvnSgEAbxPebxm5UKej7DxXx3fpHdELMKiyBICQjN0r6MwCU3PhbynISrjdbQsveeBh9id3O/kFISqMANSp6QmNPZ0jd4pOivOLFS",
+                "A": "ONKxjtJQUqMXolC0OltT2JWPua/7XqcFSuuCxNo25jh71C2S98JDYlSc2rkVC0G/RTNdY/gPfRWfzNOGIJvxSS3zRrnPBLFvG6
+                Zo4rzIjsF+sQoIeUE/FNSAHTi7yART7MJIEbkHxn95Jw/dG8hTppbt1ALYpTXdKao6yFKRF0E=",
+                "e": "EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa2ORygGdQClk2+FZuH
+                l/",
+                "v": "DJurgTXsDZgXHihHYpXwH81gmH+gan22XUPT07SiwuGdqNi1ikHDcXWSuf7Yae+nSIWh3fyIEoyIdNvloycrljVU7cClklrOLA
+                sOyU45W07cjbBQATQmavoBsyZZaG/b/4aJFhfcuYHv6J72/8rm1UVqyk0i/0ROw/JukxbOFwkXm6FpfF2XUf3HvnSgEAbxPebxm5UKej
+                7DxXx3fpHdELMKiyBICQjN0r6MwCU3PhbynISrjdbQsveeBh9id3O/kFISqMANSp6QmNPZ0jd4pOivOLFS",
                 "KeyshareP": null
             }
         },
@@ -216,15 +226,18 @@ class DomesticDynamicQrResponse(BaseModel):
         class DomesticDynamicProof(BaseModel):
             c: str = Field(example="tHk+nswA/VSgQR41o+NlPEZUlBCdVbV7IK50/lrK0jo=")
             e_response: str = Field(
-                example="PfjLNp/UBFogQb88UQEArTQj4/mkg6zTFOg0UUGVsa9EQBCaZYG07AVgzrr7X5CterCGYcbV6DZEqCoP/UyknzL2fOeC5f1kqp/W69GIRqVFV2Cyjz6aITNQQBaiM4KkM21Cs2i32cmsPMC1GSW72ORpU0mPmP1RzWf0MuUdIQ=="
+                example="PfjLNp/UBFogQb88UQEArTQj4/mkg6zTFOg0UUGVsa9EQBCaZYG07AVgzrr7X5CterCGYcbV6DZEqCoP/UyknzL2fOeC5f"
+                "1kqp/W69GIRqVFV2Cyjz6aITNQQBaiM4KkM21Cs2i32cmsPMC1GSW72ORpU0mPmP1RzWf0MuUdIQ=="
             )
 
         class DomesticDynamicSignature(BaseModel):
             A: str = Field(
-                example="ONKxjtJQUqMXolC0OltT2JWPua/7XqcFSuuCxNo25jh71C2S98JDYlSc2rkVC0G/RTNdY/gPfRWfzNOGIJvxSS3zRrnPBLFvG6Zo4rzIjsF+sQoIeUE/FNSAHTi7yART7MJIEbkHxn95Jw/dG8hTppbt1ALYpTXdKao6yFKRF0E="
+                example="ONKxjtJQUqMXolC0OltT2JWPua/7XqcFSuuCxNo25jh71C2S98JDYlSc2rkVC0G/RTNdY/gPfRWfzNOGIJvxSS3zRrnPBL"
+                "FvG6Zo4rzIjsF+sQoIeUE/FNSAHTi7yART7MJIEbkHxn95Jw/dG8hTppbt1ALYpTXdKao6yFKRF0E="
             )
             e: str = Field(
-                example="EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa2ORygGdQClk2+FZuHl/"
+                example="EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa2ORygGdQClk2+"
+                "FZuHl/"
             )
             v: str = Field(example="tHk+nswA/VSgQR41o+NlPEZUlBCdVbV7IK50/lrK0jo=")
             KeyshareP: Optional[str] = Field(example="Todo: what?")
@@ -236,52 +249,102 @@ class DomesticDynamicQrResponse(BaseModel):
     ism: DomesticDynamicQr
 
 
-class ProofOfVaccination(BaseModel):
+class EuropeanProofOfVaccination(BaseModel):
+    # todo; how to get here from the eu response
     """
-    Todo: store nonce to redis in mobile steps.
-
-    Todo: split the static and dynamic routes
-
-    Todo: will be converted to this:
-    {
-        "domesticProof": {
-            # Samenvatting.
-            "issuedAt": 1621264322,
-            "validTo": 1623683522,
-            # wat heeft de rule engine bepaald om dit ding te bouwen.
-            # De rule engine moet dus dit gaan teruggeven.
-            "origin": ["vaccination", "test"],
-            "credentials": [
-                {"id": 1, "ccm": "Het objectje met proof en signature"},
-                {"id": 2, "ccm": "ccm here"},
-                {"id": 3, "ccm": "ccm here"},
-                {"id": 4, "ccm": "ccm here"},
-                {"id": 5, "ccm": "ccm here"},
-                {"id": 6, "ccm": "ccm here"}
-            ]
-        },
-        "euProofs": [
+    "euProofs": [
             {
                 "type": "eu_test",
                 "expirationTime": 1623683522,
                 "issuedAt": 1621264322,
-                "qrData": "0oRNogEmBEgAAAAAAAAAAKIBAAT2WQE1pAFiTkwEGmGO/TkGGmChrzk5AQOhAaRjdmVyZTEuMC4wY25hbaRjZm50ckFDSFRFUk5BQU08RU48TkFBTWJnbmlWb29yIE5hYW1jZ250aVZPT1I8TkFBTWJmbnJBY2h0ZXJuYWFtIGVuIG5hYW1jZG9iajE5NTMtMDktMDNhdoGqYnZwajExMTkzNDkwMDdibXBqQkJJQlAtQ29yVmJkbvtAIAAAAAAAAGJkdGoyMDIxLTAyLTE4YnRnaTg0MDUzOTAwNmJzZPtAIAAAAAAAAGJjb2BiaXN4JE1pbmlzdHJ5IG9mIEhlYWx0aCBXZWxmYXJlIGFuZCBTcG9ydGJjaXgvdXJuOnV2Y2k6MDE6Tkw6MzMzODUwMjQ0NzVlNGM1NmExN2I3NDlmOTI0MDQwMzlibWFgWEDEcYN/qqfm6jaHgTrRoc/7OlchwSoMVCLPzA3V1jG5JEkVhTPsNUQJNn9ltmnDxL554K+WFBWKUEQxiRBbxqRv"
+                "qrData": "0oRNogEmBEgAAAAAAAAAAKIBAAT2WQE1pAFiTkwEGmGO/TkGGmChrzk5AQOhAaRjdmVyZTEuMC4wY25hbaRjZm50ckFD
+                SFRFUk5BQU08RU48TkFBTWJnbmlWb29yIE5hYW1jZ250aVZPT1I8TkFBTWJmbnJBY2h0ZXJuYWFtIGVuIG5hYW1jZG9iajE5NTMtMDk
+                tMDNhdoGqYnZwajExMTkzNDkwMDdibXBqQkJJQlAtQ29yVmJkbvtAIAAAAAAAAGJkdGoyMDIxLTAyLTE4YnRnaTg0MDUzOTAwNmJzZP
+                tAIAAAAAAAAGJjb2BiaXN4JE1pbmlzdHJ5IG9mIEhlYWx0aCBXZWxmYXJlIGFuZCBTcG9ydGJjaXgvdXJuOnV2Y2k6MDE6Tkw6MzMzO
+                DUwMjQ0NzVlNGM1NmExN2I3NDlmOTI0MDQwMzlibWFgWEDEcYN/qqfm6jaHgTrRoc/7OlchwSoMVCLPzA3V1jG5JEkVhTPsNUQJNn9l
+                tmnDxL554K+WFBWKUEQxiRBbxqRv"
             },
             {
                 "type": "eu_allinone",
                 "expirationTime": 1623683522,
                 "issuedAt": 1621264322,
-                "qrData": "0oRNogEmBEgAAAAAAAAAAKIBAAT2WQE1pAFiTkwEGmGO/TkGGmChrzk5AQOhAaRjdmVyZTEuMC4wY25hbaRjZm50ckFDSFRFUk5BQU08RU48TkFBTWJnbmlWb29yIE5hYW1jZ250aVZPT1I8TkFBTWJmbnJBY2h0ZXJuYWFtIGVuIG5hYW1jZG9iajE5NTMtMDktMDNhdoGqYnZwajExMTkzNDkwMDdibXBqQkJJQlAtQ29yVmJkbvtAIAAAAAAAAGJkdGoyMDIxLTAyLTE4YnRnaTg0MDUzOTAwNmJzZPtAIAAAAAAAAGJjb2BiaXN4JE1pbmlzdHJ5IG9mIEhlYWx0aCBXZWxmYXJlIGFuZCBTcG9ydGJjaXgvdXJuOnV2Y2k6MDE6Tkw6MzMzODUwMjQ0NzVlNGM1NmExN2I3NDlmOTI0MDQwMzlibWFgWEDEcYN/qqfm6jaHgTrRoc/7OlchwSoMVCLPzA3V1jG5JEkVhTPsNUQJNn9ltmnDxL554K+WFBWKUEQxiRBbxqRv"
+                "qrData": "0oRNogEmBEgAAAAAAAAAAKIBAAT2WQE1pAFiTkwEGmGO/TkGGmChrzk5AQOhAaRjdmVyZTEuMC4wY25hbaRjZm50ckFD
+                SFRFUk5BQU08RU48TkFBTWJnbmlWb29yIE5hYW1jZ250aVZPT1I8TkFBTWJmbnJBY2h0ZXJuYWFtIGVuIG5hYW1jZG9iajE5NTMtMDk
+                tMDNhdoGqYnZwajExMTkzNDkwMDdibXBqQkJJQlAtQ29yVmJkbvtAIAAAAAAAAGJkdGoyMDIxLTAyLTE4YnRnaTg0MDUzOTAwNmJzZP
+                tAIAAAAAAAAGJjb2BiaXN4JE1pbmlzdHJ5IG9mIEhlYWx0aCBXZWxmYXJlIGFuZCBTcG9ydGJjaXgvdXJuOnV2Y2k6MDE6Tkw6MzMzO
+                DUwMjQ0NzVlNGM1NmExN2I3NDlmOTI0MDQwMzlibWFgWEDEcYN/qqfm6jaHgTrRoc/7OlchwSoMVCLPzA3V1jG5JEkVhTPsNUQJNn9l
+                tmnDxL554K+WFBWKUEQxiRBbxqRv"
             }
+        ]
+    """
+
+    class ProofType(str, Enum):
+        eu_test = "eu_test"
+        eu_allinone = "eu_allinone"
+
+    type: ProofType
+    expirationTime: int = Field(example=1623683522)
+    issuedAt: int = Field(example=1621264322)
+    qrData: str = Field(
+        example="0oRNogEmBEgAAAAAAAAAAKIBAAT2WQE1pAFiTkwEGmGO/TkGGmChrzk5AQOhAaRjdmVyZTEuMC4wY25hbaRjZm50ckFDSFRFUk5BQU"
+        "08RU48TkFBTWJnbmlWb29yIE5hYW1jZ250aVZPT1I8TkFBTWJmbnJBY2h0ZXJuYWFtIGVuIG5hYW1jZG9iajE5NTMtMDktMDNhdoGq"
+        "YnZwajExMTkzNDkwMDdibXBqQkJJQlAtQ29yVmJkbvtAIAAAAAAAAGJkdGoyMDIxLTAyLTE4YnRnaTg0MDUzOTAwNmJzZPtAIAAAAA"
+        "AAAGJjb2BiaXN4JE1pbmlzdHJ5IG9mIEhlYWx0aCBXZWxmYXJlIGFuZCBTcG9ydGJjaXgvdXJuOnV2Y2k6MDE6Tkw6MzMzODUwMjQ0"
+        "NzVlNGM1NmExN2I3NDlmOTI0MDQwMzlibWFgWEDEcYN/qqfm6jaHgTrRoc/7OlchwSoMVCLPzA3V1jG5JEkVhTPsNUQJNn9ltmnDxL"
+        "554K+WFBWKUEQxiRBbxqRv"
+    )
+
+
+class DomesticProofCredentialItem(BaseModel):
+    id: int
+    ccm: DomesticDynamicQrResponse
+
+
+class OriginOfProof(str, Enum):
+    vaccination = "vaccination"
+    test = "test"
+    recovery = "recovery"
+    no_proof = ""
+
+
+class DomesticProofMessage(BaseModel):
+    """
+    {
+        # Samenvatting.
+        "issuedAt": 1621264322,
+        "validTo": 1623683522,
+        # wat heeft de rule engine bepaald om dit ding te bouwen.
+        # De rule engine moet dus dit gaan teruggeven.
+        "origin": ["vaccination", "test"],
+        "credentials": [
+            {"id": 1, "ccm": "Het objectje met proof en signature"},
+            {"id": 2, "ccm": "ccm here"},
+            {"id": 3, "ccm": "ccm here"},
+            {"id": 4, "ccm": "ccm here"},
+            {"id": 5, "ccm": "ccm here"},
+            {"id": 6, "ccm": "ccm here"}
         ]
     }
     """
 
-    nl_domestic_static: Optional[List[DomesticStaticQrResponse]] = Field(description="Paper vaccination")
-    nl_domestic_dynamic: Optional[List[DomesticDynamicQrResponse]] = Field(description="Mobile app vaccination")
-    eu_international: Optional[List[DomesticStaticQrResponse]] = Field(
-        description="todo: EU vaccination for both mobile / paper"
+    # summary:
+    issuedAt: int = Field(example=1623683522, description="Timestamp of the beginning of the first signature.")
+    validTo: int = Field(example=1623683522, description="Timestamp of the end of the last signature.")
+    # For the UI;
+    origin: OriginOfProof = Field(
+        description="For the UI: the reason why a signature has been issued. Result of eligbility."
     )
+    credentials: List[DomesticProofCredentialItem]
+
+
+class MobileAppProofOfVaccination(BaseModel):
+    domesticProof: DomesticProofMessage
+    euProofs: Optional[List[EuropeanProofOfVaccination]] = Field(description="")
+
+
+class PaperProofOfVaccination(BaseModel):
+    domesticProof: Optional[List[DomesticStaticQrResponse]] = Field(description="Paper vaccination")
+    euProofs: Optional[List[EuropeanProofOfVaccination]] = Field(description="")
 
 
 # Todo: add EU response
@@ -312,7 +375,17 @@ class DomesticOnlineSigningRequest(DomesticPaperSigningAttributes):
     commitments: str = Field(description="", example="")
 
 
+"""
+todo: Message To EU Signer
+{
+    OID           string -> determined on the contents of the data  Prio OID = Vaccination, Recovery, Test.
+    ExpirationTime int64 - hoe lang moet die geldig zijn. Denken 180 dagen. Maar dat zal wijzigen.
+    DGC map[string]interface{} - de daadwerkelijke data: dgc. de fbm fbtm gn en dergelijke.
+}
+"""
 # vaccination tests en recovery is een array...
+
+
 class EuropeanVaccination(BaseModel):
     pass
 
@@ -354,14 +427,3 @@ class EuropeanOnlineSigningRequest(BaseModel):
     co: str = Field(description="Member State, ISO 3166", default="NLD")
     # todo: this is not
     is_: str = Field(description="certificate issuer, Will be set by signer to a fixed minvws string")
-    # isSpecimen = Field(description="Used to create specimen certificates (not available in EU QR's!)", default="FALSE")
-
-
-"""
-Message To EU Signer
-{
-    OID           string -> determined on the contents of the data  Prio OID = Vaccination, Recovery, Test.
-    ExpirationTime int64 - hoe lang moet die geldig zijn. Denken 180 dagen. Maar dat zal wijzigen.
-    DGC map[string]interface{} - de daadwerkelijke data: dgc. de fbm fbtm gn en dergelijke.
-}
-"""
