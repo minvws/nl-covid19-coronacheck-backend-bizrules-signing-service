@@ -22,3 +22,5 @@ jobs:
         run: make test
       - name: Audit
         run: make audit
+      - name: Lint
+        run: make lint
