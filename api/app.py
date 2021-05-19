@@ -1,4 +1,6 @@
+import json
 import os
+import sys
 from logging import config
 from typing import Dict, List
 
@@ -33,7 +35,7 @@ async def health() -> Dict[str, bool]:
         "service_status": {
             # this is probably not really needed as it's also monitored at ops(!)
             # todo: It's good to know what services to expect working, should be added to the readme.
-            " sbv-z": "todo",
+            "sbv-z": "todo",
             "inge6": "todo",
             "eu-signer": "todo",
             "domestic-signer": "todo",
@@ -90,3 +92,10 @@ async def sign_via_app_step_2(data: StatementOfVaccination):
     eu_response = eu_international.sign(data)
 
     return MobileAppProofOfVaccination(**{"domesticProof": domestic_response, "euProofs": eu_response})
+
+
+def save_openapi_json():
+    # Helper function to render the latest open API spec to the docs directory.
+    with open("docs/openapi.json", "w") as file:
+        json.dump(app.openapi(), file)
+    sys.exit()

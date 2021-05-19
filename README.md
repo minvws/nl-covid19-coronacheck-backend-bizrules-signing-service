@@ -48,10 +48,12 @@ For development run:
 
 
 ## API Docs:
-Todo: render openapi yaml to docs so they are in the docs directory.
 
-API Docs are available at:
-```txt
+See docs/openapi.json
+Online render: https://redocly.github.io/redoc/?url=https://github.com/91divoc-ln/inge-4/blob/main/docs/openapi.json
+
+When running Inge-4 in development API Docs are available at:
+```
 http://localhost:8000/docs/
 http://localhost:8000/redoc/
 ```
@@ -63,14 +65,10 @@ This software currently supports two processes:
 
 ### Process 1: health professional
 
-A citizen goes to their health professional and asks for a "Proof of Vaccination".
+Case: A citizen goes to their health professional and asks for a "Proof of Vaccination".
 
-Todo: replace with Sequence Diagram render from docs.
+![SSD Health Professional](docs/DomesticPaperFlow.png "Domestic signing flow")
 
-1) Doctor enters a "Statement of Vaccination" via Inge3
-2) This service receives it and has this information signed by various signing providers:
-3) (?) Signing request is logged (Health professional etc)
-4) Based on these signatures ("Proof of Vaccination") QR data is generated and passed to the caller
 
 ### Process 2: dutch citizen opt-in
 

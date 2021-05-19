@@ -66,7 +66,13 @@ pip-sync-dev: ## synchronizes the .venv with the state of requirements.txt
 	. .venv/bin/activate && ${env} python3 -m piptools sync requirements.txt requirements-dev.txt
 
 run: venv
-	. .venv/bin/activate && ${env} python3 -m uvicorn api.app:app --reload --debug
+	. .venv/bin/activate && ${env} python3 -m uvicorn api.app:app --reload
+
+
+docs: venv
+	# Todo: also stop the server.
+	. .venv/bin/activate && ${env} python3 -m plantuml ./docs/DomesticPaperFlow.puml -o renders/..
+	. .venv/bin/activate && ${env} python3 -m uvicorn api.app:save_openapi_json
 
 clean: ## Cleanup
 clean: clean_venv
