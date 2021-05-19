@@ -48,6 +48,8 @@ gitpython==3.1.17
     # via bandit
 greenlet==1.1.0
     # via sqlalchemy
+httplib2==0.19.1
+    # via plantuml
 idna==2.10
     # via
     #   -c requirements.txt
@@ -75,6 +77,8 @@ pathspec==0.8.1
     # via black
 pbr==5.6.0
     # via stevedore
+plantuml==0.3.0
+    # via -r requirements-dev.in
 pluggy==0.13.1
     # via pytest
 py==1.10.0
@@ -89,7 +93,9 @@ pyflakes==2.3.1
 pylint==2.8.2
     # via -r requirements-dev.in
 pyparsing==2.4.7
-    # via packaging
+    # via
+    #   httplib2
+    #   packaging
 pytest-cov==2.11.1
     # via -r requirements-dev.in
 pytest-mock==3.6.1

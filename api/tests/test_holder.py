@@ -1,4 +1,5 @@
 import pytest
+
 from api.models import Holder
 
 holder_test_data = [

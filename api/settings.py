@@ -1,10 +1,11 @@
+# pylint: disable=invalid-name,too-few-public-methods
+
 import configparser
 from os import path
-from typing import Dict, Any, List
-
-from pydantic import BaseSettings
+from typing import Any, Dict, List
 
 import json5
+from pydantic import BaseSettings
 
 CONFIG_FILE = "/etc/inge4/inge4.conf"
 
@@ -36,7 +37,7 @@ settings.APP_STEP_1_JWT_PRIVATE_KEY = open(
     f"{config['GENERAL']['SECRETS_FOLDER']}/{config['GENERAL']['DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME']}", "rb"
 ).read()
 
-settings.SBVZ_CERT = f"{config['GENERAL']['SECRETS_FOLDER']}/{config['GENERAL']['ENRICHMENT_SBVZ_CERT_FILENAME']}"
+settings.SBVZ_CERT = f"{config['GENERAL']['SECRETS_FOLDER']}/" f"{config['GENERAL']['ENRICHMENT_SBVZ_CERT_FILENAME']}"
 
 settings.SBVZ_WSDL_ENVIRONMENT = config["GENERAL"]["ENRICHMENT_SBVZ_WSDL_ENVIRONMENT"]
 

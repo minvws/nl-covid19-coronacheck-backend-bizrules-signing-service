@@ -3,23 +3,11 @@ import re
 from dataclasses import dataclass
 from typing import List, Tuple, Union
 
-from unidecode import unidecode
-
-_DATUM_REGEXS = [
-    re.compile("[12][0-9]{7}"),  # jjjjmmdd
-    re.compile("[12][0-9]{5}00"),  # jjjjmm00
-    re.compile("[12][0-9]{3}0000"),  # jjjj0000
-    re.compile("0{8}"),  # 00000000
-]
-
 _BSN_REGEX = re.compile("[0-9]{9}")
-_LETTER_REGEX = re.compile("[a-zA-Z]")
-_NUMBER_REGEX = re.compile("[0-9]+")
-_ALPHA_NUMBER_REGEX = re.compile("[0-9A-Za-z ,.'-]+")
-_POSTCODE_REGEX = re.compile("[0-9]{4}[A-Z]{2}")
 
 
 def validate_bsn(bsn: str) -> Tuple[bool, str]:
+    # todo: add this validation to the models.
     if not bsn:
         return False, "geen bsn opgegeven"
     if _BSN_REGEX.fullmatch(bsn) is None:
@@ -52,77 +40,6 @@ class Persoon:  # pylint: disable=too-many-instance-attributes
     Geboorteland: str = ""  # pylint: disable=invalid-name
     Geslachtsaanduiding: str = ""  # pylint: disable=invalid-name
 
-    def normalized(self):
-        """
-        Return a new Persoon with all diacritical characters replaced with ASCII versions of them
-        """
-        return Persoon(
-            BSN=self.BSN,
-            Geboortedatum=self.Geboortedatum,
-        )
-
-    def validate(self) -> Tuple[bool, List[str]]:
-        errors: List[str] = []
-
-        person = self.normalized()
-
-        # Deviation from original source, BSN is optional in our requests.
-        if person.BSN:
-            bsn_ok, error = validate_bsn(self.BSN)
-            if not bsn_ok:
-                errors.append(error)
-
-        if person.Geboortedatum:
-            if all(map(lambda r: r.fullmatch(person.Geboortedatum) is None, _DATUM_REGEXS)):
-                errors.append("ongeldige geboortedatum")
-
-        return len(errors) == 0, errors
-
-
-def validate_huisnummer(value):
-    errors = []
-    if len(value) > 5:
-        errors.append("huisnummer is te lang")
-    if _NUMBER_REGEX.fullmatch(value) is None:
-        errors.append("huisnummer voldoet niet aan patroon")
-    return errors
-
-
-def validate_huisletter(value):
-    errors = []
-    if len(value) > 1:
-        errors.append("huisletter is te lang")
-    if _LETTER_REGEX.fullmatch(value) is None:
-        errors.append("huisletter voldoet niet aan patroon")
-    return errors
-
-
-def validate_huisnummertoevoeging(value):
-    errors = []
-    if len(value) > 12:
-        errors.append("huisnummer toevoeging is te lang")
-    if _ALPHA_NUMBER_REGEX.fullmatch(value) is None:
-        errors.append("huisnummer toevoeging voldoet niet aan patroon")
-    return errors
-
-
-def validate_aanduidingbijhuisnummer(value):
-    errors = []
-    if len(value) > 2:
-        errors.append("aanduiding bij huisnummer is te lang")
-    if value not in ["by", "to"]:
-        errors.append("aanduiding bij huisnummenr niet bij of to")
-    return errors
-
-
-def validate_postcode(value):
-    errors = []
-    if len(value) > 6:
-        errors.append("postcode is te lang")
-    if _POSTCODE_REGEX.fullmatch(value) is None:
-        errors.append("postcode voldoet niet aan patroon")
-    return errors
-
 
 @dataclass(frozen=True)
 class Adres:
@@ -137,39 +54,6 @@ class Adres:
     Huisnummertoevoeging: str = ""  # pylint: disable=invalid-name
     AanduidingBijHuisnummer: str = ""  # pylint: disable=invalid-name
     Postcode: str = ""  # pylint: disable=invalid-name
-
-    def normalized(self):
-        """
-        Return a copy of this Adres with all text fields uni-decoded
-        """
-        return Adres(
-            Huisnummer=self.Huisnummer,
-            Huisletter=unidecode(self.Huisletter),
-            Huisnummertoevoeging=unidecode(self.Huisnummertoevoeging),
-            AanduidingBijHuisnummer=unidecode(self.AanduidingBijHuisnummer),
-            Postcode=self.Postcode,
-        )
-
-    def validate(self) -> Tuple[bool, List[str]]:
-        errors: List[str] = []
-
-        address = self.normalized()
-        if address.Huisnummer:
-            errors += validate_huisnummer(address.Huisnummer)
-
-        if address.Huisletter:
-            errors += validate_huisletter(address.Huisletter)
-
-        if address.Huisnummertoevoeging:
-            errors += validate_huisnummertoevoeging(address.Huisnummertoevoeging)
-
-        if address.AanduidingBijHuisnummer:
-            errors += validate_aanduidingbijhuisnummer(address.AanduidingBijHuisnummer)
-
-        if address.Postcode:
-            errors += validate_postcode(address.Postcode)
-
-        return len(errors) == 0, errors
 
 
 @dataclass(frozen=True)

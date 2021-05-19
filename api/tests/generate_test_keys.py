@@ -14,8 +14,8 @@ def create_test_keys(secrets_dir: str = "./secrets/"):
     # Needs to be the digest size of the SHA256 algorithm, 32 bytes at least
     token = secrets_module.token_hex(32)
     if not os.path.isfile(f"{secrets_dir}vws_identity_hash_key.key"):
-        with open(f"{secrets_dir}vws_identity_hash_key.key", "w") as f:
-            f.write(token)
+        with open(f"{secrets_dir}vws_identity_hash_key.key", "w") as file_handle:
+            file_handle.write(token)
 
 
 if __name__ == "__main__":

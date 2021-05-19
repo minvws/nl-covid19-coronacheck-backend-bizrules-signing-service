@@ -40,6 +40,8 @@ check: venv ## Check for source issues
 
 
 fix: venv ## Automatically fix style issues
+	# @. .venv/bin/activate && ${env} python3 -m isort ${pysrcdirs}
+
 	@. .venv/bin/activate && ${env} python3 -m black ${pysrcdirs}
 
 	# autoflake removes unused imports and unused variables from Python code. It makes use of pyflakes to do this.
@@ -64,7 +66,14 @@ pip-sync-dev: ## synchronizes the .venv with the state of requirements.txt
 	. .venv/bin/activate && ${env} python3 -m piptools sync requirements.txt requirements-dev.txt
 
 run: venv
-	. .venv/bin/activate && ${env} python3 -m uvicorn api.app:app --reload --debug
+	. .venv/bin/activate && ${env} python3 -m uvicorn api.app:app --reload
+
+
+docs: venv
+	# Render sequence diagrams to images in /docs/
+	. .venv/bin/activate && ${env} python3 -m plantuml ./docs/DomesticPaperFlow.puml -o renders/..
+	# Renders open API spec to openapi.json in /docs/
+	. .venv/bin/activate && ${env} python3 -m uvicorn api.app:save_openapi_json
 
 clean: ## Cleanup
 clean: clean_venv

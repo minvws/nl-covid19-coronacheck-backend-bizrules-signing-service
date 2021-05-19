@@ -1,23 +1,22 @@
+import base64
 import json
 
 import jwt
-from nacl.public import Box, PublicKey, PrivateKey
-import base64
 from fastapi.testclient import TestClient
-
 from freezegun import freeze_time
+from nacl.public import Box, PrivateKey, PublicKey
+
 from api.app import app
+from api.settings import settings
 
 
 def file(path):
-    with open(path, "rt") as f:
-        return f.read()
+    with open(path, "rt") as file_handle:
+        return file_handle.read()
 
 
 @freeze_time("2020-02-02")
 def test_sign_via_app_step_1(requests_mock, current_path, mocker):
-    from api.settings import settings
-
     requests_mock.post(
         url="https://raadplegen.sbv-z.nl/cibg.sbv.testtool.webservice.dec14/opvragenpersoonsgegevens.asmx",
         text=file(f"{current_path}/sbvz/direct_match_correct_response.xml"),
@@ -31,15 +30,23 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
     client = TestClient(app)
     response = client.post(
         "/app/sign_step_1/",
-        json.dumps({"bsn": "999999138"}),
+        json.dumps({"access_resource": "999999138"}),
     )
     json_content = json.loads(response.content.decode("UTF-8"))
 
     assert json_content == [
         {
-            "event": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tL2V2ZW50cy92Mi9kYXRhLyIsImJzbiI6Ik1ERXlNelExTmpjNE9UQXhNak0wTlRZM09Ea3dNVEl6KzRWV01CY3paSThxTFBjaFNaczdCcERaMkhMVUtUN1JFUT09IiwiZXhwIjoxNTgwNjg4MDAwLCJpYXQiOjE1ODA2MDE2MDAsImlkZW50aXR5X2hhc2giOiJLSFQ3c1NucjRnaGJQWi9VUFpNbUFqclRRaUIxRWwxbWoydzhHMmZLMmRnPSIsImlzcyI6Imp3dC50ZXN0LmNvcm9uYWNoZWNrLm5sIiwibmJmIjoxNTgwNjAxNjAwLCJub25jZSI6Ik1ERXlNelExTmpjNE9UQXhNak0wTlRZM09Ea3dNVEl6In0.apEVco0RvsVr8PFSUBJ9-EeplvWlYpGEYFCj9xFRfyk",
+            "event": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tL2V2ZW50cy92Mi9kYXRhLyIs"
+            "ImJzbiI6Ik1ERXlNelExTmpjNE9UQXhNak0wTlRZM09Ea3dNVEl6KzRWV01CY3paSThxTFBjaFNaczdCcERaMkhMVUtUN1JFU"
+            "T09IiwiZXhwIjoxNTgwNjg4MDAwLCJpYXQiOjE1ODA2MDE2MDAsImlkZW50aXR5X2hhc2giOiJLSFQ3c1NucjRnaGJQWi9VUF"
+            "pNbUFqclRRaUIxRWwxbWoydzhHMmZLMmRnPSIsImlzcyI6Imp3dC50ZXN0LmNvcm9uYWNoZWNrLm5sIiwibmJmIjoxNTgwNjA"
+            "xNjAwLCJub25jZSI6Ik1ERXlNelExTmpjNE9UQXhNak0wTlRZM09Ea3dNVEl6In0.apEVco0RvsVr8PFSUBJ9-EeplvWlYpGE"
+            "YFCj9xFRfyk",
             "provider_identifier": "GGD Region 5715",
-            "unomi": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tL3Vub21pL3YyLyIsImV4cCI6MTU4MDY4ODAwMCwiaWF0IjoxNTgwNjAxNjAwLCJpZGVudGl0eV9oYXNoIjoiS0hUN3NTbnI0Z2hiUFovVVBaTW1BanJUUWlCMUVsMW1qMnc4RzJmSzJkZz0iLCJpc3MiOiJqd3QudGVzdC5jb3JvbmFjaGVjay5ubCIsIm5iZiI6MTU4MDYwMTYwMH0.vT2IqFAUueSzakNWCo4hiHxYuec9xWp_mb040fCA7p4",
+            "unomi": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tL3Vub21pL3YyLyIsImV4cCI6"
+            "MTU4MDY4ODAwMCwiaWF0IjoxNTgwNjAxNjAwLCJpZGVudGl0eV9oYXNoIjoiS0hUN3NTbnI0Z2hiUFovVVBaTW1BanJUUWlCM"
+            "UVsMW1qMnc4RzJmSzJkZz0iLCJpc3MiOiJqd3QudGVzdC5jb3JvbmFjaGVjay5ubCIsIm5iZiI6MTU4MDYwMTYwMH0.vT2IqF"
+            "AUueSzakNWCo4hiHxYuec9xWp_mb040fCA7p4",
         }
     ]
 

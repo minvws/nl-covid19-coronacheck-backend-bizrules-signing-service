@@ -45,7 +45,7 @@ Generic eligibility methods used in checking eligibility in signing services.
 import logging
 from typing import List
 
-from api.models import vaccination, StatementOfVaccination, EventType
+from api.models import EventType, OriginOfProof, StatementOfVaccination, vaccination
 
 HPK_ASTRAZENECA = 2925508
 HPK_PFIZER = 2924528
@@ -63,7 +63,12 @@ def normalize_vaccination_events(vaccination_events):
     raise NotImplementedError
 
 
-def statement_matches_to_vaccination_policy(data: StatementOfVaccination):
+def is_eligible_for_eu_signing(data: StatementOfVaccination) -> str:
+    # todo: https://nos.nl/artikel/2381260-een-prik-genoeg-voor-het-krijgen-van-een-covid-reiscertificaat
+    raise NotImplementedError
+
+
+def is_eligible_for_domestic_signing(data: StatementOfVaccination) -> str:
     """
     The vaccination passport rules change on a day to day basis. What you see here, and below may be
     outdated by far when you read this. Don't currently take below code as an absolute.
@@ -86,16 +91,17 @@ def statement_matches_to_vaccination_policy(data: StatementOfVaccination):
     # There might be more complex rules in the future depending on unknown factors.
     vaccination_events = [event.data for event in data.events if event.type == EventType.vaccination]
     recovery_events = [event.data for event in data.events if event.type == EventType.recovery]
-    test_events = [event.data for event in data.events if event.type == EventType.test]
+    # todo: implement policy for test events
+    # test_events = [event.data for event in data.events if event.type == EventType.test]
 
     # Patient recovered, for EU they don't need anything else.
     # todo: possibly split eligibility between EU and domestic.
     if len(recovery_events) > 0:
-        return True
+        return OriginOfProof.recovery
 
     if not_vaccinated_at_all(vaccination_events):
         log.debug("No vaccination received at all: not eligible for signing.")
-        return False
+        return OriginOfProof.no_proof
 
     # Health professional is authoritative, so that case goes first.
     if health_professional_states_patient_is_sufficiently_vaccinated(vaccination_events):
@@ -105,18 +111,18 @@ def statement_matches_to_vaccination_policy(data: StatementOfVaccination):
         # - Patient received vaccination elsewhere (foreign country) but lost their recording
         # - Anything else where a GP is confident the person is immune to covid.
         log.debug("Health professional stated patient is vaccinated.")
-        return True
+        return OriginOfProof.vaccination
 
     # At least once.
     if had_vaccine_that_only_needs_one_vaccination(vaccination_events):
         log.debug("Person had a vaccine that requires only one dose, eligible for signing.")
-        return True
+        return OriginOfProof.vaccination
 
     if had_two_vaccinations_or_more(vaccination_events):
-        return True
+        return OriginOfProof.vaccination
 
     log.debug("Failed to meet any signing condition: not eligible for signing.")
-    return False
+    return OriginOfProof.no_proof
 
 
 def had_vaccine_that_only_needs_one_vaccination(vaccination_events: List[vaccination]):

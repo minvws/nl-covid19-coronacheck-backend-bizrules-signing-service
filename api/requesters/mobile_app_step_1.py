@@ -1,21 +1,19 @@
 # SPDX-License-Identifier: EUPL-1.2
 __author__ = "Elger Jonker, Nick ten Cate for minvws"
 
-from datetime import timedelta, datetime
 import base64
-from typing import List, Any, Dict
 import logging
+from datetime import datetime, timedelta
+from typing import Any, Dict, List
 
 import jwt
 import pytz
+from cryptography.hazmat.primitives import hashes, hmac
+from nacl.public import Box, PrivateKey, PublicKey
 from nacl.utils import random
 
-from cryptography.hazmat.primitives import hashes, hmac
-from api.settings import settings
-
-from nacl.public import Box, PublicKey, PrivateKey
-
 from api.enrichment import sbvz
+from api.settings import settings
 
 log = logging.getLogger(__package__)
 
@@ -54,10 +52,10 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
         if "EXAMPLE" in vaccination_provider["identifier"] or "TEST" in vaccination_provider["identifier"]:
             continue
 
-        hash_input = "-".join([bsn, pii["first_name"], pii["last_name"], pii["day_of_birth"]])
         generic_data["identity_hash"] = base64.b64encode(
             calculate_vws_identity_hash(
-                message=hash_input.encode(), key=vaccination_provider["identity_hash_secret"].encode()
+                message="-".join([bsn, pii["first_name"], pii["last_name"], pii["day_of_birth"]]).encode(),
+                key=vaccination_provider["identity_hash_secret"].encode(),
             )
         ).decode("UTF-8")
 
@@ -86,23 +84,23 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
         """
         unomi:
         {
-            'iss': 'jwt.test.coronacheck.nl', 
-            'aud': 'https://example.com/unomi/v2/', 
-            'iat': FakeDatetime(2020, 2, 2, 0, 0, tzinfo=<UTC>), 
-            'nbf': FakeDatetime(2020, 2, 2, 0, 0, tzinfo=<UTC>), 
-            'exp': FakeDatetime(2020, 2, 3, 0, 0, tzinfo=<UTC>), 
+            'iss': 'jwt.test.coronacheck.nl',
+            'aud': 'https://example.com/unomi/v2/',
+            'iat': FakeDatetime(2020, 2, 2, 0, 0, tzinfo=<UTC>),
+            'nbf': FakeDatetime(2020, 2, 2, 0, 0, tzinfo=<UTC>),
+            'exp': FakeDatetime(2020, 2, 3, 0, 0, tzinfo=<UTC>),
             'identity_hash': 'RiPfA9OZhj0aXXXRCr1g11Zbp0MTnheFl/bI0H2SBHM='
         }
 
         event:
         {
-            'iss': 'jwt.test.coronacheck.nl', 
-            'aud': 'https://example.com/events/v2/data/', 
-            'bsn': 'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz+4VWMBczZI8qLPchSZs7BpDZ2HLUKT7REQ==', 
-            'nonce': 'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz', 
-            'iat': FakeDatetime(2020, 2, 2, 0, 0, tzinfo=<UTC>), 
-            'nbf': FakeDatetime(2020, 2, 2, 0, 0, tzinfo=<UTC>), 
-            'exp': FakeDatetime(2020, 2, 3, 0, 0, tzinfo=<UTC>), 
+            'iss': 'jwt.test.coronacheck.nl',
+            'aud': 'https://example.com/events/v2/data/',
+            'bsn': 'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz+4VWMBczZI8qLPchSZs7BpDZ2HLUKT7REQ==',
+            'nonce': 'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz',
+            'iat': FakeDatetime(2020, 2, 2, 0, 0, tzinfo=<UTC>),
+            'nbf': FakeDatetime(2020, 2, 2, 0, 0, tzinfo=<UTC>),
+            'exp': FakeDatetime(2020, 2, 3, 0, 0, tzinfo=<UTC>),
             'identity_hash': 'RiPfA9OZhj0aXXXRCr1g11Zbp0MTnheFl/bI0H2SBHM='
         }
         """
@@ -133,6 +131,6 @@ def calculate_vws_identity_hash(message: bytes, key: bytes) -> bytes:
     # and drop your pyOpenSSL dependency.
 
     # echo -n "000000012-Pluk-Petteflet-01" | openssl dgst -sha256 -hmac "ZrHsI6MZmObcqrSkVpea"
-    h = hmac.HMAC(key, hashes.SHA256())
-    h.update(message)
-    return h.finalize()
+    hmac_instance = hmac.HMAC(key, hashes.SHA256())
+    hmac_instance.update(message)
+    return hmac_instance.finalize()
