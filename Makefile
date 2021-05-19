@@ -70,7 +70,9 @@ run: venv
 
 
 docs: venv
+	# Render sequence diagrams to images in /docs/
 	. .venv/bin/activate && ${env} python3 -m plantuml ./docs/DomesticPaperFlow.puml -o renders/..
+	# Renders open API spec to openapi.json in /docs/
 	. .venv/bin/activate && ${env} python3 -m uvicorn api.app:save_openapi_json
 
 clean: ## Cleanup
