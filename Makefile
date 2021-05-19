@@ -70,7 +70,6 @@ run: venv
 
 
 docs: venv
-	# Todo: also stop the server.
 	. .venv/bin/activate && ${env} python3 -m plantuml ./docs/DomesticPaperFlow.puml -o renders/..
 	. .venv/bin/activate && ${env} python3 -m uvicorn api.app:save_openapi_json
 
