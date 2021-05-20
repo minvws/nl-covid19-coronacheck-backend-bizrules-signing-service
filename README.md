@@ -46,6 +46,14 @@ Adding vaccination providers to vaccinationproviders.json requires an app restar
 For development run:
 `make run`
 
+### Docker
+
+The Dockerfile of this project is only intended for development purposes and not hardened enough for production. In order to run this project with the default configuration run
+```
+docker compose up
+```
+and visit `localhost:8000/health` to see if it indeed is running correctly
+
 
 ## API Docs:
 
