@@ -38,6 +38,12 @@ check: venv ## Check for source issues
 	# We're allowing single quotes out of habit.
 	@. .venv/bin/activate && ${env} python3 -m black --check ${pysrcdirs}
 
+check-types: venv ## Check for source issues
+	# verify that all pedantic source issues are resolved. todo: build should break if things are wrong here
+
+	# The single double quote is explained in https://black.readthedocs.io/en/stable/the_black_code_style.html
+	# We're allowing single quotes out of habit.
+	@. .venv/bin/activate && ${env} python3 -m mypy --check ${pysrcdirs}
 
 fix: venv ## Automatically fix style issues
 	# @. .venv/bin/activate && ${env} python3 -m isort ${pysrcdirs}
@@ -54,6 +60,9 @@ audit: venv ## Run security audit
 
 lint: venv  ## Do basic linting
 	@. .venv/bin/activate && ${env} pylint ${pysrcdirs}
+
+.PHONY: check-all
+check-all: check lint audit check-types
 
 pip-compile: ## synchronizes the .venv with the state of requirements.txt
 	. .venv/bin/activate && ${env} python3 -m piptools compile requirements.in

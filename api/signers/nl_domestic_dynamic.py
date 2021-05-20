@@ -101,4 +101,4 @@ def to_domestic_proof_message(data: List[DomesticStaticQrResponse]) -> DomesticP
     """
 
     # todo: implement
-    return data
+    raise NotImplementedError

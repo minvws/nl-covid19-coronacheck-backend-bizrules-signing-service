@@ -9,13 +9,18 @@ from typing import Any, Dict, List
 import jwt
 import pytz
 from cryptography.hazmat.primitives import hashes, hmac
-from nacl.public import Box, PrivateKey, PublicKey
-from nacl.utils import random
+from nacl.public import Box, PrivateKey, PublicKey  # type: ignore
+from nacl.utils import random  # type: ignore
 
 from api.enrichment import sbvz
 from api.settings import settings
 
 log = logging.getLogger(__package__)
+
+
+def get_bsn_from_tvs_digid(access_token: str) -> str:
+    # todo: implement
+    raise NotImplementedError
 
 
 def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
@@ -27,13 +32,17 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
     Since only the designated party may check the hash, a secret hash key is added. The hash key will be determined by
     MVWS and shared privately.
 
+    This is based on https://api-ct.bananenhalen.nl/docs/sequence-diagram-event-to-proof.png
+
     :return:
     """
+
+    # todo: Make it work with
 
     # todo: normalize
 
     now = datetime.now(pytz.utc)
-    generic_data = {
+    generic_data: Dict[str, Any] = {
         "iat": now,  # Current time
         "nbf": now,  # Not valid before
         "exp": now + timedelta(days=1),  # Expire at

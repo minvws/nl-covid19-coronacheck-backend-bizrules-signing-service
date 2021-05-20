@@ -2,7 +2,7 @@ from typing import List
 
 import requests
 from requests.adapters import HTTPAdapter
-from urllib3 import Retry
+from urllib3 import Retry  # type: ignore
 
 
 def request_post_with_retries(

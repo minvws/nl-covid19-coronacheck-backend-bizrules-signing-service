@@ -24,3 +24,5 @@ jobs:
         run: make audit
       - name: Lint
         run: make lint
+      - name: check-types
+        run: make check-types

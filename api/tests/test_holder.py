@@ -73,13 +73,13 @@ holder_test_data = [
 ]
 
 
-@pytest.mark.parametrize("holder, expected", holder_test_data)
-def test_first_name_initial(holder: dict, expected: dict):
-    holder = Holder(**holder)
+@pytest.mark.parametrize("holder_dict, expected", holder_test_data)
+def test_first_name_initial(holder_dict: dict, expected: dict):
+    holder = Holder(**holder_dict)
     assert holder.first_name_initial == expected["firstInitial"]
 
 
-@pytest.mark.parametrize("holder, expected", holder_test_data)
-def test_last_name_initial(holder: dict, expected: dict):
-    holder = Holder(**holder)
+@pytest.mark.parametrize("holder_dict, expected", holder_test_data)
+def test_last_name_initial(holder_dict: dict, expected: dict):
+    holder = Holder(**holder_dict)
     assert holder.last_name_initial == expected["lastInitial"]

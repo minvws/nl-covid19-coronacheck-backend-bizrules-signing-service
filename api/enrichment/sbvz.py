@@ -8,12 +8,13 @@ from unidecode import unidecode
 
 from api.enrichment.sbvz_api.models import Persoon
 from api.enrichment.sbvz_api.sbvz import BSNOpvragenService
-from api.settings import settings
+from api.settings import settings, INGE4_ROOT
 
 
 def sbvz_pii_service_call(bsn: str):
     service = BSNOpvragenService(
-        wsdl_file=f"api/enrichment/sbvz_api/wsdl/{settings.SBVZ_WSDL_ENVIRONMENT}/opvragenpersoonsgegevens.wsdl",
+        wsdl_file=f"{INGE4_ROOT}/api/enrichment/sbvz_api/wsdl/{settings.SBVZ_WSDL_ENVIRONMENT}"
+        "/opvragenpersoonsgegevens.wsdl",
         cert_file=settings.SBVZ_CERT,
     )
     person = Persoon(BSN=bsn)

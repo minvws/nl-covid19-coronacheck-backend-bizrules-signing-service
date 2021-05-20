@@ -21,3 +21,7 @@ fastapi[all]
 
 # UTC timezone
 pytz
+
+# Session Store for mobile app backend
+redis
+hiredis
