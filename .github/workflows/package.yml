@@ -23,10 +23,10 @@ jobs:
             python3.8 -m pip install --upgrade pip
             if [ -f requirements.txt ]; then pip3.8 install -r requirements.txt; fi
       - name: Create version.json
-        run: 'echo "{ \"version\": \"${{ env.RELEASE_VERSION }}\", \"git_ref\": \"$GITHUB_SHA\"}" > inge4/version.json'
+        run: 'echo "{ \"version\": \"${{ env.RELEASE_VERSION }}\", \"git_ref\": \"$GITHUB_SHA\"}" > api/version.json'
         shell: bash
       - name: Create tar
-        run: tar -czf inge4_${{ env.RELEASE_VERSION }}.tar.gz inge4 signing README* manage.py require* *.json5
+        run: tar -czf inge4_${{ env.RELEASE_VERSION }}.tar.gz api secrets require* *.json5
       - name: Upload release tar
         uses: actions/upload-artifact@v1
         with:
