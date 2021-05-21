@@ -122,9 +122,7 @@ def sign(data) -> List[DomesticStaticQrResponse]:
     :param data:
     :return:
     """
-    amount_of_calls = amount_of_calls = ceil(
-        PROOF_OF_VACCINATION_VALIDITY_HOURS / STATEMENT_OF_VACCINATION_VALIDITY_HOURS
-    )
+    amount_of_calls = ceil(PROOF_OF_VACCINATION_VALIDITY_HOURS / STATEMENT_OF_VACCINATION_VALIDITY_HOURS)
 
     signing_data = vaccination_event_data_to_signing_data(data)
 
