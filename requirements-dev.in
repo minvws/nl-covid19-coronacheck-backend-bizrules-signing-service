@@ -18,3 +18,4 @@ pyflakes
 requests-mock
 freezegun
 plantuml
+ipython

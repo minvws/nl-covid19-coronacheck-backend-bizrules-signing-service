@@ -1,8 +1,9 @@
 import json
 import os
+import pathlib
 import sys
 from logging import config
-from typing import Dict, List
+from typing import Dict, List, Any
 
 import yaml
 from fastapi import FastAPI, HTTPException
@@ -22,14 +23,20 @@ from api.models import (
 from api.requesters import mobile_app_step_1
 from api.signers import eu_international, nl_domestic_dynamic, nl_domestic_static
 
-with open("/etc/inge4/logging.yaml" if os.path.isfile("/etc/inge4/logging.yaml") else "inge4_logging.yaml") as f:
+inge4_root = pathlib.Path(__file__).parent.parent.absolute()
+
+with open(
+    "/etc/inge4/logging.yaml"
+    if os.path.isfile("/etc/inge4/logging.yaml")
+    else inge4_root.joinpath("inge4_logging.yaml")
+) as f:
     config.dictConfig(yaml.safe_load(f))
 
 app = FastAPI()
 
 
 @app.get("/health")
-async def health() -> Dict[str, bool]:
+async def health() -> Dict[str, Any]:
     return {
         "running": True,
         "service_status": {
@@ -82,7 +89,7 @@ async def sign_via_app_step_2(data: StatementOfVaccination):
     # todo: there is no special validation anymore, will there be?
     # todo: there is no enrichment anymore in this step, will there be?
 
-    # todo: eligibility for EU and NL differs. THere are now two routines, but one 'OriginOfProof'.
+    # todo: eligibility for EU and NL differs. There are now two routines, but one 'OriginOfProof'.
     eligible_because = is_eligible_for_domestic_signing(data)
     if not eligible_because:
         raise HTTPException(status_code=480, detail=["Not eligible, todo: reason"])

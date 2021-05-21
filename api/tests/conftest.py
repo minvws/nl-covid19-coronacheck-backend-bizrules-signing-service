@@ -1,9 +1,12 @@
-from pathlib import Path
-
 import pytest
+from api.constants import INGE4_ROOT, TESTS_DIR
+
+
+@pytest.fixture
+def root_path():
+    yield INGE4_ROOT
 
 
 @pytest.fixture
 def current_path():
-    path = Path(__file__).parent
-    yield path
+    yield TESTS_DIR

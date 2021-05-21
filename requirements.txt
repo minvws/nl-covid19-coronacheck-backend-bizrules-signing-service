@@ -98,6 +98,8 @@ pyyaml==5.4.1
     # via
     #   fastapi
     #   uvicorn
+redis==3.5.3
+    # via -r requirements.in
 requests-file==1.5.1
     # via zeep
 requests-toolbelt==0.9.1

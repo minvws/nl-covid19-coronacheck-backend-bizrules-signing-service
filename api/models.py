@@ -71,7 +71,6 @@ class Holder(BaseModel):
         return default
 
     @property
-    # todo: R0206: Cannot have defined parameters for properties (property-with-parameters)
     def first_name_initial(self):
         """See documentation of `_name_initial`"""
         return self._name_initial(self.firstName, default="")
@@ -150,8 +149,8 @@ class Event(BaseModel):
 # https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/data-structures-overview.md
 class StatementOfVaccination(BaseModel):
     protocolVersion: str = Field(description="The semantic version of this API", default=3.0)
-    providerIdentifier: str = Field(description="todo")
-    status: str = Field(description="todo, enum probably", default="complete")
+    providerIdentifier: str = Field(description="todo")  # todo
+    status: str = Field(description="todo, enum probably", default="complete")  # todo
     holder: Holder
     events: List[Event]
 

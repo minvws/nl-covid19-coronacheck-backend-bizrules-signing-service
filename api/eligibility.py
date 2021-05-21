@@ -45,7 +45,7 @@ Generic eligibility methods used in checking eligibility in signing services.
 import logging
 from typing import List
 
-from api.models import EventType, OriginOfProof, StatementOfVaccination, vaccination
+from api.models import OriginOfProof, StatementOfVaccination, vaccination, recovery  # , test
 
 HPK_ASTRAZENECA = 2925508
 HPK_PFIZER = 2924528
@@ -68,7 +68,7 @@ def is_eligible_for_eu_signing(data: StatementOfVaccination) -> str:
     raise NotImplementedError
 
 
-def is_eligible_for_domestic_signing(data: StatementOfVaccination) -> str:
+def is_eligible_for_domestic_signing(data: StatementOfVaccination) -> OriginOfProof:
     """
     The vaccination passport rules change on a day to day basis. What you see here, and below may be
     outdated by far when you read this. Don't currently take below code as an absolute.
@@ -89,10 +89,10 @@ def is_eligible_for_domestic_signing(data: StatementOfVaccination) -> str:
 
     # Because of the complexity of the rules, we want all data that was submitted to obtain a proof of vaccination.
     # There might be more complex rules in the future depending on unknown factors.
-    vaccination_events = [event.data for event in data.events if event.type == EventType.vaccination]
-    recovery_events = [event.data for event in data.events if event.type == EventType.recovery]
+    vaccination_events: List[vaccination] = [event.data for event in data.events if isinstance(event.data, vaccination)]
+    recovery_events: List[recovery] = [event.data for event in data.events if isinstance(event.data, recovery)]
     # todo: implement policy for test events
-    # test_events = [event.data for event in data.events if event.type == EventType.test]
+    # test_events: List[test]= [event.data for event in data.events if isinstance(event.data,test)]
 
     # Patient recovered, for EU they don't need anything else.
     # todo: possibly split eligibility between EU and domestic.

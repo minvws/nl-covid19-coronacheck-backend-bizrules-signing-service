@@ -27,13 +27,17 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
     Since only the designated party may check the hash, a secret hash key is added. The hash key will be determined by
     MVWS and shared privately.
 
+    This is based on https://api-ct.bananenhalen.nl/docs/sequence-diagram-unomi-events.png
+
     :return:
     """
+
+    # todo: Make it work with
 
     # todo: normalize
 
     now = datetime.now(pytz.utc)
-    generic_data = {
+    generic_data: Dict[str, Any] = {
         "iat": now,  # Current time
         "nbf": now,  # Not valid before
         "exp": now + timedelta(days=1),  # Expire at
@@ -52,12 +56,11 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
         if "EXAMPLE" in vaccination_provider["identifier"] or "TEST" in vaccination_provider["identifier"]:
             continue
 
-        generic_data["identity_hash"] = base64.b64encode(
-            calculate_vws_identity_hash(
-                message="-".join([bsn, pii["first_name"], pii["last_name"], pii["day_of_birth"]]).encode(),
-                key=vaccination_provider["identity_hash_secret"].encode(),
-            )
-        ).decode("UTF-8")
+        generic_data["identity_hash"] = calculate_vws_identity_hash_b64(
+            bsn,
+            pii,
+            key=vaccination_provider["identity_hash_secret"],
+        )
 
         unomi_data = {
             "iss": "jwt.test.coronacheck.nl",  # Issuer Claim
@@ -124,7 +127,21 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
     return tokens
 
 
-def calculate_vws_identity_hash(message: bytes, key: bytes) -> bytes:
+def calculate_vws_identity_hash_b64(bsn: str, pii: Dict[str, str], key: str) -> str:
+    """
+    Args:
+        bsn: bsn number
+        pii: dict with first_name, last_name, day_of_birth
+        key: key used for hashin
+
+    Returns:
+        the hash of the bsn and values in pii
+    """
+    message = "-".join([bsn, pii["first_name"], pii["last_name"], pii["day_of_birth"]]).encode()
+    return base64.b64encode(hmac256(message, key.encode())).decode("UTF-8")
+
+
+def hmac256(message: bytes, key: bytes) -> bytes:
     # From openssl library:
     # The Python Cryptographic Authority strongly suggests the use of pyca/cryptography where possible.
     # If you are using pyOpenSSL for anything other than making a TLS connection you should move to cryptography
