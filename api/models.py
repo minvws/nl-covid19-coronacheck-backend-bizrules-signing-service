@@ -159,8 +159,8 @@ class test(BaseModel):  # noqa
                     "tt": self.type,
                     "nm": self.name,
                     "ma": self.manufacturer,
-                    "sc": self.sampleDate,
-                    "dr": self.resultDate,
+                    "sc": datetime.fromisoformat(self.sampleDate),
+                    "dr": datetime.fromisoformat(self.resultDate),
                     "tr": self.negativeResult,
                     "tc": self.facility,
                 },
@@ -178,9 +178,9 @@ class recovery(BaseModel):  # noqa
         return EuropeanRecovery(
             **{
                 **{
-                    "fr": self.sampleDate,
-                    "df": self.validFrom,
-                    "du": self.validUntil,
+                    "fr": date.fromisoformat(self.sampleDate),
+                    "df": date.fromisoformat(self.validFrom),
+                    "du": date.fromisoformat(self.validUntil),
                 },
                 **SharedEuropeanFields.as_dict(),
             }
@@ -220,11 +220,11 @@ class StatementOfVaccination(BaseModel):
 
     @property
     def tests(self):
-        return [event for event in self.events if isinstance(event.data, recovery)]
+        return [event for event in self.events if isinstance(event.data, test)]
 
     @property
     def recoveries(self):
-        return [event for event in self.events if isinstance(event.data, test)]
+        return [event for event in self.events if isinstance(event.data, recovery)]
 
     def toEuropeanOnlineSigningRequest(self):
         return EuropeanOnlineSigningRequest(
