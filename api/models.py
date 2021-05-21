@@ -3,6 +3,8 @@
 # pylint: disable=too-few-public-methods,invalid-name
 # Automatic documentation: http://localhost:8000/redoc or http://localhost:8000/docs
 import re
+import uuid
+from datetime import datetime, date
 from enum import Enum
 from typing import List, Optional, Union
 from uuid import UUID
@@ -80,6 +82,20 @@ class Holder(BaseModel):
         """See dcomentation of `_name_initial`"""
         return self._name_initial(self.lastName, default="")
 
+    @staticmethod
+    def _eu_normalize(value):
+        # todo: test
+        # todo: figure out format
+        return unidecode(value).upper().replace(" ", "<")
+
+    @property
+    def first_name_eu_normalized(self):
+        return self._eu_normalize(self.firstName)
+
+    @property
+    def last_name_eu_normalized(self):
+        return self._eu_normalize(self.lastName)
+
 
 class vaccination(BaseModel):  # noqa
     """
@@ -109,6 +125,21 @@ class vaccination(BaseModel):  # noqa
     doseNumber: Optional[int] = Field(example=1, description="will be based on business rules / brand info if left out")
     totalDoses: Optional[int] = Field(example=2, description="will be based on business rules / brand info if left out")
 
+    def toEuropeanVaccination(self):
+        return EuropeanVaccination(
+            **{
+                **{
+                    "vp": self.type,
+                    "mp": self.brand,
+                    "ma": self.manufacturer,
+                    "dn": self.doseNumber,
+                    "sd": self.totalDoses,
+                    "dt": self.date,
+                },
+                **SharedEuropeanFields.as_dict(),
+            }
+        )
+
 
 class test(BaseModel):  # noqa
     sampleDate: str = Field(example="2021-01-01")
@@ -119,12 +150,41 @@ class test(BaseModel):  # noqa
     type: str = Field(example="???")
     name: str = Field(example="???")
     manufacturer: str = Field(example="1232")
+    # todo: country is missing(!)
+
+    def toEuropeanTest(self):
+        return EuropeanTest(
+            **{
+                **{
+                    "tt": self.type,
+                    "nm": self.name,
+                    "ma": self.manufacturer,
+                    "sc": self.sampleDate,
+                    "dr": self.resultDate,
+                    "tr": self.negativeResult,
+                    "tc": self.facility,
+                },
+                **SharedEuropeanFields.as_dict(),
+            }
+        )
 
 
 class recovery(BaseModel):  # noqa
     sampleDate: str = Field(example="2021-01-01")
     validFrom: str = Field(example="2021-01-12")
     validUntil: str = Field(example="2021-06-30")
+
+    def toEuropeanRecovery(self):
+        return EuropeanRecovery(
+            **{
+                **{
+                    "fr": self.sampleDate,
+                    "df": self.validFrom,
+                    "du": self.validUntil,
+                },
+                **SharedEuropeanFields.as_dict(),
+            }
+        )
 
 
 class EventType(str, Enum):
@@ -153,6 +213,34 @@ class StatementOfVaccination(BaseModel):
     status: str = Field(description="todo, enum probably", default="complete")  # todo
     holder: Holder
     events: List[Event]
+
+    @property
+    def vaccinations(self):
+        return [event for event in self.events if isinstance(event.data, vaccination)]
+
+    @property
+    def tests(self):
+        return [event for event in self.events if isinstance(event.data, recovery)]
+
+    @property
+    def recoveries(self):
+        return [event for event in self.events if isinstance(event.data, test)]
+
+    def toEuropeanOnlineSigningRequest(self):
+        return EuropeanOnlineSigningRequest(
+            **{
+                "nam": {
+                    "fn": self.holder.lastName,
+                    "fnt": self.holder.first_name_eu_normalized,
+                    "gn": self.holder.lastName,
+                    "gnt": self.holder.last_name_eu_normalized,
+                },
+                "dob": self.holder.birthDate,
+                "v": [event.data.toEuropeanVaccination() for event in self.vaccinations],
+                "r": [event.data.toEuropeanRecovery() for event in self.recoveries],
+                "t": [event.data.toEuropeanTest() for event in self.tests],
+            }
+        )
 
 
 class DomesticStaticQrResponse(BaseModel):
@@ -336,16 +424,6 @@ class DomesticProofMessage(BaseModel):
     credentials: List[DomesticProofCredentialItem]
 
 
-class MobileAppProofOfVaccination(BaseModel):
-    domesticProof: DomesticProofMessage
-    euProofs: Optional[List[EuropeanProofOfVaccination]] = Field(description="")
-
-
-class PaperProofOfVaccination(BaseModel):
-    domesticProof: Optional[List[DomesticStaticQrResponse]] = Field(description="Paper vaccination")
-    euProofs: Optional[List[EuropeanProofOfVaccination]] = Field(description="")
-
-
 # Todo: add EU response
 class DomesticPaperSigningAttributes(BaseModel):
     """
@@ -374,48 +452,8 @@ class DomesticOnlineSigningRequest(DomesticPaperSigningAttributes):
     commitments: str = Field(description="", example="")
 
 
-"""
-todo: Message To EU Signer
-{
-    OID           string -> determined on the contents of the data  Prio OID = Vaccination, Recovery, Test.
-    ExpirationTime int64 - hoe lang moet die geldig zijn. Denken 180 dagen. Maar dat zal wijzigen.
-    DGC map[string]interface{} - de daadwerkelijke data: dgc. de fbm fbtm gn en dergelijke.
-}
-"""
-# vaccination tests en recovery is een array...
-
-
-class EuropeanVaccination(BaseModel):
-    pass
-
-
-class EuropeanTest(BaseModel):
-    pass
-
-
-class EuropeanRecovery(BaseModel):
-    fr: str = Field(description="date of first positive test result. recovery.sampleDate", example="todo")
-    df: str = Field(description="certificate valid from. recovery.validFrom", example="todo")
-    du: str = Field(
-        description="certificate valid until. not more than 180 days after the date of first positive "
-        "test result. recovery.validUntil",
-        example="todo",
-    )
-
-
-class EuropeanOnlineSigningRequest(BaseModel):
-    # Docs: https://docs.google.com/spreadsheets/d/1hatNyvZMJBP7jSU_OtMQOAISBulT2O1aXgHDH73V-EA/edit#gid=0
-    fn: str = Field(description="Family name, based on holder.lastName", example="Acker")
-    # Yes, signer will take care of generating this normalized version
-    fnt: str = Field(description="Transliterated family name (A-Z, unidecoded) with<instead of space.", example="Acker")
-    gn: str = Field(description="Given name, based on holder.firstName", example="Herman")
-    # Yes, signer will take care of generating this normalized version
-    gnt: str = Field(description="The given name(s) of the person transliterated")
-    # Signer should convert "1975-XX-XX" to "1975" as the EU DGC can't handle the XX's of unknown birthmonth/day
-    dob: str = Field(
-        description="Date of Birth of the person addressed in the DGC. "
-        "ISO 8601 date format restricted to range 1900-2099"
-    )
+class SharedEuropeanFields(BaseModel):
+    # These are constant it seems.
     # https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/disease-agent-targeted.json
     # Signer will assume covid as we're not covering other diseases yet
     tg: str = Field(description="disease or agent targeted", example="840539006", default="840539006")
@@ -423,6 +461,129 @@ class EuropeanOnlineSigningRequest(BaseModel):
         description="Certificate Identifier, format as per UVCI (*), "
         "Yes (conversion of unique to V-XXX-YYYYYYYY-Z, provider only needs to provide unique"
     )
-    co: str = Field(description="Member State, ISO 3166", default="NLD")
-    # todo: this is not
-    is_: str = Field(description="certificate issuer, Will be set by signer to a fixed minvws string")
+    co: str = Field(description="Member State, ISO 3166", default="NLD", regex=r"[A-Z]{1,10}")
+    is_: str = Field(description="certificate issuer, Will be set by signer to a fixed minvws string", alias="is")
+
+    @staticmethod
+    def as_dict():
+        # These are fully random or fully static.
+        return {
+            "tg": "840539006",
+            "ci": str(uuid.uuid4()),
+            "co": "NLD",
+            # todo: what is the exact issuer string?
+            "is": "VWS",
+        }
+
+
+# https://docs.google.com/spreadsheets/d/1hatNyvZMJBP7jSU_OtMQOAISBulT2O1aXgHDH73V-EA/edit#gid=0
+class EuropeanVaccination(SharedEuropeanFields):
+    # https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/vaccine-prophylaxis.json
+    vp: str = Field(description="vaccination.type", example="1119349007")
+
+    # https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/vaccine-medicinal-product.json
+    mp: str = Field(description="vaccination.brand", example="EU/1/20/1528")
+
+    # https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/vaccine-mah-manf.json
+    ma: str = Field(description="vaccination.manufacturer", example="ORG-100001699")
+
+    dn: int = Field(description="vaccination.doseNumber", example=1, gt=0, lt=10)
+    sd: int = Field(description="vaccination.totalDoses", example=1, gt=0, lt=10)
+
+    # Iso 8601, date only
+    dt: date = Field(description="vaccination.date", example="2021-01-01")
+
+
+class EuropeanTest(SharedEuropeanFields):
+    # Incomplete example:
+    # https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/test-type.json
+    tt: str = Field(description="testresult.testType", example="")
+
+    nm: str = Field(description="testresult.name", example="")
+
+    # https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/test-manf.json
+    ma: str = Field(description="testresult.manufacturer", example="")
+
+    # Iso 8601, date and time
+    sc: datetime = Field(description="testresult.sampleDate", example="")
+
+    # Iso 8601, date and time
+    dr: datetime = Field(description="testresult.resultDate", example="")
+
+    # "In provider results: true/false
+    # In EU QR: https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/test-result.json"
+    tr: str = Field(description="testresult.negativeResult", example="")
+    tc: str = Field(description="testresult.facility", example="")
+
+
+class EuropeanRecovery(SharedEuropeanFields):
+    fr: date = Field(description="date of first positive test result. recovery.sampleDate", example="todo")
+    df: date = Field(description="certificate valid from. recovery.validFrom", example="todo")
+    du: date = Field(
+        description="certificate valid until. not more than 180 days after the date of first positive "
+        "test result. recovery.validUntil",
+        example="todo",
+    )
+
+
+class EuropeanOnlineSigningRequestNamingSection(BaseModel):
+    # Docs: https://docs.google.com/spreadsheets/d/1hatNyvZMJBP7jSU_OtMQOAISBulT2O1aXgHDH73V-EA/edit#gid=0
+    fn: str = Field(description="Family name, based on holder.lastName", example="Acker")
+    # Yes, signer will take care of generating this normalized version
+    fnt: str = Field(description="Transliterated family name (A-Z, unidecoded) with<instead of space.", example="Acker")
+    gn: str = Field(description="Given name, based on holder.firstName", example="Herman")
+    # Yes, signer will take care of generating this normalized version
+    gnt: str = Field(description="The given name(s) of the person transliterated")
+
+
+class EuropeanOnlineSigningRequest(BaseModel):
+    ver: str = Field(
+        description="Version of the schema, according to Semantic versioning", default="1.0.0", example="1.0.0"
+    )
+    nam: EuropeanOnlineSigningRequestNamingSection
+    # Signer should convert "1975-XX-XX" to "1975" as the EU DGC can't handle the XX's of unknown birthmonth/day
+    dob: str = Field(
+        description="Date of Birth of the person addressed in the DGC. "
+        "ISO 8601 date format restricted to range 1900-2099"
+    )
+
+    v: Optional[List[EuropeanVaccination]]
+    t: Optional[List[EuropeanTest]]
+    r: Optional[List[EuropeanRecovery]]
+
+
+class MessageToEUSigner(BaseModel):
+    """
+    Message To EU Signer
+    {
+        OID           string -> determined on the contents of the data  Prio OID = Vaccination, Recovery, Test.
+        ExpirationTime int64 - hoe lang moet die geldig zijn. Denken 180 dagen. Maar dat zal wijzigen.
+        DGC map[string]interface{} - de daadwerkelijke data: dgc. de fbm fbtm gn en dergelijke.
+    }
+    """
+
+    keyusage: EventType
+    EventTime: date = Field(example=1234564789)
+    DGC: EuropeanOnlineSigningRequest
+
+
+class EUGreenCardOrigins(BaseModel):
+    type: str
+    eventTime: str
+    expirationTime: str
+
+
+class EUGreenCard(BaseModel):
+    origins: List[EUGreenCardOrigins]
+    credential: str
+
+
+class MobileAppProofOfVaccination(BaseModel):
+    domesticProof: DomesticProofMessage
+    # todo: was EuropeanProofOfVaccination, is that all gone?
+    euProofs: Optional[List[EUGreenCard]] = Field(description="")
+
+
+class PaperProofOfVaccination(BaseModel):
+    domesticProof: Optional[List[DomesticStaticQrResponse]] = Field(description="Paper vaccination")
+    euProofs: Optional[List[EUGreenCard]] = Field(description="")
