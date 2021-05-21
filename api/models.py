@@ -215,15 +215,15 @@ class StatementOfVaccination(BaseModel):
     events: List[Event]
 
     @property
-    def vaccinations(self) -> List[Event]:
+    def vaccinations(self):
         return [event for event in self.events if isinstance(event.data, vaccination)]
 
     @property
-    def tests(self) -> List[Event]:
+    def tests(self):
         return [event for event in self.events if isinstance(event.data, test)]
 
     @property
-    def recoveries(self) -> List[Event]:
+    def recoveries(self):
         return [event for event in self.events if isinstance(event.data, recovery)]
 
     def toEuropeanOnlineSigningRequest(self):

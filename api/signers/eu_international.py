@@ -30,7 +30,8 @@ def sign(statement: StatementOfVaccination) -> List[EUGreenCard]:
             MessageToEUSigner(
                 **{
                     "keyusage": "vaccination",
-                    "EventTime": blank_statement.events[0].data.date,
+                    # todo: fix typing
+                    "EventTime": blank_statement.events[0].data.date,  # type: ignore
                     "DGC": blank_statement.toEuropeanOnlineSigningRequest(),
                 }
             )
@@ -42,7 +43,7 @@ def sign(statement: StatementOfVaccination) -> List[EUGreenCard]:
             MessageToEUSigner(
                 **{
                     "keyusage": "recovery",
-                    "EventTime": blank_statement.events[0].data.sampleDate,
+                    "EventTime": blank_statement.events[0].data.sampleDate,  # type: ignore
                     "DGC": blank_statement.toEuropeanOnlineSigningRequest(),
                 }
             )
@@ -54,7 +55,7 @@ def sign(statement: StatementOfVaccination) -> List[EUGreenCard]:
             MessageToEUSigner(
                 **{
                     "keyusage": "test",
-                    "EventTime": blank_statement.events[0].data.sampleDate,
+                    "EventTime": blank_statement.events[0].data.sampleDate,  # type: ignore
                     "DGC": blank_statement.toEuropeanOnlineSigningRequest(),
                 }
             )
