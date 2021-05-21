@@ -47,7 +47,7 @@ vaccination_events = {
                 "validFrom": "2021-02-01",
                 "validUntil": "2021-02-01",
             },
-        }
+        },
     ],
 }
 
@@ -62,24 +62,32 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
     assert eu_request.dict() == {
         "dob": "1970-01-01",
         "nam": {"fn": "Akkersloot", "fnt": "HERMAN", "gn": "Akkersloot", "gnt": "AKKERSLOOT"},
-        'r': [{'ci': 'd540cb87-7774-4c40-bcef-d46a933da826',
-               'co': 'NLD',
-               'df': datetime(2021, 2, 1).date(),
-               'du': datetime(2021, 2, 1).date(),
-               'fr': datetime(2021, 1, 1).date(),
-               'is_': 'VWS',
-               'tg': '840539006'}],
-        't': [{'ci': 'd540cb87-7774-4c40-bcef-d46a933da826',
-               'co': 'NLD',
-               'dr': datetime(2021, 2, 1, 0, 0),
-               'is_': 'VWS',
-               'ma': '???',
-               'nm': '???',
-               'sc': datetime(2021, 1, 1, 0, 0),
-               'tc': 'GGD XL Amsterdam',
-               'tg': '840539006',
-               'tr': 'True',
-               'tt': '???'}],
+        "r": [
+            {
+                "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
+                "co": "NLD",
+                "df": datetime(2021, 2, 1).date(),
+                "du": datetime(2021, 2, 1).date(),
+                "fr": datetime(2021, 1, 1).date(),
+                "is_": "VWS",
+                "tg": "840539006",
+            }
+        ],
+        "t": [
+            {
+                "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
+                "co": "NLD",
+                "dr": datetime(2021, 2, 1, 0, 0),
+                "is_": "VWS",
+                "ma": "???",
+                "nm": "???",
+                "sc": datetime(2021, 1, 1, 0, 0),
+                "tc": "GGD XL Amsterdam",
+                "tg": "840539006",
+                "tr": "True",
+                "tt": "???",
+            }
+        ],
         "v": [
             {
                 "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
