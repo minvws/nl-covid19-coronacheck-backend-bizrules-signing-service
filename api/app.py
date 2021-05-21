@@ -89,7 +89,7 @@ async def sign_via_app_step_2(data: StatementOfVaccination):
     # todo: there is no special validation anymore, will there be?
     # todo: there is no enrichment anymore in this step, will there be?
 
-    # todo: eligibility for EU and NL differs. THere are now two routines, but one 'OriginOfProof'.
+    # todo: eligibility for EU and NL differs. There are now two routines, but one 'OriginOfProof'.
     eligible_because = is_eligible_for_domestic_signing(data)
     if not eligible_because:
         raise HTTPException(status_code=480, detail=["Not eligible, todo: reason"])

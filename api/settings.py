@@ -3,7 +3,7 @@
 import configparser
 from os import path
 import pathlib
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import json5  # type: ignore
 from pydantic import BaseSettings, Field
@@ -25,11 +25,17 @@ if not path.exists(ENV_FILE):
 
 
 class AppSettings(BaseSettings):
+    # todo: also make use of .env file instead of .conf for code reduction
     # pylint: disable=too-many-instance-attributes
+    SECRETS_FOLDER: str = ""
+    # todo: make a model out of vaccination providers
+    # APP_STEP_1_VACCINATION_PROVIDERS_FILE: str = ""
     APP_STEP_1_VACCINATION_PROVIDERS: List[Dict[str, Any]] = []
     APP_STEP_1_JWT_PRIVATE_KEY: str = ""
     SBVZ_WSDL_ENVIRONMENT: str = ""
     SBVZ_CERT: str = ""
+    STATEMENT_OF_VACCINATION_VALIDITY_HOURS: int
+    PROOF_OF_VACCINATION_VALIDITY_HOURS: int
 
     DOMESTIC_NL_VWS_PAPER_SIGNING_URL: str = ""
     DOMESTIC_NL_VWS_ONLINE_SIGNING_URL: str = ""
@@ -42,87 +48,69 @@ class RedisSettings(BaseSettings):
     host: str = Field("", env="REDIS_HOST")
     port: int = Field(0, env="REDIS_PORT")
     db: int = Field(0, env="REDIS_DB")
-    password: str = Field(None, env="REDIS_PASSWORD")
-    socket_timeout: int = Field(None, env="REDIS_SOCKET_TIMEOUT")
-    socket_connect_timeout: int = Field(None, env="REDIS_SOCKET_CONNECT_TIMEOUT")
-    socket_keepalive: int = Field(None, env="REDIS_SOCKET_KEEPALIVE")
-    socket_keepalive_options: str = Field(None, env="REDIS_SOCKET_KEEPALIVE_OPTIONS")
-    connection_pool: str = Field(None, env="REDIS_CONNECTION_POOL")
-    unix_socket_path: str = Field(None, env="REDIS_UNIX_SOCKET_PATH")
+    password: Optional[str] = Field(None, env="REDIS_PASSWORD")
+    socket_timeout: Optional[int] = Field(None, env="REDIS_SOCKET_TIMEOUT")
+    socket_connect_timeout: Optional[int] = Field(None, env="REDIS_SOCKET_CONNECT_TIMEOUT")
+    socket_keepalive: Optional[int] = Field(None, env="REDIS_SOCKET_KEEPALIVE")
+    socket_keepalive_options: Optional[str] = Field(None, env="REDIS_SOCKET_KEEPALIVE_OPTIONS")
+    connection_pool: Optional[str] = Field(None, env="REDIS_CONNECTION_POOL")
+    unix_socket_path: Optional[str] = Field(None, env="REDIS_UNIX_SOCKET_PATH")
     encoding: str = Field("utf-8", env="REDIS_ENCODING")
     encoding_errors: str = Field("strict", env="REDIS_ENCODING_ERRORS")
-    charset: str = Field(None, env="REDIS_CHARSET")
-    errors: str = Field(None, env="REDIS_ERRORS")
+    charset: Optional[str] = Field(None, env="REDIS_CHARSET")
+    errors: Optional[str] = Field(None, env="REDIS_ERRORS")
     decode_responses: bool = Field(False, env="REDIS_DECODE_RESPONSES")
     retry_on_timeout: bool = Field(False, env="REDIS_RETRY_ON_TIMEOUT")
     ssl: bool = Field(False, env="REDIS_SSL")
-    ssl_keyfile: str = Field(None, env="REDIS_SSL_KEYFILE")
-    ssl_certfile: str = Field(None, env="REDIS_SSL_CERTFILE")
+    ssl_keyfile: Optional[str] = Field(None, env="REDIS_SSL_KEYFILE")
+    ssl_certfile: Optional[str] = Field(None, env="REDIS_SSL_CERTFILE")
     ssl_cert_reqs: str = Field("required", env="REDIS_SSL_CERT_REQS")
-    ssl_ca_certs: str = Field(None, env="REDIS_SSL_CA_CERTS")
+    ssl_ca_certs: Optional[str] = Field(None, env="REDIS_SSL_CA_CERTS")
     ssl_check_hostname: bool = Field(False, env="REDIS_SSL_CHECK_HOSTNAME")
-    max_connections: int = Field(None, env="REDIS_MAX_CONNECTIONS")
+    max_connections: Optional[int] = Field(None, env="REDIS_MAX_CONNECTIONS")
     single_connection_client: bool = Field(False, env="REDIS_SINGLE_CONNECTION_CLIENT")
     health_check_interval: int = Field(0, env="REDIS_HEALTH_CHECK_INTERVAL")
-    client_name: str = Field(None, env="REDIS_CLIENT_NAME")
-    username: str = Field(None, env="REDIS_USERNAME")
+    client_name: Optional[str] = Field(None, env="REDIS_CLIENT_NAME")
+    username: Optional[str] = Field(None, env="REDIS_USERNAME")
 
 
-config.read(CONFIG_FILE)
-settings = AppSettings()
-redis_settings = RedisSettings(_env_file=ENV_FILE)
+def settings_factory(config_file: pathlib.Path, env_file: pathlib.Path) -> AppSettings:
+    config.read(config_file)
+    _settings = AppSettings(_env_file=env_file)
 
-with open(
-    INGE4_ROOT.joinpath(
-        f"{config['GENERAL']['SECRETS_FOLDER']}/{config['GENERAL']['DYNAMIC_FLOW_VACCINATION_DATABASE_FILENAME']}"
-    )
-) as f:
-    settings.APP_STEP_1_VACCINATION_PROVIDERS = json5.load(f)
-
-settings.APP_STEP_1_JWT_PRIVATE_KEY = (
-    open(
+    with open(
         INGE4_ROOT.joinpath(
-            f"{config['GENERAL']['SECRETS_FOLDER']}/{config['GENERAL']['DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME']}"
-        ),
-        "rb",
+            f"{config['GENERAL']['SECRETS_FOLDER']}/{config['GENERAL']['DYNAMIC_FLOW_VACCINATION_DATABASE_FILENAME']}"
+        )
+    ) as f:
+        _settings.APP_STEP_1_VACCINATION_PROVIDERS = json5.load(f)
+
+    _settings.SECRETS_FOLDER = config["GENERAL"]["SECRETS_FOLDER"]
+    _settings.APP_STEP_1_JWT_PRIVATE_KEY = (
+        open(
+            INGE4_ROOT.joinpath(
+                f"{config['GENERAL']['SECRETS_FOLDER']}/{config['GENERAL']['DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME']}"
+            ),
+            "rb",
+        )
+        .read()
+        .decode("ascii")
     )
-    .read()
-    .decode("ascii")
-)
 
-settings.SBVZ_CERT = f"{config['GENERAL']['SECRETS_FOLDER']}/" f"{config['GENERAL']['ENRICHMENT_SBVZ_CERT_FILENAME']}"
+    _settings.SBVZ_CERT = (
+        f"{config['GENERAL']['SECRETS_FOLDER']}/" f"{config['GENERAL']['ENRICHMENT_SBVZ_CERT_FILENAME']}"
+    )
 
-settings.SBVZ_WSDL_ENVIRONMENT = config["GENERAL"]["ENRICHMENT_SBVZ_WSDL_ENVIRONMENT"]
+    _settings.SBVZ_WSDL_ENVIRONMENT = config["GENERAL"]["ENRICHMENT_SBVZ_WSDL_ENVIRONMENT"]
 
-settings.DOMESTIC_NL_VWS_PAPER_SIGNING_URL = config["SIGNING"]["DOMESTIC_NL_VWS_PAPER_SIGNING_URL"]
-settings.DOMESTIC_NL_VWS_ONLINE_SIGNING_URL = config["SIGNING"]["DOMESTIC_NL_VWS_ONLINE_SIGNING_URL"]
+    _settings.DOMESTIC_NL_VWS_PAPER_SIGNING_URL = config["SIGNING"]["DOMESTIC_NL_VWS_PAPER_SIGNING_URL"]
+    _settings.DOMESTIC_NL_VWS_ONLINE_SIGNING_URL = config["SIGNING"]["DOMESTIC_NL_VWS_ONLINE_SIGNING_URL"]
 
-settings.NONCE_BYTE_SECURITY = int(config["SESSION_STORE"]["NONCE_BYTE_SECURITY"])
-settings.EXPIRATION_TIME_IN_SECONDS = int(config["SESSION_STORE"]["EXPIRATION_TIME_IN_SECONDS"])
-# settings.REDIS_HOST = config["SESSION_STORE"]["REDIS_HOST"]
-# settings.REDIS_PORT = int(config["SESSION_STORE"]["REDIS_PORT"])
-# settings.REDIS_DB = int(config["SESSION_STORE"]["REDIS_DB"])
-# settings.REDIS_PASSWORD = str(config["SESSION_STORE"]["REDIS_PASSWORD"])
-# settings.REDIS_SOCKET_TIMEOUT = int(config["SESSION_STORE"]["REDIS_SOCKET_TIMEOUT"])
-# settings.REDIS_SOCKET_CONNECT_TIMEOUT = int(config["SESSION_STORE"]["REDIS_SOCKET_CONNECT_TIMEOUT"])
-# settings.REDIS_SOCKET_KEEPALIVE = int(config["SESSION_STORE"]["REDIS_SOCKET_KEEPALIVE"])
-# settings.REDIS_SOCKET_KEEPALIVE_OPTIONS = str(config["SESSION_STORE"]["REDIS_SOCKET_KEEPALIVE_OPTIONS"])
-# settings.REDIS_CONNECTION_POOL = str(config["SESSION_STORE"]["REDIS_CONNECTION_POOL"])
-# settings.REDIS_UNIX_SOCKET_PATH = str(config["SESSION_STORE"]["REDIS_UNIX_SOCKET_PATH"])
-# settings.REDIS_ENCODING = str(config["SESSION_STORE"]["REDIS_ENCODING"])
-# settings.REDIS_ENCODING_ERRORS = str(config["SESSION_STORE"]["REDIS_ENCODING_ERRORS"])
-# settings.REDIS_CHARSET = str(config["SESSION_STORE"]["REDIS_CHARSET"])
-# settings.REDIS_ERRORS = str(config["SESSION_STORE"]["REDIS_ERRORS"])
-# settings.REDIS_DECODE_RESPONSES = bool(config["SESSION_STORE"]["REDIS_DECODE_RESPONSES"])
-# settings.REDIS_RETRY_ON_TIMEOUT = bool = False
-# settings.REDIS_SSL = bool = False
-# settings.REDIS_SSL_KEYFILE = str = None
-# settings.REDIS_SSL_CERTFILE = str = None
-# settings.REDIS_SSL_CERT_REQS = str = 'required'
-# settings.REDIS_SSL_CA_CERTS = str = None
-# settings.REDIS_SSL_CHECK_HOSTNAME = bool = False
-# settings.REDIS_MAX_CONNECTIONS = int = None
-# settings.REDIS_SINGLE_CONNECTION_CLIENT = bool = False
-# settings.REDIS_HEALTH_CHECK_INTERVAL = int = 0
-# settings.REDIS_CLIENT_NAME = str = None
-# settings.REDIS_USERNAME = str = None
+    _settings.NONCE_BYTE_SECURITY = int(config["SESSION_STORE"]["NONCE_BYTE_SECURITY"])
+    _settings.EXPIRATION_TIME_IN_SECONDS = int(config["SESSION_STORE"]["EXPIRATION_TIME_IN_SECONDS"])
+    return _settings
+
+
+settings = settings_factory(CONFIG_FILE, ENV_FILE)
+
+redis_settings = RedisSettings(_env_file=ENV_FILE)

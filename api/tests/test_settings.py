@@ -1,4 +1,4 @@
-from api.settings import RedisSettings
+from api.settings import RedisSettings, settings_factory
 
 
 def test_redis_settings_dev(root_path):
@@ -19,3 +19,10 @@ def test_redis_settings_test(current_path):
     assert redis_settings.encoding == "ascii"
     assert redis_settings.socket_timeout == 30
     assert redis_settings.retry_on_timeout is True
+
+
+def test_settings_factory(root_path):
+    settings = settings_factory(
+        root_path.joinpath("inge4_development.conf"), root_path.joinpath("inge4_development.env")
+    )
+    assert settings.SECRETS_FOLDER == "api/tests/secrets"

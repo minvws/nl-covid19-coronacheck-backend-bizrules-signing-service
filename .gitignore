@@ -79,6 +79,10 @@ target/
 # Makefiles
 .make_setup_complete
 
+# caches
+.mypy_cache
+.pytest_cache
+
 ### Django ###
 *.log
 *.pot
