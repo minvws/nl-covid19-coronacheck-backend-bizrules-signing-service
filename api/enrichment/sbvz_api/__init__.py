@@ -2,7 +2,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Union
 
-from defusedxml import minidom  # type: ignore
+from defusedxml import minidom
 from requests import Session
 from zeep import Client
 from zeep.transports import Transport

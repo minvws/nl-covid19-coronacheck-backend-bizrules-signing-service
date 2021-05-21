@@ -1,34 +1,25 @@
 # pylint: disable=invalid-name,too-few-public-methods
 
 import configparser
-from os import path
 import pathlib
 from typing import Any, Dict, List, Optional
 
-import json5  # type: ignore
+import json5
 from pydantic import BaseSettings, Field
 
-CONFIG_FILE = pathlib.Path("/etc/inge4/inge4.conf")
-ENV_FILE = pathlib.Path("/etc/inge4/inge4.env")
-INGE4_ROOT = pathlib.Path(__file__).parent.parent.absolute()
+from api.constants import INGE4_ROOT, CONFIG_FILE, ENV_FILE
 
 config = configparser.ConfigParser()
-
-if not path.exists(CONFIG_FILE):
-    print("Warning! The production configuration could not be found. Using development/test settings.")
-    CONFIG_FILE = INGE4_ROOT.joinpath("inge4_development.conf")
-
-
-if not path.exists(ENV_FILE):
-    print("Warning! The production inge4.env could not be found. Using development/test settings.")
-    ENV_FILE = INGE4_ROOT.joinpath("inge4_development.env")
 
 
 class AppSettings(BaseSettings):
     # todo: also make use of .env file instead of .conf for code reduction
     # pylint: disable=too-many-instance-attributes
     SECRETS_FOLDER: str = ""
-    # todo: make a model out of vaccination providers
+    # todo: make a model out of vaccination providers and enforce minumum length of
+    #      "identity_hash_secret": "735770c3112175051c99c3e2c3023ab7ed99f98c965c4e15a7c01da7370c5717"
+    #      as described in vaccinationproviders.json5
+    #      we should not even start if the config is not secure enough
     # APP_STEP_1_VACCINATION_PROVIDERS_FILE: str = ""
     APP_STEP_1_VACCINATION_PROVIDERS: List[Dict[str, Any]] = []
     APP_STEP_1_JWT_PRIVATE_KEY: str = ""

@@ -9,8 +9,8 @@ from typing import Any, Dict, List
 import jwt
 import pytz
 from cryptography.hazmat.primitives import hashes, hmac
-from nacl.public import Box, PrivateKey, PublicKey  # type: ignore
-from nacl.utils import random  # type: ignore
+from nacl.public import Box, PrivateKey, PublicKey
+from nacl.utils import random
 
 from api.enrichment import sbvz
 from api.settings import settings
@@ -127,19 +127,27 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
     return tokens
 
 
-def calculate_vws_identity_hash(bsn: str, pii: Dict[str, str], key: str) -> bytes:
+def calculate_vws_identity_hash_b64(bsn: str, pii: Dict[str, str], key: str) -> str:
+    """
+    Args:
+        bsn: bsn number
+        pii: dict with first_name, last_name, day_of_birth
+        key: key used for hashin
+
+    Returns:
+        the hash of the bsn and values in pii
+    """
+    message = "-".join([bsn, pii["first_name"], pii["last_name"], pii["day_of_birth"]]).encode()
+    return base64.b64encode(hmac256(message, key.encode())).decode("UTF-8")
+
+
+def hmac256(message: bytes, key: bytes) -> bytes:
     # From openssl library:
     # The Python Cryptographic Authority strongly suggests the use of pyca/cryptography where possible.
     # If you are using pyOpenSSL for anything other than making a TLS connection you should move to cryptography
     # and drop your pyOpenSSL dependency.
 
     # echo -n "000000012-Pluk-Petteflet-01" | openssl dgst -sha256 -hmac "ZrHsI6MZmObcqrSkVpea"
-    message = "-".join([bsn, pii["first_name"], pii["last_name"], pii["day_of_birth"]]).encode()
-    b_key = key.encode()
-    hmac_instance = hmac.HMAC(b_key, hashes.SHA256())
+    hmac_instance = hmac.HMAC(key, hashes.SHA256())
     hmac_instance.update(message)
     return hmac_instance.finalize()
-
-
-def calculate_vws_identity_hash_b64(bsn: str, pii: Dict[str, str], key: str) -> str:
-    return base64.b64encode(calculate_vws_identity_hash(bsn, pii, key)).decode("UTF-8")
