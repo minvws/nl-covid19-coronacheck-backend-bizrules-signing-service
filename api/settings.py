@@ -1,21 +1,21 @@
 # pylint: disable=invalid-name,too-few-public-methods
 
-import configparser
 import pathlib
 from typing import Any, Dict, List, Optional
 
 import json5
 from pydantic import BaseSettings, Field
 
-from api.constants import INGE4_ROOT, CONFIG_FILE, ENV_FILE
-
-config = configparser.ConfigParser()
+from api.constants import INGE4_ROOT, ENV_FILE
+from api.utils import read_file
 
 
 class AppSettings(BaseSettings):
-    # todo: also make use of .env file instead of .conf for code reduction
     # pylint: disable=too-many-instance-attributes
     SECRETS_FOLDER: str = ""
+    DYNAMIC_FLOW_VACCINATION_DATABASE_FILENAME: str = ""
+    DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME: str = ""
+    SBVZ_CERT_FILENAME: str = ""
     # todo: make a model out of vaccination providers and enforce minumum length of
     #      "identity_hash_secret": "735770c3112175051c99c3e2c3023ab7ed99f98c965c4e15a7c01da7370c5717"
     #      as described in vaccinationproviders.json5
@@ -25,8 +25,6 @@ class AppSettings(BaseSettings):
     APP_STEP_1_JWT_PRIVATE_KEY: str = ""
     SBVZ_WSDL_ENVIRONMENT: str = ""
     SBVZ_CERT: str = ""
-    STATEMENT_OF_VACCINATION_VALIDITY_HOURS: int
-    PROOF_OF_VACCINATION_VALIDITY_HOURS: int
 
     DOMESTIC_NL_VWS_PAPER_SIGNING_URL: str = ""
     DOMESTIC_NL_VWS_ONLINE_SIGNING_URL: str = ""
@@ -65,43 +63,27 @@ class RedisSettings(BaseSettings):
     username: Optional[str] = Field(None, env="REDIS_USERNAME")
 
 
-def settings_factory(config_file: pathlib.Path, env_file: pathlib.Path) -> AppSettings:
-    config.read(config_file)
+def settings_factory(env_file: pathlib.Path) -> AppSettings:
+
     _settings = AppSettings(_env_file=env_file)
 
-    with open(
-        INGE4_ROOT.joinpath(
-            f"{config['GENERAL']['SECRETS_FOLDER']}/{config['GENERAL']['DYNAMIC_FLOW_VACCINATION_DATABASE_FILENAME']}"
+    _settings.APP_STEP_1_VACCINATION_PROVIDERS = json5.loads(
+        read_file(
+            INGE4_ROOT.joinpath(f"{_settings.SECRETS_FOLDER}/{_settings.DYNAMIC_FLOW_VACCINATION_DATABASE_FILENAME}")
         )
-    ) as f:
-        _settings.APP_STEP_1_VACCINATION_PROVIDERS = json5.load(f)
-
-    _settings.SECRETS_FOLDER = config["GENERAL"]["SECRETS_FOLDER"]
-    _settings.APP_STEP_1_JWT_PRIVATE_KEY = (
-        open(
-            INGE4_ROOT.joinpath(
-                f"{config['GENERAL']['SECRETS_FOLDER']}/{config['GENERAL']['DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME']}"
-            ),
-            "rb",
-        )
-        .read()
-        .decode("ascii")
     )
 
-    _settings.SBVZ_CERT = (
-        f"{config['GENERAL']['SECRETS_FOLDER']}/" f"{config['GENERAL']['ENRICHMENT_SBVZ_CERT_FILENAME']}"
+    _settings.APP_STEP_1_JWT_PRIVATE_KEY = read_file(
+        INGE4_ROOT.joinpath(f"{_settings.SECRETS_FOLDER}/{_settings.DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME}")
     )
+    _settings.SBVZ_CERT = read_file(
+        INGE4_ROOT.joinpath(f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}")
+    )
+    _settings.SBVZ_CERT =f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}"
 
-    _settings.SBVZ_WSDL_ENVIRONMENT = config["GENERAL"]["ENRICHMENT_SBVZ_WSDL_ENVIRONMENT"]
-
-    _settings.DOMESTIC_NL_VWS_PAPER_SIGNING_URL = config["SIGNING"]["DOMESTIC_NL_VWS_PAPER_SIGNING_URL"]
-    _settings.DOMESTIC_NL_VWS_ONLINE_SIGNING_URL = config["SIGNING"]["DOMESTIC_NL_VWS_ONLINE_SIGNING_URL"]
-
-    _settings.NONCE_BYTE_SECURITY = int(config["SESSION_STORE"]["NONCE_BYTE_SECURITY"])
-    _settings.EXPIRATION_TIME_IN_SECONDS = int(config["SESSION_STORE"]["EXPIRATION_TIME_IN_SECONDS"])
     return _settings
 
 
-settings = settings_factory(CONFIG_FILE, ENV_FILE)
+settings = settings_factory(ENV_FILE)
 
 redis_settings = RedisSettings(_env_file=ENV_FILE)

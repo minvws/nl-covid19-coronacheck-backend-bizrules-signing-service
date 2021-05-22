@@ -22,7 +22,5 @@ def test_redis_settings_test(current_path):
 
 
 def test_settings_factory(root_path):
-    settings = settings_factory(
-        root_path.joinpath("inge4_development.conf"), root_path.joinpath("inge4_development.env")
-    )
+    settings = settings_factory(root_path.joinpath("inge4_development.env"))
     assert settings.SECRETS_FOLDER == "api/tests/secrets"
