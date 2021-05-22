@@ -76,10 +76,8 @@ def settings_factory(env_file: pathlib.Path) -> AppSettings:
     _settings.APP_STEP_1_JWT_PRIVATE_KEY = read_file(
         INGE4_ROOT.joinpath(f"{_settings.SECRETS_FOLDER}/{_settings.DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME}")
     )
-    _settings.SBVZ_CERT = read_file(
-        INGE4_ROOT.joinpath(f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}")
-    )
-    _settings.SBVZ_CERT =f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}"
+    _settings.SBVZ_CERT = read_file(INGE4_ROOT.joinpath(f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}"))
+    _settings.SBVZ_CERT = f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}"
 
     return _settings
 
