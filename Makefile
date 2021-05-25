@@ -58,6 +58,17 @@ audit: venv ## Run security audit
 lint: venv  ## Do basic linting
 	@. .venv/bin/activate && ${env} pylint ${pysrcdirs}
 
+example: venv  ## Runs example scripts against local services instead of tests
+	@. .venv/bin/activate && ${env} python3 example_eu_signing.py
+
+valid: venv
+	${MAKE} fix
+	${MAKE} lint
+	${MAKE} check-types
+	${MAKE} audit
+	${MAKE} test
+	${MAKE} test-report
+
 .PHONY: check-all
 check-all: check lint audit check-types
 
@@ -78,6 +89,7 @@ run: venv
 docs: venv
 	# Render sequence diagrams to images in /docs/
 	. .venv/bin/activate && ${env} python3 -m plantuml ./docs/DomesticPaperFlow.puml -o renders/..
+	. .venv/bin/activate && ${env} python3 -m plantuml ./docs/DomesticDynamicFlow.puml -o renders/..
 	# Renders open API spec to openapi.json in /docs/
 	. .venv/bin/activate && ${env} python3 -m uvicorn api.app:save_openapi_json
 

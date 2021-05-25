@@ -216,15 +216,30 @@ class StatementOfVaccination(BaseModel):
 
     @property
     def vaccinations(self):
-        return [event for event in self.events if isinstance(event.data, vaccination)]
+        """
+        :return: sorted list of events that have vaccination data. Sorted by data.date.
+        """
+        events = [event for event in self.events if isinstance(event.data, vaccination)]
+        events = sorted(events, key=lambda e: e.data.date)  # type: ignore
+        return events
 
     @property
     def tests(self):
-        return [event for event in self.events if isinstance(event.data, test)]
+        """
+        :return: sorted list of events that have test data. Sorted by data.sampleDate.
+        """
+        events = [event for event in self.events if isinstance(event.data, test)]
+        events = sorted(events, key=lambda e: e.data.sampleDate)  # type: ignore
+        return events
 
     @property
     def recoveries(self):
-        return [event for event in self.events if isinstance(event.data, recovery)]
+        """
+        :return: sorted list of events that have recovery data. Sorted by data.sampleDate.
+        """
+        events = [event for event in self.events if isinstance(event.data, recovery)]
+        events = sorted(events, key=lambda e: e.data.sampleDate)  # type: ignore
+        return events
 
     def toEuropeanOnlineSigningRequest(self):
         return EuropeanOnlineSigningRequest(
@@ -462,7 +477,7 @@ class SharedEuropeanFields(BaseModel):
         "Yes (conversion of unique to V-XXX-YYYYYYYY-Z, provider only needs to provide unique"
     )
     co: str = Field(description="Member State, ISO 3166", default="NLD", regex=r"[A-Z]{1,10}")
-    is_: str = Field(description="certificate issuer, Will be set by signer to a fixed minvws string", alias="is")
+    is_: str = Field(description="certificate issuer", default="Ministry of Health Welfare and Sport", alias="is")
 
     @staticmethod
     def as_dict():
@@ -470,9 +485,9 @@ class SharedEuropeanFields(BaseModel):
         return {
             "tg": "840539006",
             "ci": str(uuid.uuid4()),
+            # "ci": "urn:uvci:01:NL:33385024475e4c56a17b749f92404039",
             "co": "NLD",
-            # todo: what is the exact issuer string?
-            "is": "VWS",
+            "is": "Ministry of Health Welfare and Sport",
         }
 
 
@@ -547,9 +562,9 @@ class EuropeanOnlineSigningRequest(BaseModel):
         "ISO 8601 date format restricted to range 1900-2099"
     )
 
-    v: Optional[List[EuropeanVaccination]]
-    t: Optional[List[EuropeanTest]]
-    r: Optional[List[EuropeanRecovery]]
+    v: List[EuropeanVaccination]
+    t: List[EuropeanTest]
+    r: List[EuropeanRecovery]
 
 
 class MessageToEUSigner(BaseModel):
@@ -562,9 +577,9 @@ class MessageToEUSigner(BaseModel):
     }
     """
 
-    keyusage: EventType
-    EventTime: date = Field(example=1234564789)
-    DGC: EuropeanOnlineSigningRequest
+    keyUsage: EventType
+    expirationTime: datetime = Field(example=1234564789)
+    dgc: EuropeanOnlineSigningRequest
 
 
 class EUGreenCardOrigins(BaseModel):
@@ -579,9 +594,9 @@ class EUGreenCard(BaseModel):
 
 
 class MobileAppProofOfVaccination(BaseModel):
-    domesticProof: DomesticProofMessage
+    domesticGreencard: DomesticProofMessage
     # todo: was EuropeanProofOfVaccination, is that all gone?
-    euProofs: Optional[List[EUGreenCard]] = Field(description="")
+    euGreencards: Optional[List[EUGreenCard]] = Field(description="")
 
 
 class PaperProofOfVaccination(BaseModel):

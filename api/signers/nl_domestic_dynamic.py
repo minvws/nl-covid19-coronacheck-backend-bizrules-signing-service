@@ -11,6 +11,28 @@ from api.utils import request_post_with_retries
 
 def sign(data: StatementOfVaccination) -> DomesticProofMessage:
     """
+    Signer repo: https://github.com/minvws/nl-covid19-coronacheck-idemix-private/tree/next
+    go run ./ --help
+
+    app -> inge4: prepare issue
+    inge4 -> domestic_dynamic_signer: prepare_issue (http://localhost:4001/prepare_issue)
+    domestic_dynamic_signer -> inge4: prepareIssueMessage()
+    inge4 -> inge4: store_nonce_in_redis_and_return_s_token
+    inge4 -> app: s-token
+
+    Example prepare_issue:
+    http://localhost:4001/prepare_issue
+    {"issuerPkId":"TST-KEY-01","issuerNonce":"j6n+P9UPWS+2+C+MsNVlVw==","credentialAmount":28}
+
+
+
+
+    prepare_issue_message
+
+
+
+
+
     Todo: it's unclear if there will be one or more requests, probably covering 10 days of 24 hour codes.
     Todo: implement this for multiple days. How many, is that a param / config variable?
     {
@@ -55,8 +77,8 @@ def sign(data: StatementOfVaccination) -> DomesticProofMessage:
     response.raise_for_status()
 
     """
-    # The response looks like this:
-    {
+    # The response looks like this, just :
+    [{
         "ism": {
             "proof": {
                 "c": "tHk+nswA/VSgQR41o+NlPEZUlBCdVbV7IK50/lrK0jo=",
@@ -75,7 +97,7 @@ def sign(data: StatementOfVaccination) -> DomesticProofMessage:
             }
         },
         "attributes": ["", ""]
-    }
+    }]
     """
 
     return to_domestic_proof_message([DomesticStaticQrResponse(**response.json())])

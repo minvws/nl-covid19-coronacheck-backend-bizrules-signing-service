@@ -1,6 +1,9 @@
 from datetime import datetime
 
-from api.models import StatementOfVaccination
+from freezegun import freeze_time
+
+from api.models import StatementOfVaccination, EUGreenCard
+from api.settings import settings
 from api.signers.eu_international import sign
 
 vaccination_events = {
@@ -69,7 +72,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "df": datetime(2021, 2, 1).date(),
                 "du": datetime(2021, 2, 1).date(),
                 "fr": datetime(2021, 4, 1).date(),
-                "is_": "VWS",
+                "is_": "Ministry of Health Welfare and Sport",
                 "tg": "840539006",
             }
         ],
@@ -78,7 +81,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
                 "co": "NLD",
                 "dr": datetime(2021, 2, 1, 0, 0),
-                "is_": "VWS",
+                "is_": "Ministry of Health Welfare and Sport",
                 "ma": "???",
                 "nm": "???",
                 "sc": datetime(2021, 3, 1, 0, 0),
@@ -94,8 +97,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "co": "NLD",
                 "dn": 1,
                 "dt": datetime(2021, 2, 1).date(),
-                # todo: field name
-                "is_": "VWS",
+                "is_": "Ministry of Health Welfare and Sport",
                 "ma": "JANSSEN",
                 "mp": "COVID-19 VACCIN JANSSEN INJVLST 0,5ML",
                 "sd": 2,
@@ -107,17 +109,35 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
     }
 
 
+@freeze_time("2020-02-02")
 def test_eusign(requests_mock):
-    example_answer = {
-        "origins": [
-            {"type": "vaccination", "eventTime": "2021-02-18T00:00:00Z", "expirationTime": "2021-11-17T13:21:41Z"}
-        ],
-        "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
-    }
-
-    requests_mock.post("https://signing.local/eu_international", json=example_answer)
-
-    # todo: returns list of EUProofs.
+    example_answer = {"credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G"}
+    requests_mock.post(settings.EU_INTERNATIONAL_SIGNING_URL, json=example_answer)
     answer = sign(StatementOfVaccination(**vaccination_events))
 
-    assert answer == [example_answer, example_answer, example_answer]
+    vaccination = EUGreenCard(
+        **{
+            "origins": [
+                {"type": "vaccination", "eventTime": "2021-02-01", "expirationTime": "2020-07-31T00:00:00+00:00"}
+            ],
+            "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
+        }
+    )
+
+    recovery = EUGreenCard(
+        **{
+            "origins": [{"type": "recovery", "eventTime": "2021-04-01", "expirationTime": "2020-07-31T00:00:00+00:00"}],
+            "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
+        }
+    )
+
+    test = EUGreenCard(
+        **{
+            "origins": [
+                {"type": "test", "eventTime": "2021-03-01T00:00:00", "expirationTime": "2020-07-31T00:00:00+00:00"}
+            ],
+            "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
+        }
+    )
+
+    assert answer == [vaccination, recovery, test]
