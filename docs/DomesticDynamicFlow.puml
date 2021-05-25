@@ -1,0 +1,125 @@
+@startuml
+' Training by Ben Peachy
+' https://plantuml.com/sequence-diagram
+' Manual: https://plantuml-documentation.readthedocs.io/en/latest/index.html
+' QA: https://forum.plantuml.net/
+' Use Plantuml for pycharm
+' Rendering:
+' Plattext.com
+' http://www.plantuml.com/plantuml/
+' Alle shapes: https://plantuml.com/deployment-diagram
+' Shared methods or skinparams / includes: https://plantuml.com/preprocessing#393335a6fd28a804
+' Messages in this UML scheme are shown in openapi.yaml
+
+skinparam {
+    Handwritten false
+    Monochrome false
+    shadowing false
+
+    ' "Comic Sans MS"
+    defaultFontName RijksoverheidSansWebText
+    defaultFontName "Comic Sans MS"
+    defaultFontColor magenta
+
+    boundary {
+        BorderColor #pink
+        BackgroundColor #white
+    }
+
+    NoteBorderColor #CC0
+
+    sequence {
+        arrowColor magenta
+
+        boxBorderColor none
+        boxBackgroundColor #EEE
+
+        actor {
+            BorderColor #5715CC
+            BackgroundColor white
+        }
+
+
+        participant {
+            BorderColor magenta
+            BackgroundColor #white
+        }
+
+        lifeLine {
+            BorderColor magenta
+            BackgroundColor pink
+        }
+    }
+}
+
+participant app
+participant inge4
+participant redis
+participant signer
+
+
+== ACTORS ==
+
+app --> inge4
+inge4 --> signer
+inge4 --> redis
+
+== FLOW ==
+' mobile app step 2
+' hiervoor zit de unomi flow: dit is het signen zelf.
+
+app -> inge4: prepare_issue
+activate inge4
+' http://localhost:4001/prepare_issue
+inge4 -> signer: prepare_issue
+deactivate inge4
+activate signer
+signer -> inge4: prepareIssueMessage
+deactivate signer
+activate inge4
+inge4 -> redis: store_prepareIssueMessage and sToken
+deactivate inge4
+redis -> inge4: ok
+inge4 -> app: sToken, base64(prepareIssueMessage)
+deactivate inge4
+activate app
+
+app -> app: create_commitments
+
+' todo: rename statement of vaccination to events.
+app -> inge4: get_credentials(issueCommitmentMessage, sToken, events)
+deactivate app
+activate inge4
+' sToken
+inge4 -> redis: getPrepareIssueMessage(sToken)
+redis -> inge4: PrepareIssueMessage
+
+alt sToken does not exist
+redis -> inge4: None
+inge4 -> app: Error
+end alt
+
+inge4 -> signer: IssueMessage(prepareIssueMessage, IssueCommitmentMessage, list_of dicts_credentials_with_attributes)
+signer -> inge4: [CreateCredentialMessages]
+' (euGreenCards, base64(CreateCredentialMessages))
+inge4 -> app: MobileAppProofOfVaccination(with base64(CreateCredentialMessages))
+deactivate inge4
+
+
+' inge3 -> inge4 : StatementOfVaccination
+' activate inge4
+'     inge4 -> inge4 : Check eligibility
+'     alt not eligible
+'        inge4 -> inge3 : ErrorResponse
+'     end alt
+'     inge4 -> inge4 : minimize data / create PaperSigningRequest
+'     inge4 -> provider : PaperSigningRequest (108x)
+'     alt signing error
+'         inge4 -> inge3 : ErrorResponse
+'     end alt
+'     provider -> inge4: SingleDomesticVaccinationResponse
+'
+'     inge4 -> inge3: SignaturePerProviderResponse
+' deactivate inge4
+
+@enduml

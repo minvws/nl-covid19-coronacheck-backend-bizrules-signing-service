@@ -8,6 +8,8 @@ from api.utils import request_post_with_retries
 
 
 def sign(statement: StatementOfVaccination) -> List[EUGreenCard]:
+    # git clone https://github.com/minvws/nl-covid19-coronacheck-hcert-private
+
     # https://github.com/eu-digital-green-certificates/dgc-testdata/blob/main/NL/2DCode/raw/100.json
     # https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/DGC.combined-schema.json
 

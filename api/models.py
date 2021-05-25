@@ -594,9 +594,9 @@ class EUGreenCard(BaseModel):
 
 
 class MobileAppProofOfVaccination(BaseModel):
-    domesticProof: DomesticProofMessage
+    domesticGreencard: DomesticProofMessage
     # todo: was EuropeanProofOfVaccination, is that all gone?
-    euProofs: Optional[List[EUGreenCard]] = Field(description="")
+    euGreencards: Optional[List[EUGreenCard]] = Field(description="")
 
 
 class PaperProofOfVaccination(BaseModel):

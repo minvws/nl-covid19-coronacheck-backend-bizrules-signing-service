@@ -80,17 +80,12 @@ Case: A citizen goes to their health professional and asks for a "Proof of Vacci
 
 ### Process 2: dutch citizen opt-in
 
-A citizen uses an app and asks for a "Proof of Vaccination".
+Step 1:
+![SSD App Step 1](docs/sequence-diagram-unomi-events.png "Domestic signing flow")
 
-Todo: replace with Sequence Diagram render from docs.
+Step 2:
+![SSD App Step 2](docs/DomesticDynamicFlow.png "Domestic signing flow")
 
-1) Citizen uses a "app3" app.
-2) App requests a lot of data, this app returns a JWT token that can be used to retrieve vaccination info.
-3) This service receives surrogate BSN and will see + log if the citizen is known
-4) This feedback is supplied to the citizen
-5) If the citizen wants a "Proof of Vaccination"
-    - Citizen data is ammended with data from SBV-Z
-    - Steps 2 - 4 from Process 1 is performed
 
 
 ## Authors
