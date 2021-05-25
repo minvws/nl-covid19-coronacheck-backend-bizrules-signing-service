@@ -32,6 +32,7 @@ class AppSettings(BaseSettings):
 
     NONCE_BYTE_SECURITY: int = 256
     EXPIRATION_TIME_IN_SECONDS: int = 60
+    API_KEY: str
 
 
 class RedisSettings(BaseSettings):

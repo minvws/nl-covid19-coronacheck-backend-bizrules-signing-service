@@ -5,6 +5,7 @@ from freezegun import freeze_time
 
 from api.app import app
 from api.models import DomesticStaticQrResponse, PaperProofOfVaccination, EUGreenCard
+from api.settings import settings
 
 
 @freeze_time("2020-02-02")
@@ -87,6 +88,7 @@ def test_sign_via_inge3(requests_mock):
                 },
             ],
         },
+        headers={"x-inge4-api-key": settings.API_KEY},
     )
 
     signatures: PaperProofOfVaccination = PaperProofOfVaccination(**response.json())

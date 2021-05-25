@@ -58,6 +58,14 @@ audit: venv ## Run security audit
 lint: venv  ## Do basic linting
 	@. .venv/bin/activate && ${env} pylint ${pysrcdirs}
 
+valid: venv
+	${MAKE} fix
+	${MAKE} lint
+	${MAKE} check-types
+	${MAKE} audit
+	${MAKE} test
+	${MAKE} test-report
+
 .PHONY: check-all
 check-all: check lint audit check-types
 

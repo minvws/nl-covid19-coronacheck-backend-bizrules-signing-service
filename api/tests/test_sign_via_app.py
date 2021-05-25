@@ -25,8 +25,7 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
     # Example client is disabled by default, so no answer
     client = TestClient(app)
     response = client.post(
-        "/app/sign_step_1/",
-        json.dumps({"access_resource": "999999138"}),
+        "/app/sign_step_1/", json.dumps({"access_resource": "999999138"}), headers={"x-inge4-api-key": settings.API_KEY}
     )
     json_content = json.loads(response.content.decode("UTF-8"))
 
@@ -108,6 +107,7 @@ def test_enrich_for_health_professional(requests_mock, current_path):
     response = client.post(
         "/inge3/enrich_for_health_professional/",
         json.dumps({"bsn": "999999138"}),
+        headers={"x-inge4-api-key": settings.API_KEY},
     )
     json_content = json.loads(response.content.decode("UTF-8"))
 
