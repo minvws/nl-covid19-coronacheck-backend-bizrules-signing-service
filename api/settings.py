@@ -30,6 +30,7 @@ class AppSettings(BaseSettings):
 
     DOMESTIC_NL_VWS_PAPER_SIGNING_URL: str = ""
     DOMESTIC_NL_VWS_ONLINE_SIGNING_URL: str = ""
+    EU_INTERNATIONAL_SIGNING_URL: str = ""
 
     NONCE_BYTE_SECURITY: int = 256
     EXPIRATION_TIME_IN_SECONDS: int = 60
@@ -96,6 +97,7 @@ def settings_factory(config_file: pathlib.Path, env_file: pathlib.Path) -> AppSe
 
     _settings.DOMESTIC_NL_VWS_PAPER_SIGNING_URL = config["SIGNING"]["DOMESTIC_NL_VWS_PAPER_SIGNING_URL"]
     _settings.DOMESTIC_NL_VWS_ONLINE_SIGNING_URL = config["SIGNING"]["DOMESTIC_NL_VWS_ONLINE_SIGNING_URL"]
+    _settings.EU_INTERNATIONAL_SIGNING_URL = config["SIGNING"]["EU_INTERNATIONAL_SIGNING_URL"]
 
     _settings.NONCE_BYTE_SECURITY = int(config["SESSION_STORE"]["NONCE_BYTE_SECURITY"])
     _settings.EXPIRATION_TIME_IN_SECONDS = int(config["SESSION_STORE"]["EXPIRATION_TIME_IN_SECONDS"])
