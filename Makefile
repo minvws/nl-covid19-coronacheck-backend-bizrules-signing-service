@@ -1,12 +1,12 @@
 bin = .venv/bin
-env = env PATH=${bin}:$$PATH
+env = env PATH="${bin}:$$PATH"
 
 pysrcdirs = api/
 
 ifeq ($(shell uname -m),arm64)
-env = env PATH=${bin}:$$PATH /usr/bin/arch -x86_64
+env = env PATH="${bin}:$$PATH /usr/bin/arch -x86_64"
 else
-env = env PATH=${bin}:$$PATH
+env = env PATH="${bin}:$$PATH"
 endif
 
 venv: .venv/make_venv_complete ## Create virtual environment
