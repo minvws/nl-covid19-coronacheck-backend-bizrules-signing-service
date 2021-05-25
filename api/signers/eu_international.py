@@ -17,45 +17,50 @@ def sign(statement: StatementOfVaccination) -> List[EUGreenCard]:
 
     If you have multiple recoveries, tests or vaccinations just use one of each.
 
-    Todo: the dates of what events are chosen might/will impact someone. It's a political choice what has preference
+    Todo: the dates of what events are chosen might/will impact someone. It's a political choice what has preference.
+
+    We now use:
+    - the latest test, as that may have expired.
+    - the oldest vaccination: as vaccinations are valid for a long time and it takes time before a vaccination 'works'
+    - the oldest recovery
     """
     blank_statement = copy.deepcopy(statement)
     blank_statement.events = []
 
     statements_to_eu_signer = []
     # EventTime: vaccination: dt, test: sc, recovery: fr
+    # Get the first item from the list and perform a type check for mypy as vaccination is nested.
     if statement.vaccinations:
         blank_statement.events = [statement.vaccinations[0]]
         statements_to_eu_signer.append(
             MessageToEUSigner(
                 **{
                     "keyusage": "vaccination",
-                    # todo: fix typing
-                    "EventTime": blank_statement.events[0].data.date,  # type: ignore
+                    "EventTime": blank_statement.vaccinations[0].data.date,
                     "DGC": blank_statement.toEuropeanOnlineSigningRequest(),
                 }
             )
         )
 
     if statement.recoveries:
-        blank_statement.events = [statement.recoveries[0]]
+        blank_statement.events = [statement.recoveries[-1:][0]]
         statements_to_eu_signer.append(
             MessageToEUSigner(
                 **{
                     "keyusage": "recovery",
-                    "EventTime": blank_statement.events[0].data.sampleDate,  # type: ignore
+                    "EventTime": blank_statement.recoveries[0].data.sampleDate,
                     "DGC": blank_statement.toEuropeanOnlineSigningRequest(),
                 }
             )
         )
 
     if statement.tests:
-        blank_statement.events = [statement.tests[0]]
+        blank_statement.events = [statement.tests[-1:][0]]
         statements_to_eu_signer.append(
             MessageToEUSigner(
                 **{
                     "keyusage": "test",
-                    "EventTime": blank_statement.events[0].data.sampleDate,  # type: ignore
+                    "EventTime": blank_statement.tests[0].data.sampleDate,
                     "DGC": blank_statement.toEuropeanOnlineSigningRequest(),
                 }
             )

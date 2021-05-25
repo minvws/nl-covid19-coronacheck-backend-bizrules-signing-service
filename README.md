@@ -27,7 +27,7 @@ Some examples are stored in 'tests/secrets'. Do NOT use these examples in produc
 ## Operations
 
 ### Deployment
-Inge 4 is a python ASGI app written in FastAPI. 
+Inge 4 is a python ASGI app written in FastAPI. Runs on python 3.8.
 Run this with NGINX Unit or Uvicorn. Example: https://unit.nginx.org/howto/fastapi/
 
 

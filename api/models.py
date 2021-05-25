@@ -216,15 +216,30 @@ class StatementOfVaccination(BaseModel):
 
     @property
     def vaccinations(self):
-        return [event for event in self.events if isinstance(event.data, vaccination)]
+        """
+        :return: sorted list of events that have vaccination data. Sorted by data.date.
+        """
+        events = [event for event in self.events if isinstance(event.data, vaccination)]
+        events = sorted(events, key=lambda e: e.data.date)  # type: ignore
+        return events
 
     @property
     def tests(self):
-        return [event for event in self.events if isinstance(event.data, test)]
+        """
+        :return: sorted list of events that have test data. Sorted by data.sampleDate.
+        """
+        events = [event for event in self.events if isinstance(event.data, test)]
+        events = sorted(events, key=lambda e: e.data.sampleDate)  # type: ignore
+        return events
 
     @property
     def recoveries(self):
-        return [event for event in self.events if isinstance(event.data, recovery)]
+        """
+        :return: sorted list of events that have recovery data. Sorted by data.sampleDate.
+        """
+        events = [event for event in self.events if isinstance(event.data, recovery)]
+        events = sorted(events, key=lambda e: e.data.sampleDate)  # type: ignore
+        return events
 
     def toEuropeanOnlineSigningRequest(self):
         return EuropeanOnlineSigningRequest(
