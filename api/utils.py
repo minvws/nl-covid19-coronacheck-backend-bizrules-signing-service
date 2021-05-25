@@ -6,7 +6,7 @@ from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 
 
-def read_file(path: Union[str, Path], encoding="UTF-8") -> str:
+def read_file(path: Union[str, Path], encoding: str = "UTF-8") -> str:
     with open(path, "rb") as file_handle:
         return file_handle.read().decode(encoding)
 
