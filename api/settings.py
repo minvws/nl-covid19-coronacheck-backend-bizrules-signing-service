@@ -26,12 +26,14 @@ class AppSettings(BaseSettings):
     SBVZ_WSDL_ENVIRONMENT: str = ""
     SBVZ_CERT: str = ""
 
+    DOMESTIC_NL_VWS_PREPARE_ISSUE_URL: str = ""
     DOMESTIC_NL_VWS_PAPER_SIGNING_URL: str = ""
     DOMESTIC_NL_VWS_ONLINE_SIGNING_URL: str = ""
     EU_INTERNATIONAL_SIGNING_URL: str = ""
 
     NONCE_BYTE_SECURITY: int = 256
     EXPIRATION_TIME_IN_SECONDS: int = 60
+    REDIS_KEY_PREFIX: str = ""
 
 
 class RedisSettings(BaseSettings):
@@ -78,7 +80,7 @@ def settings_factory(env_file: pathlib.Path) -> AppSettings:
         INGE4_ROOT.joinpath(f"{_settings.SECRETS_FOLDER}/{_settings.DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME}")
     )
     _settings.SBVZ_CERT = read_file(INGE4_ROOT.joinpath(f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}"))
-    _settings.SBVZ_CERT = f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}"
+    # _settings.SBVZ_CERT = f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}"
 
     return _settings
 

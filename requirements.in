@@ -2,7 +2,9 @@
 pip-tools
 
 # Communication with signers and enrichment
+# the second one is to do everything more async
 requests
+grequests
 
 # Crypto support
 PyNaCl

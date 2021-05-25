@@ -11,6 +11,7 @@ sqlalchemy
 pytest
 pytest-cov
 pytest-mock
+pytest_redis
 pytz
 mccabe
 flake8

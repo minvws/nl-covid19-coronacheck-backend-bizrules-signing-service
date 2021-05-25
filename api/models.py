@@ -27,6 +27,19 @@ class EncryptedBSNRequest(BaseModel):
         }
 
 
+class PrepareIssueMessage(BaseModel):
+    session_token: str = Field(
+        description="Base64 encoded session token", example="WfyduIahEizvTeVx0GwwKTA6Xb/Q+sVLXdDq8buyUMo="
+    )
+    prepare_issue_message: str = Field(
+        description="A Base64 encoded prepare_issue_message",
+        example=(
+            "eyJpc3N1ZXJQa0lkIjoiVFNULUtFWS0wMSIsImlzc3Vlck5vbmNlIjoiaDJv"
+            "QlJva1A2UTJSQXB3Sk9LdStkQT09IiwiY3JlZGVudGlhbEFtb3VudCI6Mjh9"
+        ),
+    )
+
+
 class BSNRetrievalToken(BaseModel):
     # todo: Sent to inge6, returns the attributes.
     access_resource: str = Field(description="XYZ")
