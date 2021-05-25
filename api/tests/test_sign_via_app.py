@@ -8,18 +8,14 @@ from nacl.public import Box, PrivateKey, PublicKey
 
 from api.app import app
 from api.settings import settings
-
-
-def file(path):
-    with open(path, "rt") as file_handle:
-        return file_handle.read()
+from api.utils import read_file
 
 
 @freeze_time("2020-02-02")
 def test_sign_via_app_step_1(requests_mock, current_path, mocker):
     requests_mock.post(
         url="https://raadplegen.sbv-z.nl/cibg.sbv.testtool.webservice.dec14/opvragenpersoonsgegevens.asmx",
-        text=file(f"{current_path}/sbvz/direct_match_correct_response.xml"),
+        text=read_file(f"{current_path}/sbvz/direct_match_correct_response.xml"),
     )
     requests_mock.post(url="http://testserver/app/sign_step_1/", real_http=True)
 
@@ -104,7 +100,7 @@ def test_enrich_for_health_professional(requests_mock, current_path):
     # todo: this might move to another pelace.
     requests_mock.post(
         url="https://raadplegen.sbv-z.nl/cibg.sbv.testtool.webservice.dec14/opvragenpersoonsgegevens.asmx",
-        text=file(f"{current_path}/sbvz/direct_match_correct_response.xml"),
+        text=read_file(f"{current_path}/sbvz/direct_match_correct_response.xml"),
     )
     requests_mock.post(url="http://testserver/inge3/enrich_for_health_professional/", real_http=True)
 

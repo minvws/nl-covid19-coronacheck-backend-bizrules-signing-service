@@ -1,8 +1,14 @@
-from typing import List
+from typing import List, Union
+from pathlib import Path
 
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
+
+
+def read_file(path: Union[str, Path], encoding: str = "UTF-8") -> str:
+    with open(path, "rb") as file_handle:
+        return file_handle.read().decode(encoding)
 
 
 def request_post_with_retries(
