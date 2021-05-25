@@ -14,7 +14,7 @@ vaccination_events = {
             "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
             "data": {
                 "completedByMedicalStatement": False,
-                "date": "2021-01-01",
+                "date": "2021-02-01",
                 "hpkCode": "2934701",
                 "type": "C19-mRNA",
                 "brand": "COVID-19 VACCIN JANSSEN INJVLST 0,5ML",
@@ -30,7 +30,7 @@ vaccination_events = {
             "type": "test",
             "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
             "data": {
-                "sampleDate": "2021-01-01",
+                "sampleDate": "2021-03-01",
                 "resultDate": "2021-02-01",
                 "negativeResult": True,
                 "facility": "GGD XL Amsterdam",
@@ -43,7 +43,7 @@ vaccination_events = {
             "type": "recovery",
             "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
             "data": {
-                "sampleDate": "2021-01-01",
+                "sampleDate": "2021-04-01",
                 "validFrom": "2021-02-01",
                 "validUntil": "2021-02-01",
             },
@@ -68,7 +68,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "co": "NLD",
                 "df": datetime(2021, 2, 1).date(),
                 "du": datetime(2021, 2, 1).date(),
-                "fr": datetime(2021, 1, 1).date(),
+                "fr": datetime(2021, 4, 1).date(),
                 "is_": "VWS",
                 "tg": "840539006",
             }
@@ -81,7 +81,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "is_": "VWS",
                 "ma": "???",
                 "nm": "???",
-                "sc": datetime(2021, 1, 1, 0, 0),
+                "sc": datetime(2021, 3, 1, 0, 0),
                 "tc": "GGD XL Amsterdam",
                 "tg": "840539006",
                 "tr": "True",
@@ -93,7 +93,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
                 "co": "NLD",
                 "dn": 1,
-                "dt": datetime(2021, 1, 1).date(),
+                "dt": datetime(2021, 2, 1).date(),
                 # todo: field name
                 "is_": "VWS",
                 "ma": "JANSSEN",
