@@ -28,6 +28,7 @@ class AppSettings(BaseSettings):
 
     DOMESTIC_NL_VWS_PAPER_SIGNING_URL: str = ""
     DOMESTIC_NL_VWS_ONLINE_SIGNING_URL: str = ""
+    EU_INTERNATIONAL_SIGNING_URL: str = ""
 
     NONCE_BYTE_SECURITY: int = 256
     EXPIRATION_TIME_IN_SECONDS: int = 60

@@ -24,14 +24,14 @@ def test_vaccinations_conform_to_vaccination_policy(caplog):
             "protocolVersion": "3.0",
             "providerIdentifier": "XXX",
             "status": "complete",
-            "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+            "holder": {"firstName": "Herman", "lastName": "Ackersloot", "birthDate": "1970-01-01"},
             "events": [
                 {
                     "type": "vaccination",
-                    "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
+                    "unique": "165dd2a6-74e5-4afc-8983-53a753554142",
                     "data": {
                         "completedByMedicalStatement": False,
-                        "date": "2021-01-01",
+                        "date": "2021-02-01",
                         "hpkCode": "2934701",
                         "type": "C19-mRNA",
                         "brand": "COVID-19 VACCIN JANSSEN INJVLST 0,5ML",
