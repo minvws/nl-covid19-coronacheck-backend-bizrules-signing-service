@@ -58,6 +58,9 @@ audit: venv ## Run security audit
 lint: venv  ## Do basic linting
 	@. .venv/bin/activate && ${env} pylint ${pysrcdirs}
 
+example: venv  ## Runs example scripts against local services instead of tests
+	@. .venv/bin/activate && ${env} python3 example_eu_signing.py
+
 valid: venv
 	${MAKE} fix
 	${MAKE} lint
