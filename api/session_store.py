@@ -1,7 +1,6 @@
 from typing import Dict, Optional, Union
-import base64
+from uuid import uuid4, UUID
 import redis
-from nacl.utils import random
 from api.settings import settings, redis_settings, AppSettings, RedisSettings
 
 
@@ -13,9 +12,9 @@ class SessionStore:
         self._key_prefix: bytes = general_settings.REDIS_KEY_PREFIX.encode() + b":"
 
     def store_message(self, message: bytes) -> str:
-        session_token = random(self._nonce_byte_security)
-        self._redis.set(self._key_prefix + session_token, message, ex=self._ex)
-        return base64.b64encode(session_token).decode()
+        session_token = uuid4()
+        self._redis.set(self._key_prefix + session_token.bytes, message, ex=self._ex)
+        return str(session_token)
 
     def get_message(self, session_token: str) -> Optional[bytes]:
         """
@@ -28,7 +27,7 @@ class SessionStore:
             By design the session token can be used only once to retreive the nonces.
 
         """
-        key = self._key_prefix + base64.b64decode(session_token)
+        key = self._key_prefix + UUID(session_token).bytes
         pipe = self._redis.pipeline()
         pipe.get(key)
         pipe.delete(key)

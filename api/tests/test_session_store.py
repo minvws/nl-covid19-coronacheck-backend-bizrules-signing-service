@@ -2,6 +2,7 @@
 # pylint: disable=W0212
 import pytest
 from api.session_store import session_store
+from api.settings import settings
 
 
 testdata = [
@@ -29,8 +30,9 @@ testdata = [
 
 
 @pytest.mark.parametrize("message", testdata)
-def test_session_store(redisdb, message):
-    session_store._redis = redisdb
+def test_session_store(redis_db, message):
+    if settings.USE_PYTEST_REDIS:
+        session_store._redis = redis_db
     session_token = session_store.store_message(message)
     assert session_store.get_message(session_token) == message
     assert session_store.get_message(session_token) is None

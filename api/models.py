@@ -28,10 +28,10 @@ class EncryptedBSNRequest(BaseModel):
 
 
 class PrepareIssueMessage(BaseModel):
-    session_token: str = Field(
+    stoken: str = Field(
         description="Base64 encoded session token", example="WfyduIahEizvTeVx0GwwKTA6Xb/Q+sVLXdDq8buyUMo="
     )
-    prepare_issue_message: str = Field(
+    prepareIssueMessage: str = Field(
         description="A Base64 encoded prepare_issue_message",
         example=(
             "eyJpc3N1ZXJQa0lkIjoiVFNULUtFWS0wMSIsImlzc3Vlck5vbmNlIjoiaDJv"

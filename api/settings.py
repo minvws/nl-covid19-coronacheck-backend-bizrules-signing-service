@@ -35,6 +35,8 @@ class AppSettings(BaseSettings):
     EXPIRATION_TIME_IN_SECONDS: int = 60
     REDIS_KEY_PREFIX: str = ""
 
+    USE_PYTEST_REDIS: bool = False
+
 
 class RedisSettings(BaseSettings):
     host: str = Field("", env="REDIS_HOST")
