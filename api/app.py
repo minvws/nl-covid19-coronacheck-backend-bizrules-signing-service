@@ -89,7 +89,7 @@ async def sign_via_inge3(data: StatementOfVaccination):
     return PaperProofOfVaccination(**{"domesticProof": domestic_response, "euProofs": eu_response})
 
 
-@app.post("/v3/prepare_issue/", response_model=PrepareIssueMessage)
+@app.post("/app/prepare_issue/", response_model=PrepareIssueMessage)
 async def app_prepare_issue():
     return await get_prepare_issue()
 
