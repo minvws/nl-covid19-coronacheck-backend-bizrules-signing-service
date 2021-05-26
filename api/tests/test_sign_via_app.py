@@ -17,7 +17,7 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
         url="https://raadplegen.sbv-z.nl/cibg.sbv.testtool.webservice.dec14/opvragenpersoonsgegevens.asmx",
         text=read_file(f"{current_path}/sbvz/direct_match_correct_response.xml"),
     )
-    requests_mock.post(url="http://testserver/app/sign_step_1/", real_http=True)
+    requests_mock.post(url="http://testserver/app/access_tokens/", real_http=True)
 
     # Make sure the nonce is always the same
     mocker.patch("api.requesters.mobile_app_step_1.random", return_value=b"012345678901234567890123")
@@ -25,7 +25,9 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
     # Example client is disabled by default, so no answer
     client = TestClient(app)
     response = client.post(
-        "/app/sign_step_1/", json.dumps({"access_resource": "999999138"}), headers={"x-inge4-api-key": settings.API_KEY}
+        "/app/access_tokens/",
+        json.dumps({"access_resource": "999999138"}),
+        headers={"x-inge4-api-key": settings.API_KEY},
     )
     json_content = json.loads(response.content.decode("UTF-8"))
 
@@ -92,28 +94,3 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
     # todo: better document/explain why the nonce is discarded.
     bsn = box.decrypt(base64.b64decode(event["bsn"])).decode("UTF-8")
     assert bsn == "999999138"
-
-
-@freeze_time("2020-02-02")
-def test_enrich_for_health_professional(requests_mock, current_path):
-    # todo: this might move to another pelace.
-    requests_mock.post(
-        url="https://raadplegen.sbv-z.nl/cibg.sbv.testtool.webservice.dec14/opvragenpersoonsgegevens.asmx",
-        text=read_file(f"{current_path}/sbvz/direct_match_correct_response.xml"),
-    )
-    requests_mock.post(url="http://testserver/inge3/enrich_for_health_professional/", real_http=True)
-
-    client = TestClient(app)
-    response = client.post(
-        "/inge3/enrich_for_health_professional/",
-        json.dumps({"bsn": "999999138"}),
-        headers={"x-inge4-api-key": settings.API_KEY},
-    )
-    json_content = json.loads(response.content.decode("UTF-8"))
-
-    assert json_content == {
-        "month_of_birth": "02",
-        "day_of_birth": "29",
-        "first_name": "Test_Voornamen",
-        "last_name": "Test_Geslachtsnaam",
-    }

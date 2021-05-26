@@ -9,15 +9,12 @@ import yaml
 from fastapi import FastAPI, HTTPException, Header, Depends
 
 from api.eligibility import is_eligible_for_domestic_signing
-from api.enrichment.sbvz import enrich_for_health_professional_inge3
 from api.models import (
     BSNRetrievalToken,
     DomesticProofMessage,
     DomesticStaticQrResponse,
-    EncryptedBSNRequest,
     MobileAppProofOfVaccination,
     PaperProofOfVaccination,
-    PIIEnrichmentResponse,
     StatementOfVaccination,
 )
 from api.requesters import mobile_app_step_1
@@ -58,18 +55,7 @@ async def health() -> Dict[str, Any]:
     }
 
 
-@app.post("/inge3/enrich_for_health_professional/", response_model=PIIEnrichmentResponse)
-async def enrich_for_health_professional(request: EncryptedBSNRequest) -> PIIEnrichmentResponse:
-    # todo: errors from call, how to split the responses on http status codes?
-    errors, data = enrich_for_health_professional_inge3(request.bsn)
-
-    if errors:
-        raise HTTPException(status_code=480, detail=errors)
-
-    return PIIEnrichmentResponse(**data)
-
-
-@app.post("/app/sign_step_1/")
+@app.post("/app/access_tokens/")
 async def sign_via_app_step_1(request: BSNRetrievalToken):
     def get_bsn_from_inge6(request: BSNRetrievalToken):
         # todo: implement.
@@ -80,7 +66,7 @@ async def sign_via_app_step_1(request: BSNRetrievalToken):
     return mobile_app_step_1.identity_provider_calls(bsn)
 
 
-@app.post("/inge3/sign/", response_model=PaperProofOfVaccination)
+@app.post("/app/paper/", response_model=PaperProofOfVaccination)
 async def sign_via_inge3(data: StatementOfVaccination):
     if not is_eligible_for_domestic_signing(data):
         raise HTTPException(status_code=480, detail=["Not eligible, todo: reason"])
@@ -91,7 +77,7 @@ async def sign_via_inge3(data: StatementOfVaccination):
     return PaperProofOfVaccination(**{"domesticProof": domestic_response, "euProofs": eu_response})
 
 
-@app.post("/app/sign_step_2/", response_model=MobileAppProofOfVaccination)
+@app.post("/app/sign/", response_model=MobileAppProofOfVaccination)
 async def sign_via_app_step_2(data: StatementOfVaccination):
     # todo: check session / nonce for validity. No session, no signature.
     # todo: there is no special validation anymore, will there be?

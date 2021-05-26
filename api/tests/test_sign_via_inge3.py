@@ -37,11 +37,11 @@ def test_sign_via_inge3(requests_mock):
 
     requests_mock.post("https://signing.local/static", json=json.dumps(signing_response_data))
     requests_mock.post(settings.EU_INTERNATIONAL_SIGNING_URL, json=eu_example_answer)
-    requests_mock.post("http://testserver/inge3/sign/", real_http=True)
+    requests_mock.post("http://testserver/app/paper/", real_http=True)
 
     client = TestClient(app)
     response = client.post(
-        "/inge3/sign/",
+        "/app/paper/",
         json={  # pylint: disable=duplicate-code
             "protocolVersion": "3.0",
             "providerIdentifier": "XXX",
