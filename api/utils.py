@@ -1,9 +1,22 @@
+import json
+from datetime import datetime, date
 from typing import List, Union
 from pathlib import Path
 
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
+
+
+def defaultconverter(something):
+    if isinstance(something, datetime):
+        return something.isoformat()
+
+    if isinstance(something, date):
+        return something.isoformat()
+
+    # The json parser will raise a conversion error.
+    return something
 
 
 def read_file(path: Union[str, Path], encoding: str = "UTF-8") -> str:
@@ -26,7 +39,9 @@ def request_post_with_retries(
     session.mount("https://", HTTPAdapter(max_retries=retries))
     session.mount("http://", HTTPAdapter(max_retries=retries))
 
-    response = session.post(url, data=data, timeout=timeout, **kwargs)
+    # Data might not all serialize correctly all the time. Use a fallback.
+    # TypeError: Object of type date is not JSON serializable
+    response = session.post(url, data=json.dumps(data, default=defaultconverter), timeout=timeout, **kwargs)
 
     # will not do a "raise for status"
     return response

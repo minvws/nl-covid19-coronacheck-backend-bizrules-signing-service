@@ -6,7 +6,7 @@ from logging import config
 from typing import Dict, List, Any
 
 import yaml
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header, Depends
 
 from api.eligibility import is_eligible_for_domestic_signing
 from api.enrichment.sbvz import enrich_for_health_professional_inge3
@@ -25,6 +25,8 @@ from api.requesters import mobile_app_step_1
 from api.requesters.mobile_app_prepare_issue import get_prepare_issue
 from api.signers import eu_international, nl_domestic_dynamic, nl_domestic_static
 from api.session_store import session_store
+from api.settings import settings
+
 
 inge4_root = pathlib.Path(__file__).parent.parent.absolute()
 
@@ -35,7 +37,14 @@ with open(
 ) as f:
     config.dictConfig(yaml.safe_load(f))
 
-app = FastAPI()
+
+async def verify_api_key(x_inge4_api_key: str = Header(...)):
+    if x_inge4_api_key != settings.API_KEY:
+        raise HTTPException(status_code=400, detail="x_inge4_api_key header invalid")
+    return True
+
+
+app = FastAPI(dependencies=[Depends(verify_api_key)])
 
 
 @app.get("/health")

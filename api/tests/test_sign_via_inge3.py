@@ -5,6 +5,7 @@ from freezegun import freeze_time
 
 from api.app import app
 from api.models import DomesticStaticQrResponse, PaperProofOfVaccination, EUGreenCard
+from api.settings import settings
 
 
 @freeze_time("2020-02-02")
@@ -27,23 +28,15 @@ def test_sign_via_inge3(requests_mock):
     }
 
     eu_example_answer = {
-        "origins": [
-            {"type": "vaccination", "eventTime": "2021-02-18T00:00:00Z", "expirationTime": "2021-11-17T13:21:41Z"}
-        ],
-        "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%I0/IVB58WACVUJ0ASA3/-2E%5G%5TW5A 6YO6XL6Q3QR$P2O"
-        "IC0JPLA3KTXB2:H3DET9HTQ S11D*OK3UQZI65WU9QH0*VTK2/UI2YUZI6A:V/PG$IA+EFD2I283/HLIGFMIHTF1QDFF344A"
-        "7E:7LYPHTQIAB4EOHCRN770 LHZA/.DDH8RH9P1J4HGZJK4HGK3MGY8FLEDH80D9E2LBHHGKLO-K%FGLIA5D8MJKQJK:JMO-"
-        "KPGG.IA5D8OTI+6L2CG1REYCA1JAA/C6:FEEA+ZA%DBU2LKHG8-I$6I*KM+JMDJL.HIMIH5GDBE9IIL8PKRGFMKN0%C+-KBH"
-        "HBHH8JM6IAI5S.*0%59CP4Y5L9HR8-O7I54IJZJJ1W4*$I*NVPC1LJL4A7K73YNSRB7-FHTGL3HHL853IO3NV*U47*18/F3W"
-        "Q+YSDHVJG4X26K0P4.ML.0CXAA+Q4 LJYJX3B-8E%USXDT/VDR7N%:2S0LAXI9J5M12Z%5TL576O/V8S.8LXB.XVIL7C9KJB"
-        "0000FGWL+AX*G",
+        "origins": [{"type": "vaccination", "eventTime": "2021-01-01", "expirationTime": "2020-07-31T00:00:00+00:00"}],
+        "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%I0/IVB58WA",
     }
 
     # Check that the response will be correct, will raise a validation error if not:
     DomesticStaticQrResponse(**signing_response_data)
 
     requests_mock.post("https://signing.local/static", json=json.dumps(signing_response_data))
-    requests_mock.post("https://signing.local/eu_international", json=eu_example_answer)
+    requests_mock.post(settings.EU_INTERNATIONAL_SIGNING_URL, json=eu_example_answer)
     requests_mock.post("http://testserver/inge3/sign/", real_http=True)
 
     client = TestClient(app)
@@ -87,6 +80,7 @@ def test_sign_via_inge3(requests_mock):
                 },
             ],
         },
+        headers={"x-inge4-api-key": settings.API_KEY},
     )
 
     signatures: PaperProofOfVaccination = PaperProofOfVaccination(**response.json())

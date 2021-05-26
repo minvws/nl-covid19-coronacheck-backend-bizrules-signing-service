@@ -36,6 +36,7 @@ class AppSettings(BaseSettings):
     REDIS_KEY_PREFIX: str = ""
 
     USE_PYTEST_REDIS: bool = False
+    API_KEY: str
 
 
 class RedisSettings(BaseSettings):
