@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 from freezegun import freeze_time
 
 from api.app import app
-from api.models import DomesticStaticQrResponse, PaperProofOfVaccination, EUGreenCard
+from api.models import DomesticStaticQrResponse, EUGreenCard, PaperProofOfVaccination
 from api.settings import settings
 
 
@@ -37,11 +37,11 @@ def test_sign_via_inge3(requests_mock):
 
     requests_mock.post("https://signing.local/static", json=json.dumps(signing_response_data))
     requests_mock.post(settings.EU_INTERNATIONAL_SIGNING_URL, json=eu_example_answer)
-    requests_mock.post("http://testserver/inge3/sign/", real_http=True)
+    requests_mock.post("http://testserver/app/paper/", real_http=True)
 
     client = TestClient(app)
     response = client.post(
-        "/inge3/sign/",
+        "/app/paper/",
         json={  # pylint: disable=duplicate-code
             "protocolVersion": "3.0",
             "providerIdentifier": "XXX",
@@ -80,7 +80,7 @@ def test_sign_via_inge3(requests_mock):
                 },
             ],
         },
-        headers={"x-inge4-api-key": settings.API_KEY},
+        headers={},
     )
 
     signatures: PaperProofOfVaccination = PaperProofOfVaccination(**response.json())

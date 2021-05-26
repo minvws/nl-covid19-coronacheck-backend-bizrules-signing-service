@@ -70,7 +70,7 @@ valid: venv
 	${MAKE} test-report
 
 .PHONY: check-all
-check-all: check lint audit check-types
+check-all: check lint audit check-types test
 
 pip-compile: ## synchronizes the .venv with the state of requirements.txt
 	. .venv/bin/activate && ${env} python3 -m piptools compile requirements.in
