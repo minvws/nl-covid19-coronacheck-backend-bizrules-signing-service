@@ -59,7 +59,6 @@ and visit `localhost:8000/health` to see if it indeed is running correctly
 See docs/openapi.json
 Online render: https://redocly.github.io/redoc/?url=https://github.com/91divoc-ln/inge-4/blob/main/docs/openapi.json
 
-Uses x-inge4-api-key header for security. Setting is called API_KEY in settings.env.
 
 When running Inge-4 in development API Docs are available at:
 ```

@@ -80,7 +80,7 @@ def test_sign_via_inge3(requests_mock):
                 },
             ],
         },
-        headers={"x-inge4-api-key": settings.API_KEY},
+        headers={},
     )
 
     signatures: PaperProofOfVaccination = PaperProofOfVaccination(**response.json())

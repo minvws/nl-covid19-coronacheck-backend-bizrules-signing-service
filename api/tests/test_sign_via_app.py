@@ -27,7 +27,7 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
     response = client.post(
         "/app/access_tokens/",
         json.dumps({"access_resource": "999999138"}),
-        headers={"x-inge4-api-key": settings.API_KEY},
+        headers={},
     )
     json_content = json.loads(response.content.decode("UTF-8"))
 
