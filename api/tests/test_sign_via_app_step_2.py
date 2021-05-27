@@ -9,7 +9,7 @@ from api.settings import settings
 @freeze_time("2020-02-02")
 def test_sign_via_app_step_2(requests_mock):
     # create fake session:
-    session_token = session_store.store_message(b"some_data")
+    session_token = session_store.store_message(b'{"some": "data"}')
     client = TestClient(app)
     events = {
         "protocolVersion": "3.0",
@@ -50,7 +50,7 @@ def test_sign_via_app_step_2(requests_mock):
         ],
     }
 
-    issuecommitmentmessage = "foobar"
+    issuecommitmentmessage = '{"foo": "bar"}'
 
     eu_example_answer = {
         "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%I0/IVB58WA",

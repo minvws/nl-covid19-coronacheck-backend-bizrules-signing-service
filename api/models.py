@@ -6,7 +6,7 @@ import re
 import uuid
 from datetime import datetime, date
 from enum import Enum
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -631,6 +631,6 @@ class DomesticSignerAttributes(BaseModel):
 
 
 class IssueMessage(BaseModel):
-    prepareIssueMessage: Any
-    issueCommitmentMessage: str
+    prepareIssueMessage: dict
+    issueCommitmentMessage: dict
     credentialsAttributes: List[DomesticSignerAttributes]

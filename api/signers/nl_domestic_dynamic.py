@@ -1,16 +1,15 @@
 # pylint: disable=duplicate-code
 # Messages are long and thus might be duplicates quickly.
+import json
 from datetime import datetime, timedelta
-from typing import Optional, Any
-
-import pytz
+from typing import Optional
 
 from api.models import StepTwoData, DomesticGreenCard, GreenCardOrigin, IssueMessage, StripType, OriginOfProof
 from api.settings import settings
 from api.utils import request_post_with_retries
 
 
-def sign(data: StepTwoData, prepare_issue_message: Any) -> Optional[DomesticGreenCard]:
+def sign(data: StepTwoData, prepare_issue_message: str) -> Optional[DomesticGreenCard]:
     """
     Signer repo: https://github.com/minvws/nl-covid19-coronacheck-idemix-private/tree/next
     go run ./ --help
@@ -53,19 +52,20 @@ def sign(data: StepTwoData, prepare_issue_message: Any) -> Optional[DomesticGree
         {
             "isSpecimen": "0",
             "stripType": StripType.APP_STRIP,
-            "validFrom": datetime.now(pytz.utc),
+            "validFrom": (datetime.now() + timedelta(days=i)).isoformat(),
             "validForHours": "24",  # TODO: This should be a configuration value
             "firstNameInitial": data.events.holder.first_name_initial,
             "lastNameInitial": data.events.holder.last_name_initial,
             "birthDay": str(data.events.holder.birthDate.day),
             "birthMonth": str(data.events.holder.birthDate.month),
         }
+        for i in range(28)
     ]
 
     issue_message = IssueMessage(
         **{
-            "prepareIssueMessage": prepare_issue_message,
-            "issueCommitmentMessage": data.issueCommitmentMessage,
+            "prepareIssueMessage": json.loads(prepare_issue_message),
+            "issueCommitmentMessage": json.loads(data.issueCommitmentMessage),
             "credentialsAttributes": attributes,
         }
     )
