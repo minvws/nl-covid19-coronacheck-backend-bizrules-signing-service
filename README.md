@@ -42,9 +42,17 @@ Adding vaccination providers to vaccinationproviders.json requires an app restar
 
 
 ## Development
+The inge4_development.env is used when running this in development and testing.
+
+Requirements:
+Linux/Mac system with python3.8 and redis.
+Make sure a redis-server is in your path. For mac users `brew install redis` should suffice.
+On linux systems redis is often installed to `/usr/local/bin/redis-server`. Brew installs it to `/opt/homebrew/bin/redis-server`.
 
 For development run:
 `make run`
+
+
 
 ### Docker
 
