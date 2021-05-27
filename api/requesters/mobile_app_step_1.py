@@ -11,11 +11,31 @@ import pytz
 from cryptography.hazmat.primitives import hashes, hmac
 from nacl.public import Box, PrivateKey, PublicKey
 from nacl.utils import random
-
+from nacl.encoding import Base64Encoder
+from fastapi import HTTPException
 from api.enrichment import sbvz
 from api.settings import settings
+from api.models import BSNRetrievalToken
+from api.utils import request_get_with_retries
 
 log = logging.getLogger(__package__)
+inge6_box = Box(settings.INGE4_NACL_PRIVATE_KEY, settings.INGE6_NACL_PUBLIC_KEY)
+
+
+async def get_bsn_from_inge6(retrieval_token: BSNRetrievalToken):
+
+    nonce = random(inge6_box.NONCE_SIZE)
+    querystring = {"at": retrieval_token.tvs_token, "nonce": base64.b64encode(nonce)}
+
+    response = request_get_with_retries(settings.INGE6_BSN_RETRIEVAL_URL, params=querystring)
+    encrypted_bsn = response.content
+
+    if not Base64Encoder.decode(encrypted_bsn)[: inge6_box.NONCE_SIZE] == nonce:
+        raise HTTPException(status_code=401, detail=["RetrievalToken Invalid"])
+
+    bsn = inge6_box.decrypt(encrypted_bsn, encoder=Base64Encoder)
+    print("bsn", bsn)
+    return bsn.decode()
 
 
 def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
