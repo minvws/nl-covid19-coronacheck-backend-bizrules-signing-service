@@ -10,5 +10,9 @@ services:
     container_name: inge-4
     environment:
       - PORT=8000
+      - REDIS_HOST=redis
     ports:
       - 8000:8000
+  redis:
+    image: "redis:alpine"
+

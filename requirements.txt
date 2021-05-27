@@ -40,6 +40,8 @@ email-validator==1.1.2
     # via fastapi
 fastapi[all]==0.65.1
     # via -r requirements.in
+gevent==21.1.2
+    # via grequests
 graphene==2.1.8
     # via fastapi
 graphql-core==2.3.2
@@ -48,8 +50,14 @@ graphql-core==2.3.2
     #   graphql-relay
 graphql-relay==2.0.1
     # via graphene
+greenlet==1.1.0
+    # via gevent
+grequests==0.6.0
+    # via -r requirements.in
 h11==0.12.0
     # via uvicorn
+hiredis==2.0.0
+    # via -r requirements.in
 httptools==0.1.2
     # via uvicorn
 idna==2.10
@@ -108,6 +116,7 @@ requests==2.25.1
     # via
     #   -r requirements.in
     #   fastapi
+    #   grequests
     #   requests-file
     #   requests-toolbelt
     #   zeep
@@ -144,6 +153,11 @@ websockets==8.1
     # via uvicorn
 zeep==4.0.0
     # via -r requirements.in
+zope.event==4.5.0
+    # via gevent
+zope.interface==5.4.0
+    # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
+# setuptools
