@@ -8,16 +8,31 @@ jobs:
       USE_PYTEST_REDIS: False
 
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: [ 3.8 ]
     continue-on-error: false
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 3.8
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
-      - name: Install dependencies
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/cache@v2
+        id: cache-venv
+        with:
+          path: ./.venv/  # we cache: the virtualenv
+          # The cache key depends on requirements*.txt
+          key: ${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.python-version }}-venv-
+      # Build a virtualenv, but only if it doesn't already exist
+      - name: Make venv
         run: make venv
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+      - name: Sync dependencies
+        run: make pip-sync-dev
       - name: Check linting
         run: make check
       - name: Start Redis
