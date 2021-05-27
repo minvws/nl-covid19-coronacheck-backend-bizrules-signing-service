@@ -4,6 +4,7 @@ import pathlib
 import sys
 from logging import config
 from typing import Dict, List, Any, Optional
+from uuid import UUID
 
 import yaml
 from fastapi import FastAPI, HTTPException
@@ -89,7 +90,7 @@ async def app_prepare_issue():
 async def sign_via_app_step_2(data: StepTwoData):
 
     # Check session, pydantic validates the stoken into a uuid, but redis only speaks str.
-    prepare_issue_message = get_step_2_get_issue_message(str(data.stoken))
+    prepare_issue_message = step_2_get_issue_message(data.stoken)
     if not prepare_issue_message:
         raise HTTPException(status_code=481, detail=["Invalid session"])
 
@@ -106,10 +107,10 @@ async def sign_via_app_step_2(data: StepTwoData):
     return MobileAppProofOfVaccination(**{"domesticGreencard": domestic_response, "euGreencards": eu_response})
 
 
-def get_step_2_get_issue_message(stoken) -> Optional[str]:
+def step_2_get_issue_message(stoken: UUID) -> Optional[str]:
     # Explicitly do not push this into a model, the structure will change over time and that change has to
     # be transparent.
-    prepare_issue_message = session_store.get_message(stoken)
+    prepare_issue_message = session_store.get_message(str(stoken))
     return prepare_issue_message.decode("UTF-8") if prepare_issue_message else None
 
 
