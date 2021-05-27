@@ -112,6 +112,7 @@ def vaccination_event_data_to_signing_data(data: StatementOfVaccination):
 STATEMENT_OF_VACCINATION_VALIDITY_HOURS = 40
 PROOF_OF_VACCINATION_VALIDITY_HOURS = 180 * 24
 
+
 # todo: is it possible to make this 1 call where we give a date range? to make 1 request instead of 180 -> confer
 def sign(data) -> List[DomesticStaticQrResponse]:
     """

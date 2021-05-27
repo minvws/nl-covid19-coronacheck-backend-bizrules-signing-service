@@ -15,8 +15,8 @@ def defaultconverter(something):
     if isinstance(something, date):
         return something.isoformat()
 
-    # The json parser will raise a conversion error.
-    return something
+    # Use json fallback method
+    raise TypeError
 
 
 def read_file(path: Union[str, Path], encoding: str = "UTF-8") -> str:

@@ -539,7 +539,7 @@ class EuropeanOnlineSigningRequest(BaseModel):
     )
     nam: EuropeanOnlineSigningRequestNamingSection
     # Signer should convert "1975-XX-XX" to "1975" as the EU DGC can't handle the XX's of unknown birthmonth/day
-    dob: str = Field(
+    dob: date = Field(
         description="Date of Birth of the person addressed in the DGC. "
         "ISO 8601 date format restricted to range 1900-2099"
     )
@@ -568,6 +568,7 @@ class GreenCardOrigin(BaseModel):
     type: str
     eventTime: str
     expirationTime: str
+    validFrom: str
 
 
 class EUGreenCard(BaseModel):

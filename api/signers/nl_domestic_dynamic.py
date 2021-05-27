@@ -80,18 +80,16 @@ def sign(data: StepTwoData, prepare_issue_message: Any) -> Optional[DomesticGree
     )
 
     response.raise_for_status()
-
-    ccms = response.json()
-
     dgc = DomesticGreenCard(
         origins=[
             GreenCardOrigin(
                 type=OriginOfProof.vaccination,
                 eventTime=datetime.now().isoformat(),
+                validFrom=datetime.now().isoformat(),
                 expirationTime=(datetime.now() + timedelta(days=90)).isoformat(),
             ),
         ],
-        createCredentialMessages=ccms,
+        createCredentialMessages=response.content.decode('UTF-8'),
     )
 
     return dgc
