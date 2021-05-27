@@ -44,10 +44,11 @@ class AppSettings(BaseSettings):
     INGE4_NACL_PUBLIC_KEY_FILE: str = ""
     INGE6_NACL_PUBLIC_KEY_FILE: str = ""
 
-    # todo: make sure these are automatically initialized
-    INGE4_NACL_PRIVATE_KEY: PrivateKey = None
-    INGE4_NACL_PUBLIC_KEY: PublicKey = None
-    INGE6_NACL_PUBLIC_KEY: PublicKey = None
+    # the following initial values are just temporary and never used (overwritten by the factory code)
+    # this is just to make mypy and linters stop complaining
+    INGE4_NACL_PRIVATE_KEY: PrivateKey = PrivateKey.generate()
+    INGE4_NACL_PUBLIC_KEY: PublicKey = INGE4_NACL_PRIVATE_KEY.public_key
+    INGE6_NACL_PUBLIC_KEY: PublicKey = PrivateKey.generate().public_key
 
 
 class RedisSettings(BaseSettings):
