@@ -1,3 +1,4 @@
+from nacl.encoding import Base64Encoder
 from api.settings import RedisSettings, settings_factory
 
 
@@ -25,3 +26,10 @@ def test_settings_factory(root_path):
     settings = settings_factory(root_path.joinpath("inge4_development.env"))
     assert settings.SECRETS_FOLDER == "api/tests/secrets"
     assert settings.EU_INTERNATIONAL_SIGNING_URL == "http://localhost:4002/get_credential"
+    assert (
+        settings.INGE6_NACL_PUBLIC_KEY.encode()
+        == b"\xd0\xd6\x93jX\xe46\xb1\xee,\xff\xc2md$\xe3\x97\xf8\x8d\xfd\xb9C\x97qr\xe2\x00\xe9\xb2\xb2-\x7f"
+    )
+    assert (
+        settings.INGE6_NACL_PUBLIC_KEY.encode(encoder=Base64Encoder) == b"0NaTaljkNrHuLP/CbWQk45f4jf25Q5dxcuIA6bKyLX8="
+    )

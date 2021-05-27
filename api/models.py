@@ -42,15 +42,7 @@ class PrepareIssueMessage(BaseModel):
 
 class BSNRetrievalToken(BaseModel):
     # todo: Sent to inge6, returns the attributes.
-    access_resource: str = Field(description="XYZ")
-
-
-class PIIEnrichmentResponse(BaseModel):
-    # How to add descriptions to the fields?
-    first_name: str = Field(description="", example="Herman")
-    last_name: str = Field(description="", example="Acker")
-    day_of_birth: str
-    month_of_birth: str
+    tvs_token: str = Field(description="TVS/DigiD token required to fetch BSN")
 
 
 class ErrorList(BaseModel):

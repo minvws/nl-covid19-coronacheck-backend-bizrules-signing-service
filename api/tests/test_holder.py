@@ -3,6 +3,7 @@ import pytest
 from api.models import Holder
 
 holder_test_data = [
+    [{"firstName": "47573", "lastName": "*(%*&", "birthDate": "1970-01-01"}, {"firstInitial": "", "lastInitial": ""}],
     [{"firstName": "À", "lastName": "À", "birthDate": "1970-01-01"}, {"firstInitial": "A", "lastInitial": "A"}],
     [{"firstName": "Á", "lastName": "Á", "birthDate": "1970-01-01"}, {"firstInitial": "A", "lastInitial": "A"}],
     [{"firstName": "Â", "lastName": "Â", "birthDate": "1970-01-01"}, {"firstInitial": "A", "lastInitial": "A"}],
