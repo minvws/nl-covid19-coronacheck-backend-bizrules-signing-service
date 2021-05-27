@@ -15,10 +15,14 @@ from api.models import (
     DomesticStaticQrResponse,
     MobileAppProofOfVaccination,
     PaperProofOfVaccination,
+    PrepareIssueMessage,
     StatementOfVaccination,
 )
 from api.requesters import mobile_app_step_1
+from api.requesters.mobile_app_prepare_issue import get_prepare_issue
 from api.signers import eu_international, nl_domestic_dynamic, nl_domestic_static
+from api.session_store import session_store
+
 
 inge4_root = pathlib.Path(__file__).parent.parent.absolute()
 
@@ -35,6 +39,7 @@ app = FastAPI()
 
 @app.get("/health")
 async def health() -> Dict[str, Any]:
+    redis_health = session_store.health_check()
     return {
         "running": True,
         "service_status": {
@@ -44,10 +49,12 @@ async def health() -> Dict[str, Any]:
             "inge6": "todo",
             "eu-signer": "todo",
             "domestic-signer": "todo",
+            "redis": redis_health,
         },
     }
 
 
+# This is https://api-ct.bananenhalen.nl/docs/sequence-diagram-unomi-events.png
 @app.post("/app/access_tokens/")
 async def sign_via_app_step_1(request: BSNRetrievalToken):
     def get_bsn_from_inge6(request: BSNRetrievalToken):
@@ -70,6 +77,13 @@ async def sign_via_inge3(data: StatementOfVaccination):
     return PaperProofOfVaccination(**{"domesticProof": domestic_response, "euProofs": eu_response})
 
 
+@app.post("/app/prepare_issue/", response_model=PrepareIssueMessage)
+async def app_prepare_issue():
+    return await get_prepare_issue()
+
+
+# this is the "get domestic EU" step from
+# https://api-ct.bananenhalen.nl/docs/sequence-diagram-event-to-proof.png
 @app.post("/app/sign/", response_model=MobileAppProofOfVaccination)
 async def sign_via_app_step_2(data: StatementOfVaccination):
     # todo: check session / nonce for validity. No session, no signature.

@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 from freezegun import freeze_time
 
 from api.app import app
-from api.models import DomesticStaticQrResponse, PaperProofOfVaccination, EUGreenCard
+from api.models import DomesticStaticQrResponse, EUGreenCard, PaperProofOfVaccination
 from api.settings import settings
 
 
