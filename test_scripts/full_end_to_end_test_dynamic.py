@@ -9,7 +9,8 @@
 # additionally it assumes that inge4 is running on localhost:8000
 # getting inge4 running on localhost:8000 is as simple as doing
 #
-#    make run
+#     export MOCK_MODE = True #this line should never be run in production!!!!
+#     make run
 #
 # currently it also needs a mock of
 # https://raadplegen.sbv-z.nl
