@@ -72,7 +72,7 @@ async def sign_via_app_step_1(request: BSNRetrievalToken):
 @app.post("/app/paper/", response_model=PaperProofOfVaccination)
 async def sign_via_inge3(data: StatementOfVaccination):
     if not is_eligible_for_domestic_signing(data):
-        raise HTTPException(status_code=480, detail=["Not eligible, todo: reason"])
+        raise HTTPException(status_code=401, detail=["Not eligible, todo: reason"])
 
     domestic_response: List[DomesticStaticQrResponse] = nl_domestic_static.sign(data)
     eu_response = eu_international.sign(data)
@@ -92,12 +92,12 @@ async def sign_via_app_step_2(data: StepTwoData):
     # Check session, pydantic validates the stoken into a uuid, but redis only speaks str.
     prepare_issue_message = step_2_get_issue_message(data.stoken)
     if not prepare_issue_message:
-        raise HTTPException(status_code=481, detail=["Invalid session"])
+        raise HTTPException(status_code=401, detail=["Invalid session"])
 
     # todo: eligibility for EU and NL differs: so the check for each must happen in each signer.
     eligible_because = is_eligible_for_domestic_signing(data.events)
     if not eligible_because:
-        raise HTTPException(status_code=480, detail=["Not eligible, todo: reason"])
+        raise HTTPException(status_code=401, detail=["Not eligible, todo: reason"])
 
     # todo: check CMS signature (where are those in the message?)
 
