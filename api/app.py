@@ -33,6 +33,7 @@ with open(
 app = FastAPI()
 
 
+@app.get("/")
 @app.get("/health")
 async def health() -> Dict[str, Any]:
     return {
@@ -50,12 +51,9 @@ async def health() -> Dict[str, Any]:
 
 @app.post("/app/access_tokens/")
 async def sign_via_app_step_1(request: BSNRetrievalToken):
-    def get_bsn_from_inge6(request: BSNRetrievalToken):
-        # todo: implement.
-        return request.access_resource
 
     # todo: will be an extra call to retrieve the BSN from the token to Inge6.
-    bsn = get_bsn_from_inge6(request)
+    bsn = await mobile_app_step_1.get_bsn_from_inge6(request)
     return mobile_app_step_1.identity_provider_calls(bsn)
 
 

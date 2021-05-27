@@ -6,6 +6,18 @@ from pathlib import Path
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
+from nacl.public import PrivateKey, PublicKey
+from nacl.encoding import Base64Encoder
+
+
+def read_nacl_public_key(path: Union[str, Path]) -> PublicKey:
+    key_bytes = read_file(path).encode()
+    return PublicKey(key_bytes, encoder=Base64Encoder)
+
+
+def read_nacl_private_key(path: Union[str, Path]) -> PrivateKey:
+    key_bytes = read_file(path).encode()
+    return PrivateKey(key_bytes, encoder=Base64Encoder)
 
 
 def defaultconverter(something):
@@ -27,6 +39,30 @@ def read_file(path: Union[str, Path], encoding: str = "UTF-8") -> str:
 def request_post_with_retries(
     url, data, exponential_retries: int = 5, timeout: int = 300, retry_on_these_status_codes: List = None, **kwargs
 ) -> requests.Response:
+    return request_request_with_retries(
+        "POST", url, data, exponential_retries, timeout, retry_on_these_status_codes, **kwargs
+    )
+
+
+def request_get_with_retries(
+    url, exponential_retries: int = 5, timeout: int = 300, retry_on_these_status_codes: List = None, **kwargs
+) -> requests.Response:
+    return request_request_with_retries(
+        "GET", url, None, exponential_retries, timeout, retry_on_these_status_codes, **kwargs
+    )
+
+
+# pylint: disable=R0913
+def request_request_with_retries(
+    method: str,
+    url,
+    data=None,
+    exponential_retries: int = 5,
+    timeout: int = 300,
+    retry_on_these_status_codes: List = None,
+    **kwargs,
+) -> requests.Response:
+    # better to many arguments then code duplication
 
     # because default argument should not be mutable, these are the defaults:
     if retry_on_these_status_codes is None:
@@ -41,7 +77,9 @@ def request_post_with_retries(
 
     # Data might not all serialize correctly all the time. Use a fallback.
     # TypeError: Object of type date is not JSON serializable
-    response = session.post(url, data=json.dumps(data, default=defaultconverter), timeout=timeout, **kwargs)
+    response = session.request(
+        method, url, data=json.dumps(data, default=defaultconverter) if data else None, timeout=timeout, **kwargs
+    )
 
     # will not do a "raise for status"
     return response

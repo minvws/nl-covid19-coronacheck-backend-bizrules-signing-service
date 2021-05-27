@@ -4,10 +4,11 @@ import pathlib
 from typing import Any, Dict, List, Optional
 
 import json5
-from pydantic import BaseSettings, Field
+from pydantic import BaseSettings, Field, AnyHttpUrl
+from nacl.public import PrivateKey, PublicKey
 
 from api.constants import INGE4_ROOT, ENV_FILE
-from api.utils import read_file
+from api.utils import read_file, read_nacl_public_key, read_nacl_private_key
 
 
 class AppSettings(BaseSettings):
@@ -26,12 +27,23 @@ class AppSettings(BaseSettings):
     SBVZ_WSDL_ENVIRONMENT: str = ""
     SBVZ_CERT: str = ""
 
-    DOMESTIC_NL_VWS_PAPER_SIGNING_URL: str = ""
-    DOMESTIC_NL_VWS_ONLINE_SIGNING_URL: str = ""
-    EU_INTERNATIONAL_SIGNING_URL: str = ""
+    DOMESTIC_NL_VWS_PAPER_SIGNING_URL: AnyHttpUrl = Field()
+    DOMESTIC_NL_VWS_ONLINE_SIGNING_URL: AnyHttpUrl = Field()
+    EU_INTERNATIONAL_SIGNING_URL: AnyHttpUrl = Field()
+
+    INGE6_BSN_RETRIEVAL_URL: AnyHttpUrl = Field()
 
     NONCE_BYTE_SECURITY: int = 256
     EXPIRATION_TIME_IN_SECONDS: int = 60
+
+    INGE4_NACL_PRIVATE_KEY_FILE: str = ""
+    INGE4_NACL_PUBLIC_KEY_FILE: str = ""
+    INGE6_NACL_PUBLIC_KEY_FILE: str = ""
+
+    # todo: make sure these are automatically initialized
+    INGE4_NACL_PRIVATE_KEY: PrivateKey = None
+    INGE4_NACL_PUBLIC_KEY: PublicKey = None
+    INGE6_NACL_PUBLIC_KEY: PublicKey = None
 
 
 class RedisSettings(BaseSettings):
@@ -79,6 +91,16 @@ def settings_factory(env_file: pathlib.Path) -> AppSettings:
     )
     _settings.SBVZ_CERT = read_file(INGE4_ROOT.joinpath(f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}"))
     _settings.SBVZ_CERT = f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}"
+
+    _settings.INGE4_NACL_PRIVATE_KEY = read_nacl_private_key(
+        f"{_settings.SECRETS_FOLDER}/{_settings.INGE4_NACL_PRIVATE_KEY_FILE:}"
+    )
+    _settings.INGE4_NACL_PUBLIC_KEY = read_nacl_public_key(
+        f"{_settings.SECRETS_FOLDER}/{_settings.INGE4_NACL_PUBLIC_KEY_FILE:}"
+    )
+    _settings.INGE6_NACL_PUBLIC_KEY = read_nacl_public_key(
+        f"{_settings.SECRETS_FOLDER}/{_settings.INGE6_NACL_PUBLIC_KEY_FILE:}"
+    )
 
     return _settings
 
