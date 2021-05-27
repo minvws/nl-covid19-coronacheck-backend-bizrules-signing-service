@@ -101,7 +101,7 @@ async def sign_via_app_step_2(data: StepTwoData):
 
     # todo: check CMS signature (where are those in the message?)
 
-    domestic_response: Optional[DomesticGreenCard] = nl_domestic_dynamic.sign(data)
+    domestic_response: Optional[DomesticGreenCard] = nl_domestic_dynamic.sign(data, prepare_issue_message)
     eu_response: Optional[List[EUGreenCard]] = eu_international.sign(data.events)
 
     return MobileAppProofOfVaccination(**{"domesticGreencard": domestic_response, "euGreencards": eu_response})

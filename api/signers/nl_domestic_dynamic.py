@@ -1,7 +1,7 @@
 # pylint: disable=duplicate-code
 # Messages are long and thus might be duplicates quickly.
 
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from api.models import DomesticStaticQrResponse, StepTwoData, DomesticGreenCard
 from api.settings import settings
@@ -9,7 +9,7 @@ from api.signers.nl_domestic_static import vaccination_event_data_to_signing_dat
 from api.utils import request_post_with_retries
 
 
-def sign(data: StepTwoData) -> Optional[DomesticGreenCard]:
+def sign(data: StepTwoData, prepare_issue_message: Any) -> Optional[DomesticGreenCard]:
     """
     Signer repo: https://github.com/minvws/nl-covid19-coronacheck-idemix-private/tree/next
     go run ./ --help
@@ -17,6 +17,8 @@ def sign(data: StepTwoData) -> Optional[DomesticGreenCard]:
     Example prepare_issue:
     http://localhost:4001/prepare_issue
     {"issuerPkId":"TST-KEY-01","issuerNonce":"j6n+P9UPWS+2+C+MsNVlVw==","credentialAmount":28}
+
+    http://localhost:4001/issue
 
     StatementOfVaccination
     prepare_issue_message
@@ -56,6 +58,26 @@ def sign(data: StepTwoData) -> Optional[DomesticGreenCard]:
     :return:
     """
 
+    # https://github.com/minvws/nl-covid19-coronacheck-idemix-private/blob/next/issuer/issuer.go
+    # en de verschillende origins die bedenken we zelf maar sturen we niet mee in de attributes.
+    attributes = [
+        {"attributes": {
+            # difference between static and dynamic
+            "sampleTime": "2021-04-20T03:00:00Z",
+            "firstNameInitial": "B",
+            "lastNameInitial": "B",
+            "birthDay": "28",
+            "birthMonth": "4",
+            "isSpecimen": True
+        }
+        }]
+
+    issue_message = {
+        'prepareIssueMessage': prepare_issue_message,
+        'issueCommitmentMessage': data.issuecommitmentmessage,
+        'credentialsAttributes': attributes,
+    }
+
     # Not implemented yet, but the EU flow will just work now.
     return None
 
@@ -93,27 +115,8 @@ def sign(data: StepTwoData) -> Optional[DomesticGreenCard]:
     }]
     """
 
-    return to_domestic_proof_message([DomesticStaticQrResponse(**response.json())])
+    # todo: how to transform the answer to a DomesticGreenCard?
+    answer = response.json()
 
-
-def to_domestic_proof_message(data: List[DomesticStaticQrResponse]) -> DomesticGreenCard:
-    """
-    "issuedAt": 1621264322,
-    "validTo": 1623683522,
-    # wat heeft de rule engine bepaald om dit ding te bouwen.
-    # De rule engine moet dus dit gaan teruggeven.
-    "origin": ["vaccination", "test"],
-    "credentials": [
-        {"id": 1, "ccm": "Het objectje met proof en signature"},
-        {"id": 2, "ccm": "ccm here"},
-        {"id": 3, "ccm": "ccm here"},
-        {"id": 4, "ccm": "ccm here"},
-        {"id": 5, "ccm": "ccm here"},
-        {"id": 6, "ccm": "ccm here"}
-    ]
-    :param data:
-    :return:
-    """
-
-    # todo: implement
-    raise NotImplementedError
+    # todo: this is Wrong
+    return None
