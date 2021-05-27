@@ -90,7 +90,12 @@ def test_sign_via_inge3(requests_mock):
         **{
             "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%I0/IVB58WA",
             "origins": [
-                {"eventTime": "2021-01-01", "expirationTime": "2020-07-31T00:00:00+00:00", "type": "vaccination"}
+                {
+                    "eventTime": "2021-01-01",
+                    "expirationTime": "2020-07-31T00:00:00+00:00",
+                    "type": "vaccination",
+                    "validFrom": "2021-01-01",
+                }
             ],
         }
     )

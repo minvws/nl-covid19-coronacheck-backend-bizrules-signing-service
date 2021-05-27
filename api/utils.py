@@ -16,7 +16,7 @@ def defaultconverter(something):
         return something.isoformat()
 
     # Use json fallback method
-    raise TypeError(f'Object of type {something.__class__.__name__} is not JSON serializable')
+    raise TypeError(f"Object of type {something.__class__.__name__} is not JSON serializable")
 
 
 def read_file(path: Union[str, Path], encoding: str = "UTF-8") -> str:

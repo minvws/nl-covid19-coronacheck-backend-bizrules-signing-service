@@ -98,7 +98,7 @@ def sign(statement: StatementOfVaccination) -> List[EUGreenCard]:
                 "type": statement_to_eu_signer.keyUsage,
                 "eventTime": str(get_event_time(statement_to_eu_signer).isoformat()),
                 "expirationTime": str(expiration_time.isoformat()),
-                "validFrom": str(get_event_time(statement_to_eu_signer).isoformat())
+                "validFrom": str(get_event_time(statement_to_eu_signer).isoformat()),
             }
         ]
         greencards.append(EUGreenCard(**{**data, **{"origins": origins}}))

@@ -61,26 +61,16 @@ def test_sign_via_app_step_2(requests_mock):
             "issueSignatureMessage": {
                 "proof": {
                     "c": "ZCit1JJUE/juVMnwKrRj34THmBGXMFLCmvOtY+",
-                    "e_response": "Cl8ZzjxTV73evtVKSH80DUlQ/SmBMRdbi7q"
+                    "e_response": "Cl8ZzjxTV73evtVKSH80DUlQ/SmBMRdbi7q",
                 },
                 "signature": {
                     "A": "f4TGlDu//VHYdCH8PO69O3OlIE+al7DuJ",
                     "e": "EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
                     "v": "DvaoCWNs/mhPoA+NzlrmWa1EydkO/UwZmB",
-                    "KeyshareP": None
-                }
+                    "KeyshareP": None,
+                },
             },
-            "attributes": [
-                "MAUEAQITAA==",
-                "MA==",
-                "MA==",
-                "MTYyMjEyNzYwMA==",
-                "MjQ=",
-                "QQ==",
-                "Ug==",
-                "MjA=",
-                "MTA="
-            ]
+            "attributes": ["MAUEAQITAA==", "MA==", "MA==", "MTYyMjEyNzYwMA==", "MjQ=", "QQ==", "Ug==", "MjA=", "MTA="],
         }
     ]
 
@@ -99,37 +89,44 @@ def test_sign_via_app_step_2(requests_mock):
 
     # todo: implement domestic signer.
     assert response_data == {
-        'domesticGreencard': {
-            'createCredentialMessages':
-                '[{"issueSignatureMessage": '
-                '{"proof": {"c": '
-                '"ZCit1JJUE/juVMnwKrRj34THmBGXMFLCmvOtY+", '
-                '"e_response": '
-                '"Cl8ZzjxTV73evtVKSH80DUlQ/SmBMRdbi7q"}, '
-                '"signature": {"A": '
-                '"f4TGlDu//VHYdCH8PO69O3OlIE+al7DuJ", '
-                '"e": '
-                '"EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", '
-                '"v": '
-                '"DvaoCWNs/mhPoA+NzlrmWa1EydkO/UwZmB", '
-                '"KeyshareP": null}}, '
-                '"attributes": '
-                '["MAUEAQITAA==", "MA==", '
-                '"MA==", '
-                '"MTYyMjEyNzYwMA==", '
-                '"MjQ=", "QQ==", "Ug==", '
-                '"MjA=", "MTA="]}]',
-            'origins': [{'eventTime': '2020-02-02T00:00:00',
-                         'expirationTime': '2020-05-02T00:00:00',
-                         'type': 'vaccination',
-                         'validFrom': '2020-02-02T00:00:00'}]},
-
+        "domesticGreencard": {
+            "createCredentialMessages": '[{"issueSignatureMessage": '
+            '{"proof": {"c": '
+            '"ZCit1JJUE/juVMnwKrRj34THmBGXMFLCmvOtY+", '
+            '"e_response": '
+            '"Cl8ZzjxTV73evtVKSH80DUlQ/SmBMRdbi7q"}, '
+            '"signature": {"A": '
+            '"f4TGlDu//VHYdCH8PO69O3OlIE+al7DuJ", '
+            '"e": '
+            '"EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", '
+            '"v": '
+            '"DvaoCWNs/mhPoA+NzlrmWa1EydkO/UwZmB", '
+            '"KeyshareP": null}}, '
+            '"attributes": '
+            '["MAUEAQITAA==", "MA==", '
+            '"MA==", '
+            '"MTYyMjEyNzYwMA==", '
+            '"MjQ=", "QQ==", "Ug==", '
+            '"MjA=", "MTA="]}]',
+            "origins": [
+                {
+                    "eventTime": "2020-02-02T00:00:00",
+                    "expirationTime": "2020-05-02T00:00:00",
+                    "type": "vaccination",
+                    "validFrom": "2020-02-02T00:00:00",
+                }
+            ],
+        },
         "euGreencards": [
             {
                 "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%I0/IVB58WA",
                 "origins": [
-                    {"eventTime": "2021-01-01", "expirationTime": "2020-07-31T00:00:00+00:00",
-                     "type": "vaccination", 'validFrom': '2021-01-01'}
+                    {
+                        "eventTime": "2021-01-01",
+                        "expirationTime": "2020-07-31T00:00:00+00:00",
+                        "type": "vaccination",
+                        "validFrom": "2021-01-01",
+                    }
                 ],
             }
         ],

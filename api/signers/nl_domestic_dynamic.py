@@ -89,7 +89,7 @@ def sign(data: StepTwoData, prepare_issue_message: Any) -> Optional[DomesticGree
                 expirationTime=(datetime.now() + timedelta(days=90)).isoformat(),
             ),
         ],
-        createCredentialMessages=response.content.decode('UTF-8'),
+        createCredentialMessages=response.content.decode("UTF-8"),
     )
 
     return dgc
