@@ -1,37 +1,25 @@
 # pylint: disable=duplicate-code
 # Messages are long and thus might be duplicates quickly.
 
-from typing import List
+from typing import List, Optional
 
-from api.models import DomesticProofMessage, DomesticStaticQrResponse, StatementOfVaccination
+from api.models import DomesticStaticQrResponse, StepTwoData, DomesticGreenCard
 from api.settings import settings
 from api.signers.nl_domestic_static import vaccination_event_data_to_signing_data
 from api.utils import request_post_with_retries
 
 
-def sign(data: StatementOfVaccination) -> DomesticProofMessage:
+def sign(data: StepTwoData) -> Optional[DomesticGreenCard]:
     """
     Signer repo: https://github.com/minvws/nl-covid19-coronacheck-idemix-private/tree/next
     go run ./ --help
-
-    app -> inge4: prepare issue
-    inge4 -> domestic_dynamic_signer: prepare_issue (http://localhost:4001/prepare_issue)
-    domestic_dynamic_signer -> inge4: prepareIssueMessage()
-    inge4 -> inge4: store_nonce_in_redis_and_return_s_token
-    inge4 -> app: s-token
 
     Example prepare_issue:
     http://localhost:4001/prepare_issue
     {"issuerPkId":"TST-KEY-01","issuerNonce":"j6n+P9UPWS+2+C+MsNVlVw==","credentialAmount":28}
 
-
-
-
+    StatementOfVaccination
     prepare_issue_message
-
-
-
-
 
     Todo: it's unclear if there will be one or more requests, probably covering 10 days of 24 hour codes.
     Todo: implement this for multiple days. How many, is that a param / config variable?
@@ -67,7 +55,12 @@ def sign(data: StatementOfVaccination) -> DomesticProofMessage:
     :param data:
     :return:
     """
-    request_data = vaccination_event_data_to_signing_data(data)
+
+    # Not implemented yet, but the EU flow will just work now.
+    return None
+
+    # todo: now this is one event, but there will might be multiple depending on different rules.
+    request_data = vaccination_event_data_to_signing_data(data.events)  # pylint: disable=unreachable
 
     response = request_post_with_retries(
         settings.DOMESTIC_NL_VWS_ONLINE_SIGNING_URL,
@@ -103,7 +96,7 @@ def sign(data: StatementOfVaccination) -> DomesticProofMessage:
     return to_domestic_proof_message([DomesticStaticQrResponse(**response.json())])
 
 
-def to_domestic_proof_message(data: List[DomesticStaticQrResponse]) -> DomesticProofMessage:
+def to_domestic_proof_message(data: List[DomesticStaticQrResponse]) -> DomesticGreenCard:
     """
     "issuedAt": 1621264322,
     "validTo": 1623683522,

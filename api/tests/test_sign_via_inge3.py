@@ -28,14 +28,13 @@ def test_sign_via_inge3(requests_mock):
     }
 
     eu_example_answer = {
-        "origins": [{"type": "vaccination", "eventTime": "2021-01-01", "expirationTime": "2020-07-31T00:00:00+00:00"}],
         "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%I0/IVB58WA",
     }
 
     # Check that the response will be correct, will raise a validation error if not:
     DomesticStaticQrResponse(**signing_response_data)
 
-    requests_mock.post("https://signing.local/static", json=json.dumps(signing_response_data))
+    requests_mock.post(settings.DOMESTIC_NL_VWS_PAPER_SIGNING_URL, json=json.dumps(signing_response_data))
     requests_mock.post(settings.EU_INTERNATIONAL_SIGNING_URL, json=eu_example_answer)
     requests_mock.post("http://testserver/app/paper/", real_http=True)
 
@@ -87,4 +86,11 @@ def test_sign_via_inge3(requests_mock):
     # 108 QR codes.
     assert len(signatures.domesticProof) == 108
     assert signatures.domesticProof[0] == DomesticStaticQrResponse(**signing_response_data)
-    assert signatures.euProofs[0] == EUGreenCard(**eu_example_answer)
+    assert signatures.euProofs[0] == EUGreenCard(
+        **{
+            "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%I0/IVB58WA",
+            "origins": [
+                {"eventTime": "2021-01-01", "expirationTime": "2020-07-31T00:00:00+00:00", "type": "vaccination"}
+            ],
+        }
+    )

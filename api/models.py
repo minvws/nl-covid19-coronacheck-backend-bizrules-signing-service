@@ -28,9 +28,7 @@ class EncryptedBSNRequest(BaseModel):
 
 
 class PrepareIssueMessage(BaseModel):
-    stoken: str = Field(
-        description="Base64 encoded session token", example="WfyduIahEizvTeVx0GwwKTA6Xb/Q+sVLXdDq8buyUMo="
-    )
+    stoken: UUID = Field(description="", example="a019e902-86a0-4b1d-bff0-5c89f3cfc4d9")
     prepareIssueMessage: str = Field(
         description="A Base64 encoded prepare_issue_message",
         example=(
@@ -163,6 +161,7 @@ class test(BaseModel):  # noqa
     type: str = Field(example="???")
     name: str = Field(example="???")
     manufacturer: str = Field(example="1232")
+
     # todo: country is missing(!)
 
     def toEuropeanTest(self):
@@ -422,36 +421,6 @@ class OriginOfProof(str, Enum):
     no_proof = ""
 
 
-class DomesticProofMessage(BaseModel):
-    """
-    {
-        # Samenvatting.
-        "issuedAt": 1621264322,
-        "validTo": 1623683522,
-        # wat heeft de rule engine bepaald om dit ding te bouwen.
-        # De rule engine moet dus dit gaan teruggeven.
-        "origin": ["vaccination", "test"],
-        "credentials": [
-            {"id": 1, "ccm": "Het objectje met proof en signature"},
-            {"id": 2, "ccm": "ccm here"},
-            {"id": 3, "ccm": "ccm here"},
-            {"id": 4, "ccm": "ccm here"},
-            {"id": 5, "ccm": "ccm here"},
-            {"id": 6, "ccm": "ccm here"}
-        ]
-    }
-    """
-
-    # summary:
-    issuedAt: int = Field(example=1623683522, description="Timestamp of the beginning of the first signature.")
-    validTo: int = Field(example=1623683522, description="Timestamp of the end of the last signature.")
-    # For the UI;
-    origin: OriginOfProof = Field(
-        description="For the UI: the reason why a signature has been issued. Result of eligbility."
-    )
-    credentials: List[DomesticProofCredentialItem]
-
-
 # Todo: add EU response
 class DomesticPaperSigningAttributes(BaseModel):
     """
@@ -595,19 +564,44 @@ class MessageToEUSigner(BaseModel):
     dgc: EuropeanOnlineSigningRequest
 
 
-class EUGreenCardOrigins(BaseModel):
+class GreenCardOrigins(BaseModel):
     type: str
     eventTime: str
     expirationTime: str
 
 
 class EUGreenCard(BaseModel):
-    origins: List[EUGreenCardOrigins]
+    origins: List[GreenCardOrigins]
     credential: str
+
+    class Config:
+        schema_extra = {
+            # Always one origin. Per origin one greencard is handed out.
+            "origins": [
+                {"type": "vaccination", "eventTime": "2021-03-25T11:14:46Z", "expirationTime": "2021-09-21T10:14:46Z"}
+            ],
+            "credential": "HC1:NCF%R133701U50DBWH5717CH*F60",
+        }
+
+
+class DomesticGreenCard(BaseModel):
+    origins: List[GreenCardOrigins]
+    createCredentialMessages: str
+
+    class Config:
+        schema_extra = {
+            # All origins are mushed into one
+            "origins": [
+                {"type": "vaccination", "eventTime": "2021-03-25T11:14:46Z", "expirationTime": "2021-09-21T10:14:46Z"},
+                {"type": "recovery", "eventTime": "2021-05-13T10:14:46Z", "expirationTime": "2021-06-10T10:14:46Z"},
+            ],
+            # base64(?)
+            "createCredentialMessages": "W3siaXNzdWVTaWduYXR1cmVNZXNzYWdlIjp7I13379mIjp7ImMiOiJ25717CH...0iXX1d",
+        }
 
 
 class MobileAppProofOfVaccination(BaseModel):
-    domesticGreencard: DomesticProofMessage
+    domesticGreencard: Optional[DomesticGreenCard]
     # todo: was EuropeanProofOfVaccination, is that all gone?
     euGreencards: Optional[List[EUGreenCard]] = Field(description="")
 
@@ -615,3 +609,13 @@ class MobileAppProofOfVaccination(BaseModel):
 class PaperProofOfVaccination(BaseModel):
     domesticProof: Optional[List[DomesticStaticQrResponse]] = Field(description="Paper vaccination")
     euProofs: Optional[List[EUGreenCard]] = Field(description="")
+
+
+class IssueCommitmentMessage(BaseModel):
+    commitments: str = Field(description="", example="")
+
+
+class StepTwoData(BaseModel):
+    events: StatementOfVaccination
+    stoken: UUID = Field(description="", example="a019e902-86a0-4b1d-bff0-5c89f3cfc4d9")
+    issuecommitmentmessage: IssueCommitmentMessage
