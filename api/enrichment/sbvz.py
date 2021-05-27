@@ -66,9 +66,9 @@ def call_app_step_1(bsn: str) -> Tuple[List[str], Dict[str, str]]:
             return errors, {}
     except requests.RequestException:
         return ["Network error accessing SBVZ service"], {}
-    except Exception:  # pylint: disable=broad-except
+    except Exception as err:  # pylint: disable=broad-except
         # Any other error such as json decode errors and such
-        return ["Error handing response from SBVZ service"], {}
+        return [repr(err)], {}
 
     all_names: str = resultaat_list["Voornamen"].Werkelijk
     last_name: str = resultaat_list["Geslachtsnaam"].Werkelijk

@@ -4,9 +4,14 @@ import pathlib
 INGE4_ROOT = pathlib.Path(__file__).parent.parent.absolute()
 TESTS_DIR = pathlib.Path(__file__).parent.absolute().joinpath("tests")
 
-ENV_FILE = pathlib.Path("/etc/inge4/inge4.env")
+
+def get_env_file():
+    env_file = pathlib.Path("/etc/inge4/inge4.env")
+
+    if not path.exists(env_file):
+        print("Warning! The production inge4.env could not be found. Using development/test settings.")
+        env_file = INGE4_ROOT.joinpath("inge4_development.env")
+    return env_file
 
 
-if not path.exists(ENV_FILE):
-    print("Warning! The production inge4.env could not be found. Using development/test settings.")
-    ENV_FILE = INGE4_ROOT.joinpath("inge4_development.env")
+ENV_FILE = get_env_file()

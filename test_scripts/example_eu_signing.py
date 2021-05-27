@@ -1,5 +1,3 @@
-import json
-
 from api.models import StatementOfVaccination, StepTwoData
 from api.signers.eu_international import sign as eu_sign
 from api.signers.nl_domestic_dynamic import sign as nl_sign
@@ -194,18 +192,21 @@ prepare_issue_message = """
     {"issuerPkId":"TST-KEY-01","issuerNonce":"UslfUmTWQUkcLPJy+9V8JA==","credentialAmount":28}
 """
 
-data = nl_sign(
-    StepTwoData(
-        **{
-            'events': StatementOfVaccination(**vaccination_events),
-            'issueCommitmentMessage': issue_commitment_message,
-            "stoken": "43b09572-c4b3-4247-8dc1-104680c20b82",
-        }
-    ),
-    prepare_issue_message
-)
+stoken = "43b09572-c4b3-4247-8dc1-104680c20b82"
 
-print(data)
+if __name__ == "__main__":
+    data = nl_sign(
+        StepTwoData(
+            **{
+                "events": StatementOfVaccination(**vaccination_events),
+                "issueCommitmentMessage": issue_commitment_message,
+                "stoken": stoken,
+            }
+        ),
+        prepare_issue_message,
+    )
 
-data = eu_sign(StatementOfVaccination(**vaccination_events))
-print(data)
+    print(data)
+
+    data = eu_sign(StatementOfVaccination(**vaccination_events))
+    print(data)

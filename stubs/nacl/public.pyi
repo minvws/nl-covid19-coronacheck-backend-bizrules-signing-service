@@ -3,7 +3,6 @@ class PrivateKey:
     SEED_SIZE: int
     public_key: PublicKey
     def __init__(self, private_key: bytes, encoder=...): ...
-
     @classmethod
     def generate(cls) -> PrivateKey: ...
 

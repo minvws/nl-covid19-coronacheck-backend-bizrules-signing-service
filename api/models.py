@@ -203,7 +203,7 @@ class Event(BaseModel):
     # Todo: see responses on: https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/pull/70
     type: EventType = Field(description="Type of event")
     unique: UUID = Field(description="todo", example="ee5afb32-3ef5-4fdf-94e3-e61b752dbed9")
-    isSpecimen: bool = Field("Boolean as an integer: 0 or 1.")
+    isSpecimen: bool = Field(0, description="Boolean as an integer: 0 or 1.")
     data: Union[vaccination, test, recovery] = Field(description="Structure is based on the 'type' discriminator.")
 
 
