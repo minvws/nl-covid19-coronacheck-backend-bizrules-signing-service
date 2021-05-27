@@ -1,9 +1,10 @@
 # pylint: disable=duplicate-code
 # Messages are long and thus might be duplicates quickly.
-
+from datetime import datetime, timedelta
+from enum import Enum
 from typing import List, Optional, Any
 
-from api.models import StepTwoData, DomesticGreenCard
+from api.models import StepTwoData, DomesticGreenCard, Holder, GreenCardOrigin, IssueMessage, StripType
 from api.settings import settings
 from api.signers.nl_domestic_static import vaccination_event_data_to_signing_data
 from api.utils import request_post_with_retries
@@ -35,63 +36,48 @@ def sign(data: StepTwoData, prepare_issue_message: Any) -> Optional[DomesticGree
 
     # https://github.com/minvws/nl-covid19-coronacheck-idemix-private/blob/next/issuer/issuer.go
     # en de verschillende origins die bedenken we zelf maar sturen we niet mee in de attributes.
+    temporary_holder: Holder = data.events.holder
+
     attributes = [
-        {"attributes": {
-            # difference between static and dynamic
-            "sampleTime": "2021-04-20T03:00:00Z",
-            "firstNameInitial": "B",
-            "lastNameInitial": "B",
-            "birthDay": "28",
-            "birthMonth": "4",
-            "isSpecimen": True
+        {
+            "isSpecimen": "0",
+            "stripType": StripType.APP_STRIP,
+            "validFrom": datetime.now().isoformat(),
+            "validForHours": "24",  # TODO: This should be a configuration value
+            "firstNameInitial": temporary_holder.first_name_initial,
+            "lastNameInitial": temporary_holder.last_name_initial,
+            "birthDay": str(temporary_holder.birthDate.day),
+            "birthMonth": str(temporary_holder.birthDate.month),
         }
-        }]
+    ]
 
-    issue_message = {
+    issue_message = IssueMessage(**{
         'prepareIssueMessage': prepare_issue_message,
-        'issueCommitmentMessage': data.issuecommitmentmessage,
+        'issueCommitmentMessage': data.issueCommitmentMessage,
         'credentialsAttributes': attributes,
-    }
-
-    # Not implemented yet, but the EU flow will just work now.
-    return None
+    })
 
     # todo: now this is one event, but there will might be multiple depending on different rules.
-    request_data = vaccination_event_data_to_signing_data(data.events)  # pylint: disable=unreachable
+    # request_data = vaccination_event_data_to_signing_data(data.events)  # pylint: disable=unreachable
 
     response = request_post_with_retries(
         settings.DOMESTIC_NL_VWS_ONLINE_SIGNING_URL,
-        data=request_data,
+        data=issue_message.dict(),
         headers={"accept": "application/json", "Content-Type": "application/json"},
     )
     response.raise_for_status()
 
-    """
-    # The response looks like this, just :
-    [{
-        "ism": {
-            "proof": {
-                "c": "tHk+nswA/VSgQR41o+NlPEZUlBCdVbV7IK50/lrK0jo=",
-                "e_response": "PfjLNp/UBFogQb88UQEArTQj4/mkg6zTFOg0UUGVsa9EQBCaZYG07AVgzrr7X5CterCGYcbV6DZEqCoP/UyknzL2f
-                OeC5f1kqp/W69GIRqVFV2Cyjz6aITNQQBaiM4KkM21Cs2i32cmsPMC1GSW72ORpU0mPmP1RzWf0MuUdIQ=="
-            },
-            "signature": {
-                "A": "ONKxjtJQUqMXolC0OltT2JWPua/7XqcFSuuCxNo25jh71C2S98JDYlSc2rkVC0G/RTNdY/gPfRWfzNOGIJvxSS3zRrnPBLFvG6
-                Zo4rzIjsF+sQoIeUE/FNSAHTi7yART7MJIEbkHxn95Jw/dG8hTppbt1ALYpTXdKao6yFKRF0E=",
-                "e": "EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa2ORygGdQClk2+FZuH
-                l/",
-                "v": "DJurgTXsDZgXHihHYpXwH81gmH+gan22XUPT07SiwuGdqNi1ikHDcXWSuf7Yae+nSIWh3fyIEoyIdNvloycrljVU7cClklrOLA
-                sOyU45W07cjbBQATQmavoBsyZZaG/b/4aJFhfcuYHv6J72/8rm1UVqyk0i/0ROw/JukxbOFwkXm6FpfF2XUf3HvnSgEAbxPebxm5UKej
-                7DxXx3fpHdELMKiyBICQjN0r6MwCU3PhbynISrjdbQsveeBh9id3O/kFISqMANSp6QmNPZ0jd4pOivOLFS",
-                "KeyshareP": null
-            }
-        },
-        "attributes": ["", ""]
-    }]
-    """
+    ccms = response.json()
 
-    # todo: how to transform the answer to a DomesticGreenCard?
-    answer = response.json()
+    dgc = DomesticGreenCard(
+        origins=[
+            GreenCardOrigin(
+                type="vaccination",
+                eventTime=datetime.now().isoformat(),
+                expirationTime=(datetime.now() + timedelta(days=90)).isoformat(),
+            ),
+        ],
+        createCredentialMessages=ccms,
+    )
 
-    # todo: this is Wrong
-    return None
+    return dgc

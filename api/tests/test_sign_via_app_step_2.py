@@ -50,7 +50,7 @@ def test_sign_via_app_step_2(requests_mock):
         ],
     }
 
-    issuecommitmentmessage = {"commitments": "todo, implement example."}
+    issuecommitmentmessage = "foobar"
 
     eu_example_answer = {
         "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%I0/IVB58WA",
@@ -62,11 +62,12 @@ def test_sign_via_app_step_2(requests_mock):
 
     response = client.post(
         "/app/sign/",
-        json={"events": events, "stoken": session_token, "issuecommitmentmessage": issuecommitmentmessage},
+        json={"events": events, "stoken": session_token, "issueCommitmentMessage": issuecommitmentmessage},
         headers={},
     )
 
     response_data = response.json()
+    print(response_data)
 
     # todo: implement domestic signer.
     assert response_data == {

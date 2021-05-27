@@ -6,7 +6,7 @@ import re
 import uuid
 from datetime import datetime, date
 from enum import Enum
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Dict, Any
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -60,7 +60,7 @@ class Holder(BaseModel):
 
     firstName: str = Field(description="", example="Herman")
     lastName: str = Field(description="", example="Acker")
-    birthDate: str = Field(description="ISO 8601 date string (large to small, YYYY-MM-DD)", example="1970-01-01")
+    birthDate: date = Field(description="ISO 8601 date string (large to small, YYYY-MM-DD)", example="1970-01-01")
 
     @classmethod
     def _name_initial(cls, name, default=""):
@@ -93,6 +93,7 @@ class Holder(BaseModel):
         """See dcomentation of `_name_initial`"""
         return self._name_initial(self.lastName, default="")
 
+    @property
     @staticmethod
     def _eu_normalize(value):
         # todo: test
@@ -129,7 +130,7 @@ class vaccination(BaseModel):  # noqa
 
     country: Optional[str] = Field(
         description="Optional iso 3166 3-letter country field, will be set to NLD if "
-        "left out. Can be used if shot was administered abroad",
+                    "left out. Can be used if shot was administered abroad",
         example="NLD",
         default="NLD",
     )
@@ -341,17 +342,17 @@ class DomesticDynamicQrResponse(BaseModel):
             c: str = Field(example="tHk+nswA/VSgQR41o+NlPEZUlBCdVbV7IK50/lrK0jo=")
             e_response: str = Field(
                 example="PfjLNp/UBFogQb88UQEArTQj4/mkg6zTFOg0UUGVsa9EQBCaZYG07AVgzrr7X5CterCGYcbV6DZEqCoP/UyknzL2fOeC5f"
-                "1kqp/W69GIRqVFV2Cyjz6aITNQQBaiM4KkM21Cs2i32cmsPMC1GSW72ORpU0mPmP1RzWf0MuUdIQ=="
+                        "1kqp/W69GIRqVFV2Cyjz6aITNQQBaiM4KkM21Cs2i32cmsPMC1GSW72ORpU0mPmP1RzWf0MuUdIQ=="
             )
 
         class DomesticDynamicSignature(BaseModel):
             A: str = Field(
                 example="ONKxjtJQUqMXolC0OltT2JWPua/7XqcFSuuCxNo25jh71C2S98JDYlSc2rkVC0G/RTNdY/gPfRWfzNOGIJvxSS3zRrnPBL"
-                "FvG6Zo4rzIjsF+sQoIeUE/FNSAHTi7yART7MJIEbkHxn95Jw/dG8hTppbt1ALYpTXdKao6yFKRF0E="
+                        "FvG6Zo4rzIjsF+sQoIeUE/FNSAHTi7yART7MJIEbkHxn95Jw/dG8hTppbt1ALYpTXdKao6yFKRF0E="
             )
             e: str = Field(
                 example="EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa2ORygGdQClk2+"
-                "FZuHl/"
+                        "FZuHl/"
             )
             v: str = Field(example="tHk+nswA/VSgQR41o+NlPEZUlBCdVbV7IK50/lrK0jo=")
             KeyshareP: Optional[str] = Field(example="Todo: what?")
@@ -401,11 +402,11 @@ class EuropeanProofOfVaccination(BaseModel):
     issuedAt: int = Field(example=1621264322)
     qrData: str = Field(
         example="0oRNogEmBEgAAAAAAAAAAKIBAAT2WQE1pAFiTkwEGmGO/TkGGmChrzk5AQOhAaRjdmVyZTEuMC4wY25hbaRjZm50ckFDSFRFUk5BQU"
-        "08RU48TkFBTWJnbmlWb29yIE5hYW1jZ250aVZPT1I8TkFBTWJmbnJBY2h0ZXJuYWFtIGVuIG5hYW1jZG9iajE5NTMtMDktMDNhdoGq"
-        "YnZwajExMTkzNDkwMDdibXBqQkJJQlAtQ29yVmJkbvtAIAAAAAAAAGJkdGoyMDIxLTAyLTE4YnRnaTg0MDUzOTAwNmJzZPtAIAAAAA"
-        "AAAGJjb2BiaXN4JE1pbmlzdHJ5IG9mIEhlYWx0aCBXZWxmYXJlIGFuZCBTcG9ydGJjaXgvdXJuOnV2Y2k6MDE6Tkw6MzMzODUwMjQ0"
-        "NzVlNGM1NmExN2I3NDlmOTI0MDQwMzlibWFgWEDEcYN/qqfm6jaHgTrRoc/7OlchwSoMVCLPzA3V1jG5JEkVhTPsNUQJNn9ltmnDxL"
-        "554K+WFBWKUEQxiRBbxqRv"
+                "08RU48TkFBTWJnbmlWb29yIE5hYW1jZ250aVZPT1I8TkFBTWJmbnJBY2h0ZXJuYWFtIGVuIG5hYW1jZG9iajE5NTMtMDktMDNhdoGq"
+                "YnZwajExMTkzNDkwMDdibXBqQkJJQlAtQ29yVmJkbvtAIAAAAAAAAGJkdGoyMDIxLTAyLTE4YnRnaTg0MDUzOTAwNmJzZPtAIAAAAA"
+                "AAAGJjb2BiaXN4JE1pbmlzdHJ5IG9mIEhlYWx0aCBXZWxmYXJlIGFuZCBTcG9ydGJjaXgvdXJuOnV2Y2k6MDE6Tkw6MzMzODUwMjQ0"
+                "NzVlNGM1NmExN2I3NDlmOTI0MDQwMzlibWFgWEDEcYN/qqfm6jaHgTrRoc/7OlchwSoMVCLPzA3V1jG5JEkVhTPsNUQJNn9ltmnDxL"
+                "554K+WFBWKUEQxiRBbxqRv"
     )
 
 
@@ -456,7 +457,7 @@ class SharedEuropeanFields(BaseModel):
     tg: str = Field(description="disease or agent targeted", example="840539006", default="840539006")
     ci: str = Field(
         description="Certificate Identifier, format as per UVCI (*), "
-        "Yes (conversion of unique to V-XXX-YYYYYYYY-Z, provider only needs to provide unique"
+                    "Yes (conversion of unique to V-XXX-YYYYYYYY-Z, provider only needs to provide unique"
     )
     co: str = Field(description="Member State, ISO 3166", default="NLD", regex=r"[A-Z]{1,10}")
     is_: str = Field(description="certificate issuer", default="Ministry of Health Welfare and Sport", alias="is")
@@ -518,7 +519,7 @@ class EuropeanRecovery(SharedEuropeanFields):
     df: date = Field(description="certificate valid from. recovery.validFrom", example="todo")
     du: date = Field(
         description="certificate valid until. not more than 180 days after the date of first positive "
-        "test result. recovery.validUntil",
+                    "test result. recovery.validUntil",
         example="todo",
     )
 
@@ -541,7 +542,7 @@ class EuropeanOnlineSigningRequest(BaseModel):
     # Signer should convert "1975-XX-XX" to "1975" as the EU DGC can't handle the XX's of unknown birthmonth/day
     dob: str = Field(
         description="Date of Birth of the person addressed in the DGC. "
-        "ISO 8601 date format restricted to range 1900-2099"
+                    "ISO 8601 date format restricted to range 1900-2099"
     )
 
     v: List[EuropeanVaccination]
@@ -564,14 +565,14 @@ class MessageToEUSigner(BaseModel):
     dgc: EuropeanOnlineSigningRequest
 
 
-class GreenCardOrigins(BaseModel):
+class GreenCardOrigin(BaseModel):
     type: str
     eventTime: str
     expirationTime: str
 
 
 class EUGreenCard(BaseModel):
-    origins: List[GreenCardOrigins]
+    origins: List[GreenCardOrigin]
     credential: str
 
     class Config:
@@ -585,7 +586,7 @@ class EUGreenCard(BaseModel):
 
 
 class DomesticGreenCard(BaseModel):
-    origins: List[GreenCardOrigins]
+    origins: List[GreenCardOrigin]
     createCredentialMessages: str
 
     class Config:
@@ -611,11 +612,33 @@ class PaperProofOfVaccination(BaseModel):
     euProofs: Optional[List[EUGreenCard]] = Field(description="")
 
 
-class IssueCommitmentMessage(BaseModel):
-    commitments: str = Field(description="", example="")
-
-
 class StepTwoData(BaseModel):
     events: StatementOfVaccination
     stoken: UUID = Field(description="", example="a019e902-86a0-4b1d-bff0-5c89f3cfc4d9")
-    issuecommitmentmessage: IssueCommitmentMessage
+    issueCommitmentMessage: str
+
+
+class StripType(Enum):
+    APP_STRIP = "0"
+    PAPER_STRIP_SHORT = "1"
+    PAPER_STRIP_LONG = "2"
+
+
+class DomesticSignerAttributes(BaseModel):
+    isSpecimen: str = Field(
+        example="0",
+        description="Boolean cast as string, if this is a testcase. " "To facilitate testing in production.",
+    )
+    stripType: StripType = Field(example="0")
+    validFrom: datetime
+    validForHours: str = Field(example="24")
+    firstNameInitial: str = Field(example="E", description="First letter of the first name of this person")
+    lastNameInitial: str = Field(example="J", description="First letter of the last name of this person")
+    birthDay: str = Field(example="27", description="Day (not date!) of birth.")
+    birthMonth: str = Field(example="12", description="Month (not date!) of birth.")
+
+
+class IssueMessage(BaseModel):
+    prepareIssueMessage: Any
+    issueCommitmentMessage: str
+    credentialsAttributes: List[DomesticSignerAttributes]
