@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from math import ceil
 from typing import List
 
@@ -86,7 +86,7 @@ def vaccination_event_data_to_signing_data(data: StatementOfVaccination):
     :return:
     """
 
-    person_date = date.fromisoformat(data.holder.birthDate)
+    person_date = data.holder.birthDate
 
     request_data = {
         "attributes": {
