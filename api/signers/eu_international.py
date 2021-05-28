@@ -13,16 +13,12 @@ log = logging.getLogger(__package__)
 
 
 def sign(statement: StatementOfVaccination) -> List[EUGreenCard]:
-    # git clone https://github.com/minvws/nl-covid19-coronacheck-hcert-private
-
-    # https://github.com/eu-digital-green-certificates/dgc-testdata/blob/main/NL/2DCode/raw/100.json
-    # https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/DGC.combined-schema.json
-
     """
-    EU only has one event per signing request. This means that a statement of vaccination has to be broken down
-    into the maximum of three different types of requests. Each type of event can only be sent once.
+    Implements signing against: https://github.com/minvws/nl-covid19-coronacheck-hcert-private
 
-    If you have multiple recoveries, tests or vaccinations just use one of each.
+    Business rules implemented below:
+    - Only one signing event per type is sent tot he signer.
+    - Todo: a validity is set to 180 days from now, regardless of dates of recovery etc
 
     Todo: the dates of what events are chosen might/will impact someone. It's a political choice what has preference.
 
@@ -46,8 +42,6 @@ def sign(statement: StatementOfVaccination) -> List[EUGreenCard]:
             MessageToEUSigner(
                 **{
                     "keyUsage": "vaccination",
-                    # Todo: It's unclear what experiation time was. It used to be eventtime.
-                    # "eventTime": blank_statement.vaccinations[0].data.date,
                     "expirationTime": expiration_time,
                     "dgc": blank_statement.toEuropeanOnlineSigningRequest(),
                 }
@@ -60,7 +54,6 @@ def sign(statement: StatementOfVaccination) -> List[EUGreenCard]:
             MessageToEUSigner(
                 **{
                     "keyUsage": "recovery",
-                    # "eventTime": blank_statement.recoveries[0].data.sampleDate,
                     "expirationTime": expiration_time,
                     "dgc": blank_statement.toEuropeanOnlineSigningRequest(),
                 }
@@ -73,8 +66,6 @@ def sign(statement: StatementOfVaccination) -> List[EUGreenCard]:
             MessageToEUSigner(
                 **{
                     "keyUsage": "test",
-                    # todo: EventTime is gone, ExpirationTime is added, what is ExpirationTime?
-                    # "eventTime": blank_statement.tests[0].data.sampleDate,
                     "expirationTime": expiration_time,
                     "dgc": blank_statement.toEuropeanOnlineSigningRequest(),
                 }

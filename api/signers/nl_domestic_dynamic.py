@@ -10,7 +10,7 @@ from api.utils import request_post_with_retries
 
 def sign(data: StepTwoData, prepare_issue_message: str) -> Optional[DomesticGreenCard]:
     """
-    This signer talks to: https://github.com/minvws/nl-covid19-coronacheck-hcert-private
+    This signer talks to: https://github.com/minvws/nl-covid19-coronacheck-idemix-private/
 
     Example prepare_issue_message:
     {"issuerPkId":"TST-KEY-01","issuerNonce":"j6n+P9UPWS+2+C+MsNVlVw==","credentialAmount":28}

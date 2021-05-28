@@ -374,7 +374,13 @@ class EuropeanRecovery(SharedEuropeanFields):
 
 
 class EuropeanOnlineSigningRequestNamingSection(BaseModel):
-    # Docs: https://docs.google.com/spreadsheets/d/1hatNyvZMJBP7jSU_OtMQOAISBulT2O1aXgHDH73V-EA/edit#gid=0
+    """
+    Docs:
+    https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/DGC.combined-schema.json
+    https://github.com/eu-digital-green-certificates/dgc-testdata/blob/main/NL/2DCode/raw/100.json
+    https://docs.google.com/spreadsheets/d/1hatNyvZMJBP7jSU_OtMQOAISBulT2O1aXgHDH73V-EA/edit#gid=0
+    """
+
     fn: str = Field(description="Family name, based on holder.lastName", example="Acker")
     # Yes, signer will take care of generating this normalized version
     fnt: str = Field(description="Transliterated family name (A-Z, unidecoded) with<instead of space.", example="Acker")
