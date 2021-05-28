@@ -1,9 +1,9 @@
 # allow overwriting of private variables for mocking purposes
 # pylint: disable=W0212
 import pytest
+
 from api.session_store import session_store
 from api.settings import settings
-
 
 testdata = [
     b"",

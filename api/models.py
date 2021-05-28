@@ -4,7 +4,7 @@
 # Automatic documentation: http://localhost:8000/redoc or http://localhost:8000/docs
 import re
 import uuid
-from datetime import datetime, date
+from datetime import date, datetime
 from enum import Enum
 from typing import List, Optional, Union
 from uuid import UUID
@@ -28,9 +28,7 @@ class EncryptedBSNRequest(BaseModel):
 
 
 class PrepareIssueMessage(BaseModel):
-    stoken: str = Field(
-        description="Base64 encoded session token", example="WfyduIahEizvTeVx0GwwKTA6Xb/Q+sVLXdDq8buyUMo="
-    )
+    stoken: UUID = Field(description="", example="a019e902-86a0-4b1d-bff0-5c89f3cfc4d9")
     prepareIssueMessage: str = Field(
         description="A Base64 encoded prepare_issue_message",
         example=(
@@ -54,7 +52,7 @@ class Holder(BaseModel):
 
     firstName: str = Field(description="", example="Herman")
     lastName: str = Field(description="", example="Acker")
-    birthDate: str = Field(description="ISO 8601 date string (large to small, YYYY-MM-DD)", example="1970-01-01")
+    birthDate: date = Field(description="ISO 8601 date string (large to small, YYYY-MM-DD)", example="1970-01-01")
 
     @classmethod
     def _name_initial(cls, name, default=""):
@@ -95,11 +93,11 @@ class Holder(BaseModel):
 
     @property
     def first_name_eu_normalized(self):
-        return self._eu_normalize(self.firstName)
+        return Holder._eu_normalize(self.firstName)
 
     @property
     def last_name_eu_normalized(self):
-        return self._eu_normalize(self.lastName)
+        return Holder._eu_normalize(self.lastName)
 
 
 class vaccination(BaseModel):  # noqa
@@ -155,6 +153,7 @@ class test(BaseModel):  # noqa
     type: str = Field(example="???")
     name: str = Field(example="???")
     manufacturer: str = Field(example="1232")
+
     # todo: country is missing(!)
 
     def toEuropeanTest(self):
@@ -204,7 +203,7 @@ class Event(BaseModel):
     # Todo: see responses on: https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/pull/70
     type: EventType = Field(description="Type of event")
     unique: UUID = Field(description="todo", example="ee5afb32-3ef5-4fdf-94e3-e61b752dbed9")
-    isSpecimen: bool = Field("Boolean as an integer: 0 or 1.")
+    isSpecimen: bool = Field(0, description="Boolean as an integer: 0 or 1.")
     data: Union[vaccination, test, recovery] = Field(description="Structure is based on the 'type' discriminator.")
 
 
@@ -414,36 +413,6 @@ class OriginOfProof(str, Enum):
     no_proof = ""
 
 
-class DomesticProofMessage(BaseModel):
-    """
-    {
-        # Samenvatting.
-        "issuedAt": 1621264322,
-        "validTo": 1623683522,
-        # wat heeft de rule engine bepaald om dit ding te bouwen.
-        # De rule engine moet dus dit gaan teruggeven.
-        "origin": ["vaccination", "test"],
-        "credentials": [
-            {"id": 1, "ccm": "Het objectje met proof en signature"},
-            {"id": 2, "ccm": "ccm here"},
-            {"id": 3, "ccm": "ccm here"},
-            {"id": 4, "ccm": "ccm here"},
-            {"id": 5, "ccm": "ccm here"},
-            {"id": 6, "ccm": "ccm here"}
-        ]
-    }
-    """
-
-    # summary:
-    issuedAt: int = Field(example=1623683522, description="Timestamp of the beginning of the first signature.")
-    validTo: int = Field(example=1623683522, description="Timestamp of the end of the last signature.")
-    # For the UI;
-    origin: OriginOfProof = Field(
-        description="For the UI: the reason why a signature has been issued. Result of eligbility."
-    )
-    credentials: List[DomesticProofCredentialItem]
-
-
 # Todo: add EU response
 class DomesticPaperSigningAttributes(BaseModel):
     """
@@ -562,7 +531,7 @@ class EuropeanOnlineSigningRequest(BaseModel):
     )
     nam: EuropeanOnlineSigningRequestNamingSection
     # Signer should convert "1975-XX-XX" to "1975" as the EU DGC can't handle the XX's of unknown birthmonth/day
-    dob: str = Field(
+    dob: date = Field(
         description="Date of Birth of the person addressed in the DGC. "
         "ISO 8601 date format restricted to range 1900-2099"
     )
@@ -587,19 +556,45 @@ class MessageToEUSigner(BaseModel):
     dgc: EuropeanOnlineSigningRequest
 
 
-class EUGreenCardOrigins(BaseModel):
+class GreenCardOrigin(BaseModel):
     type: str
     eventTime: str
     expirationTime: str
+    validFrom: str
 
 
 class EUGreenCard(BaseModel):
-    origins: List[EUGreenCardOrigins]
+    origins: List[GreenCardOrigin]
     credential: str
+
+    class Config:
+        schema_extra = {
+            # Always one origin. Per origin one greencard is handed out.
+            "origins": [
+                {"type": "vaccination", "eventTime": "2021-03-25T11:14:46Z", "expirationTime": "2021-09-21T10:14:46Z"}
+            ],
+            "credential": "HC1:NCF%R133701U50DBWH5717CH*F60",
+        }
+
+
+class DomesticGreenCard(BaseModel):
+    origins: List[GreenCardOrigin]
+    createCredentialMessages: str
+
+    class Config:
+        schema_extra = {
+            # All origins are mushed into one
+            "origins": [
+                {"type": "vaccination", "eventTime": "2021-03-25T11:14:46Z", "expirationTime": "2021-09-21T10:14:46Z"},
+                {"type": "recovery", "eventTime": "2021-05-13T10:14:46Z", "expirationTime": "2021-06-10T10:14:46Z"},
+            ],
+            # base64(?)
+            "createCredentialMessages": "W3siaXNzdWVTaWduYXR1cmVNZXNzYWdlIjp7I13379mIjp7ImMiOiJ25717CH...0iXX1d",
+        }
 
 
 class MobileAppProofOfVaccination(BaseModel):
-    domesticGreencard: DomesticProofMessage
+    domesticGreencard: Optional[DomesticGreenCard]
     # todo: was EuropeanProofOfVaccination, is that all gone?
     euGreencards: Optional[List[EUGreenCard]] = Field(description="")
 
@@ -607,3 +602,35 @@ class MobileAppProofOfVaccination(BaseModel):
 class PaperProofOfVaccination(BaseModel):
     domesticProof: Optional[List[DomesticStaticQrResponse]] = Field(description="Paper vaccination")
     euProofs: Optional[List[EUGreenCard]] = Field(description="")
+
+
+class StepTwoData(BaseModel):
+    events: StatementOfVaccination
+    stoken: UUID = Field(description="", example="a019e902-86a0-4b1d-bff0-5c89f3cfc4d9")
+    issueCommitmentMessage: str
+
+
+class StripType(str, Enum):
+    APP_STRIP = "0"
+    PAPER_STRIP_SHORT = "1"
+    PAPER_STRIP_LONG = "2"
+
+
+class DomesticSignerAttributes(BaseModel):
+    isSpecimen: str = Field(
+        example="0",
+        description="Boolean cast as string, if this is a testcase. " "To facilitate testing in production.",
+    )
+    stripType: StripType = Field(example="0")
+    validFrom: datetime
+    validForHours: str = Field(example="24")
+    firstNameInitial: str = Field(example="E", description="First letter of the first name of this person")
+    lastNameInitial: str = Field(example="J", description="First letter of the last name of this person")
+    birthDay: str = Field(example="27", description="Day (not date!) of birth.")
+    birthMonth: str = Field(example="12", description="Month (not date!) of birth.")
+
+
+class IssueMessage(BaseModel):
+    prepareIssueMessage: dict
+    issueCommitmentMessage: dict
+    credentialsAttributes: List[DomesticSignerAttributes]

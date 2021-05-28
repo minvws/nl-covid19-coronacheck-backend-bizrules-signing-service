@@ -1,7 +1,10 @@
 bin = .venv/bin
 env = env PATH="${bin}:$$PATH"
-
+port = 8000
+mockport = 8001
 pysrcdirs = api/
+blackdirs = stubs/ test_scripts/
+export PYTHONPATH=
 
 ifeq ($(shell uname -m),arm64)
 env = env PATH="${bin}:$$PATH /usr/bin/arch -x86_64"
@@ -36,19 +39,22 @@ check: venv ## Check for source issues
 
 	# The single double quote is explained in https://black.readthedocs.io/en/stable/the_black_code_style.html
 	# We're allowing single quotes out of habit.
-	@. .venv/bin/activate && ${env} python3 -m black --check ${pysrcdirs}
+	@. .venv/bin/activate && ${env} python3 -m black --check ${pysrcdirs} ${blackdirs}
 
 check-types: venv ## Check for type issues with mypy
 	# todo: add typing stubs for libraries missing typing info
 	@. .venv/bin/activate && ${env} python3 -m mypy --check ${pysrcdirs}
 
+isort: venv
+	@. .venv/bin/activate && ${env} python3 -m isort ${pysrcdirs}
+
 fix: venv ## Automatically fix style issues
 	# @. .venv/bin/activate && ${env} python3 -m isort ${pysrcdirs}
 
-	@. .venv/bin/activate && ${env} python3 -m black ${pysrcdirs}
+	@. .venv/bin/activate && ${env} python3 -m black ${pysrcdirs} ${blackdirs}
 
 	# autoflake removes unused imports and unused variables from Python code. It makes use of pyflakes to do this.
-	@. .venv/bin/activate && ${env} python3 -m autoflake -ri --remove-all-unused-imports ${pysrcdirs}
+	@. .venv/bin/activate && ${env} python3 -m autoflake -ri --remove-all-unused-imports ${pysrcdirs} ${blackdirs}
 	${MAKE} check
 
 audit: venv ## Run security audit
@@ -58,8 +64,10 @@ audit: venv ## Run security audit
 lint: venv  ## Do basic linting
 	@. .venv/bin/activate && ${env} pylint ${pysrcdirs}
 
-example: venv  ## Runs example scripts against local services instead of tests
-	@. .venv/bin/activate && ${env} python3 example_eu_signing.py
+examples: venv  ## Runs example scripts against local services instead of tests
+	@. .venv/bin/activate && ${env} python3 -m test_scripts.full_end_to_end_test_dynamic
+	@. .venv/bin/activate && ${env} python3 -m test_scripts.example_eu_signing
+
 
 valid: venv
 	${MAKE} fix
@@ -76,6 +84,10 @@ pip-compile: ## synchronizes the .venv with the state of requirements.txt
 	. .venv/bin/activate && ${env} python3 -m piptools compile requirements.in
 	. .venv/bin/activate && ${env} python3 -m piptools compile requirements-dev.in
 
+pip-upgrade: ## synchronizes the .venv with the state of requirements.txt
+	. .venv/bin/activate && ${env} python3 -m piptools compile --upgrade requirements.in
+	. .venv/bin/activate && ${env} python3 -m piptools compile --upgrade requirements-dev.in
+
 pip-sync: ## synchronizes the .venv with the state of requirements.txt
 	. .venv/bin/activate && ${env} python3 -m piptools sync requirements.txt
 
@@ -83,7 +95,10 @@ pip-sync-dev: ## synchronizes the .venv with the state of requirements.txt
 	. .venv/bin/activate && ${env} python3 -m piptools sync requirements.txt requirements-dev.txt
 
 run: venv
-	. .venv/bin/activate && ${env} python3 -m uvicorn api.app:app --reload
+	. .venv/bin/activate && ${env} python3 -m uvicorn api.app:app --reload --port ${port}
+
+run-mock: venv
+	. .venv/bin/activate && ${env} python3 -m uvicorn api.mock:app --reload --port ${mockport}
 
 
 docs: venv

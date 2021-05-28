@@ -6,10 +6,10 @@ from typing import Dict, List, Tuple
 import requests
 from unidecode import unidecode
 
+from api.constants import INGE4_ROOT
 from api.enrichment.sbvz_api.models import Persoon
 from api.enrichment.sbvz_api.sbvz import BSNOpvragenService
 from api.settings import settings
-from api.constants import INGE4_ROOT
 
 
 def sbvz_pii_service_call(bsn: str):
@@ -66,9 +66,9 @@ def call_app_step_1(bsn: str) -> Tuple[List[str], Dict[str, str]]:
             return errors, {}
     except requests.RequestException:
         return ["Network error accessing SBVZ service"], {}
-    except Exception:  # pylint: disable=broad-except
+    except Exception as err:  # pylint: disable=broad-except
         # Any other error such as json decode errors and such
-        return ["Error handing response from SBVZ service"], {}
+        return [repr(err)], {}
 
     all_names: str = resultaat_list["Voornamen"].Werkelijk
     last_name: str = resultaat_list["Geslachtsnaam"].Werkelijk

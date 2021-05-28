@@ -45,7 +45,7 @@ Generic eligibility methods used in checking eligibility in signing services.
 import logging
 from typing import List
 
-from api.models import OriginOfProof, StatementOfVaccination, vaccination, recovery  # , test
+from api.models import OriginOfProof, StatementOfVaccination, recovery, vaccination  # , test
 
 HPK_ASTRAZENECA = 2925508
 HPK_PFIZER = 2924528

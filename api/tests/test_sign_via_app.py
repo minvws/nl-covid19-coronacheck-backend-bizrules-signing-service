@@ -10,6 +10,7 @@ from api.app import app
 from api.settings import settings
 from api.utils import read_file
 
+
 # todo: add unhappy testcases to hit all the ways this endpoint can fail
 # the following valid values for encrypted bsn might be usefull for this
 # encrypted_bsn = b'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzaPbokkPZ6D0lY1Bxh3dvddaDny3RissjxQ=='
@@ -17,11 +18,11 @@ from api.utils import read_file
 @freeze_time("2020-02-02")
 def test_sign_via_app_step_1(requests_mock, current_path, mocker):
     requests_mock.post(
-        url="https://raadplegen.sbv-z.nl/cibg.sbv.testtool.webservice.dec14/opvragenpersoonsgegevens.asmx",
+        url="http://localhost:8001/cibg.sbv.testtool.webservice.dec14/opvragenpersoonsgegevens.asmx",
         text=read_file(f"{current_path}/sbvz/direct_match_correct_response.xml"),
     )
     requests_mock.get(
-        url="https://tvs.acc.coronacheck.nl/bsn_attribute"
+        url=f"{settings.INGE6_BSN_RETRIEVAL_URL}"
         "?at=482hfh28hfh298h3f9ehf2h09f2h908f2p3"
         "&nonce=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz",
         text="MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzpEliQZGIthee86WIg0w599yMlSzcg8ojyA==",

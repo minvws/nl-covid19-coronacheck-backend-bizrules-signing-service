@@ -30,6 +30,8 @@ click==7.1.2
     # via
     #   pip-tools
     #   uvicorn
+coloredlogs==15.0
+    # via -r requirements.in
 cryptography==3.4.7
     # via -r requirements.in
 defusedxml==0.7.1
@@ -60,6 +62,8 @@ hiredis==2.0.0
     # via -r requirements.in
 httptools==0.1.2
     # via uvicorn
+humanfriendly==9.1
+    # via coloredlogs
 idna==2.10
     # via
     #   email-validator
@@ -74,7 +78,7 @@ json5==0.9.5
     # via -r requirements.in
 lxml==4.6.3
     # via zeep
-markupsafe==2.0.0
+markupsafe==2.0.1
     # via jinja2
 orjson==3.5.2
     # via fastapi
@@ -141,7 +145,7 @@ ujson==4.0.2
     # via fastapi
 unidecode==1.2.0
     # via -r requirements.in
-urllib3==1.26.4
+urllib3==1.26.5
     # via requests
 uvicorn[standard]==0.13.4
     # via fastapi

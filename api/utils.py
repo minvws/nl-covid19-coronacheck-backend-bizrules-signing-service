@@ -1,13 +1,14 @@
 import json
-from datetime import datetime, date
-from typing import List, Union
+from datetime import date, datetime
 from pathlib import Path
+from typing import List, Union
+from uuid import UUID
 
 import requests
+from nacl.encoding import Base64Encoder
+from nacl.public import PrivateKey, PublicKey
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
-from nacl.public import PrivateKey, PublicKey
-from nacl.encoding import Base64Encoder
 
 
 def read_nacl_public_key(path: Union[str, Path]) -> PublicKey:
@@ -20,20 +21,24 @@ def read_nacl_private_key(path: Union[str, Path]) -> PrivateKey:
     return PrivateKey(key_bytes, encoder=Base64Encoder)
 
 
-def defaultconverter(something):
-    if isinstance(something, datetime):
-        return something.isoformat()
-
-    if isinstance(something, date):
-        return something.isoformat()
-
-    # The json parser will raise a conversion error.
-    return something
-
-
 def read_file(path: Union[str, Path], encoding: str = "UTF-8") -> str:
     with open(path, "rb") as file_handle:
         return file_handle.read().decode(encoding)
+
+
+iso_formattable = (date, datetime)
+str_formattable = (UUID,)
+
+
+def defaultconverter(something):
+    if isinstance(something, iso_formattable):
+        return something.isoformat()
+
+    if isinstance(something, str_formattable):
+        return str(something)
+
+    # Use json fallback method
+    raise TypeError(f"Object of type {something.__class__.__name__} is not JSON serializable")
 
 
 def request_post_with_retries(

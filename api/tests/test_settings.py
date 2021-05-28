@@ -1,4 +1,8 @@
+import re
+
+import pytest
 from nacl.encoding import Base64Encoder
+
 from api.settings import RedisSettings, settings_factory
 
 
@@ -22,9 +26,9 @@ def test_redis_settings_test(current_path):
     assert redis_settings.retry_on_timeout is True
 
 
-def test_settings_factory(root_path):
-    settings = settings_factory(root_path.joinpath("inge4_development.env"))
-    assert settings.SECRETS_FOLDER == "api/tests/secrets"
+def test_settings_factory(current_path, root_path):
+    settings = settings_factory(current_path.joinpath("secrets/inge4_test.env"))
+    assert settings.SECRETS_FOLDER == root_path.joinpath("api/tests/secrets")
     assert settings.EU_INTERNATIONAL_SIGNING_URL == "http://localhost:4002/get_credential"
     assert (
         settings.INGE6_NACL_PUBLIC_KEY.encode()
@@ -33,3 +37,11 @@ def test_settings_factory(root_path):
     assert (
         settings.INGE6_NACL_PUBLIC_KEY.encode(encoder=Base64Encoder) == b"0NaTaljkNrHuLP/CbWQk45f4jf25Q5dxcuIA6bKyLX8="
     )
+
+
+def test_settings_factory2(current_path):
+    with pytest.raises(
+        FileNotFoundError,
+        match=re.escape("[Errno 2] No such file or directory: '/etc/secrets/vaccinationproviders.json5'"),
+    ):
+        settings_factory(current_path.joinpath("secrets/inge4_test_fail.env"))

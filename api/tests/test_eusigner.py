@@ -2,7 +2,7 @@ from datetime import datetime
 
 from freezegun import freeze_time
 
-from api.models import StatementOfVaccination, EUGreenCard
+from api.models import EUGreenCard, StatementOfVaccination
 from api.settings import settings
 from api.signers.eu_international import sign
 
@@ -63,7 +63,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
 
     eu_request = StatementOfVaccination(**vaccination_events).toEuropeanOnlineSigningRequest()
     assert eu_request.dict() == {
-        "dob": "1970-01-01",
+        "dob": datetime(1970, 1, 1).date(),
         "nam": {"fn": "Akkersloot", "fnt": "HERMAN", "gn": "Akkersloot", "gnt": "AKKERSLOOT"},
         "r": [
             {
@@ -118,7 +118,12 @@ def test_eusign(requests_mock):
     vaccination = EUGreenCard(
         **{
             "origins": [
-                {"type": "vaccination", "eventTime": "2021-02-01", "expirationTime": "2020-07-31T00:00:00+00:00"}
+                {
+                    "type": "vaccination",
+                    "eventTime": "2021-02-01",
+                    "expirationTime": "2020-07-31T00:00:00+00:00",
+                    "validFrom": "2021-02-01",
+                }
             ],
             "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
         }
@@ -126,7 +131,14 @@ def test_eusign(requests_mock):
 
     recovery = EUGreenCard(
         **{
-            "origins": [{"type": "recovery", "eventTime": "2021-04-01", "expirationTime": "2020-07-31T00:00:00+00:00"}],
+            "origins": [
+                {
+                    "type": "recovery",
+                    "eventTime": "2021-04-01",
+                    "expirationTime": "2020-07-31T00:00:00+00:00",
+                    "validFrom": "2021-04-01",
+                }
+            ],
             "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
         }
     )
@@ -134,7 +146,12 @@ def test_eusign(requests_mock):
     test = EUGreenCard(
         **{
             "origins": [
-                {"type": "test", "eventTime": "2021-03-01T00:00:00", "expirationTime": "2020-07-31T00:00:00+00:00"}
+                {
+                    "type": "test",
+                    "eventTime": "2021-03-01T00:00:00",
+                    "expirationTime": "2020-07-31T00:00:00+00:00",
+                    "validFrom": "2021-03-01T00:00:00",
+                }
             ],
             "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
         }

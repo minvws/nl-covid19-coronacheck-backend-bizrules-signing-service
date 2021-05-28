@@ -1,19 +1,22 @@
 # pylint: disable=invalid-name,too-few-public-methods
 
+import logging
 import pathlib
 from typing import Any, Dict, List, Optional
 
 import json5
-from pydantic import BaseSettings, Field, AnyHttpUrl
 from nacl.public import PrivateKey, PublicKey
+from pydantic import AnyHttpUrl, BaseSettings, Field
 
-from api.constants import INGE4_ROOT, ENV_FILE
-from api.utils import read_file, read_nacl_public_key, read_nacl_private_key
+from api.constants import ENV_FILE, INGE4_ROOT
+from api.utils import read_file, read_nacl_private_key, read_nacl_public_key
+
+log = logging.getLogger(__package__)
 
 
 class AppSettings(BaseSettings):
     # pylint: disable=too-many-instance-attributes
-    SECRETS_FOLDER: str = ""
+    SECRETS_FOLDER: pathlib.Path = Field("")
     DYNAMIC_FLOW_VACCINATION_DATABASE_FILENAME: str = ""
     DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME: str = ""
     SBVZ_CERT_FILENAME: str = ""
@@ -33,6 +36,7 @@ class AppSettings(BaseSettings):
     EU_INTERNATIONAL_SIGNING_URL: AnyHttpUrl = Field()
 
     INGE6_BSN_RETRIEVAL_URL: AnyHttpUrl = Field()
+    MOCK_MODE: bool = False
 
     NONCE_BYTE_SECURITY: int = 256
     EXPIRATION_TIME_IN_SECONDS: int = 60
@@ -85,27 +89,33 @@ def settings_factory(env_file: pathlib.Path) -> AppSettings:
 
     _settings = AppSettings(_env_file=env_file)
 
+    _settings.SECRETS_FOLDER = INGE4_ROOT.joinpath(_settings.SECRETS_FOLDER)
+
     _settings.APP_STEP_1_VACCINATION_PROVIDERS = json5.loads(
-        read_file(
-            INGE4_ROOT.joinpath(f"{_settings.SECRETS_FOLDER}/{_settings.DYNAMIC_FLOW_VACCINATION_DATABASE_FILENAME}")
-        )
+        read_file(f"{_settings.SECRETS_FOLDER}/{_settings.DYNAMIC_FLOW_VACCINATION_DATABASE_FILENAME}")
     )
 
     _settings.APP_STEP_1_JWT_PRIVATE_KEY = read_file(
-        INGE4_ROOT.joinpath(f"{_settings.SECRETS_FOLDER}/{_settings.DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME}")
+        f"{_settings.SECRETS_FOLDER}/{_settings.DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME}"
     )
-    _settings.SBVZ_CERT = read_file(INGE4_ROOT.joinpath(f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}"))
-    # _settings.SBVZ_CERT = f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}"
+    # _settings.SBVZ_CERT = read_file(INGE4_ROOT.joinpath(f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}"))
+    _settings.SBVZ_CERT = f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}"
 
     _settings.INGE4_NACL_PRIVATE_KEY = read_nacl_private_key(
-        f"{_settings.SECRETS_FOLDER}/{_settings.INGE4_NACL_PRIVATE_KEY_FILE:}"
+        f"{_settings.SECRETS_FOLDER}/{_settings.INGE4_NACL_PRIVATE_KEY_FILE}"
     )
     _settings.INGE4_NACL_PUBLIC_KEY = read_nacl_public_key(
-        f"{_settings.SECRETS_FOLDER}/{_settings.INGE4_NACL_PUBLIC_KEY_FILE:}"
+        f"{_settings.SECRETS_FOLDER}/{_settings.INGE4_NACL_PUBLIC_KEY_FILE}"
     )
     _settings.INGE6_NACL_PUBLIC_KEY = read_nacl_public_key(
-        f"{_settings.SECRETS_FOLDER}/{_settings.INGE6_NACL_PUBLIC_KEY_FILE:}"
+        f"{_settings.SECRETS_FOLDER}/{_settings.INGE6_NACL_PUBLIC_KEY_FILE}"
     )
+    if _settings.MOCK_MODE:
+        # add cool rainbow effect for dramatic impact :)
+        log.debug("MOCK_MODE=True this should never be used in production environments!")
+        log.info("MOCK_MODE=True this should never be used in production environments!")
+        log.warning("MOCK_MODE=True this should never be used in production environments!")
+        log.error("MOCK_MODE=True this should never be used in production environments!")
 
     return _settings
 
