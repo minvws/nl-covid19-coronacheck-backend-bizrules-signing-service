@@ -142,7 +142,7 @@
   </wsdl:binding>
   <wsdl:service name="OpvragenPersoonsgegevens">
     <wsdl:port name="OpvragenPersoonsgegevensSoap" binding="tns:OpvragenPersoonsgegevensSoap">
-      <soap:address location="https://raadplegen.sbv-z.nl/cibg.sbv.testtool.webservice.dec14/opvragenpersoonsgegevens.asmx" />
+      <soap:address location="https://raadplegen-acc.sbv-z.nl/cibg.sbv.testtool.webservice.dec14/opvragenpersoonsgegevens.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

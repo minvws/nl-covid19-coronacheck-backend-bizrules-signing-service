@@ -169,7 +169,7 @@
   </wsdl:binding>
   <wsdl:service name="OpvragenVerifieren">
     <wsdl:port name="OpvragenVerifierenSoap" binding="tns:OpvragenVerifierenSoap">
-      <soap:address location="https://raadplegen.sbv-z.nl/cibg.sbv.testtool.webservice.dec14/opvragenverifieren.asmx" />
+      <soap:address location="https://raadplegen-acc.sbv-z.nl/cibg.sbv.testtool.webservice.dec14/opvragenverifieren.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
