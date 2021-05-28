@@ -20,3 +20,4 @@ requests-mock
 freezegun
 plantuml
 ipython
+vulture

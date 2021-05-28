@@ -42,18 +42,6 @@ def sign(data: StepTwoData, prepare_issue_message: str) -> Optional[DomesticGree
     # https://github.com/minvws/nl-covid19-coronacheck-idemix-private/blob/next/issuer/issuer.go
     # en de verschillende origins die bedenken we zelf maar sturen we niet mee in de attributes.
 
-    """
-    {
-        "isSpecimen": "0",
-        "stripType": StripType.APP_STRIP,
-        "validFrom": datetime.now(),
-        "validForHours": "24",  # TODO: This should be a configuration value
-        "firstNameInitial": data.events.holder.first_name_initial,
-        "lastNameInitial": data.events.holder.last_name_initial,
-        "birthDay": str(data.events.holder.birthDate.day),
-        "birthMonth": str(data.events.holder.birthDate.month),
-    }
-    """
     attributes = [
         {
             "isSpecimen": "0",

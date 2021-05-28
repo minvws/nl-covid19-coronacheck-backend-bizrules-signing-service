@@ -183,6 +183,7 @@ toml==0.10.2
     #   coverage
     #   pylint
     #   pytest
+    #   vulture
 traitlets==5.0.5
     # via
     #   ipython
@@ -197,6 +198,8 @@ urllib3==1.26.5
     # via
     #   -c requirements.txt
     #   requests
+vulture==2.3
+    # via -r requirements-dev.in
 wcwidth==0.2.5
     # via prompt-toolkit
 wrapt==1.12.1

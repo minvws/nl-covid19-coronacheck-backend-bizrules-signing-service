@@ -34,8 +34,6 @@ class SessionStore:
         pipe.get(key)
         pipe.delete(key)
         message, _ = pipe.execute()
-        if message is None:
-            return None
         if isinstance(message, bytes):
             return message
         return None

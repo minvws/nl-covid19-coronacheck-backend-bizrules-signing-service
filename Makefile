@@ -42,7 +42,6 @@ check: venv ## Check for source issues
 	@. .venv/bin/activate && ${env} python3 -m black --check ${pysrcdirs} ${blackdirs}
 
 check-types: venv ## Check for type issues with mypy
-	# todo: add typing stubs for libraries missing typing info
 	@. .venv/bin/activate && ${env} python3 -m mypy --check ${pysrcdirs}
 
 isort: venv
@@ -56,6 +55,9 @@ fix: venv ## Automatically fix style issues
 	# autoflake removes unused imports and unused variables from Python code. It makes use of pyflakes to do this.
 	@. .venv/bin/activate && ${env} python3 -m autoflake -ri --remove-all-unused-imports ${pysrcdirs} ${blackdirs}
 	${MAKE} check
+
+vulture: venv
+	@. .venv/bin/activate && ${env} python3 -m vulture ${pysrcdirs} --min-confidence 100
 
 audit: venv ## Run security audit
     # Performs security audits, todo: should be performed in github actions as well, any should break the build.
@@ -71,10 +73,10 @@ examples: venv  ## Runs example scripts against local services instead of tests
 
 # isort and black linting have different ideas on correctness. isort is cleaner, and most of that is kept by black.
 .PHONY: valid
-valid: venv isort fix lint check-types audit test test-report
+valid: venv vulture isort fix lint check-types audit test test-report
 
 .PHONY: check-all
-check-all: check lint audit check-types test
+check-all: vulture check lint audit check-types test
 
 pip-compile: ## synchronizes the .venv with the state of requirements.txt
 	. .venv/bin/activate && ${env} python3 -m piptools compile requirements.in

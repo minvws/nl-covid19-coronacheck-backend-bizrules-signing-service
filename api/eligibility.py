@@ -1,47 +1,3 @@
-"""
-Generic eligibility methods used in checking eligibility in signing services.
-
-{
-    "protocolVersion": "3.0",
-    "providerIdentifier": "XXX",
-    "status": "complete", // This refers to the data-completeness, not vaccination status.
-    "holder": {
-        "identityHash": "", // The identity-hash belonging to this person.
-        "firstName": "",
-        "lastName": "",
-        "birthDate": "1970-01-01" // ISO 8601
-    },
-    "events": [
-        {
-            "type": "vaccination",
-            "unique": "ee5afb32-3ef5-4fdf-94e3-e61b752dbed9",
-            "data": {
-                "date": "2021-01-01",
-                "hpkCode": "2924528",  // If available: type/brand can be left blank.
-                "type": "C19-mRNA",
-                "brand": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
-                "batchNumber": "EW2243",
-                "administeringCenter": "" // Can be left blank if unknown
-                "country": "NLD", // ISO 3166-1
-            }
-        },
-        {
-            "type": "vaccination",
-            "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
-            "data": {
-                "date": "2021-01-01",
-                "hpkCode": "2924528",  // If available: type/brand can be left blank.
-                "type": "C19-mRNA",
-                "brand": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
-                "batchNumbers": ["EW2243","ER9480"], // Optional
-                "administeringCenter": "", // Can be left blank if unknown
-                "country": "NLD" // ISO 3166-1
-            }
-        }
-    ]
-}
-"""
-
 import logging
 from typing import List
 
@@ -68,6 +24,7 @@ def is_eligible_for_eu_signing(data: StatementOfVaccination) -> str:
     raise NotImplementedError
 
 
+# todo: this will be rewritten to origins and timestamps.
 def is_eligible_for_domestic_signing(data: StatementOfVaccination) -> OriginOfProof:
     """
     The vaccination passport rules change on a day to day basis. What you see here, and below may be

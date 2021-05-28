@@ -65,7 +65,6 @@ async def app_prepare_issue():
     return await get_prepare_issue()
 
 
-# https://api-ct.bananenhalen.nl/docs/sequence-diagram-event-to-proof.png
 @app.post("/app/sign/", response_model=MobileAppProofOfVaccination)
 async def sign_via_app_step_2(data: StepTwoData):
     # todo: check CMS signature (where are those in the message?)
