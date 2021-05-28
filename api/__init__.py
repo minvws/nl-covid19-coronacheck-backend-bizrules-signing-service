@@ -2,7 +2,6 @@ import os
 import pathlib
 from logging import config
 
-import coloredlogs
 import yaml
 
 inge4_root = pathlib.Path(__file__).parent.parent.absolute()
@@ -13,5 +12,3 @@ with open(
     else inge4_root.joinpath("inge4_logging.yaml")
 ) as f:
     config.dictConfig(yaml.safe_load(f))
-
-coloredlogs.install()

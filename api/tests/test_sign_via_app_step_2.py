@@ -85,7 +85,6 @@ def test_sign_via_app_step_2(requests_mock):
     )
 
     response_data = response.json()
-    print(response_data)
 
     # todo: implement domestic signer.
     assert response_data == {

@@ -28,4 +28,4 @@ pytz
 redis
 hiredis
 
-coloredlogs
+colorlog
