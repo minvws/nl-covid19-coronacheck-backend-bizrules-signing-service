@@ -2,7 +2,7 @@ from datetime import datetime
 
 from freezegun import freeze_time
 
-from api.models import StatementOfVaccination, EUGreenCard
+from api.models import EUGreenCard, StatementOfVaccination
 from api.settings import settings
 from api.signers.eu_international import sign
 

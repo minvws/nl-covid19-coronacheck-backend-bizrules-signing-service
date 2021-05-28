@@ -1,6 +1,6 @@
 import json
 import sys
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from fastapi import FastAPI, HTTPException
@@ -8,19 +8,19 @@ from fastapi import FastAPI, HTTPException
 from api.eligibility import is_eligible_for_domestic_signing
 from api.models import (
     BSNRetrievalToken,
+    DomesticGreenCard,
     DomesticStaticQrResponse,
+    EUGreenCard,
     MobileAppProofOfVaccination,
     PaperProofOfVaccination,
     PrepareIssueMessage,
     StatementOfVaccination,
     StepTwoData,
-    EUGreenCard,
-    DomesticGreenCard,
 )
 from api.requesters import mobile_app_step_1
 from api.requesters.mobile_app_prepare_issue import get_prepare_issue
-from api.signers import eu_international, nl_domestic_dynamic, nl_domestic_static
 from api.session_store import session_store
+from api.signers import eu_international, nl_domestic_dynamic, nl_domestic_static
 
 app = FastAPI()
 

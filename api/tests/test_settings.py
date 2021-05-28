@@ -2,6 +2,7 @@ import re
 
 import pytest
 from nacl.encoding import Base64Encoder
+
 from api.settings import RedisSettings, settings_factory
 
 

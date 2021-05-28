@@ -9,13 +9,14 @@ from typing import Any, Dict, List
 import jwt
 import pytz
 from cryptography.hazmat.primitives import hashes, hmac
+from fastapi import HTTPException
+from nacl.encoding import Base64Encoder
 from nacl.public import Box, PrivateKey, PublicKey
 from nacl.utils import random
-from nacl.encoding import Base64Encoder
-from fastapi import HTTPException
+
 from api.enrichment import sbvz
-from api.settings import settings
 from api.models import BSNRetrievalToken
+from api.settings import settings
 from api.utils import request_get_with_retries
 
 log = logging.getLogger(__package__)

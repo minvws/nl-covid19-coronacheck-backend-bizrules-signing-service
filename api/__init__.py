@@ -1,8 +1,8 @@
 import os
 import pathlib
 from logging import config
-import coloredlogs
 
+import coloredlogs
 import yaml
 
 inge4_root = pathlib.Path(__file__).parent.parent.absolute()

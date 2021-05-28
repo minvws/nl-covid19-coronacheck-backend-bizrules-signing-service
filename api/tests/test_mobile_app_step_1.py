@@ -1,4 +1,5 @@
 import pytest
+
 from api.requesters.mobile_app_step_1 import hmac256
 
 hash_data = [

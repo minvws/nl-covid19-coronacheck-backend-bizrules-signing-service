@@ -4,7 +4,7 @@
 # Automatic documentation: http://localhost:8000/redoc or http://localhost:8000/docs
 import re
 import uuid
-from datetime import datetime, date
+from datetime import date, datetime
 from enum import Enum
 from typing import List, Optional, Union
 from uuid import UUID

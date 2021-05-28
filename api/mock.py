@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Response
 
-from api.utils import read_file
 from api.constants import TESTS_DIR
+from api.utils import read_file
 
 app = FastAPI()
 

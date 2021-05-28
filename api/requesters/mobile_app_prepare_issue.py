@@ -1,9 +1,9 @@
 import base64
 
 from api.models import PrepareIssueMessage
+from api.session_store import session_store
 from api.settings import settings
 from api.utils import request_post_with_retries
-from api.session_store import session_store
 
 
 async def get_prepare_issue() -> PrepareIssueMessage:

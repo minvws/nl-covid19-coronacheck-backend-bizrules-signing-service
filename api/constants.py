@@ -1,5 +1,5 @@
-from os import path
 import pathlib
+from os import path
 
 INGE4_ROOT = pathlib.Path(__file__).parent.parent.absolute()
 TESTS_DIR = pathlib.Path(__file__).parent.absolute().joinpath("tests")

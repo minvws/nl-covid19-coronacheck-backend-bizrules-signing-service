@@ -5,7 +5,7 @@ from typing import List
 
 import pytz
 
-from api.models import StatementOfVaccination, MessageToEUSigner, EUGreenCard
+from api.models import EUGreenCard, MessageToEUSigner, StatementOfVaccination
 from api.settings import settings
 from api.utils import request_post_with_retries
 

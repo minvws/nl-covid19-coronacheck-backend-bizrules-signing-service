@@ -10,6 +10,7 @@ from api.app import app
 from api.settings import settings
 from api.utils import read_file
 
+
 # todo: add unhappy testcases to hit all the ways this endpoint can fail
 # the following valid values for encrypted bsn might be usefull for this
 # encrypted_bsn = b'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzaPbokkPZ6D0lY1Bxh3dvddaDny3RissjxQ=='

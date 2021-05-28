@@ -1,7 +1,9 @@
 from typing import Dict, Optional, Union
-from uuid import uuid4, UUID
+from uuid import UUID, uuid4
+
 import redis
-from api.settings import settings, redis_settings, AppSettings, RedisSettings
+
+from api.settings import AppSettings, RedisSettings, redis_settings, settings
 
 
 class SessionStore:

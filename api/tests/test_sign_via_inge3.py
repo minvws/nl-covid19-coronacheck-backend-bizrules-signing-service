@@ -85,8 +85,10 @@ def test_sign_via_inge3(requests_mock):
     signatures: PaperProofOfVaccination = PaperProofOfVaccination(**response.json())
     # 108 QR codes.
     assert len(signatures.domesticProof) == 108
-    assert signatures.domesticProof[0] == DomesticStaticQrResponse(**signing_response_data)
-    assert signatures.euProofs[0] == EUGreenCard(
+    assert signatures.domesticProof[0] == DomesticStaticQrResponse(  # pylint: disable=unsubscriptable-object
+        **signing_response_data
+    )
+    assert signatures.euProofs[0] == EUGreenCard(  # pylint: disable=unsubscriptable-object
         **{
             "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%I0/IVB58WA",
             "origins": [

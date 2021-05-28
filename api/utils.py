@@ -1,14 +1,14 @@
 import json
-from datetime import datetime, date
-from typing import List, Union
+from datetime import date, datetime
 from pathlib import Path
+from typing import List, Union
 from uuid import UUID
 
 import requests
+from nacl.encoding import Base64Encoder
+from nacl.public import PrivateKey, PublicKey
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
-from nacl.public import PrivateKey, PublicKey
-from nacl.encoding import Base64Encoder
 
 
 def read_nacl_public_key(path: Union[str, Path]) -> PublicKey:

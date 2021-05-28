@@ -6,10 +6,10 @@ from typing import Dict, List, Tuple
 import requests
 from unidecode import unidecode
 
+from api.constants import INGE4_ROOT
 from api.enrichment.sbvz_api.models import Persoon
 from api.enrichment.sbvz_api.sbvz import BSNOpvragenService
 from api.settings import settings
-from api.constants import INGE4_ROOT
 
 
 def sbvz_pii_service_call(bsn: str):

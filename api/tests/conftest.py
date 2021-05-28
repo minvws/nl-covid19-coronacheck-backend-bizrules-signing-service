@@ -2,9 +2,9 @@
 # pylint: disable=W0212
 import pytest
 from pytest_redis.factories import redis_noproc
+
 from api.constants import INGE4_ROOT, TESTS_DIR
 from api.settings import settings
-
 
 if settings.USE_PYTEST_REDIS:
 

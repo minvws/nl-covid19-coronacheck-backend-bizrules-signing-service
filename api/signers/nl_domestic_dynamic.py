@@ -4,7 +4,7 @@ import json
 from datetime import datetime, timedelta
 from typing import Optional
 
-from api.models import StepTwoData, DomesticGreenCard, GreenCardOrigin, IssueMessage, StripType, OriginOfProof
+from api.models import DomesticGreenCard, GreenCardOrigin, IssueMessage, OriginOfProof, StepTwoData, StripType
 from api.settings import settings
 from api.utils import request_post_with_retries
 

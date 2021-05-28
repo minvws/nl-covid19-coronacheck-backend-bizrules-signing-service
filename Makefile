@@ -45,6 +45,9 @@ check-types: venv ## Check for type issues with mypy
 	# todo: add typing stubs for libraries missing typing info
 	@. .venv/bin/activate && ${env} python3 -m mypy --check ${pysrcdirs}
 
+isort: venv
+	@. .venv/bin/activate && ${env} python3 -m isort ${pysrcdirs}
+
 fix: venv ## Automatically fix style issues
 	# @. .venv/bin/activate && ${env} python3 -m isort ${pysrcdirs}
 
