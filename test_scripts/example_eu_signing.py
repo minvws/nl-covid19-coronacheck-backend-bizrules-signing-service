@@ -1,7 +1,11 @@
+import logging
+
 from api.models import StatementOfVaccination, StepTwoData
 from api.signers.eu_international import sign as eu_sign
 from api.signers.nl_domestic_dynamic import sign as nl_sign
 from api.tests.test_eusigner import vaccination_events
+
+log = logging.getLogger(__package__)
 
 """
 How to get this to work:
@@ -206,7 +210,7 @@ if __name__ == "__main__":
         prepare_issue_message,
     )
 
-    print(data)
+    log.info(data)
 
     data = eu_sign(StatementOfVaccination(**vaccination_events))
-    print(data)
+    log.info(data)

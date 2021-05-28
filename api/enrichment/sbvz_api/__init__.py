@@ -44,17 +44,8 @@ class AbstractSOAPService(AbstractService, ABC):
         self.init_service()
 
     def call_api(self, message: Union[ComplexType, AnySimpleType]) -> Any:
+        # For debugging, set debug level for zeep in config to debug.
         return self.service(message)
-
-    def call_api_debug(self, message: Union[ComplexType, AnySimpleType]) -> Any:
-        # This prints the result of a service. Do _not_ use in production, only during development.
-        # You can use this to retrieve XML messages for testcases. Such as test data.
-        with self.client.settings(raw_response=True):
-            # Security: defusedxml.defuse_stdlib() is called to patch standard libraries
-            result = self.service(message)
-            print(minidom.parseString(result.content).toprettyxml(indent="  "))
-
-        return self.call_api(message)
 
 
 class AbstractSecureSOAPService(AbstractSOAPService, ABC):

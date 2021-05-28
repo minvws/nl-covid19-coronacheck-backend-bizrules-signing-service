@@ -35,6 +35,9 @@ loggers:
   # This application
   api:
     level: DEBUG
+  # end to end test
+  test_scripts:
+    level: DEBUG
   # SOAP messages, containing PII. Must be set to ERROR in production.
   zeep:
     level: DEBUG
