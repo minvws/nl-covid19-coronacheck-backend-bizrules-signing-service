@@ -61,19 +61,22 @@ Example / shipped settings are used below and can be changed in inge4_developmen
 Preferably by setting environment variables.
 
 ### Run the domestic signer
-# git clone https://github.com/minvws/nl-covid19-coronacheck-idemix-private/
-# add certs (todo, point to readme)
-# go run ./ server
-
+```
+git clone https://github.com/minvws/nl-covid19-coronacheck-idemix-private/
+add certs (todo, point to readme)
+go run ./ server
+```
 Assuming:
 DOMESTIC_NL_VWS_PREPARE_ISSUE_URL = http://localhost:4001/prepare_issue
 DOMESTIC_NL_VWS_ONLINE_SIGNING_URL = http://localhost:4001/issue
 
 
 ### Run the eu signer:
-# git clone https://github.com/minvws/nl-covid19-coronacheck-hcert-private
-# add certs (todo, point to readme)
-# go run ./ server
+```
+git clone https://github.com/minvws/nl-covid19-coronacheck-hcert-private
+add certs (todo, point to readme)
+go run ./ server
+```
 
 Assuming:
 EU_INTERNATIONAL_SIGNING_URL = http://localhost:4002/get_credential
