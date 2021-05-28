@@ -1,5 +1,3 @@
-# pylint: disable=duplicate-code
-# Messages are long and thus might be duplicates quickly.
 import json
 from datetime import datetime, timedelta
 from typing import Optional
@@ -12,35 +10,22 @@ from api.utils import request_post_with_retries
 
 def sign(data: StepTwoData, prepare_issue_message: str) -> Optional[DomesticGreenCard]:
     """
-    Signer repo: https://github.com/minvws/nl-covid19-coronacheck-idemix-private/tree/next
-    go run ./ --help
+    This signer talks to: https://github.com/minvws/nl-covid19-coronacheck-hcert-private
 
-    Example prepare_issue:
-    http://localhost:4001/prepare_issue
+    Example prepare_issue_message:
     {"issuerPkId":"TST-KEY-01","issuerNonce":"j6n+P9UPWS+2+C+MsNVlVw==","credentialAmount":28}
 
-    http://localhost:4001/issue
-
-    StatementOfVaccination
-    prepare_issue_message
-
-    Todo: it's unclear if there will be one or more requests, probably covering 10 days of 24 hour codes.
-    Todo: implement this for multiple days. How many, is that a param / config variable?
+    Todo: convert events to origins and requests with sample times.
+        some example rules are in is_eligible_for_domestic_signing.
 
     :param data:
     :return:
     """
 
-    # Todo: there will be a call that converts events into origins and signing requests.
-    # todo: afhankelijk van regels moeten we bepalen welke origins en welke sample times er zijn.
-    # events reduceren tot origins met sampletimes.
-    # request_data = vaccination_event_data_to_signing_data(data.events)  # pylint: disable=unreachable
+    # Todo: this logic will be replaced, see above.
     eligible_because = is_eligible_for_domestic_signing(data.events)
     if not eligible_because:
         return None
-
-    # https://github.com/minvws/nl-covid19-coronacheck-idemix-private/blob/next/issuer/issuer.go
-    # en de verschillende origins die bedenken we zelf maar sturen we niet mee in de attributes.
 
     attributes = [
         {
