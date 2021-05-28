@@ -74,7 +74,7 @@ json5==0.9.5
     # via -r requirements.in
 lxml==4.6.3
     # via zeep
-markupsafe==2.0.0
+markupsafe==2.0.1
     # via jinja2
 orjson==3.5.2
     # via fastapi
@@ -141,7 +141,7 @@ ujson==4.0.2
     # via fastapi
 unidecode==1.2.0
     # via -r requirements.in
-urllib3==1.26.4
+urllib3==1.26.5
     # via requests
 uvicorn[standard]==0.13.4
     # via fastapi
