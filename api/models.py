@@ -13,6 +13,12 @@ from pydantic import BaseModel, Field
 from unidecode import unidecode
 
 
+class UnomiEventToken(BaseModel):
+    provider_identifier: str
+    unomi: str = Field(description="JWT containing unomi data: iss aud iat nbf exp and identity_hash.")
+    event: str = Field(description="JWT containing event data: same as unomi + nonce and encrypted_bsn.")
+
+
 class PrepareIssueMessage(BaseModel):
     stoken: UUID = Field(description="", example="a019e902-86a0-4b1d-bff0-5c89f3cfc4d9")
     prepareIssueMessage: str = Field(

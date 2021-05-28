@@ -15,6 +15,7 @@ from api.models import (
     PrepareIssueMessage,
     StatementOfVaccination,
     StepTwoData,
+    UnomiEventToken,
 )
 from api.requesters import mobile_app_step_1
 from api.requesters.mobile_app_prepare_issue import get_prepare_issue
@@ -43,13 +44,11 @@ async def health() -> Dict[str, Any]:
     }
 
 
-@app.post("/app/access_tokens/")
-async def sign_via_app_step_1(request: BSNRetrievalToken) -> List[Dict[str, Any]]:
+@app.post("/app/access_tokens/", response_model=List[UnomiEventToken])
+async def sign_via_app_step_1(request: BSNRetrievalToken) -> List[UnomiEventToken]:
     """
     Creates unomi events based on DigiD BSN retrieval token.
     .. image:: ./docs/sequence-diagram-unomi-events.png
-
-    Todo: add model for returned values so they are documented.
 
     :param request: BSNRetrievalToken
     :return:
