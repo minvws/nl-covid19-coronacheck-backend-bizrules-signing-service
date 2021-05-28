@@ -4,11 +4,14 @@ import pathlib
 from typing import Any, Dict, List, Optional
 
 import json5
+import logging
 from pydantic import BaseSettings, Field, AnyHttpUrl
 from nacl.public import PrivateKey, PublicKey
 
 from api.constants import INGE4_ROOT, ENV_FILE
 from api.utils import read_file, read_nacl_public_key, read_nacl_private_key
+
+log = logging.getLogger(__package__)
 
 
 class AppSettings(BaseSettings):
@@ -108,7 +111,11 @@ def settings_factory(env_file: pathlib.Path) -> AppSettings:
         f"{_settings.SECRETS_FOLDER}/{_settings.INGE6_NACL_PUBLIC_KEY_FILE}"
     )
     if _settings.MOCK_MODE:
-        print("Warning! MOCK_MODE=True this should never be used in production environments!!!")
+        # add cool rainbow effect for dramatic impact :)
+        log.debug("MOCK_MODE=True this should never be used in production environments!")
+        log.info("MOCK_MODE=True this should never be used in production environments!")
+        log.warning("MOCK_MODE=True this should never be used in production environments!")
+        log.error("MOCK_MODE=True this should never be used in production environments!")
 
     return _settings
 

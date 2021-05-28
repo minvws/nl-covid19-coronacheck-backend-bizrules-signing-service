@@ -30,6 +30,8 @@ click==7.1.2
     # via
     #   pip-tools
     #   uvicorn
+coloredlogs==15.0
+    # via -r requirements.in
 cryptography==3.4.7
     # via -r requirements.in
 defusedxml==0.7.1
@@ -60,6 +62,8 @@ hiredis==2.0.0
     # via -r requirements.in
 httptools==0.1.2
     # via uvicorn
+humanfriendly==9.1
+    # via coloredlogs
 idna==2.10
     # via
     #   email-validator

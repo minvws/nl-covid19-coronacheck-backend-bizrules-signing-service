@@ -1,26 +1,3 @@
-# this assumes that the domestic and eu signer are running on
-# DOMESTIC_NL_VWS_PREPARE_ISSUE_URL = http://localhost:4001/prepare_issue
-# DOMESTIC_NL_VWS_ONLINE_SIGNING_URL = http://localhost:4001/issue
-# EU_INTERNATIONAL_SIGNING_URL = http://localhost:4002/get_credential
-# the following is a public mock of inge6
-# INGE6_BSN_RETRIEVAL_URL = https://tvs-connect.acc.coronacheck.nl/bsn_attribute
-# these values can be changed in inge4_development.env
-#
-# additionally it assumes that inge4 is running on localhost:8000
-# getting inge4 running on localhost:8000 is as simple as doing
-#
-#     export MOCK_MODE = True #this line should never be run in production!!!!
-#     make run
-#
-# currently it also needs a mock of
-# https://raadplegen.sbv-z.nl
-# one can run this on localhost:8001 by
-#
-#    make run-mock
-#
-# the url where it expects the sbv-z mock to live
-# can be changed by modifying the wsdl files in
-# api/enrichment/sbvz_api/wsdl/mock
 import json
 from api.models import StatementOfVaccination, StepTwoData
 from api.utils import defaultconverter

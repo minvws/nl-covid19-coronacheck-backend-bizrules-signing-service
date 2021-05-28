@@ -1,12 +1,8 @@
 import json
-import os
-import pathlib
 import sys
-from logging import config
 from typing import Dict, List, Any, Optional
 from uuid import UUID
 
-import yaml
 from fastapi import FastAPI, HTTPException
 
 from api.eligibility import is_eligible_for_domestic_signing
@@ -25,17 +21,6 @@ from api.requesters import mobile_app_step_1
 from api.requesters.mobile_app_prepare_issue import get_prepare_issue
 from api.signers import eu_international, nl_domestic_dynamic, nl_domestic_static
 from api.session_store import session_store
-
-
-inge4_root = pathlib.Path(__file__).parent.parent.absolute()
-
-with open(
-    "/etc/inge4/logging.yaml"
-    if os.path.isfile("/etc/inge4/logging.yaml")
-    else inge4_root.joinpath("inge4_logging.yaml")
-) as f:
-    config.dictConfig(yaml.safe_load(f))
-
 
 app = FastAPI()
 

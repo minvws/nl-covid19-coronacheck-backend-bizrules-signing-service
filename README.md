@@ -30,7 +30,6 @@ Some examples are stored in 'tests/secrets'. Do NOT use these examples in produc
 Inge 4 is a python ASGI app written in FastAPI. Runs on python 3.8.
 Run this with NGINX Unit or Uvicorn. Example: https://unit.nginx.org/howto/fastapi/
 
-
 ### Configuration:
 Configuration is read from two files:
 
@@ -40,6 +39,10 @@ Configuration is read from two files:
 ### Updating vaccinationproviders:
 Adding vaccination providers to vaccinationproviders.json requires an app restart.
 
+### Logging
+Edit the inge4_logging.yaml to acceptable settings. The shipped file logs everything including
+all calls to all services.
+
 
 ## Development
 The inge4_development.env is used when running this in development and testing.
@@ -47,10 +50,63 @@ The inge4_development.env is used when running this in development and testing.
 Requirements:
 Linux/Mac system with python3.8 and redis.
 Make sure a redis-server is in your path. For mac users `brew install redis` should suffice.
-On linux systems redis is often installed to `/usr/local/bin/redis-server`. Brew installs it to `/opt/homebrew/bin/redis-server`.
 
 For development run:
 `make run`
+
+
+## End to end test
+
+Example / shipped settings are used below and can be changed in inge4_development.env.
+Preferably by setting environment variables.
+
+### Run the domestic signer
+# git clone https://github.com/minvws/nl-covid19-coronacheck-idemix-private/
+# add certs (todo, point to readme)
+# go run ./ server
+
+Assuming:
+DOMESTIC_NL_VWS_PREPARE_ISSUE_URL = http://localhost:4001/prepare_issue
+DOMESTIC_NL_VWS_ONLINE_SIGNING_URL = http://localhost:4001/issue
+
+
+### Run the eu signer:
+# git clone https://github.com/minvws/nl-covid19-coronacheck-hcert-private
+# add certs (todo, point to readme)
+# go run ./ server
+
+Assuming:
+EU_INTERNATIONAL_SIGNING_URL = http://localhost:4002/get_credential
+
+
+### Use the inge6 mock:
+INGE6_BSN_RETRIEVAL_URL = https://tvs-connect.acc.coronacheck.nl/bsn_attribute
+
+
+### Run the sbvz mock service:
+This mocks https://raadplegen.sbv-z.nl on localhost:8001
+```make run-mock```
+
+the url where it expects the sbv-z mock to live
+can be changed by modifying the wsdl files in
+api/enrichment/sbvz_api/wsdl/mock
+
+
+### Run Inge4:
+Set the MOCK_MODE environment variable to True. Do NOT do this in the .env
+but do this in your shell environment.
+
+Bash example:
+`export MOCK_MODE = True`
+
+Fish example:
+`set -x MOCK_MODE = True`
+
+Then run inge4:
+`make run`
+
+### Run the end to end test:
+`make run examples`
 
 
 
