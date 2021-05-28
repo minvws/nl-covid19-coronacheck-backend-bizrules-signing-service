@@ -17,7 +17,7 @@ if __name__ == "__main__":
     log.info(f"Checking if inge4 is running on {inge4_url}")
     response = requests.get(inge4_url + "/health")
     response.raise_for_status()
-    log.info("inge4 health:\n", json.dumps(response.json(), indent=2))
+    log.info("inge4 health:\n" + json.dumps(response.json(), indent=2))
     json_body = response.json()
     if not json_body.get("running", ""):
         raise RuntimeError("inge4 is not running")
@@ -41,13 +41,13 @@ if __name__ == "__main__":
     log.info(f"posting to the {endpoint} endpoint")
     response = requests.post(f"{inge4_url}{endpoint}", json={"tvs_token": "string"})
     response.raise_for_status()
-    log.info(f"result of {endpoint}\n", json.dumps(response.json(), indent=2))
+    log.info(f"result of {endpoint}\n" + json.dumps(response.json(), indent=2))
 
     endpoint = "/app/prepare_issue"
     log.info(f"posting to the {endpoint} endpoint")
     response = requests.post(f"{inge4_url}{endpoint}")
     response.raise_for_status()
-    log.info(f"result of {endpoint}\n", json.dumps(response.json(), indent=2))
+    log.info(f"result of {endpoint}\n" + json.dumps(response.json(), indent=2))
     json_body = response.json()
     stoken = json_body["stoken"]
     prepareIssueMessage = json_body["prepareIssueMessage"]
@@ -61,11 +61,11 @@ if __name__ == "__main__":
     )
 
     step_two_data_str = json.dumps(step_two_data.dict(), indent=2, default=defaultconverter)
-    log.info("step_two_data:\n", step_two_data_str)
+    log.info("step_two_data:\n" + step_two_data_str)
     StepTwoData.parse_raw(step_two_data_str)
 
     endpoint = "/app/sign"
     log.info(f"posting to the {endpoint} endpoint")
     response = requests.post(f"{inge4_url}{endpoint}", data=step_two_data_str)
     response.raise_for_status()
-    log.info(f"result of {endpoint}\n", json.dumps(response.json(), indent=2))
+    log.info(f"result of {endpoint}\n" + json.dumps(response.json(), indent=2))
