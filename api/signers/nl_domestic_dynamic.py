@@ -4,6 +4,7 @@ import json
 from datetime import datetime, timedelta
 from typing import Optional
 
+from api.eligibility import is_eligible_for_domestic_signing
 from api.models import DomesticGreenCard, GreenCardOrigin, IssueMessage, OriginOfProof, StepTwoData, StripType
 from api.settings import settings
 from api.utils import request_post_with_retries
@@ -30,8 +31,13 @@ def sign(data: StepTwoData, prepare_issue_message: str) -> Optional[DomesticGree
     :return:
     """
 
+    # Todo: there will be a call that converts events into origins and signing requests.
     # todo: afhankelijk van regels moeten we bepalen welke origins en welke sample times er zijn.
     # events reduceren tot origins met sampletimes.
+    # request_data = vaccination_event_data_to_signing_data(data.events)  # pylint: disable=unreachable
+    eligible_because = is_eligible_for_domestic_signing(data.events)
+    if not eligible_because:
+        return None
 
     # https://github.com/minvws/nl-covid19-coronacheck-idemix-private/blob/next/issuer/issuer.go
     # en de verschillende origins die bedenken we zelf maar sturen we niet mee in de attributes.
@@ -69,9 +75,6 @@ def sign(data: StepTwoData, prepare_issue_message: str) -> Optional[DomesticGree
             "credentialsAttributes": attributes,
         }
     )
-
-    # todo: now this is one event, but there will might be multiple depending on different rules.
-    # request_data = vaccination_event_data_to_signing_data(data.events)  # pylint: disable=unreachable
 
     response = request_post_with_retries(
         settings.DOMESTIC_NL_VWS_ONLINE_SIGNING_URL,

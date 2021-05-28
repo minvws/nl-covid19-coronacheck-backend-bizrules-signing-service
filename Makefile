@@ -69,13 +69,9 @@ examples: venv  ## Runs example scripts against local services instead of tests
 	@. .venv/bin/activate && ${env} python3 -m test_scripts.example_eu_signing
 
 
-valid: venv
-	${MAKE} fix
-	${MAKE} lint
-	${MAKE} check-types
-	${MAKE} audit
-	${MAKE} test
-	${MAKE} test-report
+# isort and black linting have different ideas on correctness. isort is cleaner, and most of that is kept by black.
+.PHONY: valid
+valid: venv isort fix lint check-types audit test test-report
 
 .PHONY: check-all
 check-all: check lint audit check-types test

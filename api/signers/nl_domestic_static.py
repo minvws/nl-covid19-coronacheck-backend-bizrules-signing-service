@@ -2,7 +2,7 @@ import json
 import logging
 from datetime import datetime, timedelta
 from math import ceil
-from typing import List
+from typing import List, Optional
 
 import pytz
 
@@ -114,7 +114,7 @@ PROOF_OF_VACCINATION_VALIDITY_HOURS = 180 * 24
 
 
 # todo: is it possible to make this 1 call where we give a date range? to make 1 request instead of 180 -> confer
-def sign(data) -> List[DomesticStaticQrResponse]:
+def sign(data) -> Optional[List[DomesticStaticQrResponse]]:
     """
     Returns a list of "statement of vaccination".
     A proof of vaccination is valid for 180 days, but a "statement of vaccination" only 40 hours.
@@ -123,6 +123,11 @@ def sign(data) -> List[DomesticStaticQrResponse]:
     :param data:
     :return:
     """
+
+    # Todo: there will be a call that converts events into origins and signing requests.
+    if not is_eligible_for_domestic_signing(data):
+        return None
+
     amount_of_calls = ceil(PROOF_OF_VACCINATION_VALIDITY_HOURS / STATEMENT_OF_VACCINATION_VALIDITY_HOURS)
 
     signing_data = vaccination_event_data_to_signing_data(data)
