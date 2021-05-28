@@ -153,6 +153,9 @@ Step 1:
 Step 2:
 ![SSD App Step 2](docs/DomesticDynamicFlow.png "Domestic signing flow step 2")
 
+Higher level view of step 2:
+![SSD App Step 2](docs/sequence-diagram-event-to-proof.png "Domestic signing flow step 2")
+
 
 ## Authors
 

@@ -13,18 +13,10 @@ from pydantic import BaseModel, Field
 from unidecode import unidecode
 
 
-class EncryptedBSNRequest(BaseModel):
-    # todo: add model validation, 11 proef etc.
-    # todo: note it's encrypted.
-    bsn: str = Field(description="Encrypted Burger Service Nummer")
-
-    # todo: document what encryption is used (sealbox) and how to encrypt or decrypt.
-    class Config:
-        schema_extra = {
-            "example": {
-                "bsn": "PYFUVHABSDPU)*(GUIBJNSADPU)*UIGBJKNLSHUADHJVHIASDOHJK",
-            }
-        }
+class UnomiEventToken(BaseModel):
+    provider_identifier: str
+    unomi: str = Field(description="JWT containing unomi data: iss aud iat nbf exp and identity_hash.")
+    event: str = Field(description="JWT containing event data: same as unomi + nonce and encrypted_bsn.")
 
 
 class PrepareIssueMessage(BaseModel):
@@ -41,10 +33,6 @@ class PrepareIssueMessage(BaseModel):
 class BSNRetrievalToken(BaseModel):
     # todo: Sent to inge6, returns the attributes.
     tvs_token: str = Field(description="TVS/DigiD token required to fetch BSN")
-
-
-class ErrorList(BaseModel):
-    errors: Optional[List[str]] = Field(description="")
 
 
 class Holder(BaseModel):
@@ -207,7 +195,6 @@ class Event(BaseModel):
     data: Union[vaccination, test, recovery] = Field(description="Structure is based on the 'type' discriminator.")
 
 
-# Todo: add subtypes for negative test event, recovery statement
 # https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/providing-vaccination-events
 # .md
 # https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/data-structures-overview.md
@@ -262,6 +249,7 @@ class StatementOfVaccination(BaseModel):
         )
 
 
+# todo: this will be in a different format soon, probably the same format as domestic dynamic
 class DomesticStaticQrResponse(BaseModel):
     """
     {
@@ -304,141 +292,11 @@ class DomesticStaticQrResponse(BaseModel):
     error: int = Field(description="", example=0)
 
 
-class DomesticDynamicQrResponse(BaseModel):
-    """
-    {
-        "ism": {
-            "proof": {
-                "c": "tHk+nswA/VSgQR41o+NlPEZUlBCdVbV7IK50/lrK0jo=",
-                "e_response": "PfjLNp/UBFogQb88UQEArTQj4/mkg6zTFOg0UUGVsa9EQBCaZYG07AVgzrr7X5CterCGYcbV6DZEqCoP/UyknzL2f
-                OeC5f1kqp/W69GIRqVFV2Cyjz6aITNQQBaiM4KkM21Cs2i32cmsPMC1GSW72ORpU0mPmP1RzWf0MuUdIQ=="
-            },
-            "signature": {
-                "A": "ONKxjtJQUqMXolC0OltT2JWPua/7XqcFSuuCxNo25jh71C2S98JDYlSc2rkVC0G/RTNdY/gPfRWfzNOGIJvxSS3zRrnPBLFvG6
-                Zo4rzIjsF+sQoIeUE/FNSAHTi7yART7MJIEbkHxn95Jw/dG8hTppbt1ALYpTXdKao6yFKRF0E=",
-                "e": "EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa2ORygGdQClk2+FZuH
-                l/",
-                "v": "DJurgTXsDZgXHihHYpXwH81gmH+gan22XUPT07SiwuGdqNi1ikHDcXWSuf7Yae+nSIWh3fyIEoyIdNvloycrljVU7cClklrOLA
-                sOyU45W07cjbBQATQmavoBsyZZaG/b/4aJFhfcuYHv6J72/8rm1UVqyk0i/0ROw/JukxbOFwkXm6FpfF2XUf3HvnSgEAbxPebxm5UKej
-                7DxXx3fpHdELMKiyBICQjN0r6MwCU3PhbynISrjdbQsveeBh9id3O/kFISqMANSp6QmNPZ0jd4pOivOLFS",
-                "KeyshareP": null
-            }
-        },
-        "attributes": ["", ""]
-    }
-    """
-
-    class DomesticDynamicQr(BaseModel):
-        class DomesticDynamicProof(BaseModel):
-            c: str = Field(example="tHk+nswA/VSgQR41o+NlPEZUlBCdVbV7IK50/lrK0jo=")
-            e_response: str = Field(
-                example="PfjLNp/UBFogQb88UQEArTQj4/mkg6zTFOg0UUGVsa9EQBCaZYG07AVgzrr7X5CterCGYcbV6DZEqCoP/UyknzL2fOeC5f"
-                "1kqp/W69GIRqVFV2Cyjz6aITNQQBaiM4KkM21Cs2i32cmsPMC1GSW72ORpU0mPmP1RzWf0MuUdIQ=="
-            )
-
-        class DomesticDynamicSignature(BaseModel):
-            A: str = Field(
-                example="ONKxjtJQUqMXolC0OltT2JWPua/7XqcFSuuCxNo25jh71C2S98JDYlSc2rkVC0G/RTNdY/gPfRWfzNOGIJvxSS3zRrnPBL"
-                "FvG6Zo4rzIjsF+sQoIeUE/FNSAHTi7yART7MJIEbkHxn95Jw/dG8hTppbt1ALYpTXdKao6yFKRF0E="
-            )
-            e: str = Field(
-                example="EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa2ORygGdQClk2+"
-                "FZuHl/"
-            )
-            v: str = Field(example="tHk+nswA/VSgQR41o+NlPEZUlBCdVbV7IK50/lrK0jo=")
-            KeyshareP: Optional[str] = Field(example="Todo: what?")
-
-        proof: DomesticDynamicProof
-        signature: DomesticDynamicSignature
-
-    attributes: List[str]
-    ism: DomesticDynamicQr
-
-
-class EuropeanProofOfVaccination(BaseModel):
-    # todo; how to get here from the eu response
-    """
-    "euProofs": [
-            {
-                "type": "eu_test",
-                "expirationTime": 1623683522,
-                "issuedAt": 1621264322,
-                "qrData": "0oRNogEmBEgAAAAAAAAAAKIBAAT2WQE1pAFiTkwEGmGO/TkGGmChrzk5AQOhAaRjdmVyZTEuMC4wY25hbaRjZm50ckFD
-                SFRFUk5BQU08RU48TkFBTWJnbmlWb29yIE5hYW1jZ250aVZPT1I8TkFBTWJmbnJBY2h0ZXJuYWFtIGVuIG5hYW1jZG9iajE5NTMtMDk
-                tMDNhdoGqYnZwajExMTkzNDkwMDdibXBqQkJJQlAtQ29yVmJkbvtAIAAAAAAAAGJkdGoyMDIxLTAyLTE4YnRnaTg0MDUzOTAwNmJzZP
-                tAIAAAAAAAAGJjb2BiaXN4JE1pbmlzdHJ5IG9mIEhlYWx0aCBXZWxmYXJlIGFuZCBTcG9ydGJjaXgvdXJuOnV2Y2k6MDE6Tkw6MzMzO
-                DUwMjQ0NzVlNGM1NmExN2I3NDlmOTI0MDQwMzlibWFgWEDEcYN/qqfm6jaHgTrRoc/7OlchwSoMVCLPzA3V1jG5JEkVhTPsNUQJNn9l
-                tmnDxL554K+WFBWKUEQxiRBbxqRv"
-            },
-            {
-                "type": "eu_allinone",
-                "expirationTime": 1623683522,
-                "issuedAt": 1621264322,
-                "qrData": "0oRNogEmBEgAAAAAAAAAAKIBAAT2WQE1pAFiTkwEGmGO/TkGGmChrzk5AQOhAaRjdmVyZTEuMC4wY25hbaRjZm50ckFD
-                SFRFUk5BQU08RU48TkFBTWJnbmlWb29yIE5hYW1jZ250aVZPT1I8TkFBTWJmbnJBY2h0ZXJuYWFtIGVuIG5hYW1jZG9iajE5NTMtMDk
-                tMDNhdoGqYnZwajExMTkzNDkwMDdibXBqQkJJQlAtQ29yVmJkbvtAIAAAAAAAAGJkdGoyMDIxLTAyLTE4YnRnaTg0MDUzOTAwNmJzZP
-                tAIAAAAAAAAGJjb2BiaXN4JE1pbmlzdHJ5IG9mIEhlYWx0aCBXZWxmYXJlIGFuZCBTcG9ydGJjaXgvdXJuOnV2Y2k6MDE6Tkw6MzMzO
-                DUwMjQ0NzVlNGM1NmExN2I3NDlmOTI0MDQwMzlibWFgWEDEcYN/qqfm6jaHgTrRoc/7OlchwSoMVCLPzA3V1jG5JEkVhTPsNUQJNn9l
-                tmnDxL554K+WFBWKUEQxiRBbxqRv"
-            }
-        ]
-    """
-
-    class ProofType(str, Enum):
-        eu_test = "eu_test"
-        eu_allinone = "eu_allinone"
-
-    type: ProofType
-    expirationTime: int = Field(example=1623683522)
-    issuedAt: int = Field(example=1621264322)
-    qrData: str = Field(
-        example="0oRNogEmBEgAAAAAAAAAAKIBAAT2WQE1pAFiTkwEGmGO/TkGGmChrzk5AQOhAaRjdmVyZTEuMC4wY25hbaRjZm50ckFDSFRFUk5BQU"
-        "08RU48TkFBTWJnbmlWb29yIE5hYW1jZ250aVZPT1I8TkFBTWJmbnJBY2h0ZXJuYWFtIGVuIG5hYW1jZG9iajE5NTMtMDktMDNhdoGq"
-        "YnZwajExMTkzNDkwMDdibXBqQkJJQlAtQ29yVmJkbvtAIAAAAAAAAGJkdGoyMDIxLTAyLTE4YnRnaTg0MDUzOTAwNmJzZPtAIAAAAA"
-        "AAAGJjb2BiaXN4JE1pbmlzdHJ5IG9mIEhlYWx0aCBXZWxmYXJlIGFuZCBTcG9ydGJjaXgvdXJuOnV2Y2k6MDE6Tkw6MzMzODUwMjQ0"
-        "NzVlNGM1NmExN2I3NDlmOTI0MDQwMzlibWFgWEDEcYN/qqfm6jaHgTrRoc/7OlchwSoMVCLPzA3V1jG5JEkVhTPsNUQJNn9ltmnDxL"
-        "554K+WFBWKUEQxiRBbxqRv"
-    )
-
-
-class DomesticProofCredentialItem(BaseModel):
-    id: int
-    ccm: DomesticDynamicQrResponse
-
-
 class OriginOfProof(str, Enum):
     vaccination = "vaccination"
     test = "test"
     recovery = "recovery"
     no_proof = ""
-
-
-# Todo: add EU response
-class DomesticPaperSigningAttributes(BaseModel):
-    """
-    Created based on StatementOfVaccination
-    """
-
-    sampleTime: str = Field(description="ISO datetime with timezone information", example="2021-04-22T12:00:00Z")
-    firstNameInitial: str = Field(example="E", description="First letter of the first name of this person")
-    lastNameInitial: str = Field(example="J", description="First letter of the last name of this person")
-    birthDay: str = Field(example="27", description="Day (not date!) of birth.")
-    birthMonth: str = Field(example="12", description="Month (not date!) of birth.")
-    # todo: enum, is this a boolean?
-    isSpecimen: str = Field(
-        example="0",
-        description="Boolean cast as string, if this is a testcase. " "To facilitate testing in production.",
-    )
-
-
-class DomesticPaperSigningRequest(BaseModel):
-    attributes: DomesticPaperSigningAttributes
-    key: str = Field(description="todo", default="VWS-TEST-0")
-
-
-class DomesticOnlineSigningRequest(DomesticPaperSigningAttributes):
-    nonce: str = Field(description="", example="MB4CEEl6phUEfUcOWLWHEHQ6/zYTClZXUy1URVNULTA=")
-    commitments: str = Field(description="", example="")
 
 
 class SharedEuropeanFields(BaseModel):

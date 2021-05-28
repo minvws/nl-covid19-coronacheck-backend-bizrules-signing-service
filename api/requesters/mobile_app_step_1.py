@@ -15,7 +15,7 @@ from nacl.public import Box, PrivateKey, PublicKey
 from nacl.utils import random
 
 from api.enrichment import sbvz
-from api.models import BSNRetrievalToken
+from api.models import BSNRetrievalToken, UnomiEventToken
 from api.settings import settings
 from api.utils import request_get_with_retries
 
@@ -41,7 +41,7 @@ async def get_bsn_from_inge6(retrieval_token: BSNRetrievalToken):
     return bsn.decode()
 
 
-def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
+def identity_provider_calls(bsn: str) -> List[UnomiEventToken]:
     """
     In order to reliably determine a system contains information about a certain person without revealing who that
     person is an identity-hash will be generated for each individual connected party and sent to the Information
@@ -54,10 +54,6 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
 
     :return:
     """
-
-    # todo: Make it work with
-
-    # todo: normalize
 
     now = datetime.now(pytz.utc)
     generic_data: Dict[str, Any] = {
@@ -106,7 +102,6 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
             "nonce": base64.b64encode(nonce).decode("UTF-8"),
         }
 
-        # todo: the messages seem to change per day or so. There is some instability in the test.
         # adjusting the clock doesn't work, so something else is dynamic
         # The joining of {**generic_data, **unomi_data} results in different dictionaries depending on data.
         """
@@ -142,11 +137,11 @@ def identity_provider_calls(bsn: str) -> List[Dict[str, Any]]:
         event_jwt_data = dict(sorted(event_jwt_data.items(), key=lambda kv: kv[0]))
 
         tokens.append(
-            {
-                "provider_identifier": vaccination_provider["identifier"],
-                "unomi": jwt.encode(unomi_jwt_data, settings.APP_STEP_1_JWT_PRIVATE_KEY, algorithm="HS256"),
-                "event": jwt.encode(event_jwt_data, settings.APP_STEP_1_JWT_PRIVATE_KEY, algorithm="HS256"),
-            }
+            UnomiEventToken(
+                provider_identifier=vaccination_provider["identifier"],
+                unomi=jwt.encode(unomi_jwt_data, settings.APP_STEP_1_JWT_PRIVATE_KEY, algorithm="HS256"),
+                event=jwt.encode(event_jwt_data, settings.APP_STEP_1_JWT_PRIVATE_KEY, algorithm="HS256"),
+            )
         )
 
     return tokens

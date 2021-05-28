@@ -42,7 +42,6 @@ check: venv ## Check for source issues
 	@. .venv/bin/activate && ${env} python3 -m black --check ${pysrcdirs} ${blackdirs}
 
 check-types: venv ## Check for type issues with mypy
-	# todo: add typing stubs for libraries missing typing info
 	@. .venv/bin/activate && ${env} python3 -m mypy --check ${pysrcdirs}
 
 isort: venv
@@ -57,6 +56,9 @@ fix: venv ## Automatically fix style issues
 	@. .venv/bin/activate && ${env} python3 -m autoflake -ri --remove-all-unused-imports ${pysrcdirs} ${blackdirs}
 	${MAKE} check
 
+vulture: venv
+	@. .venv/bin/activate && ${env} python3 -m vulture ${pysrcdirs} --min-confidence 100
+
 audit: venv ## Run security audit
     # Performs security audits, todo: should be performed in github actions as well, any should break the build.
 	@. .venv/bin/activate && ${env} python3 -m bandit --configfile bandit.yaml -r ${pysrcdirs}
@@ -69,16 +71,12 @@ examples: venv  ## Runs example scripts against local services instead of tests
 	@. .venv/bin/activate && ${env} python3 -m test_scripts.example_eu_signing
 
 
-valid: venv
-	${MAKE} fix
-	${MAKE} lint
-	${MAKE} check-types
-	${MAKE} audit
-	${MAKE} test
-	${MAKE} test-report
+# isort and black linting have different ideas on correctness. isort is cleaner, and most of that is kept by black.
+.PHONY: valid
+valid: venv vulture isort fix lint check-types audit test test-report
 
 .PHONY: check-all
-check-all: check lint audit check-types test
+check-all: vulture check lint audit check-types test
 
 pip-compile: ## synchronizes the .venv with the state of requirements.txt
 	. .venv/bin/activate && ${env} python3 -m piptools compile requirements.in
