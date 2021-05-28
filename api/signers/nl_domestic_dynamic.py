@@ -15,7 +15,7 @@ def sign(data: StepTwoData, prepare_issue_message: str) -> Optional[DomesticGree
     Example prepare_issue_message:
     {"issuerPkId":"TST-KEY-01","issuerNonce":"j6n+P9UPWS+2+C+MsNVlVw==","credentialAmount":28}
 
-    Todo: convert events to origins and requests with sample times.
+    Todo: convert events to origins and requests with durations.
         some example rules are in is_eligible_for_domestic_signing.
 
     :param data:

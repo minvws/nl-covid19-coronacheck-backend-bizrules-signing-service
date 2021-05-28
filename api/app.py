@@ -37,26 +37,32 @@ async def health() -> Dict[str, Any]:
             "inge6": "todo",
             "eu-signer": "todo",
             "domestic-signer": "todo",
+            "rvig": "todo",
             "redis": redis_health,
         },
     }
 
 
-# This is https://api-ct.bananenhalen.nl/docs/sequence-diagram-unomi-events.png
 @app.post("/app/access_tokens/")
-async def sign_via_app_step_1(request: BSNRetrievalToken):
+async def sign_via_app_step_1(request: BSNRetrievalToken) -> List[Dict[str, Any]]:
+    """
+    Creates unomi events based on DigiD BSN retrieval token.
+    .. image:: ./docs/sequence-diagram-unomi-events.png
 
-    # todo: will be an extra call to retrieve the BSN from the token to Inge6.
+    Todo: add model for returned values so they are documented.
+
+    :param request: BSNRetrievalToken
+    :return:
+    """
     bsn = await mobile_app_step_1.get_bsn_from_inge6(request)
     return mobile_app_step_1.identity_provider_calls(bsn)
 
 
-# todo: bring in line with dynamic signing
 @app.post("/app/paper/", response_model=PaperProofOfVaccination)
 async def sign_via_inge3(data: StatementOfVaccination):
+    # todo: bring in line with dynamic signing
     domestic_response: Optional[List[DomesticStaticQrResponse]] = nl_domestic_static.sign(data)
     eu_response = eu_international.sign(data)
-
     return PaperProofOfVaccination(**{"domesticProof": domestic_response, "euProofs": eu_response})
 
 
@@ -69,7 +75,7 @@ async def app_prepare_issue():
 async def sign_via_app_step_2(data: StepTwoData):
     # todo: check CMS signature (where are those in the message?)
 
-    # Check session
+    # Check session: no issue message stored under given stoken, no session
     prepare_issue_message = step_2_get_issue_message(data.stoken)
     if not prepare_issue_message:
         raise HTTPException(status_code=401, detail=["Invalid session"])
