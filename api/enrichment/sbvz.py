@@ -89,9 +89,3 @@ def call_app_step_1(bsn: str) -> Tuple[List[str], Dict[str, str]]:
         "day_of_birth": day_of_birth,
         "month_of_birth": month_of_birth,
     }
-
-
-def enrich_for_health_professional_inge3(bsn: str) -> Tuple[List[str], Dict[str, str]]:
-    # health professional can ask to enrich data
-    # this is optional, in case a person has no BSN, the same data as requested is sent.
-    return call_app_step_1(bsn)
