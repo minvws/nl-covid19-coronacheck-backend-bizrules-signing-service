@@ -27,7 +27,7 @@ if __name__ == "__main__":
     if response.status_code == 200:
         if response.text == "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzpEliQZGIthee86WIg0w599yMlSzcg8ojyA==":
             print("Inge6 mock is reachable")
-            if settings.MOCK_MODE == False:
+            if settings.MOCK_MODE is False:
                 raise RuntimeError("This test will fail when MOCK_MODE == False")
         else:
             print("Inge6 is reacheble")
