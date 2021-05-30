@@ -497,7 +497,7 @@ class CMSSignedDataBlob(BaseModel):
     signature: str = Field(description="CMS signature")
     payload: str = Field(description = "CMS payload in base64")
 
-class SignEventsData(BaseModel):
+class CredentialsRequestData(BaseModel):
     events: List[CMSSignedDataBlob]
     stoken: UUID = Field(description="", example="a019e902-86a0-4b1d-bff0-5c89f3cfc4d9")
     issueCommitmentMessage: str

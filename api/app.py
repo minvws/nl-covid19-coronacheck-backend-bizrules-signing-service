@@ -14,7 +14,7 @@ from api.models import (
     PaperProofOfVaccination,
     PrepareIssueResponse,
     DataProviderEventResult,
-    SignEventsData,
+    CredentialsRequestData,
     EventDataProviderJWT,
 )
 from api.requesters import identity_hashes
@@ -27,7 +27,7 @@ app = FastAPI()
 
 @app.get("/")
 @app.get("/health")
-async def health() -> Dict[str, Any]:
+async def health_request() -> Dict[str, Any]:
     """
     Show the system health and status of internal dependencies
     """
@@ -41,7 +41,7 @@ async def health() -> Dict[str, Any]:
 
 
 @app.post("/app/access_tokens/", response_model=List[EventDataProviderJWT])
-async def get_access_tokens(request: AccessTokensRequest) -> List[EventDataProviderJWT]:
+async def get_access_tokens_request(request: AccessTokensRequest) -> List[EventDataProviderJWT]:
     """
     Creates unomi events based on DigiD BSN retrieval token.
     .. image:: ./docs/sequence-diagram-unomi-events.png
@@ -62,18 +62,18 @@ async def get_access_tokens(request: AccessTokensRequest) -> List[EventDataProvi
 
 
 @app.post("/app/prepare_issue/", response_model=PrepareIssueResponse)
-async def app_prepare_issue():
+async def app_prepare_issue_request():
     return await get_prepare_issue()
 
 
-@app.post("/app/sign/", response_model=MobileAppProofOfVaccination)
-async def sign_via_app_step_2(data: SignEventsData):
-    # todo: check CMS signature (where are those in the message?)
+@app.post("/app/credentials/", response_model=MobileAppProofOfVaccination)
+async def app_credential_request(data: CredentialsRequestData):
+    # TODO: CMS signature checks
 
     # Check session: no issue message stored under given stoken, no session
-    prepare_issue_message = step_2_get_issue_message(data.stoken)
+    prepare_issue_message = retrieve_prepare_issue_message_from_redis(data.stoken)
     if not prepare_issue_message:
-        raise HTTPException(status_code=401, detail=["Invalid session"])
+        raise HTTPException(status_code=401, detail=["Session expired or is invalid"])
 
     #domestic_response: Optional[DomesticGreenCard] = nl_domestic_dynamic.sign(data, prepare_issue_message)
     #eu_response: Optional[List[EUGreenCard]] = eu_international.sign(data.events)
@@ -81,7 +81,7 @@ async def sign_via_app_step_2(data: SignEventsData):
     return MobileAppProofOfVaccination(**{"domesticGreencard": domestic_response, "euGreencards": eu_response})
 
 
-def step_2_get_issue_message(stoken: UUID) -> Optional[str]:
+def retrieve_prepare_issue_message_from_redis(stoken: UUID) -> Optional[str]:
     # Explicitly do not push the prepare_issue_message into a model: the structure will change over time
     # and that change has to be transparent.
     # Pydantic validates the stoken into a uuid, but the redis code needs a string.

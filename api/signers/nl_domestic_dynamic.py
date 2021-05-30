@@ -3,12 +3,12 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from api.eligibility import is_eligible_for_domestic_signing
-from api.models import DomesticGreenCard, GreenCardOrigin, IssueMessage, OriginOfProof, SignEventsData, StripType
+from api.models import DomesticGreenCard, GreenCardOrigin, IssueMessage, OriginOfProof, CredentialsRequestData, StripType
 from api.settings import settings
 from api.utils import request_post_with_retries
 
 
-def sign(data: SignEventsData, prepare_issue_message: str) -> Optional[DomesticGreenCard]:
+def sign(data: CredentialsRequestData, prepare_issue_message: str) -> Optional[DomesticGreenCard]:
     """
     This signer talks to: https://github.com/minvws/nl-covid19-coronacheck-idemix-private/
 
