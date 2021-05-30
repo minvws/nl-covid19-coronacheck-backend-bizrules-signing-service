@@ -87,7 +87,7 @@ class Holder(BaseModel):
         return Holder._eu_normalize(self.lastName)
 
 
-class vaccination(BaseModel):  # noqa
+class Vaccination(BaseModel):  # noqa
     """
     When supplying data and you want to make it easy:
     - use a HPK Code and just the amount of events.
@@ -115,6 +115,7 @@ class vaccination(BaseModel):  # noqa
     doseNumber: Optional[int] = Field(example=1, description="will be based on business rules / brand info if left out")
     totalDoses: Optional[int] = Field(example=2, description="will be based on business rules / brand info if left out")
 
+
     def toEuropeanVaccination(self):
         return EuropeanVaccination(
             **{
@@ -131,7 +132,7 @@ class vaccination(BaseModel):  # noqa
         )
 
 
-class positivetest(BaseModel):  # noqa
+class Positivetest(BaseModel):  # noqa
     sampleDate: str = Field(example="2021-01-01")
     resultDate: str = Field(example="2021-01-02")
     negativeResult: bool = Field(example=True)
@@ -158,7 +159,7 @@ class positivetest(BaseModel):  # noqa
             }
         )
 
-class negativetest(BaseModel):  # noqa
+class Negativetest(BaseModel):  # noqa
     sampleDate: str = Field(example="2021-01-01")
     resultDate: str = Field(example="2021-01-02")
     negativeResult: bool = Field(example=True)
@@ -185,7 +186,7 @@ class negativetest(BaseModel):  # noqa
         )
 
 
-class recovery(BaseModel):  # noqa
+class Recovery(BaseModel):  # noqa
     sampleDate: str = Field(example="2021-01-01")
     validFrom: str = Field(example="2021-01-12")
     validUntil: str = Field(example="2021-06-30")
@@ -212,22 +213,22 @@ class EventType(str, Enum):
 
 
 class Event(BaseModel):
-    # There is no discriminator support here, so no luck. It IS a feature of openAPI.
-    # It IS possible to create different events with field duplication, but why would we do that
-    # Todo: see responses on: https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/pull/70
+    source_provider_identifier: str = Field(None)
     type: EventType = Field(description="Type of event")
-    unique: str = Field(description="some unique string")
-    isSpecimen: bool = Field(0, description="Boolean as an integer: 0 or 1.")
-    data: Union[vaccination, positivetest, negativetest, recovery] = Field(description="Structure is based on the 'type' discriminator.")
+    unique: str = Field(description="Some unique string")
+    isSpecimen: bool = Field(False, description="Boolean")
+    negativetest: Negativetest = Field(None, description="Negativetest")
+    positivetest: Positivetest = Field(None, description="Positivetest")
+    vaccination: Vaccination = Field(None, description="Vaccination")
+    recovery: Recovery = Field(None, description="Recovery")
 
 
-# https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/providing-vaccination-events
-# .md
+# https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/providing-vaccination-events.md
 # https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/data-structures-overview.md
 class DataProviderEventResult(BaseModel):
     protocolVersion: str = Field(description="The semantic version of this API", default=3.0)
-    providerIdentifier: str = Field(description="todo")  # todo
-    status: str = Field(description="todo, enum probably", default="complete")  # todo
+    providerIdentifier: str = Field(description="todo")
+    status: str = Field(description="enum complete/pending", default="complete")
     holder: Holder
     events: List[Event]
 
@@ -236,17 +237,36 @@ class DataProviderEventResult(BaseModel):
         """
         :return: sorted list of events that have vaccination data. Sorted by data.date.
         """
-        events = [event for event in self.events if isinstance(event.data, vaccination)]
-        events = sorted(events, key=lambda e: e.data.date)  # type: ignore
+        for event in self.events:
+            event.source_provider_identifier = self.providerIdentifier
+
+        events = [event for event in self.events if isinstance(event.vaccination, Vaccination)]
+
+        events = sorted(events, key=lambda e: e.vaccination.date)  # type: ignore
         return events
 
     @property
-    def tests(self):
+    def positivetests(self):
         """
         :return: sorted list of events that have test data. Sorted by data.sampleDate.
         """
-        events = [event for event in self.events if isinstance(event.data, positivetest) or isinstance(event.data, negativetest)]
-        events = sorted(events, key=lambda e: e.data.sampleDate)  # type: ignore
+        for event in self.events:
+            event.source_provider_identifier = self.providerIdentifier
+
+        events = [event for event in self.events if isinstance(event.positivetest, Positivetest)]
+        events = sorted(events, key=lambda e: e.positivetest.sampleDate)  # type: ignore
+        return events
+
+    @property
+    def negativetests(self):
+        """
+        :return: sorted list of events that have test data. Sorted by data.sampleDate.
+        """
+        for event in self.events:
+            event.source_provider_identifier = self.providerIdentifier
+
+        events = [event for event in self.events if isinstance(event.negativetest, Negativetest)]
+        events = sorted(events, key=lambda e: e.negativetest.sampleDate)  # type: ignore
         return events
 
     @property
@@ -254,11 +274,15 @@ class DataProviderEventResult(BaseModel):
         """
         :return: sorted list of events that have recovery data. Sorted by data.sampleDate.
         """
-        events = [event for event in self.events if isinstance(event.data, recovery)]
-        events = sorted(events, key=lambda e: e.data.sampleDate)  # type: ignore
+        for event in self.events:
+            event.source_provider_identifier = self.providerIdentifier
+
+        events = [event for event in self.events if isinstance(event.recovery, Recovery)]
+        events = sorted(events, key=lambda e: e.recovery.sampleDate)  # type: ignore
         return events
 
     def toEuropeanOnlineSigningRequest(self):
+
         return EuropeanOnlineSigningRequest(
             **{
                 "nam": {
@@ -268,9 +292,10 @@ class DataProviderEventResult(BaseModel):
                     "gnt": self.holder.last_name_eu_normalized,
                 },
                 "dob": self.holder.birthDate,
-                "v": [event.data.toEuropeanVaccination() for event in self.vaccinations],
-                "r": [event.data.toEuropeanRecovery() for event in self.recoveries],
-                "t": [event.data.toEuropeanTest() for event in self.tests],
+                "v": [event.vaccinations.toEuropeanVaccination() for event in self.vaccinations],
+                "r": [event.recoveries.toEuropeanRecovery() for event in self.recoveries],
+                "t": [event.negativetests.toEuropeanTest() for event in self.negativetests] +
+                     [event.positivetests.toEuropeanTest() for event in self.positivetests],
             }
         )
 
@@ -493,14 +518,17 @@ class PaperProofOfVaccination(BaseModel):
     domesticProof: Optional[List[DomesticStaticQrResponse]] = Field(description="Paper vaccination")
     euProofs: Optional[List[EUGreenCard]] = Field(description="")
 
+
 class CMSSignedDataBlob(BaseModel):
     signature: str = Field(description="CMS signature")
     payload: str = Field(description = "CMS payload in base64")
+
 
 class CredentialsRequestData(BaseModel):
     events: List[CMSSignedDataBlob]
     stoken: UUID = Field(description="", example="a019e902-86a0-4b1d-bff0-5c89f3cfc4d9")
     issueCommitmentMessage: str
+
 
 class StripType(str, Enum):
     APP_STRIP = "0"

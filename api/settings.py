@@ -42,6 +42,9 @@ class AppSettings(BaseSettings):
     INGE6_MOCK_MODE: bool = True
     INGE6_MOCK_MODE_BSN: str = ""
 
+    STOKEN_MOCK: bool = True
+    STOKEN_MOCK_DATA: str = ""
+
     NONCE_BYTE_SECURITY: int = 256
     EXPIRATION_TIME_IN_SECONDS: int = 60
     REDIS_KEY_PREFIX: str = ""
