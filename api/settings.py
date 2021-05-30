@@ -34,6 +34,7 @@ class AppSettings(BaseSettings):
     DOMESTIC_NL_VWS_PREPARE_ISSUE_URL: AnyHttpUrl = Field()
     DOMESTIC_NL_VWS_PAPER_SIGNING_URL: AnyHttpUrl = Field()
     DOMESTIC_NL_VWS_ONLINE_SIGNING_URL: AnyHttpUrl = Field()
+    DOMESTIC_STRIP_VALIDITY_HOURS: int = 24
     EU_INTERNATIONAL_SIGNING_URL: AnyHttpUrl = Field()
 
     MOCK_MODE: bool = False

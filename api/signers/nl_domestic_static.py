@@ -7,7 +7,7 @@ from typing import List, Optional
 import pytz
 
 from api.eligibility import is_eligible_for_domestic_signing
-from api.models import DomesticStaticQrResponse, DataProviderEventResult
+from api.models import DataProviderEventsResult, DomesticStaticQrResponse
 from api.settings import settings
 from api.utils import request_post_with_retries
 
@@ -18,7 +18,7 @@ STATEMENT_OF_VACCINATION_VALIDITY_HOURS = 40
 PROOF_OF_VACCINATION_VALIDITY_HOURS = 180 * 24
 
 
-def sign(data: DataProviderEventResult) -> Optional[List[DomesticStaticQrResponse]]:
+def sign(data: DataProviderEventsResult) -> Optional[List[DomesticStaticQrResponse]]:
     """
     Returns a list of "statement of vaccination".
     A proof of vaccination is valid for 180 days, but a "statement of vaccination" only 40 hours.

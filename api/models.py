@@ -6,7 +6,7 @@ import re
 import uuid
 from datetime import date, datetime
 from enum import Enum
-from typing import List, Optional, Union
+from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -115,7 +115,6 @@ class Vaccination(BaseModel):  # noqa
     doseNumber: Optional[int] = Field(example=1, description="will be based on business rules / brand info if left out")
     totalDoses: Optional[int] = Field(example=2, description="will be based on business rules / brand info if left out")
 
-
     def toEuropeanVaccination(self):
         return EuropeanVaccination(
             **{
@@ -158,6 +157,7 @@ class Positivetest(BaseModel):  # noqa
                 **SharedEuropeanFields.as_dict(),
             }
         )
+
 
 class Negativetest(BaseModel):  # noqa
     sampleDate: str = Field(example="2021-01-01")
@@ -212,8 +212,7 @@ class EventType(str, Enum):
     vaccination = "vaccination"
 
 
-class Event(BaseModel):
-    source_provider_identifier: str = Field(None)
+class DataProviderEvent(BaseModel):
     type: EventType = Field(description="Type of event")
     unique: str = Field(description="Some unique string")
     isSpecimen: bool = Field(False, description="Boolean")
@@ -225,21 +224,27 @@ class Event(BaseModel):
 
 # https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/providing-vaccination-events.md
 # https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/data-structures-overview.md
-class DataProviderEventResult(BaseModel):
+class DataProviderEventsResult(BaseModel):
     protocolVersion: str = Field(description="The semantic version of this API", default=3.0)
     providerIdentifier: str = Field(description="todo")
     status: str = Field(description="enum complete/pending", default="complete")
     holder: Holder
-    events: List[Event]
+    events: List[DataProviderEvent]
+
+
+class Event(DataProviderEvent):
+    source_provider_identifier: str = Field(None)
+    holder: Holder
+
+
+class Events(BaseModel):
+    events: List[Event] = Field([])
 
     @property
     def vaccinations(self):
         """
         :return: sorted list of events that have vaccination data. Sorted by data.date.
         """
-        for event in self.events:
-            event.source_provider_identifier = self.providerIdentifier
-
         events = [event for event in self.events if isinstance(event.vaccination, Vaccination)]
 
         events = sorted(events, key=lambda e: e.vaccination.date)  # type: ignore
@@ -250,8 +255,6 @@ class DataProviderEventResult(BaseModel):
         """
         :return: sorted list of events that have test data. Sorted by data.sampleDate.
         """
-        for event in self.events:
-            event.source_provider_identifier = self.providerIdentifier
 
         events = [event for event in self.events if isinstance(event.positivetest, Positivetest)]
         events = sorted(events, key=lambda e: e.positivetest.sampleDate)  # type: ignore
@@ -262,8 +265,6 @@ class DataProviderEventResult(BaseModel):
         """
         :return: sorted list of events that have test data. Sorted by data.sampleDate.
         """
-        for event in self.events:
-            event.source_provider_identifier = self.providerIdentifier
 
         events = [event for event in self.events if isinstance(event.negativetest, Negativetest)]
         events = sorted(events, key=lambda e: e.negativetest.sampleDate)  # type: ignore
@@ -274,30 +275,28 @@ class DataProviderEventResult(BaseModel):
         """
         :return: sorted list of events that have recovery data. Sorted by data.sampleDate.
         """
-        for event in self.events:
-            event.source_provider_identifier = self.providerIdentifier
 
         events = [event for event in self.events if isinstance(event.recovery, Recovery)]
         events = sorted(events, key=lambda e: e.recovery.sampleDate)  # type: ignore
         return events
 
-    def toEuropeanOnlineSigningRequest(self):
-
-        return EuropeanOnlineSigningRequest(
-            **{
-                "nam": {
-                    "fn": self.holder.lastName,
-                    "fnt": self.holder.first_name_eu_normalized,
-                    "gn": self.holder.lastName,
-                    "gnt": self.holder.last_name_eu_normalized,
-                },
-                "dob": self.holder.birthDate,
-                "v": [event.vaccinations.toEuropeanVaccination() for event in self.vaccinations],
-                "r": [event.recoveries.toEuropeanRecovery() for event in self.recoveries],
-                "t": [event.negativetests.toEuropeanTest() for event in self.negativetests] +
-                     [event.positivetests.toEuropeanTest() for event in self.positivetests],
-            }
-        )
+    # def toEuropeanOnlineSigningRequest(self):
+    #
+    #     return EuropeanOnlineSigningRequest(
+    #         **{
+    #             "nam": {
+    #                 "fn": self.holder.lastName,
+    #                 "fnt": self.holder.first_name_eu_normalized,
+    #                 "gn": self.holder.lastName,
+    #                 "gnt": self.holder.last_name_eu_normalized,
+    #             },
+    #             "dob": self.holder.birthDate,
+    #             "v": [event.vaccinations.toEuropeanVaccination() for event in self.vaccinations],
+    #             "r": [event.recoveries.toEuropeanRecovery() for event in self.recoveries],
+    #             "t": [event.negativetests.toEuropeanTest() for event in self.negativetests] +
+    #                  [event.positivetests.toEuropeanTest() for event in self.positivetests],
+    #         }
+    #     )
 
 
 # todo: this will be in a different format soon, probably the same format as domestic dynamic
@@ -503,7 +502,6 @@ class DomesticGreenCard(BaseModel):
                 {"type": "vaccination", "eventTime": "2021-03-25T11:14:46Z", "expirationTime": "2021-09-21T10:14:46Z"},
                 {"type": "recovery", "eventTime": "2021-05-13T10:14:46Z", "expirationTime": "2021-06-10T10:14:46Z"},
             ],
-            # base64(?)
             "createCredentialMessages": "W3siaXNzdWVTaWduYXR1cmVNZXNzYWdlIjp7I13379mIjp7ImMiOiJ25717CH...0iXX1d",
         }
 
@@ -521,7 +519,7 @@ class PaperProofOfVaccination(BaseModel):
 
 class CMSSignedDataBlob(BaseModel):
     signature: str = Field(description="CMS signature")
-    payload: str = Field(description = "CMS payload in base64")
+    payload: str = Field(description="CMS payload in base64")
 
 
 class CredentialsRequestData(BaseModel):

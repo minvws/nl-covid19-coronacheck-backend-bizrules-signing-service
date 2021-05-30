@@ -79,9 +79,7 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
 
         # Send the BSN encrypted to respect privacy
         nonce = random(Box.NONCE_SIZE)
-        private_key = PrivateKey(
-            base64.b64decode(data_provider["bsn_cryptography"]["private_key"].encode("UTF-8"))
-        )
+        private_key = PrivateKey(base64.b64decode(data_provider["bsn_cryptography"]["private_key"].encode("UTF-8")))
         public_key = PublicKey(base64.b64decode(data_provider["bsn_cryptography"]["public_key"].encode("UTF-8")))
         box = Box(private_key, public_key)
 
@@ -89,16 +87,12 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
         event_data = {
             # Issuer Claim
             "iss": settings.IDENTITY_HASH_JWT_ISSUER_CLAIM,
-
             # Audience claim
             "aud": data_provider["event_url"],
-
             # Remove the nonce and other authentication from the encrypted box (its prefixed by pynacl)
-            "bsn": box.encrypt(bsn.encode(), nonce=nonce)[Box.NONCE_SIZE:].hex(),
-
+            "bsn": box.encrypt(bsn.encode(), nonce=nonce)[Box.NONCE_SIZE :].hex(),
             # Encode NONCE with hex format
             "nonce": nonce.hex(),
-
             # TODO: RoleIdentifier should be taken from the request (needs specifications)
             "roleIdentifier": "01",
         }

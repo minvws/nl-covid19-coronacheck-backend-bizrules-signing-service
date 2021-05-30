@@ -5,14 +5,14 @@ from typing import List
 
 import pytz
 
-from api.models import EUGreenCard, MessageToEUSigner, DataProviderEventResult, Holder
+from api.models import EUGreenCard, Events, MessageToEUSigner
 from api.settings import settings
 from api.utils import request_post_with_retries
 
 log = logging.getLogger(__package__)
 
 
-def sign(holder: Holder, data: DataProviderEventResult) -> List[EUGreenCard]:
+def sign(statement: Events) -> List[EUGreenCard]:
     """
     Implements signing against: https://github.com/minvws/nl-covid19-coronacheck-hcert-private
 
@@ -60,8 +60,8 @@ def sign(holder: Holder, data: DataProviderEventResult) -> List[EUGreenCard]:
             )
         )
 
-    if statement.tests:
-        blank_statement.events = [statement.tests[-1]]
+    if statement.negativetests:
+        blank_statement.events = [statement.negativetests[-1]]
         statements_to_eu_signer.append(
             MessageToEUSigner(
                 **{

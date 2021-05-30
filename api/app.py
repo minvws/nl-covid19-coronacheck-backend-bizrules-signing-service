@@ -1,7 +1,6 @@
+import base64
 import json
 import sys
-import base64
-
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
@@ -9,21 +8,21 @@ from fastapi import FastAPI, HTTPException
 
 from api.models import (
     AccessTokensRequest,
-    DomesticGreenCard,
-    DomesticStaticQrResponse,
-    EUGreenCard,
-    MobileAppProofOfVaccination,
-    PaperProofOfVaccination,
-    PrepareIssueResponse,
-    DataProviderEventResult,
     CredentialsRequestData,
+    DataProviderEventsResult,
+    DomesticGreenCard,
+    EUGreenCard,
+    Event,
     EventDataProviderJWT,
+    Events,
+    MobileAppProofOfVaccination,
+    PrepareIssueResponse,
 )
 from api.requesters import identity_hashes
 from api.requesters.prepare_issue import get_prepare_issue
 from api.session_store import session_store
-from api.signers import eu_international, nl_domestic_dynamic, nl_domestic_static
 from api.settings import settings
+from api.signers import eu_international, nl_domestic_dynamic
 
 app = FastAPI()
 
@@ -56,8 +55,8 @@ async def get_access_tokens_request(request: AccessTokensRequest) -> List[EventD
     return identity_hashes.create_provider_jwt_tokens(bsn)
 
 
-#@app.post("/app/paper/", response_model=PaperProofOfVaccination)
-#async def sign_via_inge3(data: StatementOfVaccination):
+# @app.post("/app/paper/", response_model=PaperProofOfVaccination)
+# async def sign_via_inge3(data: StatementOfVaccination):
 #    # todo: bring in line with dynamic signing
 #    domestic_response: Optional[List[DomesticStaticQrResponse]] = nl_domestic_static.sign(data)
 #    eu_response = eu_international.sign(data)
@@ -71,7 +70,6 @@ async def app_prepare_issue_request():
 
 @app.post("/app/credentials/", response_model=MobileAppProofOfVaccination)
 async def app_credential_request(request_data: CredentialsRequestData):
-
     # Get the prepare issue message using the stoken
     prepare_issue_message = retrieve_prepare_issue_message_from_redis(request_data.stoken)
     if not prepare_issue_message:
@@ -126,15 +124,21 @@ async def app_credential_request(request_data: CredentialsRequestData):
     }
     """
     # Merge the events from multiple providers into one list
-    all_events = []
-    holder = None
 
+    events = Events()
     for cms_signed_blob in request_data.events:
-        dperJson = json.loads(base64.b64decode(cms_signed_blob.payload))
-        dper = DataProviderEventResult(**dperJson)
-        holder = dper.holder
-        for event in dper.negativetests + dper.positivetests + dper.vaccinations + dper.recoveries:
-            all_events.append(event)
+        dp_event_json = json.loads(base64.b64decode(cms_signed_blob.payload))
+        dp_event_result = DataProviderEventsResult(**dp_event_json)
+        holder = dp_event_result.holder
+
+        for dp_event in dp_event_result.events:
+            events.events.append(
+                Event(
+                    source_provider_identifier=dp_event_result.providerIdentifier,
+                    holder=holder,
+                    **dp_event.dict(),  # TODO: Do this properly
+                )
+            )
 
     # Some debug
     """
@@ -147,15 +151,17 @@ async def app_credential_request(request_data: CredentialsRequestData):
     [Event(source_provider_identifier='ZZZ', type=<EventType.negativetest: 'negativetest'>, unique='7ff88e852c9ebd843f4023d148b162e806c9c5fd', isSpecimen=True, negativetest=Negativetest(sampleDate='2021-05-27T19:23:00+00:00', resultDate='2021-05-27T19:38:00+00:00', negativeResult=True, facility='Facility1', type='LP6464-4', name='Test1', manufacturer='1232', country='NLD'), positivetest=None, vaccination=None, recovery=None)]
     """
 
-    # Find the longest one, use it for domestic
-    domestic_event_to_use = None
-    domestic_response: Optional[DomesticGreenCard] = nl_domestic_dynamic.sign(holder, domestic_event_to_use, prepare_issue_message)
+    domestic_response: Optional[DomesticGreenCard] = nl_domestic_dynamic.sign(
+        events, prepare_issue_message, request_data.issueCommitmentMessage
+    )
 
     # When we figure out what to do with them, convert them to EU
     eu_events_to_use = None
-    eu_response: Optional[List[EUGreenCard]] = eu_international.sign(holder, eu_events_to_use)
+    # eu_response: Optional[List[EUGreenCard]] = eu_international.sign(events)
+    eu_response = None
 
     return MobileAppProofOfVaccination(**{"domesticGreencard": domestic_response, "euGreencards": eu_response})
+
 
 def retrieve_prepare_issue_message_from_redis(stoken: UUID) -> Optional[str]:
     # Explicitly do not push the prepare_issue_message into a model: the structure will change over time

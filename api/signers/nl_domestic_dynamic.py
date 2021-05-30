@@ -1,47 +1,45 @@
+import base64
 import json
 from datetime import datetime, timedelta
 from typing import Optional
 
-from api.eligibility import is_eligible_for_domestic_signing
-from api.models import DomesticGreenCard, GreenCardOrigin, IssueMessage, OriginOfProof, CredentialsRequestData, StripType, Holder
+from api.models import DomesticGreenCard, Events, GreenCardOrigin, IssueMessage, OriginOfProof, StripType
 from api.settings import settings
 from api.utils import request_post_with_retries
 
 
-def sign(holder: Holder, data: CredentialsRequestData, prepare_issue_message: str) -> Optional[DomesticGreenCard]:
+def sign(events: Events, prepare_issue_message: str, issue_commitment_message: str) -> Optional[DomesticGreenCard]:
     """
     This signer talks to: https://github.com/minvws/nl-covid19-coronacheck-idemix-private/
-
-    Example prepare_issue_message:
-    {"issuerPkId":"TST-KEY-01","issuerNonce":"j6n+P9UPWS+2+C+MsNVlVw==","credentialAmount":28}
 
     :param data:
     :return:
     """
 
-    # Todo: this logic will be replaced, see above.
-    eligible_because = is_eligible_for_domestic_signing(data.events)
-    if not eligible_because:
-        return None
+    holder = events.events[0].holder
+    now = datetime.now()
 
     attributes = [
         {
             "isSpecimen": "0",
+            # TODO this is broken. Should be based on a request var
             "stripType": StripType.APP_STRIP,
-            "validFrom": (datetime.now() + timedelta(days=i)).isoformat(),
-            "validForHours": "24",  # TODO: This should be a configuration value
-            "firstNameInitial": data.events.holder.first_name_initial,
-            "lastNameInitial": data.events.holder.last_name_initial,
-            "birthDay": str(data.events.holder.birthDate.day),
-            "birthMonth": str(data.events.holder.birthDate.month),
+            # TODO this is broken. Should be based on event type (datetime.now() ==> +X from event valid)
+            "validFrom": (now + timedelta(days=i)).isoformat(),
+            "validForHours": settings.DOMESTIC_STRIP_VALIDITY_HOURS,
+            "firstNameInitial": holder.first_name_initial,
+            "lastNameInitial": holder.last_name_initial,
+            "birthDay": str(holder.birthDate.day),
+            "birthMonth": str(holder.birthDate.month),
         }
+        # TODO: This is broken. 28 depends on type of event..
         for i in range(28)
     ]
 
     issue_message = IssueMessage(
         **{
-            "prepareIssueMessage": json.loads(prepare_issue_message),
-            "issueCommitmentMessage": json.loads(data.issueCommitmentMessage),
+            "prepareIssueMessage": json.loads(base64.b64decode(prepare_issue_message)),
+            "issueCommitmentMessage": json.loads(base64.b64decode(issue_commitment_message)),
             "credentialsAttributes": attributes,
         }
     )
@@ -53,16 +51,20 @@ def sign(holder: Holder, data: CredentialsRequestData, prepare_issue_message: st
     )
 
     response.raise_for_status()
-    dgc = DomesticGreenCard(
+    dcc = DomesticGreenCard(
         origins=[
             GreenCardOrigin(
+                # TODO: this is broken. SHould be from the event
                 type=OriginOfProof.vaccination,
                 eventTime=datetime.now().isoformat(),
                 validFrom=datetime.now().isoformat(),
+                # TODO: this is broken. 90??
                 expirationTime=(datetime.now() + timedelta(days=90)).isoformat(),
             ),
         ],
-        createCredentialMessages=response.content.decode("UTF-8"),
+        # TODO: this is ugly. Should we base64 or parse the json?
+        # createCredentialMessages=response.content.decode("UTF-8"),
+        createCredentialMessages=base64.b64encode(response.content),
     )
 
-    return dgc
+    return dcc
