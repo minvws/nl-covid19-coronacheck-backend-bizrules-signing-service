@@ -15,7 +15,7 @@ from api.models import (
     PrepareIssueResponse,
     DataProviderEventResult,
     SignEventsData,
-    UnomiEventToken,
+    EventDataProviderJWT,
 )
 from api.requesters import identity_hashes
 from api.requesters.prepare_issue import get_prepare_issue
@@ -40,13 +40,13 @@ async def health() -> Dict[str, Any]:
     }
 
 
-@app.post("/app/access_tokens/", response_model=List[UnomiEventToken])
-async def get_access_tokens(request: AccessTokensRequest) -> List[UnomiEventToken]:
+@app.post("/app/access_tokens/", response_model=List[EventDataProviderJWT])
+async def get_access_tokens(request: AccessTokensRequest) -> List[EventDataProviderJWT]:
     """
     Creates unomi events based on DigiD BSN retrieval token.
     .. image:: ./docs/sequence-diagram-unomi-events.png
 
-    :param request: BSNRetrievalToken
+    :param request: AccessTokensRequest
     :return:
     """
     bsn = await identity_hashes.get_bsn_from_inge6(request)

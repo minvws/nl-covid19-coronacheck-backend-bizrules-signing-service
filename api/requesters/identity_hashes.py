@@ -15,7 +15,7 @@ from nacl.public import Box, PrivateKey, PublicKey
 from nacl.utils import random
 
 from api.enrichment import sbvz
-from api.models import AccessTokensRequest, UnomiEventToken
+from api.models import AccessTokensRequest, EventDataProviderJWT
 from api.settings import settings
 from api.utils import request_get_with_retries
 
@@ -38,7 +38,7 @@ async def get_bsn_from_inge6(access_token_request: AccessTokensRequest):
     return bsn.decode()
 
 
-def create_provider_jwt_tokens(bsn: str) -> List[UnomiEventToken]:
+def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
     """
     In order to reliably determine a system contains information about a certain person without revealing who that
     person is an identity-hash will be generated for each individual connected party and sent to the Information
@@ -93,7 +93,7 @@ def create_provider_jwt_tokens(bsn: str) -> List[UnomiEventToken]:
             # Audience claim
             "aud": data_provider["event_url"],
 
-            # Remove the nonce and other authentication from the encrypted box
+            # Remove the nonce and other authentication from the encrypted box (its prefixed by pynacl)
             "bsn": box.encrypt(bsn.encode(), nonce=nonce)[Box.NONCE_SIZE:].hex(),
 
             # Encode NONCE with hex format
@@ -138,7 +138,7 @@ def create_provider_jwt_tokens(bsn: str) -> List[UnomiEventToken]:
         event_jwt_data = dict(sorted(event_jwt_data.items(), key=lambda kv: kv[0]))
 
         tokens.append(
-            UnomiEventToken(
+            EventDataProviderJWT(
                 provider_identifier=data_provider["identifier"],
                 unomi=jwt.encode(unomi_jwt_data, settings.IDENTITY_HASH_JWT_PRIVATE_KEY, algorithm="HS256"),
                 event=jwt.encode(event_jwt_data, settings.IDENTITY_HASH_JWT_PRIVATE_KEY, algorithm="HS256"),

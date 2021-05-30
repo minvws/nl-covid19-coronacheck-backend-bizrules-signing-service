@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 from unidecode import unidecode
 
 
-class UnomiEventToken(BaseModel):
+class EventDataProviderJWT(BaseModel):
     provider_identifier: str
     unomi: str = Field(description="JWT containing unomi data: iss aud iat nbf exp and identity_hash.")
     event: str = Field(description="JWT containing event data: same as unomi + nonce and encrypted_bsn.")
@@ -140,8 +140,7 @@ class positivetest(BaseModel):  # noqa
     type: str = Field(example="???")
     name: str = Field(example="???")
     manufacturer: str = Field(example="1232")
-
-    # todo: country is missing(!)
+    country: str = Field(example="NLD")
 
     def toEuropeanTest(self):
         return EuropeanTest(
@@ -164,10 +163,9 @@ class negativetest(BaseModel):  # noqa
     resultDate: str = Field(example="2021-01-02")
     negativeResult: bool = Field(example=True)
     facility: str = Field(example="Facility1")
-    # this is not specified yet
-    type: str = Field(example="???")
-    name: str = Field(example="???")
-    manufacturer: str = Field(example="1232")
+    type: str = Field(example="A great one")
+    name: str = Field(example="Bestest")
+    manufacturer: str = Field(example="Acme Inc")
     country: str = Field(example="NLD")
 
     def toEuropeanTest(self):
@@ -191,6 +189,7 @@ class recovery(BaseModel):  # noqa
     sampleDate: str = Field(example="2021-01-01")
     validFrom: str = Field(example="2021-01-12")
     validUntil: str = Field(example="2021-06-30")
+    country: str = Field(example="NLD")
 
     def toEuropeanRecovery(self):
         return EuropeanRecovery(
