@@ -19,7 +19,7 @@ class UnomiEventToken(BaseModel):
     event: str = Field(description="JWT containing event data: same as unomi + nonce and encrypted_bsn.")
 
 
-class PrepareIssueMessage(BaseModel):
+class PrepareIssueResponse(BaseModel):
     stoken: UUID = Field(description="", example="a019e902-86a0-4b1d-bff0-5c89f3cfc4d9")
     prepareIssueMessage: str = Field(
         description="A Base64 encoded prepare_issue_message",
@@ -30,9 +30,8 @@ class PrepareIssueMessage(BaseModel):
     )
 
 
-class BSNRetrievalToken(BaseModel):
-    # todo: Sent to inge6, returns the attributes.
-    tvs_token: str = Field(description="TVS/DigiD token required to fetch BSN")
+class AccessTokensRequest(BaseModel):
+    tvs_token: str = Field(description="Token that can be used to fetch BSN from Inge6")
 
 
 class Holder(BaseModel):
@@ -132,7 +131,7 @@ class vaccination(BaseModel):  # noqa
         )
 
 
-class test(BaseModel):  # noqa
+class positivetest(BaseModel):  # noqa
     sampleDate: str = Field(example="2021-01-01")
     resultDate: str = Field(example="2021-01-02")
     negativeResult: bool = Field(example=True)
@@ -143,6 +142,33 @@ class test(BaseModel):  # noqa
     manufacturer: str = Field(example="1232")
 
     # todo: country is missing(!)
+
+    def toEuropeanTest(self):
+        return EuropeanTest(
+            **{
+                **{
+                    "tt": self.type,
+                    "nm": self.name,
+                    "ma": self.manufacturer,
+                    "sc": datetime.fromisoformat(self.sampleDate),
+                    "dr": datetime.fromisoformat(self.resultDate),
+                    "tr": self.negativeResult,
+                    "tc": self.facility,
+                },
+                **SharedEuropeanFields.as_dict(),
+            }
+        )
+
+class negativetest(BaseModel):  # noqa
+    sampleDate: str = Field(example="2021-01-01")
+    resultDate: str = Field(example="2021-01-02")
+    negativeResult: bool = Field(example=True)
+    facility: str = Field(example="Facility1")
+    # this is not specified yet
+    type: str = Field(example="???")
+    name: str = Field(example="???")
+    manufacturer: str = Field(example="1232")
+    country: str = Field(example="NLD")
 
     def toEuropeanTest(self):
         return EuropeanTest(
@@ -181,7 +207,8 @@ class recovery(BaseModel):  # noqa
 
 class EventType(str, Enum):
     recovery = "recovery"
-    test = "test"
+    positivetest = "positivetest"
+    negativetest = "negativetest"
     vaccination = "vaccination"
 
 
@@ -190,15 +217,15 @@ class Event(BaseModel):
     # It IS possible to create different events with field duplication, but why would we do that
     # Todo: see responses on: https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/pull/70
     type: EventType = Field(description="Type of event")
-    unique: UUID = Field(description="todo", example="ee5afb32-3ef5-4fdf-94e3-e61b752dbed9")
+    unique: str = Field(description="some unique string")
     isSpecimen: bool = Field(0, description="Boolean as an integer: 0 or 1.")
-    data: Union[vaccination, test, recovery] = Field(description="Structure is based on the 'type' discriminator.")
+    data: Union[vaccination, positivetest, negativetest, recovery] = Field(description="Structure is based on the 'type' discriminator.")
 
 
 # https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/providing-vaccination-events
 # .md
 # https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/data-structures-overview.md
-class StatementOfVaccination(BaseModel):
+class DataProviderEventResult(BaseModel):
     protocolVersion: str = Field(description="The semantic version of this API", default=3.0)
     providerIdentifier: str = Field(description="todo")  # todo
     status: str = Field(description="todo, enum probably", default="complete")  # todo
@@ -219,7 +246,7 @@ class StatementOfVaccination(BaseModel):
         """
         :return: sorted list of events that have test data. Sorted by data.sampleDate.
         """
-        events = [event for event in self.events if isinstance(event.data, test)]
+        events = [event for event in self.events if isinstance(event.data, positivetest) or isinstance(event.data, negativetest)]
         events = sorted(events, key=lambda e: e.data.sampleDate)  # type: ignore
         return events
 
@@ -467,12 +494,14 @@ class PaperProofOfVaccination(BaseModel):
     domesticProof: Optional[List[DomesticStaticQrResponse]] = Field(description="Paper vaccination")
     euProofs: Optional[List[EUGreenCard]] = Field(description="")
 
+class CMSSignedDataBlob(BaseModel):
+    signature: str = Field(description="CMS signature")
+    payload: str = Field(description = "CMS payload in base64")
 
-class StepTwoData(BaseModel):
-    events: StatementOfVaccination
+class SignEventsData(BaseModel):
+    events: List[CMSSignedDataBlob]
     stoken: UUID = Field(description="", example="a019e902-86a0-4b1d-bff0-5c89f3cfc4d9")
     issueCommitmentMessage: str
-
 
 class StripType(str, Enum):
     APP_STRIP = "0"

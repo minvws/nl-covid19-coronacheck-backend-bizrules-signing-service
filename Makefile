@@ -93,10 +93,10 @@ pip-sync-dev: ## synchronizes the .venv with the state of requirements.txt
 	. .venv/bin/activate && ${env} python3 -m piptools sync requirements.txt requirements-dev.txt
 
 run: venv
-	. .venv/bin/activate && ${env} python3 -m uvicorn api.app:app --reload --port ${port}
+	. .venv/bin/activate && ${env} python3 -m uvicorn api.app:app --reload --port ${port} --host 0.0.0.0
 
 run-mock: venv
-	. .venv/bin/activate && ${env} python3 -m uvicorn api.mock:app --reload --port ${mockport}
+	. .venv/bin/activate && ${env} python3 -m uvicorn api.mock:app --reload --port ${mockport} --host 0.0.0.0
 
 
 docs: venv

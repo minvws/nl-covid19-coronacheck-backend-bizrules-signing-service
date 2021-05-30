@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from api.models import OriginOfProof, StatementOfVaccination, recovery, vaccination  # , test
+from api.models import OriginOfProof, DataProviderEventResult, recovery, vaccination  # , test
 
 HPK_ASTRAZENECA = 2925508
 HPK_PFIZER = 2924528
@@ -19,13 +19,13 @@ def normalize_vaccination_events(vaccination_events):
     raise NotImplementedError
 
 
-def is_eligible_for_eu_signing(data: StatementOfVaccination) -> str:
+def is_eligible_for_eu_signing(data: DataProviderEventResult) -> str:
     # todo: https://nos.nl/artikel/2381260-een-prik-genoeg-voor-het-krijgen-van-een-covid-reiscertificaat
     raise NotImplementedError
 
 
 # todo: this will be rewritten to origins and timestamps.
-def is_eligible_for_domestic_signing(data: StatementOfVaccination) -> OriginOfProof:
+def is_eligible_for_domestic_signing(data: DataProviderEventResult) -> OriginOfProof:
     """
     The vaccination passport rules change on a day to day basis. What you see here, and below may be
     outdated by far when you read this. Don't currently take below code as an absolute.

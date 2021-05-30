@@ -49,7 +49,7 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
             "pNbUFqclRRaUIxRWwxbWoydzhHMmZLMmRnPSIsImlzcyI6Imp3dC50ZXN0LmNvcm9uYWNoZWNrLm5sIiwibmJmIjoxNTgwNjA"
             "xNjAwLCJub25jZSI6Ik1ERXlNelExTmpjNE9UQXhNak0wTlRZM09Ea3dNVEl6In0.apEVco0RvsVr8PFSUBJ9-EeplvWlYpGE"
             "YFCj9xFRfyk",
-            "provider_identifier": "GGD Region 5715",
+            "provider_identifier": "XXX",
             "unomi": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tL3Vub21pL3YyLyIsImV4cCI6"
             "MTU4MDY4ODAwMCwiaWF0IjoxNTgwNjAxNjAwLCJpZGVudGl0eV9oYXNoIjoiS0hUN3NTbnI0Z2hiUFovVVBaTW1BanJUUWlCM"
             "UVsMW1qMnc4RzJmSzJkZz0iLCJpc3MiOiJqd3QudGVzdC5jb3JvbmFjaGVjay5ubCIsIm5iZiI6MTU4MDYwMTYwMH0.vT2IqF"

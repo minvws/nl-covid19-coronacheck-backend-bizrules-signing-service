@@ -17,7 +17,7 @@ log = logging.getLogger(__package__)
 class AppSettings(BaseSettings):
     # pylint: disable=too-many-instance-attributes
     SECRETS_FOLDER: pathlib.Path = Field("")
-    DYNAMIC_FLOW_VACCINATION_DATABASE_FILENAME: str = ""
+    EVENT_DATA_PROVIDERS_FILENAME: str = ""
     DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME: str = ""
     SBVZ_CERT_FILENAME: str = ""
     # todo: make a model out of vaccination providers and enforce minumum length of
@@ -25,8 +25,9 @@ class AppSettings(BaseSettings):
     #      as described in vaccinationproviders.json5
     #      we should not even start if the config is not secure enough
     # APP_STEP_1_VACCINATION_PROVIDERS_FILE: str = ""
-    APP_STEP_1_VACCINATION_PROVIDERS: List[Dict[str, Any]] = []
-    APP_STEP_1_JWT_PRIVATE_KEY: str = ""
+    EVENT_DATA_PROVIDERS: List[Dict[str, Any]] = []
+    IDENTITY_HASH_JWT_PRIVATE_KEY: str = ""
+    IDENTITY_HASH_JWT_ISSUER_CLAIM: str = "jwt.test.coronacheck.nl"
     SBVZ_WSDL_ENVIRONMENT: str = ""
     SBVZ_CERT: str = ""
 
@@ -35,8 +36,11 @@ class AppSettings(BaseSettings):
     DOMESTIC_NL_VWS_ONLINE_SIGNING_URL: AnyHttpUrl = Field()
     EU_INTERNATIONAL_SIGNING_URL: AnyHttpUrl = Field()
 
-    INGE6_BSN_RETRIEVAL_URL: AnyHttpUrl = Field()
     MOCK_MODE: bool = False
+
+    INGE6_BSN_RETRIEVAL_URL: AnyHttpUrl = Field()
+    INGE6_MOCK_MODE: bool = True
+    INGE6_MOCK_MODE_BSN: str = ""
 
     NONCE_BYTE_SECURITY: int = 256
     EXPIRATION_TIME_IN_SECONDS: int = 60
@@ -91,11 +95,11 @@ def settings_factory(env_file: pathlib.Path) -> AppSettings:
 
     _settings.SECRETS_FOLDER = INGE4_ROOT.joinpath(_settings.SECRETS_FOLDER)
 
-    _settings.APP_STEP_1_VACCINATION_PROVIDERS = json5.loads(
-        read_file(f"{_settings.SECRETS_FOLDER}/{_settings.DYNAMIC_FLOW_VACCINATION_DATABASE_FILENAME}")
+    _settings.EVENT_DATA_PROVIDERS = json5.loads(
+        read_file(f"{_settings.SECRETS_FOLDER}/{_settings.EVENT_DATA_PROVIDERS_FILENAME}")
     )
 
-    _settings.APP_STEP_1_JWT_PRIVATE_KEY = read_file(
+    _settings.IDENTITY_HASH_JWT_PRIVATE_KEY = read_file(
         f"{_settings.SECRETS_FOLDER}/{_settings.DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME}"
     )
     # _settings.SBVZ_CERT = read_file(INGE4_ROOT.joinpath(f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}"))
