@@ -35,6 +35,8 @@ class AppSettings(BaseSettings):
     DOMESTIC_NL_VWS_PAPER_SIGNING_URL: AnyHttpUrl = Field()
     DOMESTIC_NL_VWS_ONLINE_SIGNING_URL: AnyHttpUrl = Field()
     DOMESTIC_STRIP_VALIDITY_HOURS: int = 24
+    DOMESTIC_MAXIMUM_ISSUANCE_DAYS: int = 14
+    DOMESTIC_MAXIMUM_RANDOMIZED_OVERLAP_HOURS: int = 4
     EU_INTERNATIONAL_SIGNING_URL: AnyHttpUrl = Field()
 
     MOCK_MODE: bool = False
@@ -94,7 +96,6 @@ class RedisSettings(BaseSettings):
 
 
 def settings_factory(env_file: pathlib.Path) -> AppSettings:
-
     _settings = AppSettings(_env_file=env_file)
 
     _settings.SECRETS_FOLDER = INGE4_ROOT.joinpath(_settings.SECRETS_FOLDER)

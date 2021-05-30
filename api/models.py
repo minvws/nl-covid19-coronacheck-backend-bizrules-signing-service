@@ -86,8 +86,14 @@ class Holder(BaseModel):
     def last_name_eu_normalized(self):
         return Holder._eu_normalize(self.lastName)
 
+    def equal_to(self, other):
+        return (
+            self.firstName == other.firstName and self.lastName == other.lastName and self.birthDate == other.birthDate
+        )
+
 
 class Vaccination(BaseModel):  # noqa
+
     """
     When supplying data and you want to make it easy:
     - use a HPK Code and just the amount of events.
@@ -241,7 +247,7 @@ class Events(BaseModel):
     events: List[Event] = Field([])
 
     @property
-    def vaccinations(self):
+    def vaccinations(self) -> List[Event]:
         """
         :return: sorted list of events that have vaccination data. Sorted by data.date.
         """
@@ -251,7 +257,7 @@ class Events(BaseModel):
         return events
 
     @property
-    def positivetests(self):
+    def positivetests(self) -> List[Event]:
         """
         :return: sorted list of events that have test data. Sorted by data.sampleDate.
         """
@@ -261,7 +267,7 @@ class Events(BaseModel):
         return events
 
     @property
-    def negativetests(self):
+    def negativetests(self) -> List[Event]:
         """
         :return: sorted list of events that have test data. Sorted by data.sampleDate.
         """
@@ -271,7 +277,7 @@ class Events(BaseModel):
         return events
 
     @property
-    def recoveries(self):
+    def recoveries(self) -> List[Event]:
         """
         :return: sorted list of events that have recovery data. Sorted by data.sampleDate.
         """
