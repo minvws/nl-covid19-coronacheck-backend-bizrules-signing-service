@@ -1,12 +1,13 @@
 import base64
 import json
 import secrets
-from datetime import datetime, timedelta, date
+from datetime import date, datetime, timedelta
 from typing import List, Optional, Union
 
 from api.models import (
     ContiguousOriginsBlock,
     DomesticGreenCard,
+    DomesticSignerAttributes,
     Event,
     Events,
     EventType,
@@ -14,7 +15,6 @@ from api.models import (
     IssueMessage,
     RichOrigin,
     StripType,
-    DomesticSignerAttributes,
 )
 from api.settings import settings
 from api.signers import hpkcodes
@@ -45,8 +45,8 @@ def eligible_vaccination(events: Events) -> List[RichOrigin]:
 
         # One vaccination of the right type, medically approved or combined with a recovery
         is_eligible = (
-            vacc.vaccination.hpkCode == hpkcodes.JANSSEN
-            or vacc.vaccination.completedByMedicalStatement
+            vacc.vaccination.hpkCode == hpkcodes.JANSSEN  # type: ignore
+            or vacc.vaccination.completedByMedicalStatement  # type: ignore
             or any(map(lambda r: r.holder.equal_to(vacc.holder), events.recoveries))
             or any(map(lambda p: p.holder.equal_to(vacc.holder), events.positivetests))
         )
@@ -56,7 +56,7 @@ def eligible_vaccination(events: Events) -> List[RichOrigin]:
 
     # If there a valid vaccination was found, add a single one to the origins
     if best_vacc:
-        event_time = floor_hours(datetime.fromisoformat(best_vacc.vaccination.date))
+        event_time = floor_hours(datetime.fromisoformat(best_vacc.vaccination.date))  # type: ignore
 
         return [
             RichOrigin(
@@ -110,7 +110,7 @@ def eligible_positive_tests(events) -> List[RichOrigin]:
 
 
 def eligible_negative_tests(events) -> List[RichOrigin]:
-    eligible_nts = list(filter(lambda nt: True, events.negativetests))
+    eligible_nts = list(filter(lambda _: True, events.negativetests))
 
     origins = []
 
