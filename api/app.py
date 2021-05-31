@@ -15,13 +15,13 @@ from api.models import (
     EventDataProviderJWT,
     Events,
     MobileAppProofOfVaccination,
-    PrepareIssueResponse,
+    PrepareIssueResponse, EUGreenCard,
 )
 from api.requesters import identity_hashes
 from api.requesters.prepare_issue import get_prepare_issue
 from api.session_store import session_store
 from api.settings import settings
-from api.signers import nl_domestic_dynamic
+from api.signers import nl_domestic_dynamic, eu_international
 
 app = FastAPI()
 
@@ -156,11 +156,7 @@ async def app_credential_request(request_data: CredentialsRequestData):
     domestic_response: Optional[DomesticGreenCard] = nl_domestic_dynamic.sign(
         events, prepare_issue_message, request_data.issueCommitmentMessage
     )
-
-    # When we figure out what to do with them, convert them to EU
-    eu_events_to_use = None
-    # eu_response: Optional[List[EUGreenCard]] = eu_international.sign(events)
-    eu_response = None
+    eu_response: Optional[List[EUGreenCard]] = eu_international.sign(events)
 
     return MobileAppProofOfVaccination(**{"domesticGreencard": domestic_response, "euGreencards": eu_response})
 
