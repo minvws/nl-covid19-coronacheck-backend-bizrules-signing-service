@@ -21,22 +21,21 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
         url="http://localhost:8001/cibg.sbv.testtool.webservice.dec14/opvragenpersoonsgegevens.asmx",
         text=read_file(f"{current_path}/sbvz/direct_match_correct_response.xml"),
     )
-    requests_mock.get(
+    requests_mock.post(
         url=f"{settings.INGE6_BSN_RETRIEVAL_URL}"
-        "?at=482hfh28hfh298h3f9ehf2h09f2h908f2p3"
-        "&nonce=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz",
+        "?at=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz",
         text="MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzpEliQZGIthee86WIg0w599yMlSzcg8ojyA==",
     )
     requests_mock.post(url="http://testserver/app/access_tokens/", real_http=True)
 
     # Make sure the nonce is always the same
-    mocker.patch("api.requesters.mobile_app_step_1.random", return_value=b"012345678901234567890123")
+    mocker.patch("api.requesters.identity_hashes.random", return_value=b"012345678901234567890123")
 
     # Example client is disabled by default, so no answer
     client = TestClient(app)
     response = client.post(
         "/app/access_tokens/",
-        json.dumps({"tvs_token": "482hfh28hfh298h3f9ehf2h09f2h908f2p3"}),
+        json.dumps({"tvs_token": "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz"}),
         headers={},
     )
     json_content = json.loads(response.content.decode("UTF-8"))

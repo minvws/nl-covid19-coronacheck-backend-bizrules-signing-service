@@ -2,6 +2,7 @@
 __author__ = "Elger Jonker, Nick ten Cate for minvws"
 
 import base64
+import binascii
 import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List
@@ -17,25 +18,46 @@ from nacl.utils import random
 from api.enrichment import sbvz
 from api.models import AccessTokensRequest, EventDataProviderJWT
 from api.settings import settings
-from api.utils import request_get_with_retries
+from api.utils import request_post_with_retries
 
 log = logging.getLogger(__package__)
 inge6_box = Box(settings.INGE4_NACL_PRIVATE_KEY, settings.INGE6_NACL_PUBLIC_KEY)
+HTTPInvalidRetrievalTokenException = HTTPException(status_code=401, detail=["RetrievalToken Invalid"])
 
+async def get_bsn_from_inge6(retrieval_token: AccessTokensRequest):
 
-async def get_bsn_from_inge6(access_token_request: AccessTokensRequest):
-
-    # If mock mode; dont actually go and get the BSN
-    if settings.INGE6_MOCK_MODE:
+    # If mock mode and INGE6_MOCK_MODE_BSN is set; dont actually go and get the BSN
+    if settings.INGE6_MOCK_MODE and settings.INGE6_MOCK_MODE_BSN:
         return settings.INGE6_MOCK_MODE_BSN
 
-    nonce = random(inge6_box.NONCE_SIZE)
+    tvs_token = retrieval_token.tvs_token
 
-    response = request_get_with_retries(settings.INGE6_BSN_RETRIEVAL_URL, access_token_request.tvs_token)
+    try:
+        tvs_token_raw = base64.b64decode(tvs_token)
+    except binascii.Error:
+        log.warning(f"tvs token {tvs_token} of type {type(tvs_token)} not base64 decodable")
+        raise HTTPInvalidRetrievalTokenException
+
+    if len(tvs_token_raw) < inge6_box.NONCE_SIZE:
+        log.warning("tvs token to short")
+        raise HTTPInvalidRetrievalTokenException
+
+    nonce = tvs_token_raw[:inge6_box.NONCE_SIZE]
+
+
+    querystring = {"at": tvs_token}
+
+    response = request_post_with_retries(settings.INGE6_BSN_RETRIEVAL_URL,data="", params=querystring)
     encrypted_bsn = response.content
+
+
+    if not Base64Encoder.decode(encrypted_bsn)[: inge6_box.NONCE_SIZE] == nonce:
+        log.warning("nonce is invalid")
+        raise HTTPInvalidRetrievalTokenException
 
     bsn = inge6_box.decrypt(encrypted_bsn, encoder=Base64Encoder)
     return bsn.decode()
+
 
 
 def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
