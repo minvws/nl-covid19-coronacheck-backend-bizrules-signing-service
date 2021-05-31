@@ -95,6 +95,28 @@ pip-sync-dev: ## synchronizes the .venv with the state of requirements.txt
 run: venv
 	. .venv/bin/activate && ${env} python3 -m uvicorn api.app:app --reload --port ${port} --host 0.0.0.0
 
+
+define URN
+         .--------.
+         \        /
+          )      (
+         /        \\
+       ,'          `.
+      /              \\
+     /                \\
+    (        <3        )
+     \                /
+      `.            ,'
+        `.________,'
+endef
+export URN
+
+# For those who mistype make run, make them remember!
+urn:
+	clear
+	@echo "$$URN"
+
+
 run-mock: venv
 	. .venv/bin/activate && ${env} python3 -m uvicorn api.mock:app --reload --port ${mockport} --host 0.0.0.0
 
