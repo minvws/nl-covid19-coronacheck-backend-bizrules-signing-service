@@ -419,8 +419,10 @@ class EuropeanVaccination(SharedEuropeanFields):
     # https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/vaccine-mah-manf.json
     ma: str = Field(description="vaccination.manufacturer", example="ORG-100001699")
 
-    dn: int = Field(description="vaccination.doseNumber", example=1, gt=0, lt=10)
-    sd: int = Field(description="vaccination.totalDoses", example=1, gt=0, lt=10)
+    # Todo: it seems that dn can be omitted according to this tool:
+    # https://api-test.coronatester.nl/events/create-vaccination-event
+    dn: Optional[int] = Field(description="vaccination.doseNumber", example=1, gt=0, lt=10)
+    sd: Optional[int] = Field(description="vaccination.totalDoses", example=1, gt=0, lt=10)
 
     # Iso 8601, date only
     dt: date = Field(description="vaccination.date", example="2021-01-01")
