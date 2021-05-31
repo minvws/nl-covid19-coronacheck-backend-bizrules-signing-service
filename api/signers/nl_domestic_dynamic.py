@@ -13,7 +13,8 @@ from api.models import (
     GreenCardOrigin,
     IssueMessage,
     RichOrigin,
-    StripType, DomesticSignerAttributes,
+    StripType,
+    DomesticSignerAttributes,
 )
 from api.settings import settings
 from api.signers import hpkcodes
@@ -44,10 +45,10 @@ def eligible_vaccination(events: Events) -> List[RichOrigin]:
 
         # One vaccination of the right type, medically approved or combined with a recovery
         is_eligible = (
-                vacc.vaccination.hpkCode == hpkcodes.JANSSEN
-                or vacc.vaccination.completedByMedicalStatement
-                or any(map(lambda r: r.holder.equal_to(vacc.holder), events.recoveries))
-                or any(map(lambda p: p.holder.equal_to(vacc.holder), events.positivetests))
+            vacc.vaccination.hpkCode == hpkcodes.JANSSEN
+            or vacc.vaccination.completedByMedicalStatement
+            or any(map(lambda r: r.holder.equal_to(vacc.holder), events.recoveries))
+            or any(map(lambda p: p.holder.equal_to(vacc.holder), events.positivetests))
         )
 
         if is_eligible:
@@ -57,13 +58,15 @@ def eligible_vaccination(events: Events) -> List[RichOrigin]:
     if best_vacc:
         event_time = floor_hours(datetime.fromisoformat(best_vacc.vaccination.date))
 
-        return [RichOrigin(
-            holder=best_vacc.holder,
-            type=EventType.vaccination,
-            eventTime=event_time,
-            validFrom=event_time,
-            expirationTime=(event_time + timedelta(days=365)),
-        )]
+        return [
+            RichOrigin(
+                holder=best_vacc.holder,
+                type=EventType.vaccination,
+                eventTime=event_time,
+                validFrom=event_time,
+                expirationTime=(event_time + timedelta(days=365)),
+            )
+        ]
 
     return []
 
@@ -80,7 +83,8 @@ def eligible_recovery(events) -> List[RichOrigin]:
             eventTime=floor_hours(datetime.fromisoformat(rec.recovery.sampleDate)),
             validFrom=floor_hours(datetime.fromisoformat(rec.recovery.validFrom)),
             expirationTime=floor_hours(datetime.fromisoformat(rec.recovery.validUntil)),
-        ) for rec in eligible_recs
+        )
+        for rec in eligible_recs
     ]
 
 
@@ -161,16 +165,18 @@ def calculate_attributed_from_blocks(contiguous_blocks: List[ContiguousOriginsBl
             holder = overlapping_block.origins[0].holder
 
             attributes.append(
-                DomesticSignerAttributes(**{
-                    "isSpecimen": "0",
-                    "stripType": StripType.APP_STRIP,
-                    "validFrom": valid_from.isoformat(),
-                    "validForHours": settings.DOMESTIC_STRIP_VALIDITY_HOURS,
-                    "firstNameInitial": holder.first_name_initial,
-                    "lastNameInitial": holder.last_name_initial,
-                    "birthDay": str(holder.birthDate.day),
-                    "birthMonth": str(holder.birthDate.month),
-                })
+                DomesticSignerAttributes(
+                    **{
+                        "isSpecimen": "0",
+                        "stripType": StripType.APP_STRIP,
+                        "validFrom": valid_from.isoformat(),
+                        "validForHours": settings.DOMESTIC_STRIP_VALIDITY_HOURS,
+                        "firstNameInitial": holder.first_name_initial,
+                        "lastNameInitial": holder.last_name_initial,
+                        "birthDay": str(holder.birthDate.day),
+                        "birthMonth": str(holder.birthDate.month),
+                    }
+                )
             )
 
             # Break out if we're done with this block
@@ -187,8 +193,12 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
     :return:
     """
 
-    origins: List[RichOrigin] = eligible_vaccination(events) + eligible_recovery(events) + eligible_positive_tests(
-        events) + eligible_negative_tests(events)
+    origins: List[RichOrigin] = (
+        eligible_vaccination(events)
+        + eligible_recovery(events)
+        + eligible_positive_tests(events)
+        + eligible_negative_tests(events)
+    )
 
     # # --------------------------------------
     # # Calculate final origins and attributes
@@ -241,7 +251,7 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
             )
             for origin in origins
         ],
-        createCredentialMessages=base64.b64encode(response.content).decode('UTF-8'),
+        createCredentialMessages=base64.b64encode(response.content).decode("UTF-8"),
     )
 
     return dcc
