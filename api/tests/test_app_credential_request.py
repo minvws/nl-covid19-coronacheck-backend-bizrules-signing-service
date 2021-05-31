@@ -7,16 +7,16 @@ from freezegun import freeze_time
 from api.app import app
 from api.session_store import session_store
 from api.settings import settings
-from api.tests.test_eusigner import testcase_event_vaccination
 from api.utils import read_file
 
 
 @freeze_time("2020-02-02")
-def test_app_credential_request(requests_mock, current_path):
+def test_app_credential_request(requests_mock, current_path, redis_db):
+    # mock redis
+    session_store._redis = redis_db
     # create fake session:
     session_token = session_store.store_message(b'{"some": "data"}')
     client = TestClient(app)
-
 
     events = json.loads(read_file(current_path.joinpath("test_data/events1.json")))
 
@@ -68,10 +68,16 @@ def test_app_credential_request(requests_mock, current_path):
             "origins": [
                 {
                     "eventTime": "2020-02-02T00:00:00",
-                    "expirationTime": "2021-02-01T00:00:00",
-                    "type": "vaccination",
+                    "expirationTime": "2020-02-03T16:00:00",
+                    "type": "negativetest",
                     "validFrom": "2020-02-02T00:00:00",
-                }
+                },
+                {
+                    "eventTime": "2020-02-02T00:00:00",
+                    "expirationTime": "2020-02-03T16:00:00",
+                    "type": "negativetest",
+                    "validFrom": "2020-02-02T00:00:00",
+                },
             ],
         },
         "euGreencards": [
@@ -79,10 +85,10 @@ def test_app_credential_request(requests_mock, current_path):
                 "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%I0/IVB58WA",
                 "origins": [
                     {
-                        "eventTime": "2021-05-31",
+                        "eventTime": "2021-05-27T19:23:00+00:00",
                         "expirationTime": "2020-07-31T00:00:00+00:00",
-                        "type": "vaccination",
-                        "validFrom": "2021-05-31",
+                        "type": "test",
+                        "validFrom": "2021-05-27T19:23:00+00:00",
                     }
                 ],
             }
