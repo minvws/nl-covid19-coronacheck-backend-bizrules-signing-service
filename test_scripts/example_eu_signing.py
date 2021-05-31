@@ -1,6 +1,6 @@
 import logging
 
-from api.models import StatementOfVaccination, StepTwoData
+from api.models import Events, CredentialsRequestData
 from api.signers.eu_international import sign as eu_sign
 from api.signers.nl_domestic_dynamic import sign as nl_sign
 from api.tests.test_eusigner import vaccination_events
@@ -200,9 +200,9 @@ stoken = "43b09572-c4b3-4247-8dc1-104680c20b82"
 
 if __name__ == "__main__":
     data = nl_sign(
-        StepTwoData(
+        CredentialsRequestData(
             **{
-                "events": StatementOfVaccination(**vaccination_events),
+                "events": Events(**vaccination_events),
                 "issueCommitmentMessage": issue_commitment_message,
                 "stoken": stoken,
             }
@@ -212,5 +212,5 @@ if __name__ == "__main__":
 
     log.info(data)
 
-    data = eu_sign(StatementOfVaccination(**vaccination_events))
+    data = eu_sign(Events(**vaccination_events))
     log.info(data)

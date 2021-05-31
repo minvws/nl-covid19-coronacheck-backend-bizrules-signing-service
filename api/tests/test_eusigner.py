@@ -2,20 +2,22 @@ from datetime import datetime
 
 from freezegun import freeze_time
 
-from api.models import EUGreenCard, StatementOfVaccination
+from api.models import EUGreenCard, Events
 from api.settings import settings
 from api.signers.eu_international import sign
 
+# todo: why do we remove "status": "complete"?
 vaccination_events = {
-    "protocolVersion": "3.0",
-    "providerIdentifier": "XXX",
-    "status": "complete",
-    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
     "events": [
         {
+            "source_provider_identifier": "XXX",
+            "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
             "type": "vaccination",
             "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
-            "data": {
+            "negativetest": None,
+            "positivetest": None,
+            "recovery": None,
+            "vaccination": {
                 "completedByMedicalStatement": False,
                 "date": "2021-02-01",
                 "hpkCode": "2934701",
@@ -26,13 +28,14 @@ vaccination_events = {
                 "country": "NLD",
                 "doseNumber": 1,
                 "totalDoses": 2,
-            },
+            }
         },
-        # only the first vaccination is used in actual signing, but in conversion we don't care.
         {
-            "type": "test",
+            "source_provider_identifier": "XXX",
+            "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+            "type": "negativetest",
             "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
-            "data": {
+            "negativetest": {
                 "sampleDate": "2021-03-01",
                 "resultDate": "2021-02-01",
                 "negativeResult": True,
@@ -40,16 +43,26 @@ vaccination_events = {
                 "type": "???",
                 "name": "???",
                 "manufacturer": "???",
+                "country": "NLD",
             },
+            "positivetest": None,
+            "recovery": None,
+            "vaccination": None
         },
         {
-            "type": "recovery",
+            "source_provider_identifier": "XXX",
+            "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+            "type": "vaccination",
             "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
-            "data": {
+            "negativetest": None,
+            "positivetest": None,
+            "recovery": {
                 "sampleDate": "2021-04-01",
                 "validFrom": "2021-02-01",
                 "validUntil": "2021-02-01",
+                "country": "NLD",
             },
+            "vaccination": None
         },
     ],
 }
@@ -61,7 +74,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
     # schema: https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/DGC.combined-schema.json
     # example:
 
-    eu_request = StatementOfVaccination(**vaccination_events).toEuropeanOnlineSigningRequest()
+    eu_request = Events(**vaccination_events).toEuropeanOnlineSigningRequest()
     assert eu_request.dict() == {
         "dob": datetime(1970, 1, 1).date(),
         "nam": {"fn": "Akkersloot", "fnt": "HERMAN", "gn": "Akkersloot", "gnt": "AKKERSLOOT"},
@@ -113,7 +126,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
 def test_eusign(requests_mock):
     example_answer = {"credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G"}
     requests_mock.post(settings.EU_INTERNATIONAL_SIGNING_URL, json=example_answer)
-    answer = sign(StatementOfVaccination(**vaccination_events))
+    answer = sign(Events(**vaccination_events))
 
     vaccination = EUGreenCard(
         **{
@@ -147,7 +160,7 @@ def test_eusign(requests_mock):
         **{
             "origins": [
                 {
-                    "type": "test",
+                    "type": "positivetest",
                     "eventTime": "2021-03-01T00:00:00",
                     "expirationTime": "2020-07-31T00:00:00+00:00",
                     "validFrom": "2021-03-01T00:00:00",

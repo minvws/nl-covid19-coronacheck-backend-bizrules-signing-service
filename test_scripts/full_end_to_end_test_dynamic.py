@@ -1,5 +1,5 @@
 import json
-from api.models import StatementOfVaccination, StepTwoData
+from api.models import Events, CredentialsRequestData
 from api.utils import defaultconverter
 from test_scripts.example_eu_signing import issue_commitment_message, vaccination_events
 
@@ -52,9 +52,9 @@ if __name__ == "__main__":
     stoken = json_body["stoken"]
     prepareIssueMessage = json_body["prepareIssueMessage"]
 
-    step_two_data = StepTwoData(
+    step_two_data = CredentialsRequestData(
         **{
-            "events": StatementOfVaccination(**vaccination_events),
+            "events": Events(**vaccination_events),
             "issueCommitmentMessage": issue_commitment_message,
             "stoken": stoken,
         }
@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
     step_two_data_str = json.dumps(step_two_data.dict(), indent=2, default=defaultconverter)
     log.info("step_two_data:\n" + step_two_data_str)
-    StepTwoData.parse_raw(step_two_data_str)
+    CredentialsRequestData.parse_raw(step_two_data_str)
 
     endpoint = "/app/sign"
     log.info(f"posting to the {endpoint} endpoint")

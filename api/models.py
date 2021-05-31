@@ -88,7 +88,7 @@ class Holder(BaseModel):
 
     def equal_to(self, other):
         return (
-            self.firstName == other.firstName and self.lastName == other.lastName and self.birthDate == other.birthDate
+                self.firstName == other.firstName and self.lastName == other.lastName and self.birthDate == other.birthDate
         )
 
 
@@ -114,7 +114,7 @@ class Vaccination(BaseModel):  # noqa
 
     country: Optional[str] = Field(
         description="Optional iso 3166 3-letter country field, will be set to NLD if "
-        "left out. Can be used if shot was administered abroad",
+                    "left out. Can be used if shot was administered abroad",
         example="NLD",
         default="NLD",
     )
@@ -286,23 +286,29 @@ class Events(BaseModel):
         events = sorted(events, key=lambda e: e.recovery.sampleDate)  # type: ignore
         return events
 
-    # def toEuropeanOnlineSigningRequest(self):
-    #
-    #     return EuropeanOnlineSigningRequest(
-    #         **{
-    #             "nam": {
-    #                 "fn": self.holder.lastName,
-    #                 "fnt": self.holder.first_name_eu_normalized,
-    #                 "gn": self.holder.lastName,
-    #                 "gnt": self.holder.last_name_eu_normalized,
-    #             },
-    #             "dob": self.holder.birthDate,
-    #             "v": [event.vaccinations.toEuropeanVaccination() for event in self.vaccinations],
-    #             "r": [event.recoveries.toEuropeanRecovery() for event in self.recoveries],
-    #             "t": [event.negativetests.toEuropeanTest() for event in self.negativetests] +
-    #                  [event.positivetests.toEuropeanTest() for event in self.positivetests],
-    #         }
-    #     )
+    # todo: move code down so EuropeanOnlineSigningRequest is known and method can be typed.
+    def toEuropeanOnlineSigningRequest(self):
+        if not self.events:
+            return None
+
+        # choose any holder for now, for any event.
+        any_holder = self.events[0].holder
+
+        return EuropeanOnlineSigningRequest(
+            **{
+                "nam": {
+                    "fn": any_holder.lastName,
+                    "fnt": any_holder.first_name_eu_normalized,
+                    "gn": any_holder.lastName,
+                    "gnt": any_holder.last_name_eu_normalized,
+                },
+                "dob": any_holder.birthDate,
+                "v": [event.vaccination.toEuropeanVaccination() for event in self.vaccinations],
+                "r": [event.recovery.toEuropeanRecovery() for event in self.recoveries],
+                "t": [event.negativetest.toEuropeanTest() for event in self.negativetests] +
+                     [event.positivetest.toEuropeanTest() for event in self.positivetests],
+            }
+        )
 
 
 # todo: this will be in a different format soon, probably the same format as domestic dynamic
@@ -362,7 +368,7 @@ class SharedEuropeanFields(BaseModel):
     tg: str = Field(description="disease or agent targeted", example="840539006", default="840539006")
     ci: str = Field(
         description="Certificate Identifier, format as per UVCI (*), "
-        "Yes (conversion of unique to V-XXX-YYYYYYYY-Z, provider only needs to provide unique"
+                    "Yes (conversion of unique to V-XXX-YYYYYYYY-Z, provider only needs to provide unique"
     )
     co: str = Field(description="Member State, ISO 3166", default="NLD", regex=r"[A-Z]{1,10}")
     is_: str = Field(description="certificate issuer", default="Ministry of Health Welfare and Sport", alias="is")
@@ -424,7 +430,7 @@ class EuropeanRecovery(SharedEuropeanFields):
     df: date = Field(description="certificate valid from. recovery.validFrom", example="todo")
     du: date = Field(
         description="certificate valid until. not more than 180 days after the date of first positive "
-        "test result. recovery.validUntil",
+                    "test result. recovery.validUntil",
         example="todo",
     )
 
@@ -453,7 +459,7 @@ class EuropeanOnlineSigningRequest(BaseModel):
     # Signer should convert "1975-XX-XX" to "1975" as the EU DGC can't handle the XX's of unknown birthmonth/day
     dob: date = Field(
         description="Date of Birth of the person addressed in the DGC. "
-        "ISO 8601 date format restricted to range 1900-2099"
+                    "ISO 8601 date format restricted to range 1900-2099"
     )
 
     v: List[EuropeanVaccination]
