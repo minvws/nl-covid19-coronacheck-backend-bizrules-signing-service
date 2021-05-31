@@ -7,82 +7,90 @@ from api.settings import settings
 from api.signers.eu_international import sign
 
 # todo: why do we remove "status": "complete"?
-vaccination_events = {
+
+testcase_event_vaccination = {
+    "source_provider_identifier": "XXX",
+    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+    "type": "vaccination",
+    "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
+    "negativetest": None,
+    "positivetest": None,
+    "recovery": None,
+    "vaccination": {
+        "completedByMedicalStatement": False,
+        "date": "2021-02-01",
+        "hpkCode": "2934701",
+        "type": "C19-mRNA",
+        "brand": "COVID-19 VACCIN JANSSEN INJVLST 0,5ML",
+        "administeringCenter": "",
+        "manufacturer": "JANSSEN",
+        "country": "NLD",
+        "doseNumber": 1,
+        "totalDoses": 2,
+    }
+}
+testcase_event_negativetest = {
+    "source_provider_identifier": "XXX",
+    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+    "type": "negativetest",
+    "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
+    "negativetest": {
+        "sampleDate": "2021-03-01",
+        "resultDate": "2021-02-01",
+        "negativeResult": True,
+        "facility": "GGD XL Amsterdam",
+        "type": "???",
+        "name": "???",
+        "manufacturer": "???",
+        "country": "NLD",
+    },
+    "positivetest": None,
+    "recovery": None,
+    "vaccination": None
+}
+
+testcase_event_positivetest = {
+    "source_provider_identifier": "XXX",
+    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+    "type": "negativetest",
+    "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
+    "negativetest": None,
+    "positivetest": {
+        "sampleDate": "2021-03-01",
+        "resultDate": "2021-02-01",
+        "negativeResult": True,
+        "facility": "GGD XL Amsterdam",
+        "type": "???",
+        "name": "???",
+        "manufacturer": "???",
+        "country": "NLD",
+    },
+    "recovery": None,
+    "vaccination": None
+}
+
+testcase_event_recovery = {
+    "source_provider_identifier": "XXX",
+    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+    "type": "recovery",
+    "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
+    "negativetest": None,
+    "positivetest": None,
+    "recovery": {
+        "sampleDate": "2021-04-01",
+        "validFrom": "2021-02-01",
+        "validUntil": "2021-02-01",
+        "country": "NLD",
+    },
+    "vaccination": None
+}
+
+testcase_events = {
     "events": [
-        {
-            "source_provider_identifier": "XXX",
-            "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
-            "type": "vaccination",
-            "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
-            "negativetest": None,
-            "positivetest": None,
-            "recovery": None,
-            "vaccination": {
-                "completedByMedicalStatement": False,
-                "date": "2021-02-01",
-                "hpkCode": "2934701",
-                "type": "C19-mRNA",
-                "brand": "COVID-19 VACCIN JANSSEN INJVLST 0,5ML",
-                "administeringCenter": "",
-                "manufacturer": "JANSSEN",
-                "country": "NLD",
-                "doseNumber": 1,
-                "totalDoses": 2,
-            }
-        },
-        {
-            "source_provider_identifier": "XXX",
-            "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
-            "type": "negativetest",
-            "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
-            "negativetest": {
-                "sampleDate": "2021-03-01",
-                "resultDate": "2021-02-01",
-                "negativeResult": True,
-                "facility": "GGD XL Amsterdam",
-                "type": "???",
-                "name": "???",
-                "manufacturer": "???",
-                "country": "NLD",
-            },
-            "positivetest": None,
-            "recovery": None,
-            "vaccination": None
-        },
-        {
-            "source_provider_identifier": "XXX",
-            "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
-            "type": "negativetest",
-            "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
-            "negativetest": None,
-            "positivetest": {
-                "sampleDate": "2021-03-01",
-                "resultDate": "2021-02-01",
-                "negativeResult": True,
-                "facility": "GGD XL Amsterdam",
-                "type": "???",
-                "name": "???",
-                "manufacturer": "???",
-                "country": "NLD",
-            },
-            "recovery": None,
-            "vaccination": None
-        },
-        {
-            "source_provider_identifier": "XXX",
-            "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
-            "type": "vaccination",
-            "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
-            "negativetest": None,
-            "positivetest": None,
-            "recovery": {
-                "sampleDate": "2021-04-01",
-                "validFrom": "2021-02-01",
-                "validUntil": "2021-02-01",
-                "country": "NLD",
-            },
-            "vaccination": None
-        },
+        testcase_event_vaccination,
+        testcase_event_negativetest,
+        testcase_event_positivetest,
+        testcase_event_recovery
     ],
 }
 
@@ -93,7 +101,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
     # schema: https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/DGC.combined-schema.json
     # example:
 
-    eu_request = Events(**vaccination_events).toEuropeanOnlineSigningRequest()
+    eu_request = Events(**testcase_events).toEuropeanOnlineSigningRequest()
     # Todo: a positive test is a recovery. So convert a positive test to recovery.
     # So both a recovery and a positive test both result in an eu recovery.
     assert eu_request.dict() == {
@@ -156,7 +164,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
 def test_eusign(requests_mock):
     example_answer = {"credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G"}
     requests_mock.post(settings.EU_INTERNATIONAL_SIGNING_URL, json=example_answer)
-    answer = sign(Events(**vaccination_events))
+    answer = sign(Events(**testcase_events))
 
     vaccination = EUGreenCard(
         **{
