@@ -197,8 +197,8 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
 
     issue_message = IssueMessage(
         **{
-            "prepareIssueMessage": json.loads(base64.b64decode(prepare_issue_message).decode('UTF-8')),
-            "issueCommitmentMessage": json.loads(base64.b64decode(issue_commitment_message).decode('UTF-8')),
+            "prepareIssueMessage": json.loads(base64.b64decode(prepare_issue_message).decode("UTF-8")),
+            "issueCommitmentMessage": json.loads(base64.b64decode(issue_commitment_message).decode("UTF-8")),
             "credentialsAttributes": attributes,
         }
     )

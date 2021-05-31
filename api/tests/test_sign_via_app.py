@@ -1,10 +1,8 @@
-import base64
 import json
 
 import jwt
 from fastapi.testclient import TestClient
 from freezegun import freeze_time
-from nacl.public import Box, PrivateKey, PublicKey
 
 from api.app import app
 from api.settings import settings
@@ -39,13 +37,7 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
     )
     json_content = json.loads(response.content.decode("UTF-8"))
 
-    assert json_content == [
-        {
-            "event": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tL2V2ZW50cy92Mi9kYXRhLyIsImJzbiI6ImZiODU1NjMwMTczMzY0OGYyYTJjZjcyMTQ5OWIzYjA2OTBkOWQ4NzJkNDI5M2VkMTExIiwiZXhwIjoxNTgwNjg4MDAwLCJpYXQiOjE1ODA2MDE2MDAsImlkZW50aXR5X2hhc2giOiIyODc0ZmJiMTI5ZWJlMjA4NWIzZDlmZDQzZDkzMjYwMjNhZDM0MjIwNzUxMjVkNjY4ZjZjM2MxYjY3Y2FkOWQ4IiwiaXNzIjoiand0LnRlc3QuY29yb25hY2hlY2submwiLCJuYmYiOjE1ODA2MDE2MDAsIm5vbmNlIjoiMzAzMTMyMzMzNDM1MzYzNzM4MzkzMDMxMzIzMzM0MzUzNjM3MzgzOTMwMzEzMjMzIiwicm9sZUlkZW50aWZpZXIiOiIwMSJ9.o__yX7PgQAOICWLEDxtTTYM01oAlx2zJZpHBLbdW6IE",
-            "provider_identifier": "XXX",
-            "unomi": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tL3Vub21pL3YyLyIsImV4cCI6MTU4MDY4ODAwMCwiaWF0IjoxNTgwNjAxNjAwLCJpZGVudGl0eV9oYXNoIjoiMjg3NGZiYjEyOWViZTIwODViM2Q5ZmQ0M2Q5MzI2MDIzYWQzNDIyMDc1MTI1ZDY2OGY2YzNjMWI2N2NhZDlkOCIsImlzcyI6Imp3dC50ZXN0LmNvcm9uYWNoZWNrLm5sIiwibmJmIjoxNTgwNjAxNjAwfQ.67rSJsNPeJJp5boq7hxHX5pMAZHvW6UFYMdTAdm07uI",
-        }
-    ]
+    assert json_content == json.loads(read_file(current_path.joinpath("test_data/event_data_provider_jwt.json")))
 
     # Now decompose and decrypt the message
     first_provider = json_content[0]
@@ -80,7 +72,7 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
         "iss": "jwt.test.coronacheck.nl",
         "nbf": 1580601600,
         "nonce": "303132333435363738393031323334353637383930313233",
-        "roleIdentifier": '01'
+        "roleIdentifier": "01",
     }
 
     assert event["identity_hash"] == unomi["identity_hash"]
