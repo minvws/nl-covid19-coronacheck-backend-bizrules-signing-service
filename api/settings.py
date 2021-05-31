@@ -38,6 +38,7 @@ class AppSettings(BaseSettings):
     DOMESTIC_MAXIMUM_ISSUANCE_DAYS: int = 14
     DOMESTIC_MAXIMUM_RANDOMIZED_OVERLAP_HOURS: int = 4
     EU_INTERNATIONAL_SIGNING_URL: AnyHttpUrl = Field()
+    SIGNER_CA_FILE: str = ""
 
     MOCK_MODE: bool = False
 
