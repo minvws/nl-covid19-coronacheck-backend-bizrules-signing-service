@@ -9,6 +9,4 @@ def load_allowlist_csv():
         return {rows[0]: rows[1] for rows in reader}
 
 
-domestic_signer_attribute_allow_list = {}
-if __name__ != "__main__":
-    domestic_signer_attribute_allow_list = load_allowlist_csv()
+domestic_signer_attribute_allow_list = load_allowlist_csv()
