@@ -65,9 +65,8 @@ def sign(statement: Events) -> List[EUGreenCard]:
         statements_to_eu_signer.append(
             MessageToEUSigner(
                 **{
-                    # Positive test is randomly chosen from the test events.
-                    # Todo: what should we use, or should this still be the abstract 'test'
-                    "keyUsage": "positivetest",
+                    # The EU only has test, not positive test or negative test.
+                    "keyUsage": "test",
                     "expirationTime": expiration_time,
                     "dgc": blank_statement.toEuropeanOnlineSigningRequest(),
                 }
@@ -103,7 +102,7 @@ def get_event_time(statement_to_eu_signer: MessageToEUSigner):
         return statement_to_eu_signer.dgc.v[0].dt
     if statement_to_eu_signer.keyUsage == "recovery":
         return statement_to_eu_signer.dgc.r[0].fr
-    if statement_to_eu_signer.keyUsage == "positivetest":
+    if statement_to_eu_signer.keyUsage == "test":
         return statement_to_eu_signer.dgc.t[0].sc
 
     raise ValueError("Not able to retrieve an event time from the statement to the signer. This is very wrong.")

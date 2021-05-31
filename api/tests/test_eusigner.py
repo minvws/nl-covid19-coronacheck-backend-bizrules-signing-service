@@ -160,7 +160,7 @@ def test_eusign(requests_mock):
         **{
             "origins": [
                 {
-                    "type": "positivetest",
+                    "type": "test",
                     "eventTime": "2021-03-01T00:00:00",
                     "expirationTime": "2020-07-31T00:00:00+00:00",
                     "validFrom": "2021-03-01T00:00:00",

@@ -217,6 +217,9 @@ class EventType(str, Enum):
     negativetest = "negativetest"
     vaccination = "vaccination"
 
+    # for the EU the type "test" still exists: there is no difference between positive and negative
+    test = "test"
+
 
 class DataProviderEvent(BaseModel):
     type: EventType = Field(description="Type of event")
