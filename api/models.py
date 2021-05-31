@@ -222,10 +222,10 @@ class DataProviderEvent(BaseModel):
     type: EventType = Field(description="Type of event")
     unique: str = Field(description="Some unique string")
     isSpecimen: bool = Field(False, description="Boolean")
-    negativetest: Negativetest = Field(None, description="Negativetest")
-    positivetest: Positivetest = Field(None, description="Positivetest")
-    vaccination: Vaccination = Field(None, description="Vaccination")
-    recovery: Recovery = Field(None, description="Recovery")
+    negativetest: Optional[Negativetest] = Field(None, description="Negativetest")
+    positivetest: Optional[Positivetest] = Field(None, description="Positivetest")
+    vaccination: Optional[Vaccination] = Field(None, description="Vaccination")
+    recovery: Optional[Recovery] = Field(None, description="Recovery")
 
 
 # https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/providing-vaccination-events.md
