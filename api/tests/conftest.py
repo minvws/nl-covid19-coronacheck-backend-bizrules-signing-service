@@ -5,6 +5,7 @@ from pytest_redis.factories import redis_noproc
 
 from api.constants import INGE4_ROOT, TESTS_DIR
 from api.settings import settings
+from api.session_store import session_store
 
 if settings.USE_PYTEST_REDIS:
 
@@ -12,9 +13,11 @@ if settings.USE_PYTEST_REDIS:
     def redis_db(redisdb):
         yield redisdb
 
-
 else:
-    redis_db = redis_noproc()
+
+    @pytest.fixture
+    def redis_db():
+        yield session_store._redis
 
 
 @pytest.fixture
