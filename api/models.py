@@ -4,7 +4,7 @@
 # Automatic documentation: http://localhost:8000/redoc or http://localhost:8000/docs
 import re
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from enum import Enum
 from typing import List, Optional
 from uuid import UUID
@@ -138,8 +138,8 @@ class Vaccination(BaseModel):  # noqa
 
 
 class Positivetest(BaseModel):  # noqa
-    sampleDate: str = Field(example="2021-01-01")
-    resultDate: str = Field(example="2021-01-02")
+    sampleDate: date = Field(example="2021-01-01")
+    resultDate: date = Field(example="2021-01-02")
     negativeResult: bool = Field(example=True)
     facility: str = Field(example="GGD XL Amsterdam")
     # this is not specified yet
@@ -148,17 +148,24 @@ class Positivetest(BaseModel):  # noqa
     manufacturer: str = Field(example="1232")
     country: str = Field(example="NLD")
 
-    def toEuropeanTest(self):
-        return EuropeanTest(
+    """
+    Positive tests mean that there is a recovery. For the EU a positive test should be seen and
+    called a recovery.
+    
+    For a recovery we're missing a validUntil in the test data.
+    # todo: thus this will be assumed?
+    """
+    def toEuropeanRecovery(self):
+        return EuropeanRecovery(
             **{
                 **{
-                    "tt": self.type,
-                    "nm": self.name,
-                    "ma": self.manufacturer,
-                    "sc": datetime.fromisoformat(self.sampleDate),
-                    "dr": datetime.fromisoformat(self.resultDate),
-                    "tr": self.negativeResult,
-                    "tc": self.facility,
+                    # sampletime
+                    "fr": self.sampleDate,
+                    # date from
+                    "df": self.resultDate,
+                    # date until
+                    # tod
+                    "du": self.resultDate + timedelta(days=9000),
                 },
                 **SharedEuropeanFields.as_dict(),
             }
@@ -307,9 +314,9 @@ class Events(BaseModel):
                 },
                 "dob": any_holder.birthDate,
                 "v": [event.vaccination.toEuropeanVaccination() for event in self.vaccinations],
-                "r": [event.recovery.toEuropeanRecovery() for event in self.recoveries],
-                "t": [event.negativetest.toEuropeanTest() for event in self.negativetests] +
-                     [event.positivetest.toEuropeanTest() for event in self.positivetests],
+                "r": [event.recovery.toEuropeanRecovery() for event in self.recoveries] +
+                [event.positivetest.toEuropeanRecovery() for event in self.positivetests],
+                "t": [event.negativetest.toEuropeanTest() for event in self.negativetests]
             }
         )
 
