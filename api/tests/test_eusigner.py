@@ -52,6 +52,25 @@ vaccination_events = {
         {
             "source_provider_identifier": "XXX",
             "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+            "type": "negativetest",
+            "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
+            "negativetest": None,
+            "positivetest": {
+                "sampleDate": "2021-03-01",
+                "resultDate": "2021-02-01",
+                "negativeResult": True,
+                "facility": "GGD XL Amsterdam",
+                "type": "???",
+                "name": "???",
+                "manufacturer": "???",
+                "country": "NLD",
+            },
+            "recovery": None,
+            "vaccination": None
+        },
+        {
+            "source_provider_identifier": "XXX",
+            "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
             "type": "vaccination",
             "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
             "negativetest": None,
@@ -75,6 +94,8 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
     # example:
 
     eu_request = Events(**vaccination_events).toEuropeanOnlineSigningRequest()
+    # Todo: a positive test is a recovery. So convert a positive test to recovery.
+    # So both a recovery and a positive test both result in an eu recovery.
     assert eu_request.dict() == {
         "dob": datetime(1970, 1, 1).date(),
         "nam": {"fn": "Akkersloot", "fnt": "HERMAN", "gn": "Akkersloot", "gnt": "AKKERSLOOT"},
@@ -102,7 +123,20 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "tg": "840539006",
                 "tr": "True",
                 "tt": "???",
-            }
+            },
+            {
+                'ci': 'd540cb87-7774-4c40-bcef-d46a933da826',
+                'co': 'NLD',
+                'dr': datetime(2021, 2, 1, 0, 0),
+                'is_': 'Ministry of Health Welfare and Sport',
+                'ma': '???',
+                'nm': '???',
+                'sc': datetime(2021, 3, 1, 0, 0),
+                'tc': 'GGD XL Amsterdam',
+                'tg': '840539006',
+                'tr': 'True',
+                'tt': '???'
+            },
         ],
         "v": [
             {
@@ -170,4 +204,19 @@ def test_eusign(requests_mock):
         }
     )
 
-    assert answer == [vaccination, recovery, test]
+    # todo: this should be a recovery, positive tests transform to recoveries in EU.
+    test2 = EUGreenCard(
+        **{
+            "origins": [
+                {
+                    "type": "test",
+                    "eventTime": "2021-03-01T00:00:00",
+                    "expirationTime": "2020-07-31T00:00:00+00:00",
+                    "validFrom": "2021-03-01T00:00:00",
+                }
+            ],
+            "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
+        }
+    )
+
+    assert answer == [vaccination, recovery, test, test2]

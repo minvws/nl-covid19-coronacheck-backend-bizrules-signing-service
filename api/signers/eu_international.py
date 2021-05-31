@@ -73,6 +73,19 @@ def sign(statement: Events) -> List[EUGreenCard]:
             )
         )
 
+    if statement.positivetests:
+        blank_statement.events = [statement.positivetests[-1]]
+        statements_to_eu_signer.append(
+            MessageToEUSigner(
+                **{
+                    # The EU only has test, not positive test or negative test.
+                    "keyUsage": "test",
+                    "expirationTime": expiration_time,
+                    "dgc": blank_statement.toEuropeanOnlineSigningRequest(),
+                }
+            )
+        )
+
     greencards = []
     for statement_to_eu_signer in statements_to_eu_signer:
         response = request_post_with_retries(
