@@ -17,6 +17,7 @@ from api.models import (
     StripType,
 )
 from api.settings import settings
+from api.signers import hpkcodes
 from api.utils import request_post_with_retries
 
 
@@ -30,8 +31,7 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
 
     allowed_positive_test_types = ["LP217198-3", "LP6464-4"]
 
-    # FIXME: I need datetimes to do calculations with time, but I can't immediately figure out
-    #  how to automatically JSON marshal them to ISO dates
+    # Datetimes are automatically marshalled to ISO in json.
     class RichOrigin(BaseModel):
         holder: Holder
         type: str
@@ -56,7 +56,7 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
 
         # One vaccination of the right type, medically approved or combined with a recovery
         is_eligible = (
-            vacc.vaccination.hpkCode == 2934701
+            vacc.vaccination.hpkCode == hpkcodes.JANSSEN
             or vacc.vaccination.completedByMedicalStatement
             or any(map(lambda r: r.holder.equal_to(vacc.holder), events.recoveries))
             or any(map(lambda p: p.holder.equal_to(vacc.holder), events.positivetests))
@@ -130,7 +130,7 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
     # # --------------------------------------
     # # Calculate final origins and attributes
     # # --------------------------------------
-
+    # Todo naar functies.
     class ContiguousOriginsBlock(BaseModel):
         origins: List[RichOrigin]
         validFrom: datetime

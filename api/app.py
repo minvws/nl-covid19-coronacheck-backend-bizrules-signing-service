@@ -75,6 +75,9 @@ async def app_credential_request(request_data: CredentialsRequestData):
         raise HTTPException(status_code=401, detail=["Session expired or is invalid"])
 
     """
+    Waarom zou er verschillende holders: als je met token ophaalt dus heeft wellicht de naam anders dan in de BRP.
+    Als je met bsn enzo ophaalt kan je naar BRP. - De vaccinatie en recovery moet dezelfde holder zijn. 
+    
     Incoming Request
     {
         "events": [{
