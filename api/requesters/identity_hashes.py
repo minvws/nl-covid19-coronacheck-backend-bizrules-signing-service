@@ -2,7 +2,6 @@
 __author__ = "Elger Jonker, Nick ten Cate for minvws"
 
 import base64
-import binascii
 import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List
@@ -16,41 +15,39 @@ from nacl.public import Box, PrivateKey, PublicKey
 from nacl.utils import random
 
 from api.enrichment import sbvz
-from api.models import AccessTokensRequest, EventDataProviderJWT
+from api.models import EventDataProviderJWT
 from api.settings import settings
 from api.utils import request_post_with_retries
 
 log = logging.getLogger(__package__)
 inge6_box = Box(settings.INGE4_NACL_PRIVATE_KEY, settings.INGE6_NACL_PUBLIC_KEY)
-HTTPInvalidRetrievalTokenException = HTTPException(status_code=401, detail=["RetrievalToken Invalid"])
+HTTPInvalidRetrievalTokenException = HTTPException(status_code=401, detail=["Invalid Authorization Token"])
 
 
-async def retrieve_bsn_from_inge6(retrieval_token: AccessTokensRequest):
+async def retrieve_bsn_from_inge6(jwt_token: str):
 
     # If mock mode and INGE6_MOCK_MODE_BSN is set; dont actually go and get the BSN
     if settings.INGE6_MOCK_MODE and settings.INGE6_MOCK_MODE_BSN:
         return settings.INGE6_MOCK_MODE_BSN
 
-    tvs_token = retrieval_token.tvs_token
-
     try:
-        tvs_token_raw = base64.b64decode(tvs_token)
-    except binascii.Error as err:
-        log.warning(f"tvs token {tvs_token} of type {type(tvs_token)} not base64 decodable")
+        payload = jwt.decode(jwt_token, key=settings.INGE6_JWT_PUBLIC_CRT, algorithms=["RS256"], audience=["inge4"])
+    except jwt.DecodeError as err:
+        log.warning(f"invalid jwt entered: {repr(err)}")
         raise HTTPInvalidRetrievalTokenException from err
 
-    if len(tvs_token_raw) < inge6_box.NONCE_SIZE:
-        log.warning("tvs token to short")
+    nonce = payload["at_hash"] + "CC"
+
+    if len(nonce) != inge6_box.NONCE_SIZE:
+        log.error("warning jwt token with wrong 'at_hash' length given")
         raise HTTPInvalidRetrievalTokenException
 
-    nonce = tvs_token_raw[: inge6_box.NONCE_SIZE]
-
-    querystring = {"at": tvs_token}
+    querystring = {"at": jwt_token}
 
     response = request_post_with_retries(settings.INGE6_BSN_RETRIEVAL_URL, data="", params=querystring)
     encrypted_bsn = response.content
 
-    if not Base64Encoder.decode(encrypted_bsn)[: inge6_box.NONCE_SIZE] == nonce:
+    if not Base64Encoder.decode(encrypted_bsn)[: inge6_box.NONCE_SIZE] == nonce.encode():
         log.warning("nonce is invalid")
         raise HTTPInvalidRetrievalTokenException
 
