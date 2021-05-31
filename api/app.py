@@ -50,7 +50,7 @@ async def get_access_tokens_request(request: AccessTokensRequest) -> List[EventD
     :param request: AccessTokensRequest
     :return:
     """
-    bsn = await identity_hashes.get_bsn_from_inge6(request)
+    bsn = await identity_hashes.retrieve_bsn_from_inge6(request)
     return identity_hashes.create_provider_jwt_tokens(bsn)
 
 

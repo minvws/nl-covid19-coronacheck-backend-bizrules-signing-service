@@ -24,7 +24,7 @@ log = logging.getLogger(__package__)
 inge6_box = Box(settings.INGE4_NACL_PRIVATE_KEY, settings.INGE6_NACL_PUBLIC_KEY)
 HTTPInvalidRetrievalTokenException = HTTPException(status_code=401, detail=["RetrievalToken Invalid"])
 
-async def get_bsn_from_inge6(retrieval_token: AccessTokensRequest):
+async def retrieve_bsn_from_inge6(retrieval_token: AccessTokensRequest):
 
     # If mock mode and INGE6_MOCK_MODE_BSN is set; dont actually go and get the BSN
     if settings.INGE6_MOCK_MODE and settings.INGE6_MOCK_MODE_BSN:
