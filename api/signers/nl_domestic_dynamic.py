@@ -1,10 +1,8 @@
-# todo cleanup code here and make it pass without pylint: disable
-# pylint: disable=R0914 C0103 C0103 R0912
 import base64
 import json
 import secrets
-from datetime import datetime, timedelta
-from typing import List, Optional
+from datetime import datetime, timedelta, date
+from typing import List, Optional, Union
 
 from api.models import (
     ContiguousOriginsBlock,
@@ -15,31 +13,26 @@ from api.models import (
     GreenCardOrigin,
     IssueMessage,
     RichOrigin,
-    StripType,
+    StripType, DomesticSignerAttributes,
 )
 from api.settings import settings
 from api.signers import hpkcodes
 from api.utils import request_post_with_retries
 
+ALLOWED_POSITIVE_TEST_TYPES = ["LP217198-3", "LP6464-4"]
+
 
 # Datetimes are automatically marshalled to ISO in json.
-def floor_hours(date: datetime) -> datetime:
-    return date.now().replace(microsecond=0, second=0, minute=0)
+def floor_hours(my_date: Union[datetime, date]) -> datetime:
+    # cast dates to datetimes:
+    # https://stackoverflow.com/questions/1937622/convert-date-to-datetime-in-python/1937636
+    if isinstance(my_date, date):
+        my_date = datetime.combine(my_date, datetime.min.time())
+
+    return my_date.now().replace(microsecond=0, second=0, minute=0)
 
 
-def sign(events: Events, prepare_issue_message: str, issue_commitment_message: str) -> Optional[DomesticGreenCard]:
-    """
-    This signer talks to: https://github.com/minvws/nl-covid19-coronacheck-idemix-private/
-
-    :param data:
-    :return:
-    """
-
-    allowed_positive_test_types = ["LP217198-3", "LP6464-4"]
-
-    origins: List[RichOrigin] = []
-
-    # # Vaccination
+def eligible_vaccination(events: Events) -> List[RichOrigin]:
     best_vacc: Optional[Event] = None
 
     if len(events.vaccinations) > 1:
@@ -51,10 +44,10 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
 
         # One vaccination of the right type, medically approved or combined with a recovery
         is_eligible = (
-            vacc.vaccination.hpkCode == hpkcodes.JANSSEN
-            or vacc.vaccination.completedByMedicalStatement
-            or any(map(lambda r: r.holder.equal_to(vacc.holder), events.recoveries))
-            or any(map(lambda p: p.holder.equal_to(vacc.holder), events.positivetests))
+                vacc.vaccination.hpkCode == hpkcodes.JANSSEN
+                or vacc.vaccination.completedByMedicalStatement
+                or any(map(lambda r: r.holder.equal_to(vacc.holder), events.recoveries))
+                or any(map(lambda p: p.holder.equal_to(vacc.holder), events.positivetests))
         )
 
         if is_eligible:
@@ -64,41 +57,44 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
     if best_vacc:
         event_time = floor_hours(datetime.fromisoformat(best_vacc.vaccination.date))
 
+        return [RichOrigin(
+            holder=best_vacc.holder,
+            type=EventType.vaccination,
+            eventTime=event_time,
+            validFrom=event_time,
+            expirationTime=(event_time + timedelta(days=365)),
+        )]
+
+    return []
+
+
+def eligible_recovery(events) -> List[RichOrigin]:
+    eligible_recs = list(filter(lambda pt: pt.positivetest.type in ALLOWED_POSITIVE_TEST_TYPES, events.positivetests))
+
+    # TODO: Determine if we really want to blindly copy these values, or just use the same
+    #  calculations as a positive test, based on the sampleDate
+    return [
+        RichOrigin(
+            holder=rec.holder,
+            type=EventType.recovery,
+            eventTime=floor_hours(datetime.fromisoformat(rec.recovery.sampleDate)),
+            validFrom=floor_hours(datetime.fromisoformat(rec.recovery.validFrom)),
+            expirationTime=floor_hours(datetime.fromisoformat(rec.recovery.validUntil)),
+        ) for rec in eligible_recs
+    ]
+
+
+def eligible_positive_tests(events) -> List[RichOrigin]:
+    eligible_pts = list(filter(lambda pt: pt.positivetest.type in ALLOWED_POSITIVE_TEST_TYPES, events.positivetests))
+
+    origins = []
+
+    for positive_test in eligible_pts:
+        event_time = floor_hours(positive_test.positivetest.sampleDate)
+
         origins.append(
             RichOrigin(
-                holder=best_vacc.holder,
-                type=EventType.vaccination,
-                eventTime=event_time.isoformat(),
-                validFrom=event_time.isoformat(),
-                expirationTime=(event_time + timedelta(days=365)),
-            )
-        )
-
-    # # Recovery
-    eligible_recs = list(filter(lambda pt: pt.positivetest.type in allowed_positive_test_types, events.positivetests))
-
-    for rec in eligible_recs:
-        # TODO: Determine if we really want to blindly copy these values, or just use the same
-        #  calculations as a positive test, based on the sampleDate
-        origins.append(
-            RichOrigin(
-                holder=rec.holder,
-                type=EventType.recovery,
-                eventTime=floor_hours(datetime.fromisoformat(rec.recovery.sampleDate)),
-                validFrom=floor_hours(datetime.fromisoformat(rec.recovery.validFrom)),
-                expirationTime=floor_hours(datetime.fromisoformat(rec.recovery.validUntil)),
-            )
-        )
-
-    # # Positive test
-    eligible_pts = list(filter(lambda pt: pt.positivetest.type in allowed_positive_test_types, events.positivetests))
-
-    for pt in eligible_pts:
-        event_time = floor_hours(datetime.fromisoformat(pt.positivetest.sampleDate))
-
-        origins.append(
-            RichOrigin(
-                holder=pt.holder,
+                holder=positive_test.holder,
                 type=EventType.recovery,
                 eventTime=event_time,
                 validFrom=event_time + timedelta(days=11),
@@ -106,15 +102,20 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
             )
         )
 
-    # Negative test
+    return origins
+
+
+def eligible_negative_tests(events) -> List[RichOrigin]:
     eligible_nts = list(filter(lambda nt: True, events.negativetests))
 
-    for nt in eligible_nts:
-        event_time = floor_hours(datetime.fromisoformat(nt.negativetest.sampleDate))
+    origins = []
+
+    for negative_test in eligible_nts:
+        event_time = floor_hours(datetime.fromisoformat(negative_test.negativetest.sampleDate))
 
         origins.append(
             RichOrigin(
-                holder=nt.holder,
+                holder=negative_test.holder,
                 type=EventType.negativetest,
                 eventTime=event_time,
                 validFrom=event_time,
@@ -122,33 +123,14 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
             )
         )
 
-    # # --------------------------------------
-    # # Calculate final origins and attributes
-    # # --------------------------------------
-    # Todo naar functies.
+    return origins
 
-    # Filter out origins that aren't valid any more, and sort on validFrom
-    rounded_now = floor_hours(datetime.now())
-    origins = sorted(filter(lambda o: o.expirationTime > rounded_now, origins), key=lambda o: o.validFrom)
 
-    # Continue with at least one origin
-    if len(origins) == 0:
-        return None
-
-    # # Calculate blocks of contiguous origins
-    contiguous_blocks = [
-        ContiguousOriginsBlock.from_origin(origins[0]),
-    ]
-
-    for origin in origins[1:]:
-        last_block = contiguous_blocks[-1]
-        if origin.validFrom <= last_block.expirationTime:
-            last_block.origins.append(origin)
-            last_block.expirationTime = max(last_block.expirationTime, origin.expirationTime)
-        else:
-            contiguous_blocks.append(ContiguousOriginsBlock.from_origin(origin))
-
+def calculate_attributed_from_blocks(contiguous_blocks: List[ContiguousOriginsBlock]) -> List[DomesticSignerAttributes]:
     # # Calculate sets of credentials for every block
+    # todo: visualize what is meant with blocks. Add examples.
+    rounded_now = floor_hours(datetime.now())
+
     attributes = []
 
     # Calculate the maximum expiration time we're going to issue credentials for
@@ -179,7 +161,7 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
             holder = overlapping_block.origins[0].holder
 
             attributes.append(
-                {
+                DomesticSignerAttributes(**{
                     "isSpecimen": "0",
                     "stripType": StripType.APP_STRIP,
                     "validFrom": valid_from.isoformat(),
@@ -188,12 +170,51 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
                     "lastNameInitial": holder.last_name_initial,
                     "birthDay": str(holder.birthDate.day),
                     "birthMonth": str(holder.birthDate.month),
-                }
+                })
             )
 
             # Break out if we're done with this block
             if expiration_time_scrubber == overlapping_block.expirationTime:
                 break
+
+    return attributes
+
+
+def sign(events: Events, prepare_issue_message: str, issue_commitment_message: str) -> Optional[DomesticGreenCard]:
+    """
+    This signer talks to: https://github.com/minvws/nl-covid19-coronacheck-idemix-private/
+
+    :return:
+    """
+
+    origins: List[RichOrigin] = eligible_vaccination(events) + eligible_recovery(events) + eligible_positive_tests(
+        events) + eligible_negative_tests(events)
+
+    # # --------------------------------------
+    # # Calculate final origins and attributes
+    # # --------------------------------------
+    # Filter out origins that aren't valid any more, and sort on validFrom
+    rounded_now = floor_hours(datetime.now())
+    origins = sorted(filter(lambda o: o.expirationTime > rounded_now, origins), key=lambda o: o.validFrom)
+
+    # Continue with at least one origin
+    if len(origins) == 0:
+        return None
+
+    # # Calculate blocks of contiguous origins
+    contiguous_blocks: List[ContiguousOriginsBlock] = [
+        ContiguousOriginsBlock.from_origin(origins[0]),
+    ]
+
+    for origin in origins[1:]:
+        last_block = contiguous_blocks[-1]
+        if origin.validFrom <= last_block.expirationTime:
+            last_block.origins.append(origin)
+            last_block.expirationTime = max(last_block.expirationTime, origin.expirationTime)
+        else:
+            contiguous_blocks.append(ContiguousOriginsBlock.from_origin(origin))
+
+    attributes = calculate_attributed_from_blocks(contiguous_blocks)
 
     issue_message = IssueMessage(
         **{
@@ -220,7 +241,7 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
             )
             for origin in origins
         ],
-        createCredentialMessages=base64.b64encode(response.content),
+        createCredentialMessages=base64.b64encode(response.content).decode('UTF-8'),
     )
 
     return dcc
