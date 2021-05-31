@@ -1,13 +1,14 @@
 import json
-from api.models import StatementOfVaccination, StepTwoData
+from api.models import Events, CredentialsRequestData
 from api.utils import defaultconverter
-from test_scripts.example_eu_signing import issue_commitment_message, vaccination_events
+from test_scripts.example_eu_signing import issue_commitment_message, testcase_events
 
 import requests
 from api.settings import settings
 import logging
 
 inge4_url = "http://localhost:8000"
+tvs_token = "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz"
 
 log = logging.getLogger(__package__)
 
@@ -26,7 +27,7 @@ if __name__ == "__main__":
     log.info("inge4 is running and healthy")
 
     log.info(f"Checking if inge6 is running on {settings.INGE6_BSN_RETRIEVAL_URL.host}")
-    response = requests.get(settings.INGE6_BSN_RETRIEVAL_URL)
+    response = requests.post(settings.INGE6_BSN_RETRIEVAL_URL + f"?at={tvs_token}")
     if response.status_code == 200:
         if response.text == "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzpEliQZGIthee86WIg0w599yMlSzcg8ojyA==":
             log.info("Inge6 mock is reachable")
@@ -39,7 +40,7 @@ if __name__ == "__main__":
 
     endpoint = "/app/access_tokens"
     log.info(f"posting to the {endpoint} endpoint")
-    response = requests.post(f"{inge4_url}{endpoint}", json={"tvs_token": "string"})
+    response = requests.post(f"{inge4_url}{endpoint}", json={"tvs_token": tvs_token})
     response.raise_for_status()
     log.info(f"result of {endpoint}\n" + json.dumps(response.json(), indent=2))
 
@@ -52,9 +53,9 @@ if __name__ == "__main__":
     stoken = json_body["stoken"]
     prepareIssueMessage = json_body["prepareIssueMessage"]
 
-    step_two_data = StepTwoData(
+    step_two_data = CredentialsRequestData(
         **{
-            "events": StatementOfVaccination(**vaccination_events),
+            "events": Events(**testcase_events),
             "issueCommitmentMessage": issue_commitment_message,
             "stoken": stoken,
         }
@@ -62,7 +63,7 @@ if __name__ == "__main__":
 
     step_two_data_str = json.dumps(step_two_data.dict(), indent=2, default=defaultconverter)
     log.info("step_two_data:\n" + step_two_data_str)
-    StepTwoData.parse_raw(step_two_data_str)
+    CredentialsRequestData.parse_raw(step_two_data_str)
 
     endpoint = "/app/sign"
     log.info(f"posting to the {endpoint} endpoint")

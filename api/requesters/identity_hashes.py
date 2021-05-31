@@ -2,6 +2,7 @@
 __author__ = "Elger Jonker, Nick ten Cate for minvws"
 
 import base64
+import binascii
 import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List
@@ -15,33 +16,49 @@ from nacl.public import Box, PrivateKey, PublicKey
 from nacl.utils import random
 
 from api.enrichment import sbvz
-from api.models import BSNRetrievalToken, UnomiEventToken
+from api.models import AccessTokensRequest, EventDataProviderJWT
 from api.settings import settings
-from api.utils import request_get_with_retries
+from api.utils import request_post_with_retries
 
 log = logging.getLogger(__package__)
 inge6_box = Box(settings.INGE4_NACL_PRIVATE_KEY, settings.INGE6_NACL_PUBLIC_KEY)
+HTTPInvalidRetrievalTokenException = HTTPException(status_code=401, detail=["RetrievalToken Invalid"])
 
 
-async def get_bsn_from_inge6(retrieval_token: BSNRetrievalToken):
+async def retrieve_bsn_from_inge6(retrieval_token: AccessTokensRequest):
 
-    nonce = random(inge6_box.NONCE_SIZE)
+    # If mock mode and INGE6_MOCK_MODE_BSN is set; dont actually go and get the BSN
+    if settings.INGE6_MOCK_MODE and settings.INGE6_MOCK_MODE_BSN:
+        return settings.INGE6_MOCK_MODE_BSN
 
-    querystring = {"at": retrieval_token.tvs_token, "nonce": base64.b64encode(nonce)}
+    tvs_token = retrieval_token.tvs_token
 
-    response = request_get_with_retries(settings.INGE6_BSN_RETRIEVAL_URL, params=querystring)
+    try:
+        tvs_token_raw = base64.b64decode(tvs_token)
+    except binascii.Error as err:
+        log.warning(f"tvs token {tvs_token} of type {type(tvs_token)} not base64 decodable")
+        raise HTTPInvalidRetrievalTokenException from err
+
+    if len(tvs_token_raw) < inge6_box.NONCE_SIZE:
+        log.warning("tvs token to short")
+        raise HTTPInvalidRetrievalTokenException
+
+    nonce = tvs_token_raw[: inge6_box.NONCE_SIZE]
+
+    querystring = {"at": tvs_token}
+
+    response = request_post_with_retries(settings.INGE6_BSN_RETRIEVAL_URL, data="", params=querystring)
     encrypted_bsn = response.content
 
-    # todo: find some way to remove (not settings.MOCK_MODE)
-    # for end to end tests since it is insecure
-    if (not settings.MOCK_MODE) and (not Base64Encoder.decode(encrypted_bsn)[: inge6_box.NONCE_SIZE] == nonce):
-        raise HTTPException(status_code=401, detail=["RetrievalToken Invalid"])
+    if not Base64Encoder.decode(encrypted_bsn)[: inge6_box.NONCE_SIZE] == nonce:
+        log.warning("nonce is invalid")
+        raise HTTPInvalidRetrievalTokenException
 
     bsn = inge6_box.decrypt(encrypted_bsn, encoder=Base64Encoder)
     return bsn.decode()
 
 
-def identity_provider_calls(bsn: str) -> List[UnomiEventToken]:
+def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
     """
     In order to reliably determine a system contains information about a certain person without revealing who that
     person is an identity-hash will be generated for each individual connected party and sent to the Information
@@ -49,8 +66,6 @@ def identity_provider_calls(bsn: str) -> List[UnomiEventToken]:
 
     Since only the designated party may check the hash, a secret hash key is added. The hash key will be determined by
     MVWS and shared privately.
-
-    This is based on https://api-ct.bananenhalen.nl/docs/sequence-diagram-unomi-events.png
 
     :return:
     """
@@ -69,37 +84,37 @@ def identity_provider_calls(bsn: str) -> List[UnomiEventToken]:
         raise HTTPException(500, detail=["internal server error"])
 
     tokens = []
-    for vaccination_provider in settings.APP_STEP_1_VACCINATION_PROVIDERS:
+    for data_provider in settings.EVENT_DATA_PROVIDERS:
 
-        # Do not run the example in production.
-        if (not settings.MOCK_MODE) and (
-            "EXAMPLE" in vaccination_provider["identifier"] or "TEST" in vaccination_provider["identifier"]
-        ):
-            continue
-
-        generic_data["identity_hash"] = calculate_vws_identity_hash_b64(
+        generic_data["identity_hash"] = calculate_identity_hash(
             bsn,
             pii,
-            key=vaccination_provider["identity_hash_secret"],
+            key=data_provider["identity_hash_secret"],
         )
 
         unomi_data = {
             "iss": "jwt.test.coronacheck.nl",  # Issuer Claim
-            "aud": vaccination_provider["unomi_url"],  # Audience Claim
+            "aud": data_provider["unomi_url"],  # Audience Claim
         }
 
         # Send the BSN encrypted to respect privacy
         nonce = random(Box.NONCE_SIZE)
-        private_key = PrivateKey(
-            base64.b64decode(vaccination_provider["bsn_cryptography"]["private_key"].encode("UTF-8"))
-        )
-        public_key = PublicKey(base64.b64decode(vaccination_provider["bsn_cryptography"]["public_key"].encode("UTF-8")))
+        private_key = PrivateKey(base64.b64decode(data_provider["bsn_cryptography"]["private_key"].encode("UTF-8")))
+        public_key = PublicKey(base64.b64decode(data_provider["bsn_cryptography"]["public_key"].encode("UTF-8")))
         box = Box(private_key, public_key)
+
+        # Put the data in the JWT for events
         event_data = {
-            "iss": "jwt.test.coronacheck.nl",  # Issuer Claim
-            "aud": vaccination_provider["event_url"],  # Audience Claim
-            "bsn": base64.b64encode(box.encrypt(bsn.encode(), nonce=nonce)).decode("UTF-8"),
-            "nonce": base64.b64encode(nonce).decode("UTF-8"),
+            # Issuer Claim
+            "iss": settings.IDENTITY_HASH_JWT_ISSUER_CLAIM,
+            # Audience claim
+            "aud": data_provider["event_url"],
+            # Remove the nonce and other authentication from the encrypted box (its prefixed by pynacl)
+            "bsn": box.encrypt(bsn.encode(), nonce=nonce)[Box.NONCE_SIZE :].hex(),
+            # Encode NONCE with hex format
+            "nonce": nonce.hex(),
+            # TODO: RoleIdentifier should be taken from the request (needs specifications)
+            "roleIdentifier": "01",
         }
 
         # adjusting the clock doesn't work, so something else is dynamic
@@ -137,17 +152,17 @@ def identity_provider_calls(bsn: str) -> List[UnomiEventToken]:
         event_jwt_data = dict(sorted(event_jwt_data.items(), key=lambda kv: kv[0]))
 
         tokens.append(
-            UnomiEventToken(
-                provider_identifier=vaccination_provider["identifier"],
-                unomi=jwt.encode(unomi_jwt_data, settings.APP_STEP_1_JWT_PRIVATE_KEY, algorithm="HS256"),
-                event=jwt.encode(event_jwt_data, settings.APP_STEP_1_JWT_PRIVATE_KEY, algorithm="HS256"),
+            EventDataProviderJWT(
+                provider_identifier=data_provider["identifier"],
+                unomi=jwt.encode(unomi_jwt_data, settings.IDENTITY_HASH_JWT_PRIVATE_KEY, algorithm="HS256"),
+                event=jwt.encode(event_jwt_data, settings.IDENTITY_HASH_JWT_PRIVATE_KEY, algorithm="HS256"),
             )
         )
 
     return tokens
 
 
-def calculate_vws_identity_hash_b64(bsn: str, pii: Dict[str, str], key: str) -> str:
+def calculate_identity_hash(bsn: str, pii: Dict[str, str], key: str) -> str:
     """
     Args:
         bsn: bsn number
@@ -157,8 +172,10 @@ def calculate_vws_identity_hash_b64(bsn: str, pii: Dict[str, str], key: str) -> 
     Returns:
         the hash of the bsn and values in pii
     """
+
+    # echo -n "000000012-Pluk-Petteflet-01" | openssl dgst -sha256 -hmac "ZrHsI6MZmObcqrSkVpea"
     message = "-".join([bsn, pii["first_name"], pii["last_name"], pii["day_of_birth"]]).encode()
-    return base64.b64encode(hmac256(message, key.encode())).decode("UTF-8")
+    return hmac256(message, key.encode()).hex()
 
 
 def hmac256(message: bytes, key: bytes) -> bytes:
@@ -167,7 +184,6 @@ def hmac256(message: bytes, key: bytes) -> bytes:
     # If you are using pyOpenSSL for anything other than making a TLS connection you should move to cryptography
     # and drop your pyOpenSSL dependency.
 
-    # echo -n "000000012-Pluk-Petteflet-01" | openssl dgst -sha256 -hmac "ZrHsI6MZmObcqrSkVpea"
     hmac_instance = hmac.HMAC(key, hashes.SHA256())
     hmac_instance.update(message)
     return hmac_instance.finalize()

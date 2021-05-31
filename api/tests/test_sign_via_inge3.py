@@ -1,5 +1,6 @@
 import json
 
+import pytest
 from fastapi.testclient import TestClient
 from freezegun import freeze_time
 
@@ -9,6 +10,7 @@ from api.settings import settings
 
 
 @freeze_time("2020-02-02")
+@pytest.mark.skip(reason="Static signer is up for refactoring.")
 def test_sign_via_inge3(requests_mock):
     signing_response_data = {
         "qr": {

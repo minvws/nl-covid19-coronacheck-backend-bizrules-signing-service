@@ -1,22 +1,3 @@
-import logging
-
-from api.models import Events, CredentialsRequestData
-from api.signers.eu_international import sign as eu_sign
-from api.signers.nl_domestic_dynamic import sign as nl_sign
-from api.tests.test_eusigner import testcase_events
-
-log = logging.getLogger(__package__)
-
-"""
-How to get this to work:
-1: git clone https://github.com/minvws/nl-covid19-coronacheck-hcert-private
-2: cd nl-covid19-coronacheck-hcert-private
-3: Add certificates Health_DSC_valid_for_vaccinations.key and Health_DSC_valid_for_vaccinations.pem (todo: commands?)
-4: go run ./ server
-5: make example
-"""
-
-issue_commitment_message = """
 {
   "n_2": "chMLFreGBi4t2obBcLDf/A==",
   "combinedProofs": [
@@ -190,27 +171,3 @@ issue_commitment_message = """
     }
   ]
 }
-"""
-
-prepare_issue_message = """
-    {"issuerPkId":"TST-KEY-01","issuerNonce":"UslfUmTWQUkcLPJy+9V8JA==","credentialAmount":28}
-"""
-
-stoken = "43b09572-c4b3-4247-8dc1-104680c20b82"
-
-if __name__ == "__main__":
-    data = nl_sign(
-        CredentialsRequestData(
-            **{
-                "events": Events(**testcase_events),
-                "issueCommitmentMessage": issue_commitment_message,
-                "stoken": stoken,
-            }
-        ),
-        prepare_issue_message,
-    )
-
-    log.info(data)
-
-    data = eu_sign(Events(**testcase_events))
-    log.info(data)

@@ -50,10 +50,10 @@ def request_post_with_retries(
 
 
 def request_get_with_retries(
-    url, exponential_retries: int = 5, timeout: int = 300, retry_on_these_status_codes: List = None, **kwargs
+    url, data, exponential_retries: int = 5, timeout: int = 300, retry_on_these_status_codes: List = None, **kwargs
 ) -> requests.Response:
     return request_request_with_retries(
-        "GET", url, None, exponential_retries, timeout, retry_on_these_status_codes, **kwargs
+        "GET", url, data, exponential_retries, timeout, retry_on_these_status_codes, **kwargs
     )
 
 

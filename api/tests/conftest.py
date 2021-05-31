@@ -1,9 +1,9 @@
 # allow access of private variables for mocking purposes
 # pylint: disable=W0212
 import pytest
-from pytest_redis.factories import redis_noproc
 
 from api.constants import INGE4_ROOT, TESTS_DIR
+from api.session_store import session_store
 from api.settings import settings
 
 if settings.USE_PYTEST_REDIS:
@@ -14,7 +14,10 @@ if settings.USE_PYTEST_REDIS:
 
 
 else:
-    redis_db = redis_noproc()
+
+    @pytest.fixture
+    def redis_db():
+        yield session_store._redis
 
 
 @pytest.fixture

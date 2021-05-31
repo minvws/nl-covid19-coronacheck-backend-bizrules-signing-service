@@ -4,22 +4,22 @@
 # Automatic documentation: http://localhost:8000/redoc or http://localhost:8000/docs
 import re
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from enum import Enum
-from typing import List, Optional, Union
+from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field
 from unidecode import unidecode
 
 
-class UnomiEventToken(BaseModel):
+class EventDataProviderJWT(BaseModel):
     provider_identifier: str
     unomi: str = Field(description="JWT containing unomi data: iss aud iat nbf exp and identity_hash.")
     event: str = Field(description="JWT containing event data: same as unomi + nonce and encrypted_bsn.")
 
 
-class PrepareIssueMessage(BaseModel):
+class PrepareIssueResponse(BaseModel):
     stoken: UUID = Field(description="", example="a019e902-86a0-4b1d-bff0-5c89f3cfc4d9")
     prepareIssueMessage: str = Field(
         description="A Base64 encoded prepare_issue_message",
@@ -30,9 +30,8 @@ class PrepareIssueMessage(BaseModel):
     )
 
 
-class BSNRetrievalToken(BaseModel):
-    # todo: Sent to inge6, returns the attributes.
-    tvs_token: str = Field(description="TVS/DigiD token required to fetch BSN")
+class AccessTokensRequest(BaseModel):
+    tvs_token: str = Field(description="Token that can be used to fetch BSN from Inge6")
 
 
 class Holder(BaseModel):
@@ -87,8 +86,14 @@ class Holder(BaseModel):
     def last_name_eu_normalized(self):
         return Holder._eu_normalize(self.lastName)
 
+    def equal_to(self, other):
+        return (
+            self.firstName == other.firstName and self.lastName == other.lastName and self.birthDate == other.birthDate
+        )
 
-class vaccination(BaseModel):  # noqa
+
+class Vaccination(BaseModel):  # noqa
+
     """
     When supplying data and you want to make it easy:
     - use a HPK Code and just the amount of events.
@@ -132,17 +137,51 @@ class vaccination(BaseModel):  # noqa
         )
 
 
-class test(BaseModel):  # noqa
-    sampleDate: str = Field(example="2021-01-01")
-    resultDate: str = Field(example="2021-01-02")
+class Positivetest(BaseModel):  # noqa
+    sampleDate: date = Field(example="2021-01-01")
+    resultDate: date = Field(example="2021-01-02")
     negativeResult: bool = Field(example=True)
     facility: str = Field(example="GGD XL Amsterdam")
     # this is not specified yet
     type: str = Field(example="???")
     name: str = Field(example="???")
     manufacturer: str = Field(example="1232")
+    country: str = Field(example="NLD")
 
-    # todo: country is missing(!)
+    """
+    Positive tests mean that there is a recovery. For the EU a positive test should be seen and
+    called a recovery.
+
+    For a recovery we're missing a validUntil in the test data.
+    # todo: thus this will be assumed?
+    """
+
+    def toEuropeanRecovery(self):
+        return EuropeanRecovery(
+            **{
+                **{
+                    # sampletime
+                    "fr": self.sampleDate,
+                    # date from
+                    "df": self.resultDate,
+                    # date until
+                    # tod
+                    "du": self.resultDate + timedelta(days=9000),
+                },
+                **SharedEuropeanFields.as_dict(),
+            }
+        )
+
+
+class Negativetest(BaseModel):  # noqa
+    sampleDate: str = Field(example="2021-01-01")
+    resultDate: str = Field(example="2021-01-02")
+    negativeResult: bool = Field(example=True)
+    facility: str = Field(example="Facility1")
+    type: str = Field(example="A great one")
+    name: str = Field(example="Bestest")
+    manufacturer: str = Field(example="Acme Inc")
+    country: str = Field(example="NLD")
 
     def toEuropeanTest(self):
         return EuropeanTest(
@@ -161,10 +200,11 @@ class test(BaseModel):  # noqa
         )
 
 
-class recovery(BaseModel):  # noqa
+class Recovery(BaseModel):  # noqa
     sampleDate: str = Field(example="2021-01-01")
     validFrom: str = Field(example="2021-01-12")
     validUntil: str = Field(example="2021-06-30")
+    country: str = Field(example="NLD")
 
     def toEuropeanRecovery(self):
         return EuropeanRecovery(
@@ -181,70 +221,115 @@ class recovery(BaseModel):  # noqa
 
 class EventType(str, Enum):
     recovery = "recovery"
-    test = "test"
+    positivetest = "positivetest"
+    negativetest = "negativetest"
     vaccination = "vaccination"
 
+    # for the EU the type "test" still exists: there is no difference between positive and negative
+    test = "test"
 
-class Event(BaseModel):
-    # There is no discriminator support here, so no luck. It IS a feature of openAPI.
-    # It IS possible to create different events with field duplication, but why would we do that
-    # Todo: see responses on: https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/pull/70
+
+class DataProviderEvent(BaseModel):
     type: EventType = Field(description="Type of event")
-    unique: UUID = Field(description="todo", example="ee5afb32-3ef5-4fdf-94e3-e61b752dbed9")
-    isSpecimen: bool = Field(0, description="Boolean as an integer: 0 or 1.")
-    data: Union[vaccination, test, recovery] = Field(description="Structure is based on the 'type' discriminator.")
+    unique: str = Field(description="Some unique string")
+    isSpecimen: bool = Field(False, description="Boolean")
+    negativetest: Optional[Negativetest] = Field(None, description="Negativetest")
+    positivetest: Optional[Positivetest] = Field(None, description="Positivetest")
+    vaccination: Optional[Vaccination] = Field(None, description="Vaccination")
+    recovery: Optional[Recovery] = Field(None, description="Recovery")
 
 
-# https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/providing-vaccination-events
-# .md
+# https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/providing-vaccination-events.md
 # https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/data-structures-overview.md
-class StatementOfVaccination(BaseModel):
+class DataProviderEventsResult(BaseModel):
     protocolVersion: str = Field(description="The semantic version of this API", default=3.0)
-    providerIdentifier: str = Field(description="todo")  # todo
-    status: str = Field(description="todo, enum probably", default="complete")  # todo
+    providerIdentifier: str = Field(description="todo")
+    status: str = Field(description="enum complete/pending", default="complete")
     holder: Holder
-    events: List[Event]
+    events: List[DataProviderEvent]
+
+
+class Event(DataProviderEvent):
+    source_provider_identifier: str = Field(None)
+    holder: Holder
+
+
+class Events(BaseModel):
+    events: List[Event] = Field([])
 
     @property
-    def vaccinations(self):
+    def vaccinations(self) -> List[Event]:
         """
         :return: sorted list of events that have vaccination data. Sorted by data.date.
         """
-        events = [event for event in self.events if isinstance(event.data, vaccination)]
-        events = sorted(events, key=lambda e: e.data.date)  # type: ignore
+        events = [event for event in self.events if isinstance(event.vaccination, Vaccination)]
+
+        events = sorted(events, key=lambda e: e.vaccination.date)  # type: ignore
         return events
 
     @property
-    def tests(self):
+    def positivetests(self) -> List[Event]:
         """
         :return: sorted list of events that have test data. Sorted by data.sampleDate.
         """
-        events = [event for event in self.events if isinstance(event.data, test)]
-        events = sorted(events, key=lambda e: e.data.sampleDate)  # type: ignore
+
+        events = [event for event in self.events if isinstance(event.positivetest, Positivetest)]
+        events = sorted(events, key=lambda e: e.positivetest.sampleDate)  # type: ignore
         return events
 
     @property
-    def recoveries(self):
+    def negativetests(self) -> List[Event]:
+        """
+        :return: sorted list of events that have test data. Sorted by data.sampleDate.
+        """
+
+        events = [event for event in self.events if isinstance(event.negativetest, Negativetest)]
+        events = sorted(events, key=lambda e: e.negativetest.sampleDate)  # type: ignore
+        return events
+
+    @property
+    def recoveries(self) -> List[Event]:
         """
         :return: sorted list of events that have recovery data. Sorted by data.sampleDate.
         """
-        events = [event for event in self.events if isinstance(event.data, recovery)]
-        events = sorted(events, key=lambda e: e.data.sampleDate)  # type: ignore
+
+        events = [event for event in self.events if isinstance(event.recovery, Recovery)]
+        events = sorted(events, key=lambda e: e.recovery.sampleDate)  # type: ignore
         return events
 
+    # todo: move code down so EuropeanOnlineSigningRequest is known and method can be typed.
     def toEuropeanOnlineSigningRequest(self):
+        if not self.events:
+            return None
+
+        # choose any holder for now, for any event.
+        any_holder = self.events[0].holder
+
         return EuropeanOnlineSigningRequest(
             **{
                 "nam": {
-                    "fn": self.holder.lastName,
-                    "fnt": self.holder.first_name_eu_normalized,
-                    "gn": self.holder.lastName,
-                    "gnt": self.holder.last_name_eu_normalized,
+                    "fn": any_holder.lastName,
+                    "fnt": any_holder.first_name_eu_normalized,
+                    "gn": any_holder.lastName,
+                    "gnt": any_holder.last_name_eu_normalized,
                 },
-                "dob": self.holder.birthDate,
-                "v": [event.data.toEuropeanVaccination() for event in self.vaccinations],
-                "r": [event.data.toEuropeanRecovery() for event in self.recoveries],
-                "t": [event.data.toEuropeanTest() for event in self.tests],
+                "dob": any_holder.birthDate,
+                "v": [
+                    event.vaccination.toEuropeanVaccination()
+                    for event in self.vaccinations
+                    if event.vaccination is not None
+                ],
+                "r": [event.recovery.toEuropeanRecovery() for event in self.recoveries if event.recovery is not None]
+                + [
+                    event.positivetest.toEuropeanRecovery()
+                    for event in self.positivetests
+                    if event.positivetest is not None
+                ],
+                "t": [
+                    event.negativetest.toEuropeanTest()
+                    for event in self.negativetests
+                    if event.negativetest is not None
+                ],
             }
         )
 
@@ -334,8 +419,10 @@ class EuropeanVaccination(SharedEuropeanFields):
     # https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/vaccine-mah-manf.json
     ma: str = Field(description="vaccination.manufacturer", example="ORG-100001699")
 
-    dn: int = Field(description="vaccination.doseNumber", example=1, gt=0, lt=10)
-    sd: int = Field(description="vaccination.totalDoses", example=1, gt=0, lt=10)
+    # Todo: it seems that dn can be omitted according to this tool:
+    # https://api-test.coronatester.nl/events/create-vaccination-event
+    dn: Optional[int] = Field(description="vaccination.doseNumber", example=1, gt=0, lt=10)
+    sd: Optional[int] = Field(description="vaccination.totalDoses", example=1, gt=0, lt=10)
 
     # Iso 8601, date only
     dt: date = Field(description="vaccination.date", example="2021-01-01")
@@ -452,7 +539,6 @@ class DomesticGreenCard(BaseModel):
                 {"type": "vaccination", "eventTime": "2021-03-25T11:14:46Z", "expirationTime": "2021-09-21T10:14:46Z"},
                 {"type": "recovery", "eventTime": "2021-05-13T10:14:46Z", "expirationTime": "2021-06-10T10:14:46Z"},
             ],
-            # base64(?)
             "createCredentialMessages": "W3siaXNzdWVTaWduYXR1cmVNZXNzYWdlIjp7I13379mIjp7ImMiOiJ25717CH...0iXX1d",
         }
 
@@ -468,8 +554,13 @@ class PaperProofOfVaccination(BaseModel):
     euProofs: Optional[List[EUGreenCard]] = Field(description="")
 
 
-class StepTwoData(BaseModel):
-    events: StatementOfVaccination
+class CMSSignedDataBlob(BaseModel):
+    signature: str = Field(description="CMS signature")
+    payload: str = Field(description="CMS payload in base64")
+
+
+class CredentialsRequestData(BaseModel):
+    events: List[CMSSignedDataBlob]
     stoken: UUID = Field(description="", example="a019e902-86a0-4b1d-bff0-5c89f3cfc4d9")
     issueCommitmentMessage: str
 
@@ -498,3 +589,25 @@ class IssueMessage(BaseModel):
     prepareIssueMessage: dict
     issueCommitmentMessage: dict
     credentialsAttributes: List[DomesticSignerAttributes]
+
+
+class RichOrigin(BaseModel):
+    holder: Holder
+    type: str
+    eventTime: datetime
+    validFrom: datetime
+    expirationTime: datetime
+
+
+class ContiguousOriginsBlock(BaseModel):
+    origins: List[RichOrigin]
+    validFrom: datetime
+    expirationTime: datetime
+
+    @staticmethod
+    def from_origin(origin):
+        return ContiguousOriginsBlock(
+            origins=[origin],
+            validFrom=origin.validFrom,
+            expirationTime=origin.expirationTime,
+        )
