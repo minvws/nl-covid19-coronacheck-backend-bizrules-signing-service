@@ -12,6 +12,8 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 from unidecode import unidecode
 
+from api.attribute_allowlist import domestic_signer_attribute_allow_list
+
 
 class EventDataProviderJWT(BaseModel):
     provider_identifier: str
@@ -583,6 +585,20 @@ class DomesticSignerAttributes(BaseModel):
     lastNameInitial: str = Field(example="J", description="First letter of the last name of this person")
     birthDay: str = Field(example="27", description="Day (not date!) of birth.")
     birthMonth: str = Field(example="12", description="Month (not date!) of birth.")
+
+    def strike(self):
+        # VFMD = Voornaam, Familienaam, Maand, Dag
+        combo = domestic_signer_attribute_allow_list.get(f"{self.firstNameInitial}{self.lastNameInitial}", "")
+        if "V" not in combo:
+            self.firstNameInitial = ""
+        if "F" not in combo:
+            self.lastNameInitial = ""
+        if "M" not in combo:
+            self.birthMonth = ""
+        if "D" not in combo:
+            self.birthDay = ""
+
+        return self
 
 
 class IssueMessage(BaseModel):

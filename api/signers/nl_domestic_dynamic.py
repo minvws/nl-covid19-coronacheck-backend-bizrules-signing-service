@@ -130,7 +130,7 @@ def eligible_negative_tests(events) -> List[RichOrigin]:
     return origins
 
 
-def calculate_attributed_from_blocks(contiguous_blocks: List[ContiguousOriginsBlock]) -> List[DomesticSignerAttributes]:
+def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBlock]) -> List[DomesticSignerAttributes]:
     # # Calculate sets of credentials for every block
     # todo: visualize what is meant with blocks. Add examples.
     rounded_now = floor_hours(datetime.now())
@@ -164,20 +164,20 @@ def calculate_attributed_from_blocks(contiguous_blocks: List[ContiguousOriginsBl
             valid_from = expiration_time_scrubber - timedelta(hours=settings.DOMESTIC_STRIP_VALIDITY_HOURS)
             holder = overlapping_block.origins[0].holder
 
-            attributes.append(
-                DomesticSignerAttributes(
-                    **{
-                        "isSpecimen": "0",
-                        "stripType": StripType.APP_STRIP,
-                        "validFrom": valid_from.isoformat(),
-                        "validForHours": settings.DOMESTIC_STRIP_VALIDITY_HOURS,
-                        "firstNameInitial": holder.first_name_initial,
-                        "lastNameInitial": holder.last_name_initial,
-                        "birthDay": str(holder.birthDate.day),
-                        "birthMonth": str(holder.birthDate.month),
-                    }
-                )
+            domestic_signer_attributes = DomesticSignerAttributes(
+                **{
+                    "isSpecimen": "0",
+                    "stripType": StripType.APP_STRIP,
+                    "validFrom": valid_from.isoformat(),
+                    "validForHours": settings.DOMESTIC_STRIP_VALIDITY_HOURS,
+                    "firstNameInitial": holder.first_name_initial,
+                    "lastNameInitial": holder.last_name_initial,
+                    "birthDay": str(holder.birthDate.day),
+                    "birthMonth": str(holder.birthDate.month),
+                }
             )
+            domestic_signer_attributes.strike()
+            attributes.append(domestic_signer_attributes)
 
             # Break out if we're done with this block
             if expiration_time_scrubber == overlapping_block.expirationTime:
@@ -224,7 +224,7 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
         else:
             contiguous_blocks.append(ContiguousOriginsBlock.from_origin(origin))
 
-    attributes = calculate_attributed_from_blocks(contiguous_blocks)
+    attributes = calculate_attributes_from_blocks(contiguous_blocks)
 
     issue_message = IssueMessage(
         **{
