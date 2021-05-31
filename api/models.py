@@ -165,7 +165,7 @@ class Positivetest(BaseModel):  # noqa
                     "df": self.resultDate,
                     # date until
                     # tod
-                    "du": date(self.resultDate + timedelta(days=9000)),
+                    "du": self.resultDate + timedelta(days=9000),
                 },
                 **SharedEuropeanFields.as_dict(),
             }
