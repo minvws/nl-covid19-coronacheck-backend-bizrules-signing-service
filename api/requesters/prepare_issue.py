@@ -10,7 +10,7 @@ from api.utils import request_post_with_retries
 async def get_prepare_issue() -> PrepareIssueResponse:
     credential_amount = math.ceil((settings.DOMESTIC_MAXIMUM_ISSUANCE_DAYS * 24) / \
                         (settings.DOMESTIC_STRIP_VALIDITY_HOURS - settings.DOMESTIC_MAXIMUM_RANDOMIZED_OVERLAP_HOURS))
-    print(credential_amount)
+
     response = request_post_with_retries(
         settings.DOMESTIC_NL_VWS_PREPARE_ISSUE_URL,
         data={"credentialAmount": credential_amount },
