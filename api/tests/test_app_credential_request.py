@@ -12,8 +12,8 @@ from api.utils import read_file
 
 @freeze_time("2020-02-02")
 def test_app_credential_request(requests_mock, current_path, redis_db):
-    # mock redis
-    session_store._redis = redis_db
+    # mock redis, disableW0212 since we should be able to access private members for mocking
+    session_store._redis = redis_db  # pylint: disable=W0212
     # create fake session:
     session_token = session_store.store_message(b'{"some": "data"}')
     client = TestClient(app)
