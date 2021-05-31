@@ -27,7 +27,7 @@ testcase_event_vaccination = {
         "country": "NLD",
         "doseNumber": 1,
         "totalDoses": 2,
-    }
+    },
 }
 testcase_event_negativetest = {
     "source_provider_identifier": "XXX",
@@ -46,7 +46,7 @@ testcase_event_negativetest = {
     },
     "positivetest": None,
     "recovery": None,
-    "vaccination": None
+    "vaccination": None,
 }
 
 testcase_event_positivetest = {
@@ -66,7 +66,7 @@ testcase_event_positivetest = {
         "country": "NLD",
     },
     "recovery": None,
-    "vaccination": None
+    "vaccination": None,
 }
 
 testcase_event_recovery = {
@@ -82,7 +82,7 @@ testcase_event_recovery = {
         "validUntil": "2021-02-01",
         "country": "NLD",
     },
-    "vaccination": None
+    "vaccination": None,
 }
 
 testcase_events = {
@@ -90,7 +90,7 @@ testcase_events = {
         testcase_event_vaccination,
         testcase_event_negativetest,
         testcase_event_positivetest,
-        testcase_event_recovery
+        testcase_event_recovery,
     ],
 }
 
@@ -125,7 +125,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "fr": datetime(2021, 3, 1).date(),
                 "is_": "Ministry of Health Welfare and Sport",
                 "tg": "840539006",
-            }
+            },
         ],
         "t": [
             {

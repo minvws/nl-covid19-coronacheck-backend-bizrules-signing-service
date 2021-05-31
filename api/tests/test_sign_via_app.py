@@ -22,8 +22,7 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
         text=read_file(f"{current_path}/sbvz/direct_match_correct_response.xml"),
     )
     requests_mock.post(
-        url=f"{settings.INGE6_BSN_RETRIEVAL_URL}"
-        "?at=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz",
+        url=f"{settings.INGE6_BSN_RETRIEVAL_URL}" "?at=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz",
         text="MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzpEliQZGIthee86WIg0w599yMlSzcg8ojyA==",
     )
     requests_mock.post(url="http://testserver/app/access_tokens/", real_http=True)

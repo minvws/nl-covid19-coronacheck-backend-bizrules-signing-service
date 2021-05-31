@@ -24,6 +24,7 @@ log = logging.getLogger(__package__)
 inge6_box = Box(settings.INGE4_NACL_PRIVATE_KEY, settings.INGE6_NACL_PUBLIC_KEY)
 HTTPInvalidRetrievalTokenException = HTTPException(status_code=401, detail=["RetrievalToken Invalid"])
 
+
 async def retrieve_bsn_from_inge6(retrieval_token: AccessTokensRequest):
 
     # If mock mode and INGE6_MOCK_MODE_BSN is set; dont actually go and get the BSN
@@ -42,14 +43,12 @@ async def retrieve_bsn_from_inge6(retrieval_token: AccessTokensRequest):
         log.warning("tvs token to short")
         raise HTTPInvalidRetrievalTokenException
 
-    nonce = tvs_token_raw[:inge6_box.NONCE_SIZE]
-
+    nonce = tvs_token_raw[: inge6_box.NONCE_SIZE]
 
     querystring = {"at": tvs_token}
 
-    response = request_post_with_retries(settings.INGE6_BSN_RETRIEVAL_URL,data="", params=querystring)
+    response = request_post_with_retries(settings.INGE6_BSN_RETRIEVAL_URL, data="", params=querystring)
     encrypted_bsn = response.content
-
 
     if not Base64Encoder.decode(encrypted_bsn)[: inge6_box.NONCE_SIZE] == nonce:
         log.warning("nonce is invalid")
@@ -57,7 +56,6 @@ async def retrieve_bsn_from_inge6(retrieval_token: AccessTokensRequest):
 
     bsn = inge6_box.decrypt(encrypted_bsn, encoder=Base64Encoder)
     return bsn.decode()
-
 
 
 def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:

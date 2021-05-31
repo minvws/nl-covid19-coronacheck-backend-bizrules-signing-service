@@ -11,17 +11,18 @@ from api.models import (
     CredentialsRequestData,
     DataProviderEventsResult,
     DomesticGreenCard,
+    EUGreenCard,
     Event,
     EventDataProviderJWT,
     Events,
     MobileAppProofOfVaccination,
-    PrepareIssueResponse, EUGreenCard,
+    PrepareIssueResponse,
 )
 from api.requesters import identity_hashes
 from api.requesters.prepare_issue import get_prepare_issue
 from api.session_store import session_store
 from api.settings import settings
-from api.signers import nl_domestic_dynamic, eu_international
+from api.signers import eu_international, nl_domestic_dynamic
 
 app = FastAPI()
 

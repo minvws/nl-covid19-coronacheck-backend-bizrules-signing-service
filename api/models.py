@@ -88,7 +88,7 @@ class Holder(BaseModel):
 
     def equal_to(self, other):
         return (
-                self.firstName == other.firstName and self.lastName == other.lastName and self.birthDate == other.birthDate
+            self.firstName == other.firstName and self.lastName == other.lastName and self.birthDate == other.birthDate
         )
 
 
@@ -114,7 +114,7 @@ class Vaccination(BaseModel):  # noqa
 
     country: Optional[str] = Field(
         description="Optional iso 3166 3-letter country field, will be set to NLD if "
-                    "left out. Can be used if shot was administered abroad",
+        "left out. Can be used if shot was administered abroad",
         example="NLD",
         default="NLD",
     )
@@ -155,6 +155,7 @@ class Positivetest(BaseModel):  # noqa
     For a recovery we're missing a validUntil in the test data.
     # todo: thus this will be assumed?
     """
+
     def toEuropeanRecovery(self):
         return EuropeanRecovery(
             **{
@@ -314,9 +315,9 @@ class Events(BaseModel):
                 },
                 "dob": any_holder.birthDate,
                 "v": [event.vaccination.toEuropeanVaccination() for event in self.vaccinations],
-                "r": [event.recovery.toEuropeanRecovery() for event in self.recoveries] +
-                [event.positivetest.toEuropeanRecovery() for event in self.positivetests],
-                "t": [event.negativetest.toEuropeanTest() for event in self.negativetests]
+                "r": [event.recovery.toEuropeanRecovery() for event in self.recoveries]
+                + [event.positivetest.toEuropeanRecovery() for event in self.positivetests],
+                "t": [event.negativetest.toEuropeanTest() for event in self.negativetests],
             }
         )
 
@@ -378,7 +379,7 @@ class SharedEuropeanFields(BaseModel):
     tg: str = Field(description="disease or agent targeted", example="840539006", default="840539006")
     ci: str = Field(
         description="Certificate Identifier, format as per UVCI (*), "
-                    "Yes (conversion of unique to V-XXX-YYYYYYYY-Z, provider only needs to provide unique"
+        "Yes (conversion of unique to V-XXX-YYYYYYYY-Z, provider only needs to provide unique"
     )
     co: str = Field(description="Member State, ISO 3166", default="NLD", regex=r"[A-Z]{1,10}")
     is_: str = Field(description="certificate issuer", default="Ministry of Health Welfare and Sport", alias="is")
@@ -440,7 +441,7 @@ class EuropeanRecovery(SharedEuropeanFields):
     df: date = Field(description="certificate valid from. recovery.validFrom", example="todo")
     du: date = Field(
         description="certificate valid until. not more than 180 days after the date of first positive "
-                    "test result. recovery.validUntil",
+        "test result. recovery.validUntil",
         example="todo",
     )
 
@@ -469,7 +470,7 @@ class EuropeanOnlineSigningRequest(BaseModel):
     # Signer should convert "1975-XX-XX" to "1975" as the EU DGC can't handle the XX's of unknown birthmonth/day
     dob: date = Field(
         description="Date of Birth of the person addressed in the DGC. "
-                    "ISO 8601 date format restricted to range 1900-2099"
+        "ISO 8601 date format restricted to range 1900-2099"
     )
 
     v: List[EuropeanVaccination]

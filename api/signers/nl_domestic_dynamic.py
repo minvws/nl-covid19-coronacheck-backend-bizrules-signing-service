@@ -6,16 +6,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from api.models import (
-    DomesticGreenCard,
-    Event,
-    Events,
-    EventType,
-    GreenCardOrigin,
-    Holder,
-    IssueMessage,
-    StripType,
-)
+from api.models import DomesticGreenCard, Event, Events, EventType, GreenCardOrigin, Holder, IssueMessage, StripType
 from api.settings import settings
 from api.signers import hpkcodes
 from api.utils import request_post_with_retries

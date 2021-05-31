@@ -12,6 +12,7 @@ async def mock_sbvz():
         content=read_file(f"{TESTS_DIR}/sbvz/direct_match_correct_response.xml"), media_type="application/xml"
     )
 
+
 @app.post("/bsn_attribute")
 async def mock_inge6(at: str):
     print(at)

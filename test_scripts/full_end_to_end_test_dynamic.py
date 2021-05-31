@@ -27,7 +27,7 @@ if __name__ == "__main__":
     log.info("inge4 is running and healthy")
 
     log.info(f"Checking if inge6 is running on {settings.INGE6_BSN_RETRIEVAL_URL.host}")
-    response = requests.post(settings.INGE6_BSN_RETRIEVAL_URL+f"?at={tvs_token}")
+    response = requests.post(settings.INGE6_BSN_RETRIEVAL_URL + f"?at={tvs_token}")
     if response.status_code == 200:
         if response.text == "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzpEliQZGIthee86WIg0w599yMlSzcg8ojyA==":
             log.info("Inge6 mock is reachable")
