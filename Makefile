@@ -113,7 +113,6 @@ export URN
 
 # For those who mistype make run, make them remember!
 urn:
-	clear
 	@echo "$$URN"
 
 
