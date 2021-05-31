@@ -1,15 +1,30 @@
+# todo cleanup code here and make it pass without pylint: disable
+# pylint: disable=R0914 C0103 C0103 R0912
 import base64
 import json
 import secrets
 from datetime import datetime, timedelta
 from typing import List, Optional
 
-from pydantic import BaseModel
-
-from api.models import DomesticGreenCard, Event, Events, EventType, GreenCardOrigin, Holder, IssueMessage, StripType
+from api.models import (
+    ContiguousOriginsBlock,
+    DomesticGreenCard,
+    Event,
+    Events,
+    EventType,
+    GreenCardOrigin,
+    IssueMessage,
+    RichOrigin,
+    StripType,
+)
 from api.settings import settings
 from api.signers import hpkcodes
 from api.utils import request_post_with_retries
+
+
+# Datetimes are automatically marshalled to ISO in json.
+def floor_hours(date: datetime) -> datetime:
+    return date.now().replace(microsecond=0, second=0, minute=0)
 
 
 def sign(events: Events, prepare_issue_message: str, issue_commitment_message: str) -> Optional[DomesticGreenCard]:
@@ -21,17 +36,6 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
     """
 
     allowed_positive_test_types = ["LP217198-3", "LP6464-4"]
-
-    # Datetimes are automatically marshalled to ISO in json.
-    class RichOrigin(BaseModel):
-        holder: Holder
-        type: str
-        eventTime: datetime
-        validFrom: datetime
-        expirationTime: datetime
-
-    def floor_hours(dt: datetime) -> datetime:
-        return dt.now().replace(microsecond=0, second=0, minute=0)
 
     origins: List[RichOrigin] = []
 
@@ -122,18 +126,6 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
     # # Calculate final origins and attributes
     # # --------------------------------------
     # Todo naar functies.
-    class ContiguousOriginsBlock(BaseModel):
-        origins: List[RichOrigin]
-        validFrom: datetime
-        expirationTime: datetime
-
-        @staticmethod
-        def from_origin(origin):
-            return ContiguousOriginsBlock(
-                origins=[origin],
-                validFrom=origin.validFrom,
-                expirationTime=origin.expirationTime,
-            )
 
     # Filter out origins that aren't valid any more, and sort on validFrom
     rounded_now = floor_hours(datetime.now())

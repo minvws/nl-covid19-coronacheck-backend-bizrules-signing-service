@@ -35,9 +35,9 @@ async def retrieve_bsn_from_inge6(retrieval_token: AccessTokensRequest):
 
     try:
         tvs_token_raw = base64.b64decode(tvs_token)
-    except binascii.Error:
+    except binascii.Error as err:
         log.warning(f"tvs token {tvs_token} of type {type(tvs_token)} not base64 decodable")
-        raise HTTPInvalidRetrievalTokenException
+        raise HTTPInvalidRetrievalTokenException from err
 
     if len(tvs_token_raw) < inge6_box.NONCE_SIZE:
         log.warning("tvs token to short")

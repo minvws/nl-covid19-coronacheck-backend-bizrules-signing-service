@@ -1,3 +1,5 @@
+# we want to be able to use \/ in docstrings for now
+# pylint: disable=W1401
 import base64
 import json
 import sys
@@ -152,7 +154,7 @@ async def app_credential_request(request_data: CredentialsRequestData):
     """
     print(all_events)
     [Event(source_provider_identifier='ZZZ', type=<EventType.negativetest: 'negativetest'>, unique='7ff88e852c9ebd843f4023d148b162e806c9c5fd', isSpecimen=True, negativetest=Negativetest(sampleDate='2021-05-27T19:23:00+00:00', resultDate='2021-05-27T19:38:00+00:00', negativeResult=True, facility='Facility1', type='LP6464-4', name='Test1', manufacturer='1232', country='NLD'), positivetest=None, vaccination=None, recovery=None)]
-    """
+    """  # pylint: disable=C0301
 
     domestic_response: Optional[DomesticGreenCard] = nl_domestic_dynamic.sign(
         events, prepare_issue_message, request_data.issueCommitmentMessage

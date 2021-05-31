@@ -151,7 +151,7 @@ class Positivetest(BaseModel):  # noqa
     """
     Positive tests mean that there is a recovery. For the EU a positive test should be seen and
     called a recovery.
-    
+
     For a recovery we're missing a validUntil in the test data.
     # todo: thus this will be assumed?
     """
@@ -314,10 +314,22 @@ class Events(BaseModel):
                     "gnt": any_holder.last_name_eu_normalized,
                 },
                 "dob": any_holder.birthDate,
-                "v": [event.vaccination.toEuropeanVaccination() for event in self.vaccinations],
-                "r": [event.recovery.toEuropeanRecovery() for event in self.recoveries]
-                + [event.positivetest.toEuropeanRecovery() for event in self.positivetests],
-                "t": [event.negativetest.toEuropeanTest() for event in self.negativetests],
+                "v": [
+                    event.vaccination.toEuropeanVaccination()
+                    for event in self.vaccinations
+                    if event.vaccination is not None
+                ],
+                "r": [event.recovery.toEuropeanRecovery() for event in self.recoveries if event.recovery is not None]
+                + [
+                    event.positivetest.toEuropeanRecovery()
+                    for event in self.positivetests
+                    if event.positivetest is not None
+                ],
+                "t": [
+                    event.negativetest.toEuropeanTest()
+                    for event in self.negativetests
+                    if event.negativetest is not None
+                ],
             }
         )
 
@@ -575,3 +587,25 @@ class IssueMessage(BaseModel):
     prepareIssueMessage: dict
     issueCommitmentMessage: dict
     credentialsAttributes: List[DomesticSignerAttributes]
+
+
+class RichOrigin(BaseModel):
+    holder: Holder
+    type: str
+    eventTime: datetime
+    validFrom: datetime
+    expirationTime: datetime
+
+
+class ContiguousOriginsBlock(BaseModel):
+    origins: List[RichOrigin]
+    validFrom: datetime
+    expirationTime: datetime
+
+    @staticmethod
+    def from_origin(origin):
+        return ContiguousOriginsBlock(
+            origins=[origin],
+            validFrom=origin.validFrom,
+            expirationTime=origin.expirationTime,
+        )

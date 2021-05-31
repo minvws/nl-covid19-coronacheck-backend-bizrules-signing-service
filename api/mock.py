@@ -13,8 +13,9 @@ async def mock_sbvz():
     )
 
 
+# "at" is the actual query string required so we can't rename
 @app.post("/bsn_attribute")
-async def mock_inge6(at: str):
+async def mock_inge6(at: str):  # pylint: disable=C0103
     print(at)
     return Response(
         content="MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzpEliQZGIthee86WIg0w599yMlSzcg8ojyA==", media_type="text/plain"
