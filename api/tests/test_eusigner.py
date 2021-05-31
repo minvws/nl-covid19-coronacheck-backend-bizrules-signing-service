@@ -108,6 +108,15 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "fr": datetime(2021, 4, 1).date(),
                 "is_": "Ministry of Health Welfare and Sport",
                 "tg": "840539006",
+            },
+            {
+                "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
+                "co": "NLD",
+                "df": datetime(2021, 2, 1).date(),
+                "du": datetime(2045, 9, 23).date(),
+                "fr": datetime(2021, 3, 1).date(),
+                "is_": "Ministry of Health Welfare and Sport",
+                "tg": "840539006",
             }
         ],
         "t": [
@@ -123,20 +132,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "tg": "840539006",
                 "tr": "True",
                 "tt": "???",
-            },
-            {
-                'ci': 'd540cb87-7774-4c40-bcef-d46a933da826',
-                'co': 'NLD',
-                'dr': datetime(2021, 2, 1, 0, 0),
-                'is_': 'Ministry of Health Welfare and Sport',
-                'ma': '???',
-                'nm': '???',
-                'sc': datetime(2021, 3, 1, 0, 0),
-                'tc': 'GGD XL Amsterdam',
-                'tg': '840539006',
-                'tr': 'True',
-                'tt': '???'
-            },
+            }
         ],
         "v": [
             {
@@ -209,10 +205,10 @@ def test_eusign(requests_mock):
         **{
             "origins": [
                 {
-                    "type": "test",
-                    "eventTime": "2021-03-01T00:00:00",
+                    "type": "recovery",
+                    "eventTime": "2021-03-01",
                     "expirationTime": "2020-07-31T00:00:00+00:00",
-                    "validFrom": "2021-03-01T00:00:00",
+                    "validFrom": "2021-03-01",
                 }
             ],
             "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",

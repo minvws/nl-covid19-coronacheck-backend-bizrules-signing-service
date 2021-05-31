@@ -78,8 +78,8 @@ def sign(statement: Events) -> List[EUGreenCard]:
         statements_to_eu_signer.append(
             MessageToEUSigner(
                 **{
-                    # The EU only has test, not positive test or negative test.
-                    "keyUsage": "test",
+                    # A positive test in the EU means a recovery
+                    "keyUsage": "recovery",
                     "expirationTime": expiration_time,
                     "dgc": blank_statement.toEuropeanOnlineSigningRequest(),
                 }
