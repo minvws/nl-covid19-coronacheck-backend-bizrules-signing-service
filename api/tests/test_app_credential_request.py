@@ -17,13 +17,6 @@ def test_app_credential_request(requests_mock, current_path):
     session_token = session_store.store_message(b'{"some": "data"}')
     client = TestClient(app)
 
-    # todo: we need the earlier steps to function properly, because we need signatures and payloads here.
-    events = {
-        "events": [
-            testcase_event_vaccination,
-            testcase_event_vaccination,
-        ],
-    }
 
     events = json.loads(read_file(current_path.joinpath("test_data/events1.json")))
 
