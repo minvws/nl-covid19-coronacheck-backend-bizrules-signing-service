@@ -1,7 +1,7 @@
 import json
 from api.models import Events, CredentialsRequestData
 from api.utils import defaultconverter
-from test_scripts.example_eu_signing import issue_commitment_message, vaccination_events
+from test_scripts.example_eu_signing import issue_commitment_message, testcase_events
 
 import requests
 from api.settings import settings
@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
     step_two_data = CredentialsRequestData(
         **{
-            "events": Events(**vaccination_events),
+            "events": Events(**testcase_events),
             "issueCommitmentMessage": issue_commitment_message,
             "stoken": stoken,
         }

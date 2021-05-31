@@ -3,7 +3,7 @@ import logging
 from api.models import Events, CredentialsRequestData
 from api.signers.eu_international import sign as eu_sign
 from api.signers.nl_domestic_dynamic import sign as nl_sign
-from api.tests.test_eusigner import vaccination_events
+from api.tests.test_eusigner import testcase_events
 
 log = logging.getLogger(__package__)
 
@@ -202,7 +202,7 @@ if __name__ == "__main__":
     data = nl_sign(
         CredentialsRequestData(
             **{
-                "events": Events(**vaccination_events),
+                "events": Events(**testcase_events),
                 "issueCommitmentMessage": issue_commitment_message,
                 "stoken": stoken,
             }
@@ -212,5 +212,5 @@ if __name__ == "__main__":
 
     log.info(data)
 
-    data = eu_sign(Events(**vaccination_events))
+    data = eu_sign(Events(**testcase_events))
     log.info(data)
