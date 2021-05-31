@@ -1,8 +1,10 @@
 import csv
 
+from api.constants import INGE4_ROOT
+
 
 def load_allowlist_csv():
-    with open("api/partial_issuence_allowlist.csv", mode="r") as inp:
+    with open(INGE4_ROOT.joinpath("api/partial_issuence_allowlist.csv"), mode="r") as inp:
         reader = csv.reader(inp)
         return {rows[0]: rows[1] for rows in reader}
 
