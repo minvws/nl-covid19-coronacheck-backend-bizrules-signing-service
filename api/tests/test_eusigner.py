@@ -171,9 +171,9 @@ def test_eusign(requests_mock):
             "origins": [
                 {
                     "type": "vaccination",
-                    "eventTime": "2021-02-01",
+                    "eventTime": "2021-02-01T00:00:00+00:00",
                     "expirationTime": "2020-07-31T00:00:00+00:00",
-                    "validFrom": "2021-02-01",
+                    "validFrom": "2021-02-01T00:00:00+00:00",
                 }
             ],
             "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
@@ -185,9 +185,9 @@ def test_eusign(requests_mock):
             "origins": [
                 {
                     "type": "recovery",
-                    "eventTime": "2021-04-01",
+                    "eventTime": "2021-04-01T00:00:00+00:00",
                     "expirationTime": "2020-07-31T00:00:00+00:00",
-                    "validFrom": "2021-04-01",
+                    "validFrom": "2021-04-01T00:00:00+00:00",
                 }
             ],
             "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
@@ -199,9 +199,9 @@ def test_eusign(requests_mock):
             "origins": [
                 {
                     "type": "test",
-                    "eventTime": "2021-03-01T19:38:00+00:00",
+                    "eventTime": "2021-03-01T00:00:00+00:00",
                     "expirationTime": "2020-07-31T00:00:00+00:00",
-                    "validFrom": "2021-03-01T19:38:00+00:00",
+                    "validFrom": "2021-03-01T00:00:00+00:00",
                 }
             ],
             "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
@@ -214,9 +214,9 @@ def test_eusign(requests_mock):
             "origins": [
                 {
                     "type": "recovery",
-                    "eventTime": "2021-03-01",
+                    "eventTime": "2021-03-01T00:00:00+00:00",
                     "expirationTime": "2020-07-31T00:00:00+00:00",
-                    "validFrom": "2021-03-01",
+                    "validFrom": "2021-03-01T00:00:00+00:00",
                 }
             ],
             "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
