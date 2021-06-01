@@ -18,7 +18,7 @@ testcase_event_vaccination = {
     "recovery": None,
     "vaccination": {
         "completedByMedicalStatement": False,
-        "date": "2021-02-01T00:00:00+00:00",
+        "date": "2021-02-01",
         "hpkCode": "2934701",
         "type": "C19-mRNA",
         "brand": "COVID-19 VACCIN JANSSEN INJVLST 0,5ML",
