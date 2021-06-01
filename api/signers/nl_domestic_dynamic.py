@@ -168,7 +168,7 @@ def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBl
                 **{
                     "isSpecimen": "0",
                     "stripType": StripType.APP_STRIP,
-                    "validFrom": valid_from.isoformat(),
+                    "validFrom": str(int(valid_from.now().timestamp())),
                     "validForHours": settings.DOMESTIC_STRIP_VALIDITY_HOURS,
                     "firstNameInitial": holder.first_name_initial,
                     "lastNameInitial": holder.last_name_initial,
