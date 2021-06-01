@@ -87,7 +87,12 @@ def request_request_with_retries(
     # We should not use 'False'
 
     response = session.request(
-        method, url, data=json.dumps(data, default=defaultconverter) if data else None, timeout=timeout, verify=False, **kwargs
+        method,
+        url,
+        data=json.dumps(data, default=defaultconverter) if data else None,
+        timeout=timeout,
+        verify=False,
+        **kwargs,
     )
 
     # will not do a "raise for status"

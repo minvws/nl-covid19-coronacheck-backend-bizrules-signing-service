@@ -38,7 +38,8 @@ class AppSettings(BaseSettings):
     DOMESTIC_MAXIMUM_ISSUANCE_DAYS: int = 14
     DOMESTIC_MAXIMUM_RANDOMIZED_OVERLAP_HOURS: int = 4
     EU_INTERNATIONAL_SIGNING_URL: AnyHttpUrl = Field()
-    SIGNER_CA_FILE: str = ""
+    SIGNER_CA_CERT_FILE: str = ""
+    SIGNER_CA_CERT: str = ""
 
     MOCK_MODE: bool = False
 
@@ -120,6 +121,7 @@ def settings_factory(env_file: pathlib.Path) -> AppSettings:
     _settings.INGE6_NACL_PUBLIC_KEY = read_nacl_public_key(
         f"{_settings.SECRETS_FOLDER}/{_settings.INGE6_NACL_PUBLIC_KEY_FILE}"
     )
+    _settings.SIGNER_CA_CERT = read_file(f"{_settings.SECRETS_FOLDER}/{_settings.SIGNER_CA_CERT_FILE}")
     if _settings.MOCK_MODE:
         # add cool rainbow effect for dramatic impact :)
         log.debug("MOCK_MODE=True this should never be used in production environments!")
