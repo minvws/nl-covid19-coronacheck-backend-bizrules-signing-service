@@ -13,6 +13,7 @@ log = logging.getLogger(__package__)
 
 TZ = pytz.timezone("UTC")
 
+
 def sign(statement: Events) -> List[EUGreenCard]:
     """
     Implements signing against: https://github.com/minvws/nl-covid19-coronacheck-hcert-private
