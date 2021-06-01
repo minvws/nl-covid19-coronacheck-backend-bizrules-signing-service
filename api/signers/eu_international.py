@@ -5,7 +5,7 @@ from typing import List
 
 import pytz
 
-from api.models import EUGreenCard, Events, MessageToEUSigner
+from api.models import INVALID_YEAR_FOR_EU_SIGNING, EUGreenCard, Events, MessageToEUSigner
 from api.settings import settings
 from api.utils import request_post_with_retries
 
@@ -60,8 +60,13 @@ def sign(statement: Events) -> List[EUGreenCard]:
             )
         )
 
-    if statement.negativetests:
-        blank_statement.events = [statement.negativetests[-1]]
+    # Some negative tests are not eligible for signing, they are upgrade v2 events that
+    # have incomplete holder information: the year is wrong, the first and last name are one letter.
+    eligible_negative_tests = [
+        test for test in statement.negativetests if test.holder.birthDate.year != INVALID_YEAR_FOR_EU_SIGNING
+    ]
+    if eligible_negative_tests:
+        blank_statement.events = [eligible_negative_tests[-1]]
         statements_to_eu_signer.append(
             MessageToEUSigner(
                 **{

@@ -4,6 +4,7 @@ import base64
 import json
 import logging
 import sys
+from http import HTTPStatus
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
@@ -19,6 +20,7 @@ from api.models import (
     Events,
     MobileAppProofOfVaccination,
     PrepareIssueResponse,
+    V2Event,
 )
 from api.requesters import identity_hashes
 from api.requesters.prepare_issue import get_prepare_issue
@@ -103,6 +105,7 @@ async def app_credential_request(request_data: CredentialsRequestData):
 
     # TODO: CMS signature checks
     # for loop over events -> cms sig check
+    # signature should be a pkcs7 over payload with a cert.
 
     """
     {
@@ -133,11 +136,19 @@ async def app_credential_request(request_data: CredentialsRequestData):
     }
     """
     # Merge the events from multiple providers into one list
-
     events: Events = Events()
     for cms_signed_blob in request_data.events:
         dp_event_json = json.loads(base64.b64decode(cms_signed_blob.payload))
-        dp_event_result = DataProviderEventsResult(**dp_event_json)
+
+        if dp_event_json["protocolVersion"] == "3.0":
+            dp_event_result: DataProviderEventsResult = DataProviderEventsResult(**dp_event_json)
+        elif dp_event_json["protocolVersion"] == "2.0":
+            # V2 is contains only one single negative test
+            # V2 messages are not eligible for EU signing because it contains no full name and a wrong year(!)
+            dp_event_result = V2Event(**dp_event_json).upgrade_to_v3()
+        else:
+            raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=["Unsupported protocolVersion"])
+
         holder = dp_event_result.holder
 
         for dp_event in dp_event_result.events:
