@@ -1,3 +1,4 @@
+import logging
 import os
 import pathlib
 from logging import config
@@ -12,3 +13,5 @@ with open(
     else inge4_root.joinpath("inge4_logging.yaml")
 ) as f:
     config.dictConfig(yaml.safe_load(f))
+
+log = logging.getLogger(__package__)

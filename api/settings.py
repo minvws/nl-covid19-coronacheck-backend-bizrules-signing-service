@@ -2,16 +2,33 @@
 
 import logging
 import pathlib
-from typing import Any, Dict, List, Optional
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 
 import json5
+from nacl.encoding import Base64Encoder
 from nacl.public import PrivateKey, PublicKey
 from pydantic import AnyHttpUrl, BaseSettings, Field
 
 from api.constants import ENV_FILE, INGE4_ROOT
-from api.utils import read_file, read_nacl_private_key, read_nacl_public_key
 
 log = logging.getLogger(__package__)
+
+
+# Cannot load this from utils, because utils needs settings.
+def read_nacl_public_key(path: Union[str, Path]) -> PublicKey:
+    key_bytes = read_file(path).encode()
+    return PublicKey(key_bytes, encoder=Base64Encoder)
+
+
+def read_nacl_private_key(path: Union[str, Path]) -> PrivateKey:
+    key_bytes = read_file(path).encode()
+    return PrivateKey(key_bytes, encoder=Base64Encoder)
+
+
+def read_file(path: Union[str, Path], encoding: str = "UTF-8") -> str:
+    with open(path, "rb") as file_handle:
+        return file_handle.read().decode(encoding)
 
 
 class AppSettings(BaseSettings):
@@ -38,8 +55,10 @@ class AppSettings(BaseSettings):
     DOMESTIC_MAXIMUM_ISSUANCE_DAYS: int = 14
     DOMESTIC_MAXIMUM_RANDOMIZED_OVERLAP_HOURS: int = 4
     EU_INTERNATIONAL_SIGNING_URL: AnyHttpUrl = Field()
-    SIGNER_CA_CERT_FILE: str = ""
-    SIGNER_CA_CERT: str = ""
+
+    # The requests library has a feature that:
+    # - False ignores any certificate, True uses system CA and file = against the bundle supplied.
+    SIGNER_CA_CERT_FILE: Union[bool, str] = ""
     INGE6_BSN_RETRIEVAL_URL: AnyHttpUrl = Field()
 
     MOCK_MODE: bool = False
@@ -124,7 +143,6 @@ def settings_factory(env_file: pathlib.Path) -> AppSettings:
         f"{_settings.SECRETS_FOLDER}/{_settings.INGE6_NACL_PUBLIC_KEY_FILE}"
     )
 
-    _settings.SIGNER_CA_CERT = read_file(f"{_settings.SECRETS_FOLDER}/{_settings.SIGNER_CA_CERT_FILE}")
     _settings.INGE6_JWT_PUBLIC_CRT = read_file(f"{_settings.SECRETS_FOLDER}/{_settings.INGE6_JWT_PUBLIC_CRT_FILE}")
 
     if _settings.MOCK_MODE or _settings.INGE6_MOCK_MODE or _settings.STOKEN_MOCK:

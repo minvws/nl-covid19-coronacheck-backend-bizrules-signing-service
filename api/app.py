@@ -134,7 +134,7 @@ async def app_credential_request(request_data: CredentialsRequestData):
     """
     # Merge the events from multiple providers into one list
 
-    events = Events()
+    events: Events = Events()
     for cms_signed_blob in request_data.events:
         dp_event_json = json.loads(base64.b64decode(cms_signed_blob.payload))
         dp_event_result = DataProviderEventsResult(**dp_event_json)
