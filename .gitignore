@@ -99,3 +99,5 @@ venv
 
 .idea
 /csv
+
+dump.rdb
