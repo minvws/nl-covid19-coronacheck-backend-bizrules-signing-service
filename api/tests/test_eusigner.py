@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from freezegun import freeze_time
 
@@ -18,7 +18,7 @@ testcase_event_vaccination = {
     "recovery": None,
     "vaccination": {
         "completedByMedicalStatement": False,
-        "date": "2021-02-01",
+        "date": "2021-02-01T00:00:00+00:00",
         "hpkCode": "2934701",
         "type": "C19-mRNA",
         "brand": "COVID-19 VACCIN JANSSEN INJVLST 0,5ML",
@@ -35,8 +35,8 @@ testcase_event_negativetest = {
     "type": "negativetest",
     "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
     "negativetest": {
-        "sampleDate": "2021-03-01",
-        "resultDate": "2021-02-01",
+        "sampleDate": "2021-03-01T19:38:00+00:00",
+        "resultDate": "2021-02-01T19:38:00+00:00",
         "negativeResult": True,
         "facility": "GGD XL Amsterdam",
         "type": "???",
@@ -56,8 +56,8 @@ testcase_event_positivetest = {
     "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
     "negativetest": None,
     "positivetest": {
-        "sampleDate": "2021-03-01",
-        "resultDate": "2021-02-01",
+        "sampleDate": "2021-03-01T19:38:00+00:00",
+        "resultDate": "2021-02-01T19:38:00+00:00",
         "negativeResult": True,
         "facility": "GGD XL Amsterdam",
         "type": "???",
@@ -77,9 +77,9 @@ testcase_event_recovery = {
     "negativetest": None,
     "positivetest": None,
     "recovery": {
-        "sampleDate": "2021-04-01",
-        "validFrom": "2021-02-01",
-        "validUntil": "2021-02-01",
+        "sampleDate": "2021-04-01T19:38:00+00:00",
+        "validFrom": "2021-02-01T19:38:00+00:00",
+        "validUntil": "2021-02-01T19:38:00+00:00",
         "country": "NLD",
     },
     "vaccination": None,
@@ -131,11 +131,11 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
             {
                 "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
                 "co": "NLD",
-                "dr": datetime(2021, 2, 1, 0, 0),
+                "dr": datetime(2021, 2, 1, 19, 38, tzinfo=timezone.utc),
                 "is_": "Ministry of Health Welfare and Sport",
                 "ma": "???",
                 "nm": "???",
-                "sc": datetime(2021, 3, 1, 0, 0),
+                "sc": datetime(2021, 3, 1, 19, 38, tzinfo=timezone.utc),
                 "tc": "GGD XL Amsterdam",
                 "tg": "840539006",
                 "tr": "True",
@@ -199,9 +199,9 @@ def test_eusign(requests_mock):
             "origins": [
                 {
                     "type": "test",
-                    "eventTime": "2021-03-01T00:00:00",
+                    "eventTime": "2021-03-01T19:38:00+00:00",
                     "expirationTime": "2020-07-31T00:00:00+00:00",
-                    "validFrom": "2021-03-01T00:00:00",
+                    "validFrom": "2021-03-01T19:38:00+00:00",
                 }
             ],
             "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",

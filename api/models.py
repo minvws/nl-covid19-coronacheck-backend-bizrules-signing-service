@@ -14,6 +14,9 @@ from unidecode import unidecode
 
 from api.attribute_allowlist import domestic_signer_attribute_allow_list
 
+# Created to distinguish V2 events from v3 events.
+INVALID_YEAR_FOR_EU_SIGNING = 1883
+
 
 class EventDataProviderJWT(BaseModel):
     provider_identifier: str
@@ -101,7 +104,7 @@ class Vaccination(BaseModel):  # noqa
 
     """
 
-    date: str = Field(example="2021-01-01")
+    date: datetime = Field(example="2021-01-01")
     hpkCode: Optional[str] = Field(example="2924528", description="hpkcode.nl, will be used to fill EU fields")
     type: Optional[str] = Field(example="1119349007", description="Can be left blank if hpkCode is entered.")
     manufacturer: Optional[str] = Field(description="Can be left blank if hpkCode is entered.", example="ORG-100030215")
@@ -136,8 +139,8 @@ class Vaccination(BaseModel):  # noqa
 
 
 class Positivetest(BaseModel):  # noqa
-    sampleDate: date = Field(example="2021-01-01")
-    resultDate: date = Field(example="2021-01-02")
+    sampleDate: datetime = Field(example="2021-01-01")
+    resultDate: datetime = Field(example="2021-01-02")
     negativeResult: bool = Field(example=True)
     facility: str = Field(example="GGD XL Amsterdam")
     # this is not specified yet
@@ -171,9 +174,10 @@ class Positivetest(BaseModel):  # noqa
         )
 
 
+# V3
 class Negativetest(BaseModel):  # noqa
-    sampleDate: str = Field(example="2021-01-01")
-    resultDate: str = Field(example="2021-01-02")
+    sampleDate: datetime = Field(example="2021-01-01")
+    resultDate: datetime = Field(example="2021-01-02")
     negativeResult: bool = Field(example=True)
     facility: str = Field(example="Facility1")
     type: str = Field(example="A great one")
@@ -188,8 +192,8 @@ class Negativetest(BaseModel):  # noqa
                     "tt": self.type,
                     "nm": self.name,
                     "ma": self.manufacturer,
-                    "sc": datetime.fromisoformat(self.sampleDate),
-                    "dr": datetime.fromisoformat(self.resultDate),
+                    "sc": self.sampleDate,
+                    "dr": self.resultDate,
                     "tr": self.negativeResult,
                     "tc": self.facility,
                 },
@@ -199,18 +203,18 @@ class Negativetest(BaseModel):  # noqa
 
 
 class Recovery(BaseModel):  # noqa
-    sampleDate: str = Field(example="2021-01-01")
-    validFrom: str = Field(example="2021-01-12")
-    validUntil: str = Field(example="2021-06-30")
+    sampleDate: datetime = Field(example="2021-01-01")
+    validFrom: datetime = Field(example="2021-01-12")
+    validUntil: datetime = Field(example="2021-06-30")
     country: str = Field(example="NLD")
 
     def toEuropeanRecovery(self):
         return EuropeanRecovery(
             **{
                 **{
-                    "fr": date.fromisoformat(self.sampleDate),
-                    "df": date.fromisoformat(self.validFrom),
-                    "du": date.fromisoformat(self.validUntil),
+                    "fr": self.sampleDate,
+                    "df": self.validFrom,
+                    "du": self.validUntil,
                 },
                 **SharedEuropeanFields.as_dict(),
             }
@@ -233,6 +237,7 @@ class DataProviderEvent(BaseModel):
     isSpecimen: bool = Field(False, description="Boolean")
     negativetest: Optional[Negativetest] = Field(None, description="Negativetest")
     positivetest: Optional[Positivetest] = Field(None, description="Positivetest")
+    # todo: only one vaccination per event?
     vaccination: Optional[Vaccination] = Field(None, description="Vaccination")
     recovery: Optional[Recovery] = Field(None, description="Recovery")
 
@@ -240,7 +245,7 @@ class DataProviderEvent(BaseModel):
 # https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/providing-vaccination-events.md
 # https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/main/docs/data-structures-overview.md
 class DataProviderEventsResult(BaseModel):
-    protocolVersion: str = Field(description="The semantic version of this API", default=3.0)
+    protocolVersion: str = Field(description="The semantic version of this API", default="3.0")
     providerIdentifier: str = Field(description="todo")
     status: str = Field(description="enum complete/pending", default="complete")
     holder: Holder
@@ -253,7 +258,7 @@ class Event(DataProviderEvent):
 
 
 class Events(BaseModel):
-    events: List[Event] = Field([])
+    events: List[Event] = Field(default=[])
 
     @property
     def vaccinations(self) -> List[Event]:
@@ -622,4 +627,105 @@ class ContiguousOriginsBlock(BaseModel):
             origins=[origin],
             validFrom=origin.validFrom,
             expirationTime=origin.expirationTime,
+        )
+
+
+class V2Holder(BaseModel):
+    firstNameInitial: str
+    lastNameInitial: str
+    birthDay: str
+    birthMonth: str
+
+
+class V2DataProviderEvent(BaseModel):  # noqa
+    unique: str
+    sampleDate: datetime
+    testType: str
+    negativeResult: bool
+    isSpecimen: bool
+    holder: V2Holder
+
+
+class V2Event(BaseModel):
+    """
+    These are only negative test events. Implement an old version of the protocol. Incoming
+    messages may have protocol 2 and protocol 3.
+
+    These are not eligible for eu signing because the holder information is incomplete (name is missing, birthyear)
+
+    {
+        "protocolVersion": "2.0",
+        "providerIdentifier": "ZZZ",
+        "status": "complete",
+        "result": {
+            "unique": "19ba0f739ee8b6d98950f1a30e58bcd1996d7b3e",
+            "sampleDate": "2021-06-01T05:40:00Z",
+            "testType": "antigen",
+            "negativeResult": true,
+            "isSpecimen": true,
+            "holder": {
+                "firstNameInitial": "B",
+                "lastNameInitial": "B",
+                "birthDay": "9",
+                "birthMonth": "6"
+            }
+        }
+    }
+    """
+
+    protocolVersion: str
+    providerIdentifier: str
+    status: str
+    result: V2DataProviderEvent
+
+    def upgrade_to_v3(self) -> DataProviderEventsResult:
+        # Convert the api 2.0 negative test result to an event conform to API v3.
+        # This saves a lot of logic down the line.
+        # See testcase for example.
+
+        # https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/test-type.json
+
+        testtypes_to_code = {
+            # Antigen Test
+            "antigen": "LP217198-3",
+            # PCR Test (Traditional)
+            "pcr": "LP6464-4",
+            # PCR Test (LAMP)
+            "pcr-lamp": "LP6464-4",
+            # todo: to be determined, falls back to unknown
+            # "breath": "",
+        }
+
+        holder = Holder(
+            firstName=self.result.holder.firstNameInitial,
+            lastName=self.result.holder.lastNameInitial,
+            # there is no year. for EU signing the year must be valid. Use an impossible year:
+            birthDate=datetime(
+                INVALID_YEAR_FOR_EU_SIGNING, int(self.result.holder.birthMonth), int(self.result.holder.birthDay)
+            ),
+        )
+
+        return DataProviderEventsResult(
+            protocolVersion=self.protocolVersion,
+            providerIdentifier=self.providerIdentifier,
+            status=self.status,
+            holder=holder,
+            events=[
+                DataProviderEvent(
+                    type=EventType.negativetest,
+                    unique=self.result.unique,
+                    isSpecimen=self.result.isSpecimen,
+                    negativetest=Negativetest(
+                        sampleDate=self.result.sampleDate,
+                        # This field will be deleted anyway
+                        resultDate=self.result.sampleDate,
+                        facility="not available",
+                        type=testtypes_to_code.get(self.result.testType, "unknown"),
+                        name="not available",
+                        manufacturer="not available",
+                        country="NLD",
+                        negativeResult=self.result.negativeResult,
+                    ),
+                )
+            ],
         )

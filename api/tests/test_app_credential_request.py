@@ -1,6 +1,7 @@
 import json
 from base64 import b64decode, b64encode
 
+import json5
 from fastapi.testclient import TestClient
 from freezegun import freeze_time
 
@@ -18,7 +19,7 @@ def test_app_credential_request(requests_mock, current_path, redis_db):
     session_token = session_store.store_message(b'{"some": "data"}')
     client = TestClient(app)
 
-    events = json.loads(read_file(current_path.joinpath("test_data/events1.json")))
+    events = json5.loads(read_file(current_path.joinpath("test_data/events1.json5")))
 
     issuecommitmentmessage = b64encode(b'{"foo": "bar"}').decode("UTF-8")
 
@@ -66,6 +67,13 @@ def test_app_credential_request(requests_mock, current_path, redis_db):
             "dWxsfX0sICJhdHRyaWJ1dGVzIjogWyJNQVVFQVFJVEFBPT0iLCAiTUE9PSIsICJNQT09IiwgIk1UWXlNakV5TnpZd01BPT0iLCAiTWpRP"
             "SIsICJRUT09IiwgIlVnPT0iLCAiTWpBPSIsICJNVEE9Il19XQ==",
             "origins": [
+                # From the v2 event
+                {
+                    "eventTime": "2020-02-02T00:00:00",
+                    "expirationTime": "2020-02-03T16:00:00",
+                    "type": "negativetest",
+                    "validFrom": "2020-02-02T00:00:00",
+                },
                 {
                     "eventTime": "2020-02-02T00:00:00",
                     "expirationTime": "2020-02-03T16:00:00",
@@ -81,6 +89,7 @@ def test_app_credential_request(requests_mock, current_path, redis_db):
             ],
         },
         "euGreencards": [
+            # The v2 event will not be in here :)
             {
                 "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%I0/IVB58WA",
                 "origins": [
