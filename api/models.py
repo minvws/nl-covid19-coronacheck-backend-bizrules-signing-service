@@ -104,7 +104,7 @@ class Vaccination(BaseModel):  # noqa
 
     """
 
-    date: datetime = Field(example="2021-01-01")
+    date: date
     hpkCode: Optional[str] = Field(example="2924528", description="hpkcode.nl, will be used to fill EU fields")
     type: Optional[str] = Field(example="1119349007", description="Can be left blank if hpkCode is entered.")
     manufacturer: Optional[str] = Field(description="Can be left blank if hpkCode is entered.", example="ORG-100030215")
