@@ -69,22 +69,22 @@ def test_app_credential_request(requests_mock, current_path, redis_db):
             "origins": [
                 # From the v2 event
                 {
-                    "eventTime": "2020-02-02T00:00:00",
-                    "expirationTime": "2020-02-03T16:00:00",
+                    "eventTime": "2021-05-27T00:00:00+00:00",
+                    "expirationTime": "2021-05-28T16:00:00+00:00",
                     "type": "negativetest",
-                    "validFrom": "2020-02-02T00:00:00",
+                    "validFrom": "2021-05-27T00:00:00+00:00",
                 },
                 {
-                    "eventTime": "2020-02-02T00:00:00",
-                    "expirationTime": "2020-02-03T16:00:00",
+                    "eventTime": "2021-05-27T00:00:00+00:00",
+                    "expirationTime": "2021-05-28T16:00:00+00:00",
                     "type": "negativetest",
-                    "validFrom": "2020-02-02T00:00:00",
+                    "validFrom": "2021-05-27T00:00:00+00:00",
                 },
                 {
-                    "eventTime": "2020-02-02T00:00:00",
-                    "expirationTime": "2020-02-03T16:00:00",
+                    "eventTime": "2021-06-01T00:00:00+00:00",
+                    "expirationTime": "2021-06-02T16:00:00+00:00",
                     "type": "negativetest",
-                    "validFrom": "2020-02-02T00:00:00",
+                    "validFrom": "2021-06-01T00:00:00+00:00",
                 },
             ],
         },
@@ -94,10 +94,10 @@ def test_app_credential_request(requests_mock, current_path, redis_db):
                 "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%I0/IVB58WA",
                 "origins": [
                     {
-                        "eventTime": "2021-05-27T19:23:00+00:00",
+                        "eventTime": "2021-05-27T00:00:00+00:00",
                         "expirationTime": "2020-07-31T00:00:00+00:00",
                         "type": "test",
-                        "validFrom": "2021-05-27T19:23:00+00:00",
+                        "validFrom": "2021-05-27T00:00:00+00:00",
                     }
                 ],
             }
