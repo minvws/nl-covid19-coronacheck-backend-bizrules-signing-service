@@ -20,7 +20,7 @@ async def get_prepare_issue() -> PrepareIssueResponse:
     )
     response.raise_for_status()
 
-    message = response.content
+    message = base64.b64encode(response.content).decode()
 
     session_token = session_store.store_message(message)
-    return PrepareIssueResponse(prepareIssueMessage=base64.b64encode(message).decode(), stoken=session_token)
+    return PrepareIssueResponse(prepareIssueMessage=message, stoken=session_token)
