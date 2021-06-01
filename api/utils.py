@@ -82,8 +82,17 @@ def request_request_with_retries(
 
     # Data might not all serialize correctly all the time. Use a fallback.
     # TypeError: Object of type date is not JSON serializable
+
+    # TODO verify=settings.SIGNER_CA_FILE
+    # We should not use 'False'
+
     response = session.request(
-        method, url, data=json.dumps(data, default=defaultconverter) if data else None, timeout=timeout, **kwargs
+        method,
+        url,
+        data=json.dumps(data, default=defaultconverter) if data else None,
+        timeout=timeout,
+        verify=False,
+        **kwargs,
     )
 
     # will not do a "raise for status"
