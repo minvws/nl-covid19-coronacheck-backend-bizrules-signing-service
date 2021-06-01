@@ -56,7 +56,7 @@ def get_jwt_from_authorization_header(header_data: str) -> str:
         logging.warning(f"Invalid authorization header: {header_data}")
         raise HTTPException(401, ["Invalid Authorization Token type"])
 
-    auth_type, possible_jwt_token = header_data.split(" ", 1)
+    _, possible_jwt_token = header_data.split(" ", 1)
     # Deal with possible infractions of the standard:
     # https://datatracker.ietf.org/doc/html/rfc6750#section-2.1
     return possible_jwt_token.strip()

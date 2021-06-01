@@ -24,7 +24,7 @@ def test_validate_bearer():
             "/app/access_tokens/",
             "",
             # note: bearer without space / without data:
-            headers={"Authorization": f"Bearer"},
+            headers={"Authorization": "Bearer"},
         ).content.decode("UTF-8")
     )
     assert json_content == {"detail": ["Invalid Authorization Token type"]}
