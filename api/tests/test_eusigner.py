@@ -106,7 +106,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
     # So both a recovery and a positive test both result in an eu recovery.
     assert eu_request.dict() == {
         "dob": datetime(1970, 1, 1).date(),
-        "nam": {"fn": "Akkersloot", "fnt": "HERMAN", "gn": "Akkersloot", "gnt": "AKKERSLOOT"},
+        "nam": {"fn": "Akkersloot", "fnt": "AKKERSLOOT", "gn": "Herman", "gnt": "HERMAN"},
         "r": [
             {
                 "ci": "d540cb87-7774-4c40-bcef-d46a933da826",

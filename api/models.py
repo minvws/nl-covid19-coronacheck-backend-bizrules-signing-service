@@ -312,9 +312,9 @@ class Events(BaseModel):
             **{
                 "nam": {
                     "fn": any_holder.lastName,
-                    "fnt": any_holder.first_name_eu_normalized,
-                    "gn": any_holder.lastName,
-                    "gnt": any_holder.last_name_eu_normalized,
+                    "fnt": any_holder.last_name_eu_normalized,
+                    "gn": any_holder.firstName,
+                    "gnt": any_holder.first_name_eu_normalized,
                 },
                 "dob": any_holder.birthDate,
                 "v": [
