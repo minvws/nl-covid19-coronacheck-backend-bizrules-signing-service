@@ -32,7 +32,7 @@ def floor_hours(my_date: Union[datetime, date]) -> datetime:
     if isinstance(my_date, date):
         my_date = datetime.combine(my_date, datetime.min.time())
 
-    d = my_date.now().replace(microsecond=0, second=0, minute=0)
+    d = my_date.replace(microsecond=0, second=0, minute=0)
     return TZ.localize(d)
 
 
