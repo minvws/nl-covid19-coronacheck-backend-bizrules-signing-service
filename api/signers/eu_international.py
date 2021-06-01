@@ -1,6 +1,6 @@
 import copy
 import logging
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from typing import List
 
 import pytz
@@ -11,6 +11,7 @@ from api.utils import request_post_with_retries
 
 log = logging.getLogger(__package__)
 
+TZ = pytz.timezone("UTC")
 
 def sign(statement: Events) -> List[EUGreenCard]:
     """
@@ -118,10 +119,14 @@ def sign(statement: Events) -> List[EUGreenCard]:
 
 def get_event_time(statement_to_eu_signer: MessageToEUSigner):
     if statement_to_eu_signer.keyUsage == "vaccination":
-        return statement_to_eu_signer.dgc.v[0].dt
-    if statement_to_eu_signer.keyUsage == "recovery":
-        return statement_to_eu_signer.dgc.r[0].fr
-    if statement_to_eu_signer.keyUsage == "test":
-        return statement_to_eu_signer.dgc.t[0].sc
+        event_time = statement_to_eu_signer.dgc.v[0].dt
+    elif statement_to_eu_signer.keyUsage == "recovery":
+        event_time = statement_to_eu_signer.dgc.r[0].fr
+    elif statement_to_eu_signer.keyUsage == "test":
+        event_time = statement_to_eu_signer.dgc.t[0].sc
+    else:
+        raise ValueError("Not able to retrieve an event time from the statement to the signer. This is very wrong.")
 
-    raise ValueError("Not able to retrieve an event time from the statement to the signer. This is very wrong.")
+    if isinstance(event_time, date):
+        event_time = datetime.combine(event_time, datetime.min.time())
+    return TZ.localize(event_time)
