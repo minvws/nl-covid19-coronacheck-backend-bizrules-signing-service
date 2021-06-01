@@ -15,7 +15,7 @@ class SessionStore:
 
     def store_message(self, message: bytes) -> str:
         session_token = uuid4()
-        self._redis.set(self._key_prefix + session_token.bytes, message, ex=self._ex)
+        self._redis.set(self._key_prefix + str(session_token).encode(), message, ex=self._ex)
         return str(session_token)
 
     def get_message(self, session_token: str) -> Optional[bytes]:
@@ -29,7 +29,7 @@ class SessionStore:
             By design the session token can be used only once to retreive the nonces.
 
         """
-        key = self._key_prefix + UUID(session_token).bytes
+        key = self._key_prefix + str(UUID(session_token)).encode()
         pipe = self._redis.pipeline()
         pipe.get(key)
         pipe.delete(key)
