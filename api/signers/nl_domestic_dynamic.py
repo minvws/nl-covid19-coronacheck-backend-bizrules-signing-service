@@ -56,7 +56,7 @@ def eligible_vaccination(events: Events) -> List[RichOrigin]:
 
     # If there a valid vaccination was found, add a single one to the origins
     if best_vacc:
-        event_time = floor_hours(datetime.fromisoformat(best_vacc.vaccination.date))  # type: ignore
+        event_time = floor_hours(best_vacc.vaccination.date)  # type: ignore
 
         return [
             RichOrigin(
@@ -80,9 +80,9 @@ def eligible_recovery(events) -> List[RichOrigin]:
         RichOrigin(
             holder=rec.holder,
             type=EventType.recovery,
-            eventTime=floor_hours(datetime.fromisoformat(rec.recovery.sampleDate)),
-            validFrom=floor_hours(datetime.fromisoformat(rec.recovery.validFrom)),
-            expirationTime=floor_hours(datetime.fromisoformat(rec.recovery.validUntil)),
+            eventTime=floor_hours(rec.recovery.sampleDate),
+            validFrom=floor_hours(rec.recovery.validFrom),
+            expirationTime=floor_hours(rec.recovery.validUntil),
         )
         for rec in eligible_recs
     ]
@@ -115,7 +115,7 @@ def eligible_negative_tests(events) -> List[RichOrigin]:
     origins = []
 
     for negative_test in eligible_nts:
-        event_time = floor_hours(datetime.fromisoformat(negative_test.negativetest.sampleDate))
+        event_time = floor_hours(negative_test.negativetest.sampleDate)
 
         origins.append(
             RichOrigin(

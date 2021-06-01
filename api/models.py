@@ -101,7 +101,7 @@ class Vaccination(BaseModel):  # noqa
 
     """
 
-    date: str = Field(example="2021-01-01")
+    date: datetime = Field(example="2021-01-01")
     hpkCode: Optional[str] = Field(example="2924528", description="hpkcode.nl, will be used to fill EU fields")
     type: Optional[str] = Field(example="1119349007", description="Can be left blank if hpkCode is entered.")
     manufacturer: Optional[str] = Field(description="Can be left blank if hpkCode is entered.", example="ORG-100030215")
@@ -136,8 +136,8 @@ class Vaccination(BaseModel):  # noqa
 
 
 class Positivetest(BaseModel):  # noqa
-    sampleDate: date = Field(example="2021-01-01")
-    resultDate: date = Field(example="2021-01-02")
+    sampleDate: datetime = Field(example="2021-01-01")
+    resultDate: datetime = Field(example="2021-01-02")
     negativeResult: bool = Field(example=True)
     facility: str = Field(example="GGD XL Amsterdam")
     # this is not specified yet
@@ -171,9 +171,90 @@ class Positivetest(BaseModel):  # noqa
         )
 
 
+class V2Holder(BaseModel):
+    firstNameInitial: str
+    lastNameInitial: str
+    birthDay: str
+    birthMonth: str
+
+class V2DataProviderEvent(BaseModel):  # noqa
+    unique: str
+    sampleDate: datetime
+    testType: str
+    negativeResult: bool
+    isSpecimen: bool
+    holder: V2Holder
+
+
+class V2Event:
+    """
+    These are only negative test events. Implement an old version of the protocol. Incoming
+    messages may have protocol 2 and protocol 3.
+
+    These are not eligible for eu signing because the holder information is incomplete (name is missing)
+
+        {
+        "protocolVersion": "2.0",
+        "providerIdentifier": "ZZZ",
+        "status": "complete",
+        "result": {
+            "unique": "19ba0f739ee8b6d98950f1a30e58bcd1996d7b3e",
+            "sampleDate": "2021-06-01T05:40:00Z",
+            "testType": "antibody",
+            "negativeResult": true,
+            "isSpecimen": true,
+            "holder": {
+                "firstNameInitial": "B",
+                "lastNameInitial": "B",
+                "birthDay": "9",
+                "birthMonth": "6"
+            }
+        }
+    }
+    """
+    protocolVersion: str
+    providerIdentifier: str
+    status: str
+    result: V2DataProviderEvent
+
+    def upgrade_to_v3_with_negative_test(self):
+        # Convert the api 2.0 negative test result to an event conform to API v3.
+        # This saves a lot of logic down the line.
+
+        # todo: this list these types
+        testtype_to = {
+            "antibody": ""
+        }
+
+        return Event(
+            source_provider_identifier=self.providerIdentifier,
+            type=EventType.negativetest,
+            unique=self.result.unique,
+            isSpecimen=self.result.isSpecimen,
+            negativetest=Negativetest(
+                sampleDate=self.result.sampleDate,
+                # This field will be deleted anyway
+                resultDate=self.result.sampleDate,
+                facility="MessageConversionFactory",
+                type="",
+                name="",
+                manufacturer="",
+                country="NLD",
+                negativeResult=self.result.negativeResult
+            ),
+            holder=Holder(
+                firstName=self.result.holder.firstNameInitial,
+                lastName=self.result.holder.lastNameInitial,
+                birthDate=datetime(1970, int(self.result.holder.birthMonth), int(self.result.holder.birthDay))
+            )
+
+        )
+
+
+# V3
 class Negativetest(BaseModel):  # noqa
-    sampleDate: str = Field(example="2021-01-01")
-    resultDate: str = Field(example="2021-01-02")
+    sampleDate: datetime = Field(example="2021-01-01")
+    resultDate: datetime = Field(example="2021-01-02")
     negativeResult: bool = Field(example=True)
     facility: str = Field(example="Facility1")
     type: str = Field(example="A great one")
@@ -188,8 +269,8 @@ class Negativetest(BaseModel):  # noqa
                     "tt": self.type,
                     "nm": self.name,
                     "ma": self.manufacturer,
-                    "sc": datetime.fromisoformat(self.sampleDate),
-                    "dr": datetime.fromisoformat(self.resultDate),
+                    "sc": self.sampleDate,
+                    "dr": self.resultDate,
                     "tr": self.negativeResult,
                     "tc": self.facility,
                 },
@@ -199,18 +280,18 @@ class Negativetest(BaseModel):  # noqa
 
 
 class Recovery(BaseModel):  # noqa
-    sampleDate: str = Field(example="2021-01-01")
-    validFrom: str = Field(example="2021-01-12")
-    validUntil: str = Field(example="2021-06-30")
+    sampleDate: datetime = Field(example="2021-01-01")
+    validFrom: datetime = Field(example="2021-01-12")
+    validUntil: datetime = Field(example="2021-06-30")
     country: str = Field(example="NLD")
 
     def toEuropeanRecovery(self):
         return EuropeanRecovery(
             **{
                 **{
-                    "fr": date.fromisoformat(self.sampleDate),
-                    "df": date.fromisoformat(self.validFrom),
-                    "du": date.fromisoformat(self.validUntil),
+                    "fr": self.sampleDate,
+                    "df": self.validFrom,
+                    "du": self.validUntil,
                 },
                 **SharedEuropeanFields.as_dict(),
             }
