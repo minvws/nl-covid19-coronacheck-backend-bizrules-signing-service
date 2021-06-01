@@ -4,6 +4,8 @@ import secrets
 from datetime import date, datetime, timedelta
 from typing import List, Optional, Union
 
+import pytz
+
 from api.models import (
     ContiguousOriginsBlock,
     DomesticGreenCard,
@@ -21,7 +23,7 @@ from api.signers import hpkcodes
 from api.utils import request_post_with_retries
 
 ALLOWED_POSITIVE_TEST_TYPES = ["LP217198-3", "LP6464-4"]
-
+TZ = pytz.timezone("UTC")
 
 # Datetimes are automatically marshalled to ISO in json.
 def floor_hours(my_date: Union[datetime, date]) -> datetime:
@@ -30,7 +32,8 @@ def floor_hours(my_date: Union[datetime, date]) -> datetime:
     if isinstance(my_date, date):
         my_date = datetime.combine(my_date, datetime.min.time())
 
-    return my_date.now().replace(microsecond=0, second=0, minute=0)
+    d = my_date.now().replace(microsecond=0, second=0, minute=0)
+    return TZ.localize(d)
 
 
 def eligible_vaccination(events: Events) -> List[RichOrigin]:
