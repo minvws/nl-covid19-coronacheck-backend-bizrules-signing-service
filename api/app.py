@@ -46,6 +46,22 @@ async def health_request() -> Dict[str, Any]:
     }
 
 
+def get_jwt_from_authorization_header(header_data: str) -> str:
+    # Some basic checks that the bearer is set. Real validation happens down the line.
+    if not header_data:
+        logging.warning(f"Invalid authorization header: {header_data}")
+        raise HTTPException(401, ["Invalid Authorization Token type"])
+
+    if not header_data.startswith("Bearer "):
+        logging.warning(f"Invalid authorization header: {header_data}")
+        raise HTTPException(401, ["Invalid Authorization Token type"])
+
+    auth_type, possible_jwt_token = header_data.split(" ", 1)
+    # Deal with possible infractions of the standard:
+    # https://datatracker.ietf.org/doc/html/rfc6750#section-2.1
+    return possible_jwt_token.strip()
+
+
 @app.post("/app/access_tokens/", response_model=List[EventDataProviderJWT])
 async def get_access_tokens_request(authorization: str = Header(None)) -> List[EventDataProviderJWT]:
     """
@@ -55,10 +71,7 @@ async def get_access_tokens_request(authorization: str = Header(None)) -> List[E
     :param request: AccessTokensRequest
     :return:
     """
-    auth_type, jwt_token = authorization.split(" ", 1)
-    if auth_type != "Bearer":
-        logging.warning(f"Invalid authorization type: {auth_type}")
-        raise HTTPException(401, ["Invalid Authorization Token type"])
+    jwt_token = get_jwt_from_authorization_header(authorization)
     bsn = await identity_hashes.retrieve_bsn_from_inge6(jwt_token)
     return identity_hashes.create_provider_jwt_tokens(bsn)
 
