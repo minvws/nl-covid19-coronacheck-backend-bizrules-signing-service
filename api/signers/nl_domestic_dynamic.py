@@ -120,7 +120,8 @@ def eligible_negative_tests(events) -> List[RichOrigin]:
         origins.append(
             RichOrigin(
                 holder=negative_test.holder,
-                type=EventType.negativetest,
+                # todo: temporarily only return test, as that is easier for the app devs.
+                type=EventType.test,
                 eventTime=event_time,
                 validFrom=event_time,
                 expirationTime=event_time + timedelta(hours=40),
