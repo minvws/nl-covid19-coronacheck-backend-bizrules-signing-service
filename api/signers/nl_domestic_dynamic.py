@@ -123,7 +123,8 @@ def eligible_negative_tests(events) -> List[RichOrigin]:
         origins.append(
             RichOrigin(
                 holder=negative_test.holder,
-                type=EventType.negativetest,
+                # todo: temporarily only return test, as that is easier for the app devs.
+                type=EventType.test,
                 eventTime=event_time,
                 validFrom=event_time,
                 expirationTime=event_time + timedelta(hours=40),
@@ -171,7 +172,7 @@ def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBl
                 **{
                     "isSpecimen": "0",
                     "stripType": StripType.APP_STRIP,
-                    "validFrom": valid_from.isoformat(),
+                    "validFrom": str(int(valid_from.now().timestamp())),
                     "validForHours": settings.DOMESTIC_STRIP_VALIDITY_HOURS,
                     "firstNameInitial": holder.first_name_initial,
                     "lastNameInitial": holder.last_name_initial,

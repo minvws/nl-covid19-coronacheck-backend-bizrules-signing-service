@@ -57,7 +57,6 @@ def test_app_credential_request(requests_mock, current_path, redis_db):
 
     response_data = response.json()
 
-    # todo: implement domestic signer.
     assert response_data == {
         "domesticGreencard": {
             "createCredentialMessages": "W3siaXNzdWVTaWduYXR1cmVNZXNzYWdlIjogeyJwcm9vZiI6IHsiYyI6ICJaQ2l0MUpKVUUvanVWT"
@@ -68,22 +67,23 @@ def test_app_credential_request(requests_mock, current_path, redis_db):
             "SIsICJRUT09IiwgIlVnPT0iLCAiTWpBPSIsICJNVEE9Il19XQ==",
             "origins": [
                 # From the v2 event
+                # todo: negative test is temporary replaces to test to make integration for app devs easier
                 {
                     "eventTime": "2021-05-27T00:00:00+00:00",
                     "expirationTime": "2021-05-28T16:00:00+00:00",
-                    "type": "negativetest",
+                    "type": "test",
                     "validFrom": "2021-05-27T00:00:00+00:00",
                 },
                 {
                     "eventTime": "2021-05-27T00:00:00+00:00",
                     "expirationTime": "2021-05-28T16:00:00+00:00",
-                    "type": "negativetest",
+                    "type": "test",
                     "validFrom": "2021-05-27T00:00:00+00:00",
                 },
                 {
                     "eventTime": "2021-06-01T00:00:00+00:00",
                     "expirationTime": "2021-06-02T16:00:00+00:00",
-                    "type": "negativetest",
+                    "type": "test",
                     "validFrom": "2021-06-01T00:00:00+00:00",
                 },
             ],

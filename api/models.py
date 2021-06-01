@@ -580,7 +580,7 @@ class DomesticSignerAttributes(BaseModel):
         description="Boolean cast as string, if this is a testcase. " "To facilitate testing in production.",
     )
     stripType: StripType = Field(example="0")
-    validFrom: datetime
+    validFrom: str = Field(example="1622563151", description="String cast of a unix timestamp.")
     validForHours: str = Field(example="24")
     firstNameInitial: str = Field(example="E", description="First letter of the first name of this person")
     lastNameInitial: str = Field(example="J", description="First letter of the last name of this person")

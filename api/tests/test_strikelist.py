@@ -13,7 +13,7 @@ def test_strikelist():
         **{
             "isSpecimen": "0",
             "stripType": StripType.APP_STRIP,
-            "validFrom": datetime.now(),
+            "validFrom": str(int(datetime.now().timestamp())),
             "validForHours": "2",
             "firstNameInitial": "E",
             "lastNameInitial": "J",
@@ -30,7 +30,7 @@ def test_strikelist():
         "lastNameInitial": "",
         "stripType": StripType.APP_STRIP,
         "validForHours": "2",
-        "validFrom": datetime(2020, 2, 2),
+        "validFrom": "1580601600",
     }
 
     # UX no data at all:
@@ -39,7 +39,7 @@ def test_strikelist():
         **{
             "isSpecimen": "0",
             "stripType": StripType.APP_STRIP,
-            "validFrom": datetime.now(),
+            "validFrom": str(int(datetime.now().timestamp())),
             "validForHours": "2",
             "firstNameInitial": "U",
             "lastNameInitial": "X",
@@ -56,5 +56,5 @@ def test_strikelist():
         "lastNameInitial": "",
         "stripType": StripType.APP_STRIP,
         "validForHours": "2",
-        "validFrom": datetime(2020, 2, 2),
+        "validFrom": str(int(datetime(2020, 2, 2).timestamp())),
     }
