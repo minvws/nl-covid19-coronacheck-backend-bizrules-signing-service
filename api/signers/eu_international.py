@@ -32,6 +32,7 @@ def sign(statement: Events) -> List[EUGreenCard]:
 
     # todo; it's unclear what expiration time is. This is just a mock implementation.
     expiration_time = datetime.now(pytz.utc) + timedelta(days=180)
+    expiration_time.replace(microsecond=0)
 
     statements_to_eu_signer = []
     # EventTime: vaccination: dt, test: sc, recovery: fr
