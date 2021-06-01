@@ -32,10 +32,6 @@ class PrepareIssueResponse(BaseModel):
     )
 
 
-class AccessTokensRequest(BaseModel):
-    tvs_token: str = Field(description="Token that can be used to fetch BSN from Inge6")
-
-
 class Holder(BaseModel):
     _first_alphabetic = re.compile("('[a-z]-|[^a-zA-Z])*([a-zA-Z]).*")
 

@@ -16,15 +16,15 @@ log = logging.getLogger(__package__)
 
 class AppSettings(BaseSettings):
     # pylint: disable=too-many-instance-attributes
-    SECRETS_FOLDER: pathlib.Path = Field("")
-    EVENT_DATA_PROVIDERS_FILENAME: str = ""
-    DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME: str = ""
-    SBVZ_CERT_FILENAME: str = ""
     # todo: make a model out of vaccination providers and enforce minumum length of
     #      "identity_hash_secret": "735770c3112175051c99c3e2c3023ab7ed99f98c965c4e15a7c01da7370c5717"
     #      as described in vaccinationproviders.json5
     #      we should not even start if the config is not secure enough
-    # APP_STEP_1_VACCINATION_PROVIDERS_FILE: str = ""
+
+    SECRETS_FOLDER: pathlib.Path = Field("")
+    EVENT_DATA_PROVIDERS_FILENAME: str = ""
+    DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME: str = ""
+    SBVZ_CERT_FILENAME: str = ""
     EVENT_DATA_PROVIDERS: List[Dict[str, Any]] = []
     IDENTITY_HASH_JWT_PRIVATE_KEY: str = ""
     IDENTITY_HASH_JWT_ISSUER_CLAIM: str = "jwt.test.coronacheck.nl"
@@ -40,10 +40,10 @@ class AppSettings(BaseSettings):
     EU_INTERNATIONAL_SIGNING_URL: AnyHttpUrl = Field()
     SIGNER_CA_CERT_FILE: str = ""
     SIGNER_CA_CERT: str = ""
+    INGE6_BSN_RETRIEVAL_URL: AnyHttpUrl = Field()
 
     MOCK_MODE: bool = False
 
-    INGE6_BSN_RETRIEVAL_URL: AnyHttpUrl = Field()
     INGE6_MOCK_MODE: bool = True
     INGE6_MOCK_MODE_BSN: str = ""
 
@@ -59,12 +59,14 @@ class AppSettings(BaseSettings):
     INGE4_NACL_PRIVATE_KEY_FILE: str = ""
     INGE4_NACL_PUBLIC_KEY_FILE: str = ""
     INGE6_NACL_PUBLIC_KEY_FILE: str = ""
+    INGE6_JWT_PUBLIC_CRT_FILE: str = ""
 
     # the following initial values are just temporary and never used (overwritten by the factory code)
     # this is just to make mypy and linters stop complaining
     INGE4_NACL_PRIVATE_KEY: PrivateKey = PrivateKey.generate()
     INGE4_NACL_PUBLIC_KEY: PublicKey = INGE4_NACL_PRIVATE_KEY.public_key
     INGE6_NACL_PUBLIC_KEY: PublicKey = PrivateKey.generate().public_key
+    INGE6_JWT_PUBLIC_CRT: str = ""
 
 
 class RedisSettings(BaseSettings):
@@ -121,13 +123,20 @@ def settings_factory(env_file: pathlib.Path) -> AppSettings:
     _settings.INGE6_NACL_PUBLIC_KEY = read_nacl_public_key(
         f"{_settings.SECRETS_FOLDER}/{_settings.INGE6_NACL_PUBLIC_KEY_FILE}"
     )
+
     _settings.SIGNER_CA_CERT = read_file(f"{_settings.SECRETS_FOLDER}/{_settings.SIGNER_CA_CERT_FILE}")
-    if _settings.MOCK_MODE:
+    _settings.INGE6_JWT_PUBLIC_CRT = read_file(f"{_settings.SECRETS_FOLDER}/{_settings.INGE6_JWT_PUBLIC_CRT_FILE}")
+
+    if _settings.MOCK_MODE or _settings.INGE6_MOCK_MODE or _settings.STOKEN_MOCK:
         # add cool rainbow effect for dramatic impact :)
-        log.debug("MOCK_MODE=True this should never be used in production environments!")
-        log.info("MOCK_MODE=True this should never be used in production environments!")
-        log.warning("MOCK_MODE=True this should never be used in production environments!")
-        log.error("MOCK_MODE=True this should never be used in production environments!")
+        message = (
+            "One of MOCK_MODE, INGE6_MOCK_MODE or STOKEN_MOCK is True "
+            "this should never be used in production environments!"
+        )
+        log.debug(message)
+        log.info(message)
+        log.warning(message)
+        log.error(message)
 
     return _settings
 

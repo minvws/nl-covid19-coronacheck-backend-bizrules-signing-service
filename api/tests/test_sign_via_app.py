@@ -6,22 +6,22 @@ from freezegun import freeze_time
 
 from api.app import app
 from api.settings import settings
+from api.tests.test_identity_hashes import bsn_test_data
 from api.utils import read_file
 
+jwt_token = bsn_test_data[0][0]
 
 # todo: add unhappy testcases to hit all the ways this endpoint can fail
-# the following valid values for encrypted bsn might be usefull for this
-# encrypted_bsn = b'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzaPbokkPZ6D0lY1Bxh3dvddaDny3RissjxQ=='
-# encrypted_bsn = b'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzpEliQZGIthee86WIg0w599yMlSzcg8ojyA=='
 @freeze_time("2020-02-02")
 def test_sign_via_app_step_1(requests_mock, current_path, mocker):
     requests_mock.post(
         url="http://localhost:8001/cibg.sbv.testtool.webservice.dec14/opvragenpersoonsgegevens.asmx",
         text=read_file(f"{current_path}/sbvz/direct_match_correct_response.xml"),
     )
+    encrypted_bsn = "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMUND6owfnEdTl4ZeCzPiQwdQNv39vIpNeMlJ8g=="  # bsn=999999138
     requests_mock.post(
-        url=f"{settings.INGE6_BSN_RETRIEVAL_URL}" "?at=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz",
-        text="MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzpEliQZGIthee86WIg0w599yMlSzcg8ojyA==",
+        url=f"{settings.INGE6_BSN_RETRIEVAL_URL}",
+        text=encrypted_bsn,
     )
     requests_mock.post(url="http://testserver/app/access_tokens/", real_http=True)
 
@@ -32,8 +32,8 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
     client = TestClient(app)
     response = client.post(
         "/app/access_tokens/",
-        json.dumps({"tvs_token": "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz"}),
-        headers={},
+        "",
+        headers={"Authorization": f"Bearer {jwt_token}"},
     )
     json_content = json.loads(response.content.decode("UTF-8"))
 

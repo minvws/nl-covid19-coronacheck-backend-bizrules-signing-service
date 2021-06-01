@@ -2,14 +2,14 @@
 # pylint: disable=W1401
 import base64
 import json
+import logging
 import sys
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
 
 from api.models import (
-    AccessTokensRequest,
     CredentialsRequestData,
     DataProviderEventsResult,
     DomesticGreenCard,
@@ -45,7 +45,7 @@ async def health_request() -> Dict[str, Any]:
 
 
 @app.post("/app/access_tokens/", response_model=List[EventDataProviderJWT])
-async def get_access_tokens_request(request: AccessTokensRequest) -> List[EventDataProviderJWT]:
+async def get_access_tokens_request(authorization: str = Header(None)) -> List[EventDataProviderJWT]:
     """
     Creates unomi events based on DigiD BSN retrieval token.
     .. image:: ./docs/sequence-diagram-unomi-events.png
@@ -53,7 +53,11 @@ async def get_access_tokens_request(request: AccessTokensRequest) -> List[EventD
     :param request: AccessTokensRequest
     :return:
     """
-    bsn = await identity_hashes.retrieve_bsn_from_inge6(request)
+    auth_type, jwt_token = authorization.split(" ", 1)
+    if auth_type != "Bearer":
+        logging.warning(f"Invalid authorization type: {auth_type}")
+        raise HTTPException(401, ["Invalid Authorization Token type"])
+    bsn = await identity_hashes.retrieve_bsn_from_inge6(jwt_token)
     return identity_hashes.create_provider_jwt_tokens(bsn)
 
 
