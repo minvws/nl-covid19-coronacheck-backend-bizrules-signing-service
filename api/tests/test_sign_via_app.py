@@ -11,6 +11,25 @@ from api.utils import read_file
 
 jwt_token = bsn_test_data[0][0]
 
+
+def test_validate_bearer():
+    client = TestClient(app)
+
+    # Check that bearer is required:
+    json_content = json.loads(client.post("/app/access_tokens/", "").content.decode("UTF-8"))
+    assert json_content == {"detail": ["Invalid Authorization Token type"]}
+
+    json_content = json.loads(
+        client.post(
+            "/app/access_tokens/",
+            "",
+            # note: bearer without space / without data:
+            headers={"Authorization": "Bearer"},
+        ).content.decode("UTF-8")
+    )
+    assert json_content == {"detail": ["Invalid Authorization Token type"]}
+
+
 # todo: add unhappy testcases to hit all the ways this endpoint can fail
 @freeze_time("2020-02-02")
 def test_sign_via_app_step_1(requests_mock, current_path, mocker):
