@@ -220,4 +220,3 @@ async def documentation_dataprovidereventsresult(more_docs: DataProviderEventsRe
 @app.post("/documentation/V2Event/", response_model=V2Event)
 async def documentation_dataprovidereventsresult(more_docs: V2Event):
     ...
-
