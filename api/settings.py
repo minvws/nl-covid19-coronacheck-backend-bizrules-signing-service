@@ -75,8 +75,6 @@ class AppSettings(BaseSettings):
     REDIS_KEY_PREFIX: str = ""
     REDIS_HMAC_KEY_FILE: str = ""
     REDIS_HMAC_KEY: bytes = b""
-    REDIS_NACL_SECRET_KEY_FILE: str = ""
-    REDIS_NACL_SECRET_KEY: bytes = b""
     USE_PYTEST_REDIS: bool = False
 
     INGE4_NACL_PRIVATE_KEY_FILE: str = ""
@@ -149,9 +147,7 @@ def settings_factory(env_file: pathlib.Path) -> AppSettings:
 
     _settings.INGE6_JWT_PUBLIC_CRT = read_file(f"{_settings.SECRETS_FOLDER}/{_settings.INGE6_JWT_PUBLIC_CRT_FILE}")
     _settings.REDIS_HMAC_KEY = b64decode(read_file(f"{_settings.SECRETS_FOLDER}/{_settings.REDIS_HMAC_KEY_FILE}"))
-    _settings.REDIS_NACL_SECRET_KEY = b64decode(
-        read_file(f"{_settings.SECRETS_FOLDER}/{_settings.REDIS_NACL_SECRET_KEY_FILE}")
-    )
+
     if _settings.MOCK_MODE or _settings.INGE6_MOCK_MODE or _settings.STOKEN_MOCK:
         # add cool rainbow effect for dramatic impact :)
         message = (
