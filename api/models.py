@@ -195,8 +195,8 @@ class Holder(BaseModel):
 
     # Allow DutchBirthDate
     # https://pydantic-docs.helpmanual.io/usage/types/#arbitrary-types-allowed
-    class Config:
-        arbitrary_types_allowed = True
+    # class Config:
+    #     arbitrary_types_allowed = True
 
 
 class Vaccination(BaseModel):  # noqa
