@@ -58,6 +58,9 @@ class DutchBirthDate(str):
     def __init__(self, possible_date):
         super().__init__()
 
+        if isinstance(possible_date, (datetime, date)):
+            possible_date = date.strftime(possible_date, "%Y-%m-%d")
+
         # Happy flow: a date is given and it's easy to work with:
         try:
             converted = datetime.strptime(possible_date, "%Y-%m-%d")
@@ -81,8 +84,8 @@ class DutchBirthDate(str):
                 self.day = int(parts[2])
 
     @classmethod
-    def validate(cls, possible_date: Union[str, date]):
-        default_error_message = "Birthdate must be according to ISO, 10 characters: YYYY-MM-DD."
+    def validate(cls, possible_date: Union[str, date, datetime]):
+        default_error_message = "Birthdate must be according to format: [0-9]{4}-[0-9X]{2}-[0-9X]{2}."
 
         # Be more flexible than just a string, allow to set dates and datetimes and just work(!)
         if isinstance(possible_date, (datetime, date)):

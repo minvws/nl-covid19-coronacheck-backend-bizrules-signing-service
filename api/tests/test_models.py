@@ -94,6 +94,18 @@ def test_dutchbirthdate():
     assert dbd.month == 1
     assert dbd.date == date(2020, 1, 3)
 
+    # Also accept date
+    dbd = DutchBirthDate(date(2020, 1, 3))
+    assert dbd.day == 3
+    assert dbd.month == 1
+    assert dbd.date == date(2020, 1, 3)
+
+    # Also accept datetime
+    dbd = DutchBirthDate(datetime(2020, 1, 3))
+    assert dbd.day == 3
+    assert dbd.month == 1
+    assert dbd.date == date(2020, 1, 3)
+
     # Dutch flow, no date means None:
     dbd = DutchBirthDate("2020-XX-XX")
     assert dbd.day is None
