@@ -2,8 +2,7 @@ from datetime import date
 
 import pytest
 
-from api.dutchbirthdate import DutchBirthDate
-from api.models import EuropeanOnlineSigningRequest, EuropeanOnlineSigningRequestNamingSection, Holder
+from api.models import DutchBirthDate, EuropeanOnlineSigningRequest, EuropeanOnlineSigningRequestNamingSection, Holder
 
 
 def test_dutchbirthdate_validation():
@@ -51,9 +50,12 @@ def test_dutchbirthdate():
     assert dbd.month == 1
     assert dbd.date == 2020
 
-    # Try it in real life:
+    # Try it in real life.
     example_signing_request = EuropeanOnlineSigningRequest(
         ver="1.0",
+        # The Expected Type DutchBirthDate, got str instead is incorrect by design it seems.
+        # If you use the example from https://pydantic-docs.helpmanual.io/usage/types/#custom-data-types
+        # it also shows this same error for the PostCode example.
         dob="2020-02-02",
         nam=EuropeanOnlineSigningRequestNamingSection(fn="", gn="", gnt="", fnt=""),
         v=[],
