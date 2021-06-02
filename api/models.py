@@ -140,7 +140,8 @@ class Holder(BaseModel):
 
     # note: this is a DutchBirthDate, can contain 1970-XX-XX
     birthDate: DutchBirthDate = Field(
-        description="ISO 8601 date string (large to small, YYYY-MM-DD)", example="1970-01-01"
+        description="ISO 8601 date string (large to small, YYYY-MM-DD), may contain XX on month and day",
+        example="1970-01-01"
     )
 
     @classmethod

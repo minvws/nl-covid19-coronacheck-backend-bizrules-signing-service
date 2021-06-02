@@ -209,3 +209,15 @@ def save_openapi_json():
     with open("docs/openapi.json", "w") as file:
         json.dump(app.openapi(), file)
     sys.exit()
+
+
+# Some documentation endpoints, as the protocol versions 2 and 3 and messages to signer are not transparent enough
+@app.post("/documentation/DataProviderEventsResult/", response_model=DataProviderEventsResult)
+async def documentation_dataprovidereventsresult(more_docs: DataProviderEventsResult):
+    ...
+
+
+@app.post("/documentation/V2Event/", response_model=V2Event)
+async def documentation_dataprovidereventsresult(more_docs: V2Event):
+    ...
+
