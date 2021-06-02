@@ -65,7 +65,7 @@ class DutchBirthDate(str):
             possible_date = possible_date.upper()
             parts = possible_date.split("-")
 
-            # Todo: can year be XXXX?
+            # Year is always known
             self.year = int(parts[YEAR])
 
             # It's possible only days or only month are XX
