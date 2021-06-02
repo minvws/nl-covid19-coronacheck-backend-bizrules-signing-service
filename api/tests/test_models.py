@@ -159,3 +159,8 @@ def test_dutchbirthdate():
     assert example_holder.birthDate.day is None
     assert example_holder.birthDate.month is None
     assert example_holder.birthDate.date == 2020
+
+    example_holder = Holder(firstName="A", lastName="B", birthDate=date(2020, 2, 1))
+    assert example_holder.birthDate.day == 1
+    assert example_holder.birthDate.month == 2
+    assert example_holder.birthDate.date == date(2020, 2, 1)
