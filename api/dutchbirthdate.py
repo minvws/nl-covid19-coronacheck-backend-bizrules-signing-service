@@ -79,7 +79,7 @@ class DutchBirthDate(str):
     def validate(cls, possible_date: Union[str, date]):
 
         # Be more flexible than just a string, allow to set dates and datetimes and just work(!)
-        if isinstance(possible_date, date) or isinstance(possible_date, datetime):
+        if isinstance(possible_date, (datetime, date)):
             possible_date = date.strftime(possible_date, "%Y-%m-%d")
 
         if not isinstance(possible_date, str):
