@@ -8,7 +8,6 @@ from typing import Any, Dict, List
 
 import jwt
 import pytz
-from cryptography.hazmat.primitives import hashes, hmac
 from fastapi import HTTPException
 from nacl.encoding import Base64Encoder
 from nacl.public import Box, PrivateKey, PublicKey
@@ -17,7 +16,7 @@ from nacl.utils import random
 from api.enrichment import sbvz
 from api.models import EventDataProviderJWT
 from api.settings import settings
-from api.utils import request_post_with_retries
+from api.utils import hmac256, request_post_with_retries
 
 log = logging.getLogger(__package__)
 inge6_box = Box(settings.INGE4_NACL_PRIVATE_KEY, settings.INGE6_NACL_PUBLIC_KEY)
@@ -173,14 +172,3 @@ def calculate_identity_hash(bsn: str, pii: Dict[str, str], key: str) -> str:
     # echo -n "000000012-Pluk-Petteflet-01" | openssl dgst -sha256 -hmac "ZrHsI6MZmObcqrSkVpea"
     message = "-".join([bsn, pii["first_name"], pii["last_name"], pii["day_of_birth"]]).encode()
     return hmac256(message, key.encode()).hex()
-
-
-def hmac256(message: bytes, key: bytes) -> bytes:
-    # From openssl library:
-    # The Python Cryptographic Authority strongly suggests the use of pyca/cryptography where possible.
-    # If you are using pyOpenSSL for anything other than making a TLS connection you should move to cryptography
-    # and drop your pyOpenSSL dependency.
-
-    hmac_instance = hmac.HMAC(key, hashes.SHA256())
-    hmac_instance.update(message)
-    return hmac_instance.finalize()
