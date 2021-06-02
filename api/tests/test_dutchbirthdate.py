@@ -61,7 +61,7 @@ def test_dutchbirthdate():
         r=[],
     )
     assert example_signing_request.dob.year == 2020
-    assert example_signing_request.dob.day is 2
+    assert example_signing_request.dob.day == 2
 
     example_signing_request = EuropeanOnlineSigningRequest(
         ver="1.0",
