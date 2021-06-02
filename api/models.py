@@ -193,11 +193,6 @@ class Holder(BaseModel):
             self.firstName == other.firstName and self.lastName == other.lastName and self.birthDate == other.birthDate
         )
 
-    # Allow DutchBirthDate
-    # https://pydantic-docs.helpmanual.io/usage/types/#arbitrary-types-allowed
-    # class Config:
-    #     arbitrary_types_allowed = True
-
 
 class Vaccination(BaseModel):  # noqa
 
