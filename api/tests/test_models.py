@@ -121,6 +121,17 @@ def test_dutchbirthdate():
     assert example_signing_request.dob.year == 2020
     assert example_signing_request.dob.day == 2
 
+    # See that validation is triggered when instantiating a model:
+    with pytest.raises(ValueError, match="wrong format or invalid substitution character"):
+        EuropeanOnlineSigningRequest(
+            ver="2.0",
+            dob="2020-AA-XX",
+            nam=EuropeanOnlineSigningRequestNamingSection(fn="a", gn="", gnt="", fnt=""),
+            v=[],
+            t=[],
+            r=[],
+        )
+
     example_signing_request = EuropeanOnlineSigningRequest(
         ver="1.0",
         dob="2020-XX-XX",
