@@ -86,8 +86,13 @@ def test_dutchbirthdate_validation():
     with pytest.raises(ValueError, match="wrong format or invalid substitution character"):
         DutchBirthDate.validate("20-20YX-XY")
 
+    # don't allow mixing X with numbers
+    with pytest.raises(ValueError, match="wrong format or invalid substitution character"):
+        DutchBirthDate.validate("2020-1X-00")
+
 
 def test_dutchbirthdate():
+    assert DutchBirthDate("2020-01-03") == DutchBirthDate(datetime(2020, 1, 3))
     # Happy flow:
     dbd = DutchBirthDate("2020-01-03")
     assert dbd.day == 3

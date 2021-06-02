@@ -34,7 +34,7 @@ class DutchBirthDate(str):
     @classmethod
     def __modify_schema__(cls, field_schema):
         field_schema.update(
-            pattern="^[0-9]{4}-[0-9X]{2}-[0-9X]{2}$",
+            pattern="^[0-9]{4}-([0-9]{2}|XX)-([0-9]{2}|XX)$",
             examples=["1980-12-31", "1980-XX-XX"],
         )
 
@@ -85,17 +85,18 @@ class DutchBirthDate(str):
 
     @classmethod
     def validate(cls, possible_date: Union[str, date, datetime]):
-        default_error_message = "Birthdate must be according to format: [0-9]{4}-[0-9X]{2}-[0-9X]{2}."
+        default_error_message = "Birthdate must match the regular expression: [0-9]{4}-([0-9]{2}|XX)-([0-9]{2}|XX)"
 
         # Be more flexible than just a string, allow to set dates and datetimes and just work(!)
         if isinstance(possible_date, (datetime, date)):
-            possible_date = date.strftime(possible_date, "%Y-%m-%d")
+            #possible_date = date.strftime(possible_date, "%Y-%m-%d")
+            return cls(possible_date)
 
         if not isinstance(possible_date, str):
             raise TypeError(f"{default_error_message} (must be a string or date)")
 
         # Any other values than X-s and any incorrect formatting.
-        if not re.fullmatch(r"[0-9]{4}-[0-9X]{2}-[0-9X]{2}", possible_date):
+        if not re.fullmatch(r"[0-9]{4}-([0-9]{2}|XX)-([0-9]{2}|XX)", possible_date):
             raise ValueError(f"{default_error_message} (wrong format or invalid substitution character).")
 
         return cls(possible_date)
@@ -113,6 +114,12 @@ class DutchBirthDate(str):
 
     def __repr__(self):
         return str(self.date)
+
+    # needed for comparison in unit tests
+    def __eq__(self, other):
+        if isinstance(other, DutchBirthDate):
+            return self.year == other.year and self.month == other.month and self.day == other.day
+        return self == DutchBirthDate(other)
 
 
 INVALID_YEAR_FOR_EU_SIGNING = 1883
