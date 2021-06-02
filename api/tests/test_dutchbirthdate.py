@@ -3,7 +3,7 @@ from datetime import date
 import pytest
 
 from api.dutchbirthdate import DutchBirthDate
-from api.models import EuropeanOnlineSigningRequest, EuropeanOnlineSigningRequestNamingSection
+from api.models import EuropeanOnlineSigningRequest, EuropeanOnlineSigningRequestNamingSection, Holder
 
 
 def test_dutchbirthdate():
@@ -58,5 +58,23 @@ def test_dutchbirthdate():
         t=[],
         r=[],
     )
-
     assert example_signing_request.dob.year == 2020
+    assert example_signing_request.dob.day is 2
+
+    example_signing_request = EuropeanOnlineSigningRequest(
+        ver="1.0",
+        dob="2020-XX-XX",
+        nam=EuropeanOnlineSigningRequestNamingSection(fn="", gn="", gnt="", fnt=""),
+        v=[],
+        t=[],
+        r=[],
+    )
+    assert example_signing_request.dob.year == 2020
+    assert example_signing_request.dob.day is None
+
+    example_holder = Holder(
+        firstName="A", lastName="B", birthDate="2020-XX-XX"
+    )
+    assert example_holder.birthDate.day is None
+    assert example_holder.birthDate.month is None
+    assert example_holder.birthDate.date == 2020

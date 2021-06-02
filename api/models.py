@@ -48,8 +48,6 @@ class Holder(BaseModel):
         description="ISO 8601 date string (large to small, YYYY-MM-DD)", example="1970-01-01"
     )
 
-    # _dutchBirthDate: DutchBirthDate
-
     @classmethod
     def _name_initial(cls, name, default=""):
         """
