@@ -89,7 +89,7 @@ class DutchBirthDate(str):
 
         # Be more flexible than just a string, allow to set dates and datetimes and just work(!)
         if isinstance(possible_date, (datetime, date)):
-            #possible_date = date.strftime(possible_date, "%Y-%m-%d")
+            # possible_date = date.strftime(possible_date, "%Y-%m-%d")
             return cls(possible_date)
 
         if not isinstance(possible_date, str):
