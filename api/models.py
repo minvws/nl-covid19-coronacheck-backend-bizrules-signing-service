@@ -15,6 +15,8 @@ from unidecode import unidecode
 from api.attribute_allowlist import domestic_signer_attribute_allow_list
 
 # Created to distinguish V2 events from v3 events.
+from api.dutchbirthdate import DutchBirthDate
+
 INVALID_YEAR_FOR_EU_SIGNING = 1883
 
 
@@ -40,7 +42,13 @@ class Holder(BaseModel):
 
     firstName: str = Field(description="", example="Herman")
     lastName: str = Field(description="", example="Acker")
-    birthDate: date = Field(description="ISO 8601 date string (large to small, YYYY-MM-DD)", example="1970-01-01")
+
+    # note: this is a DutchBirthDate, can contain 1970-XX-XX
+    birthDate: DutchBirthDate = Field(
+        description="ISO 8601 date string (large to small, YYYY-MM-DD)", example="1970-01-01"
+    )
+
+    # _dutchBirthDate: DutchBirthDate
 
     @classmethod
     def _name_initial(cls, name, default=""):
@@ -91,6 +99,11 @@ class Holder(BaseModel):
         return (
             self.firstName == other.firstName and self.lastName == other.lastName and self.birthDate == other.birthDate
         )
+
+    # Allow DutchBirthDate
+    # https://pydantic-docs.helpmanual.io/usage/types/#arbitrary-types-allowed
+    class Config:
+        arbitrary_types_allowed = True
 
 
 class Vaccination(BaseModel):  # noqa
@@ -485,7 +498,8 @@ class EuropeanOnlineSigningRequest(BaseModel):
     )
     nam: EuropeanOnlineSigningRequestNamingSection
     # Signer should convert "1975-XX-XX" to "1975" as the EU DGC can't handle the XX's of unknown birthmonth/day
-    dob: date = Field(
+    # The int is only the year, the date is the date. The DutchBirthDate figures this out.
+    dob: DutchBirthDate = Field(
         description="Date of Birth of the person addressed in the DGC. "
         "ISO 8601 date format restricted to range 1900-2099"
     )

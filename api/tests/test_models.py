@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 
 from api.models import EventType, V2Event
 
@@ -45,7 +45,7 @@ def test_upgrade_to_v3_with_negative_test():
                 "vaccination": None,
             }
         ],
-        "holder": {"birthDate": date(1883, 6, 9), "firstName": "B", "lastName": "B"},
+        "holder": {"birthDate": "1883-06-09", "firstName": "B", "lastName": "B"},
         "protocolVersion": "2.0",
         "providerIdentifier": "ZZZ",
         "status": "complete",
