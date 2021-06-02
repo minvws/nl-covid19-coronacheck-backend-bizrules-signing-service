@@ -6,7 +6,7 @@ from api.dutchbirthdate import DutchBirthDate
 from api.models import EuropeanOnlineSigningRequest, EuropeanOnlineSigningRequestNamingSection, Holder
 
 
-def test_dutchbirthdate():
+def test_dutchbirthdate_validation():
     # Garbage flows:
     with pytest.raises(TypeError, match="must be a string"):
         DutchBirthDate.validate(None)  # noqa
@@ -24,6 +24,15 @@ def test_dutchbirthdate():
     with pytest.raises(ValueError, match="wrong format or invalid substitution character"):
         DutchBirthDate.validate("2020 01 03")
 
+    # Garbage dutch flow:
+    with pytest.raises(ValueError, match="wrong format or invalid substitution character"):
+        DutchBirthDate.validate("2020-YX-XY")
+
+    with pytest.raises(ValueError, match="wrong format or invalid substitution character"):
+        DutchBirthDate.validate("20-20YX-XY")
+
+
+def test_dutchbirthdate():
     # Happy flow:
     dbd = DutchBirthDate("2020-01-03")
     assert dbd.day == 3
@@ -41,13 +50,6 @@ def test_dutchbirthdate():
     assert dbd.day is None
     assert dbd.month == 1
     assert dbd.date == 2020
-
-    # Garbage dutch flow:
-    with pytest.raises(ValueError, match="wrong format or invalid substitution character"):
-        DutchBirthDate.validate("2020-YX-XY")
-
-    with pytest.raises(ValueError, match="wrong format or invalid substitution character"):
-        DutchBirthDate.validate("20-20YX-XY")
 
     # Try it in real life:
     example_signing_request = EuropeanOnlineSigningRequest(
@@ -72,9 +74,7 @@ def test_dutchbirthdate():
     assert example_signing_request.dob.year == 2020
     assert example_signing_request.dob.day is None
 
-    example_holder = Holder(
-        firstName="A", lastName="B", birthDate="2020-XX-XX"
-    )
+    example_holder = Holder(firstName="A", lastName="B", birthDate="2020-XX-XX")
     assert example_holder.birthDate.day is None
     assert example_holder.birthDate.month is None
     assert example_holder.birthDate.date == 2020

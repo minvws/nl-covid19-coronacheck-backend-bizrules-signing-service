@@ -19,9 +19,11 @@ class DutchBirthDate(str):
 
     You can throw in any datetime, date, ISO date string with XX for day and month.
 
-    This type provides a single point of definition where the date will be converted to something workable.
+    See test_dutchbirthdate for examples.
 
+    Docs for custom type:
     https://pydantic-docs.helpmanual.io/usage/types/#custom-data-types
+    Todo: type hinting is not correct yet, when giving a string a DutchBirthDate is expected.
     """
 
     @classmethod
