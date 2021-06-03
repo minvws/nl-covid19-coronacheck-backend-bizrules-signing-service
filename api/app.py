@@ -26,7 +26,7 @@ from api.requesters import identity_hashes
 from api.requesters.prepare_issue import get_prepare_issue
 from api.session_store import session_store
 from api.settings import settings
-from api.signers import eu_international, nl_domestic_dynamic
+from api.signers import eu_international, nl_domestic_dynamic, nl_domestic_static
 
 app = FastAPI()
 
@@ -76,30 +76,21 @@ async def get_access_tokens_request(authorization: str = Header(None)) -> List[E
     return identity_hashes.create_provider_jwt_tokens(bsn)
 
 
-# @app.post("/app/paper/", response_model=PaperProofOfVaccination)
-# async def sign_via_inge3(data: StatementOfVaccination):
-#    # todo: bring in line with dynamic signing
-#    domestic_response: Optional[List[DomesticStaticQrResponse]] = nl_domestic_static.sign(data)
-#    eu_response = eu_international.sign(data)
-#    return PaperProofOfVaccination(**{"domesticProof": domestic_response, "euProofs": eu_response})
-
 
 @app.post("/app/prepare_issue/", response_model=PrepareIssueResponse)
 async def app_prepare_issue_request():
     return await get_prepare_issue()
 
 
-@app.post("/app/credentials/", response_model=MobileAppProofOfVaccination)
-async def app_credential_request(request_data: CredentialsRequestData):
-    # Get the prepare issue message using the stoken
-    prepare_issue_message = retrieve_prepare_issue_message_from_redis(request_data.stoken)
-    if not prepare_issue_message:
-        raise HTTPException(status_code=401, detail=["Session expired or is invalid"])
+def decode_and_normalize_events(request_data_events) -> Events:
+    # TODO: CMS signature checks
+    # for loop over events -> cms sig check
+    # signature should be a pkcs7 over payload with a cert.
 
     """
     Waarom zou er verschillende holders: als je met token ophaalt dus heeft wellicht de naam anders dan in de BRP.
-    Als je met bsn enzo ophaalt kan je naar BRP. - De vaccinatie en recovery moet dezelfde holder zijn. 
-    
+    Als je met bsn enzo ophaalt kan je naar BRP. - De vaccinatie en recovery moet dezelfde holder zijn.
+
     Incoming Request
     {
         "events": [{
@@ -116,41 +107,39 @@ async def app_credential_request(request_data: CredentialsRequestData):
     }
     """
 
-    # TODO: CMS signature checks
-    # for loop over events -> cms sig check
-    # signature should be a pkcs7 over payload with a cert.
-
     """
-    {
-        "protocolVersion": "3.0",
-        "providerIdentifier": "ZZZ",
-        "status": "complete",
-        "holder": {
-            "firstName": "Top",
-            "infix": "",
-            "lastName": "Pertje",
-            "birthDate": "1950-01-01"
-        },
-        "events": [{
-            "type": "negativetest",
-            "unique": "7ff88e852c9ebd843f4023d148b162e806c9c5fd",
-            "isSpecimen": true,
-            "negativetest": {
-                "sampleDate": "2021-05-27T19:23:00+00:00",
-                "resultDate": "2021-05-27T19:38:00+00:00",
-                "negativeResult": true,
-                "facility": "Facility1",
-                "type": "LP6464-4",
-                "name": "Test1",
-                "manufacturer": "1232",
-                "country": "NLD"
-            }
-        }]
-    }
+    "events": [
+        {
+            "protocolVersion": "3.0",
+            "providerIdentifier": "ZZZ",
+            "status": "complete",
+            "holder": {
+                "firstName": "Top",
+                "infix": "",
+                "lastName": "Pertje",
+                "birthDate": "1950-01-01"
+            },
+            "events": [{
+                "type": "negativetest",
+                "unique": "7ff88e852c9ebd843f4023d148b162e806c9c5fd",
+                "isSpecimen": true,
+                "negativetest": {
+                    "sampleDate": "2021-05-27T19:23:00+00:00",
+                    "resultDate": "2021-05-27T19:38:00+00:00",
+                    "negativeResult": true,
+                    "facility": "Facility1",
+                    "type": "LP6464-4",
+                    "name": "Test1",
+                    "manufacturer": "1232",
+                    "country": "NLD"
+                }
+            }]
+        }
+    ]
     """
     # Merge the events from multiple providers into one list
     events: Events = Events()
-    for cms_signed_blob in request_data.events:
+    for cms_signed_blob in request_data_events:
         dp_event_json = json.loads(base64.b64decode(cms_signed_blob.payload))
 
         if dp_event_json["protocolVersion"] == "3.0":
@@ -173,21 +162,33 @@ async def app_credential_request(request_data: CredentialsRequestData):
                 )
             )
 
-    # Some debug
-    """
-    print(holder)
-    firstName='Top' lastName='Pertje' birthDate=datetime.date(1950, 1, 1)
-    """
+    return events
 
-    """
-    print(all_events)
-    [Event(source_provider_identifier='ZZZ', type=<EventType.negativetest: 'negativetest'>, unique='7ff88e852c9ebd843f4023d148b162e806c9c5fd', isSpecimen=True, negativetest=Negativetest(sampleDate='2021-05-27T19:23:00+00:00', resultDate='2021-05-27T19:38:00+00:00', negativeResult=True, facility='Facility1', type='LP6464-4', name='Test1', manufacturer='1232', country='NLD'), positivetest=None, vaccination=None, recovery=None)]
-    """  # pylint: disable=C0301
+
+@app.post("/app/credentials/", response_model=MobileAppProofOfVaccination)
+async def app_credential_request(request_data: CredentialsRequestData):
+    # Get the prepare issue message using the stoken
+    prepare_issue_message = retrieve_prepare_issue_message_from_redis(request_data.stoken)
+    if not prepare_issue_message:
+        raise HTTPException(status_code=401, detail=["Session expired or is invalid"])
+
+    events = decode_and_normalize_events(request_data.events)
 
     domestic_response: Optional[DomesticGreenCard] = nl_domestic_dynamic.sign(
         events, prepare_issue_message, request_data.issueCommitmentMessage
     )
     eu_response: Optional[List[EUGreenCard]] = eu_international.sign(events)
+
+    return MobileAppProofOfVaccination(**{"domesticGreencard": domestic_response, "euGreencards": eu_response})
+
+
+@app.post("/app/paper/", response_model=MobileAppProofOfVaccination)
+async def inge3_credential_request(request_data: Events):
+    # We don't care about the s-token.
+    events = decode_and_normalize_events(request_data)
+
+    domestic_response = nl_domestic_static.sign(events)
+    eu_response = eu_international.sign(events)
 
     return MobileAppProofOfVaccination(**{"domesticGreencard": domestic_response, "euGreencards": eu_response})
 

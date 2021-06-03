@@ -191,18 +191,12 @@ def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBl
     return attributes
 
 
-def sign(events: Events, prepare_issue_message: str, issue_commitment_message: str) -> Optional[DomesticGreenCard]:
-    """
-    This signer talks to: https://github.com/minvws/nl-covid19-coronacheck-idemix-private/
-
-    :return:
-    """
-
+def create_origins(events):
     origins: List[RichOrigin] = (
-        eligible_vaccination(events)
-        + eligible_recovery(events)
-        + eligible_positive_tests(events)
-        + eligible_negative_tests(events)
+            eligible_vaccination(events)
+            + eligible_recovery(events)
+            + eligible_positive_tests(events)
+            + eligible_negative_tests(events)
     )
 
     # # --------------------------------------
@@ -210,11 +204,10 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
     # # --------------------------------------
     # Filter out origins that aren't valid any more, and sort on validFrom
     rounded_now = floor_hours(datetime.now())
-    origins = sorted(filter(lambda o: o.expirationTime > rounded_now, origins), key=lambda o: o.validFrom)
+    return sorted(filter(lambda o: o.expirationTime > rounded_now, origins), key=lambda o: o.validFrom)
 
-    # Continue with at least one origin
-    if len(origins) == 0:
-        return None
+
+def create_attributes(origins) -> List[DomesticSignerAttributes]:
 
     # # Calculate blocks of contiguous origins
     contiguous_blocks: List[ContiguousOriginsBlock] = [
@@ -229,22 +222,15 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
         else:
             contiguous_blocks.append(ContiguousOriginsBlock.from_origin(origin))
 
-    attributes = calculate_attributes_from_blocks(contiguous_blocks)
+    return calculate_attributes_from_blocks(contiguous_blocks)
 
-    issue_message = IssueMessage(
-        **{
-            "prepareIssueMessage": json.loads(base64.b64decode(prepare_issue_message).decode("UTF-8")),
-            "issueCommitmentMessage": json.loads(base64.b64decode(issue_commitment_message).decode("UTF-8")),
-            "credentialsAttributes": attributes,
-        }
-    )
 
+def _sign(url, data, origins) -> DomesticGreenCard:
     response = request_post_with_retries(
-        settings.DOMESTIC_NL_VWS_ONLINE_SIGNING_URL,
-        data=issue_message.dict(),
+        url,
+        data=data,
         headers={"accept": "application/json", "Content-Type": "application/json"},
     )
-
     response.raise_for_status()
     dcc = DomesticGreenCard(
         origins=[
@@ -258,5 +244,26 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
         ],
         createCredentialMessages=base64.b64encode(response.content).decode("UTF-8"),
     )
-
     return dcc
+
+
+def sign(events: Events, prepare_issue_message: str, issue_commitment_message: str) -> Optional[DomesticGreenCard]:
+    # This signer talks to: https://github.com/minvws/nl-covid19-coronacheck-idemix-private/
+
+    origins = create_origins(events)
+
+    # Continue with at least one origin
+    if len(origins) == 0:
+        return None
+
+    attributes = create_attributes(origins)
+
+    issue_message = IssueMessage(
+        **{
+            "prepareIssueMessage": json.loads(base64.b64decode(prepare_issue_message).decode("UTF-8")),
+            "issueCommitmentMessage": json.loads(base64.b64decode(issue_commitment_message).decode("UTF-8")),
+            "credentialsAttributes": attributes,
+        }
+    )
+
+    return _sign(settings.DOMESTIC_NL_VWS_ONLINE_SIGNING_URL, data=issue_message.dict(), origins=origins)
