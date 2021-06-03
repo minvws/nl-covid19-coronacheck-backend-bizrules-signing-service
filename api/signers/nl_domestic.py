@@ -192,7 +192,7 @@ def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBl
     return attributes
 
 
-def create_origins(events):
+def create_origins(events) -> Optional[List[RichOrigin]]:
     origins: List[RichOrigin] = (
         eligible_vaccination(events)
         + eligible_recovery(events)
@@ -257,7 +257,7 @@ def create_origins_and_attributes(
 
     # Continue with at least one origin
     origins = create_origins(events)
-    if len(origins) == 0:
+    if not origins:
         log.warning("No relevant origins, so cannot sign.")
         return False, None, None
 
