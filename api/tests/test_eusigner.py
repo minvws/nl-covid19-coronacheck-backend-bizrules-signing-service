@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 
 from freezegun import freeze_time
 
@@ -104,7 +104,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
     eu_request = Events(**testcase_events).toEuropeanOnlineSigningRequest()
     # Todo: a positive test is a recovery. So convert a positive test to recovery.
     # So both a recovery and a positive test both result in an eu recovery.
-    assert eu_request.dict() == {
+    assert eu_request.dict(by_alias=True) == {
         "dob": "1970-01-01",
         "nam": {"fn": "Akkersloot", "fnt": "AKKERSLOOT", "gn": "Herman", "gnt": "HERMAN"},
         "r": [
@@ -114,7 +114,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "df": datetime(2021, 2, 1).date(),
                 "du": datetime(2021, 2, 1).date(),
                 "fr": datetime(2021, 4, 1).date(),
-                "is_": "Ministry of Health Welfare and Sport",
+                "is": "Ministry of Health Welfare and Sport",
                 "tg": "840539006",
             },
             {
@@ -123,7 +123,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "df": datetime(2021, 2, 1).date(),
                 "du": datetime(2045, 9, 23).date(),
                 "fr": datetime(2021, 3, 1).date(),
-                "is_": "Ministry of Health Welfare and Sport",
+                "is": "Ministry of Health Welfare and Sport",
                 "tg": "840539006",
             },
         ],
@@ -132,7 +132,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
                 "co": "NLD",
                 "dr": datetime(2021, 2, 1, 19, 38, tzinfo=timezone.utc),
-                "is_": "Ministry of Health Welfare and Sport",
+                "is": "Ministry of Health Welfare and Sport",
                 "ma": "???",
                 "nm": "???",
                 "sc": datetime(2021, 3, 1, 19, 38, tzinfo=timezone.utc),
@@ -148,7 +148,36 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "co": "NLD",
                 "dn": 1,
                 "dt": datetime(2021, 2, 1).date(),
-                "is_": "Ministry of Health Welfare and Sport",
+                "is": "Ministry of Health Welfare and Sport",
+                "ma": "JANSSEN",
+                "mp": "COVID-19 VACCIN JANSSEN INJVLST 0,5ML",
+                "sd": 2,
+                "tg": "840539006",
+                "vp": "C19-mRNA",
+            }
+        ],
+        "ver": "1.0.0",
+    }
+
+
+@freeze_time("2020-02-02")
+def test_eusign_with_empty_fields(mocker):
+    # https://github.com/91divoc-ln/inge-4/issues/84
+
+    # Send one vaccination event, the other keys have to be empty.
+    mocker.patch("uuid.UUID", return_value="d540cb87-7774-4c40-bcef-d46a933da826")
+    eu_request = Events(**{"events": [testcase_event_vaccination]}).toEuropeanOnlineSigningRequest()
+
+    assert eu_request.dict(by_alias=True, exclude_none=True) == {
+        "dob": "1970-01-01",
+        "nam": {"fn": "Akkersloot", "fnt": "AKKERSLOOT", "gn": "Herman", "gnt": "HERMAN"},
+        "v": [
+            {
+                "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
+                "co": "NLD",
+                "dn": 1,
+                "dt": date(2021, 2, 1),
+                "is": "Ministry of Health Welfare and Sport",
                 "ma": "JANSSEN",
                 "mp": "COVID-19 VACCIN JANSSEN INJVLST 0,5ML",
                 "sd": 2,

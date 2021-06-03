@@ -58,6 +58,10 @@ class DutchBirthDate(str):
     def __init__(self, possible_date):
         super().__init__()
 
+        # date method can produce only "year", this class should be able to work with that
+        if isinstance(possible_date, int):
+            possible_date = f"{possible_date}-XX-XX"
+
         if isinstance(possible_date, (datetime, date)):
             possible_date = date.strftime(possible_date, "%Y-%m-%d")
 
@@ -420,6 +424,24 @@ class Events(BaseModel):
         # choose any holder for now, for any event.
         any_holder = self.events[0].holder
 
+        # Set None when there is no event, the DCC specification does not allow unset lists.
+        # Nones are stripped from the request with the exclude_none setting
+        # See: https://pydantic-docs.helpmanual.io/usage/exporting_models/
+        # See: https://github.com/91divoc-ln/inge-4/issues/84
+        _v, _t, _r = None, None, None
+
+        if self.vaccinations:
+            # Type ignore: error: Item "None" of "Optional[Vaccination]" has no attribute "toEuropeanVaccination"
+            _v = [event.vaccination.toEuropeanVaccination() for event in self.vaccinations]  # type: ignore
+
+        if self.negativetests:
+            _t = [event.negativetest.toEuropeanTest() for event in self.negativetests]  # type: ignore
+
+        if any([self.positivetests, self.recoveries]):
+            _r = [event.recovery.toEuropeanRecovery() for event in self.recoveries] + [  # type: ignore
+                event.positivetest.toEuropeanRecovery() for event in self.positivetests  # type: ignore
+            ]
+
         return EuropeanOnlineSigningRequest(
             **{
                 "nam": {
@@ -429,22 +451,9 @@ class Events(BaseModel):
                     "gnt": any_holder.first_name_eu_normalized,
                 },
                 "dob": any_holder.birthDate,
-                "v": [
-                    event.vaccination.toEuropeanVaccination()
-                    for event in self.vaccinations
-                    if event.vaccination is not None
-                ],
-                "r": [event.recovery.toEuropeanRecovery() for event in self.recoveries if event.recovery is not None]
-                + [
-                    event.positivetest.toEuropeanRecovery()
-                    for event in self.positivetests
-                    if event.positivetest is not None
-                ],
-                "t": [
-                    event.negativetest.toEuropeanTest()
-                    for event in self.negativetests
-                    if event.negativetest is not None
-                ],
+                "v": _v,
+                "r": _r,
+                "t": _t,
             }
         )
 
@@ -603,9 +612,9 @@ class EuropeanOnlineSigningRequest(BaseModel):
         "ISO 8601 date format restricted to range 1900-2099"
     )
 
-    v: List[EuropeanVaccination]
-    t: List[EuropeanTest]
-    r: List[EuropeanRecovery]
+    v: Optional[List[EuropeanVaccination]]
+    t: Optional[List[EuropeanTest]]
+    r: Optional[List[EuropeanRecovery]]
 
 
 class MessageToEUSigner(BaseModel):
