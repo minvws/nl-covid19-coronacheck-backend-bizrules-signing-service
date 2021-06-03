@@ -431,14 +431,15 @@ class Events(BaseModel):
         _v, _t, _r = None, None, None
 
         if self.vaccinations:
-            _v = [event.vaccination.toEuropeanVaccination() for event in self.vaccinations]
+            # Type ignore: error: Item "None" of "Optional[Vaccination]" has no attribute "toEuropeanVaccination"
+            _v = [event.vaccination.toEuropeanVaccination() for event in self.vaccinations]  # type: ignore
 
         if self.negativetests:
-            _t = [event.negativetest.toEuropeanTest() for event in self.negativetests]
+            _t = [event.negativetest.toEuropeanTest() for event in self.negativetests]  # type: ignore
 
         if any([self.positivetests, self.recoveries]):
-            _r = [event.recovery.toEuropeanRecovery() for event in self.recoveries] + [
-                event.positivetest.toEuropeanRecovery() for event in self.positivetests
+            _r = [event.recovery.toEuropeanRecovery() for event in self.recoveries] + [  # type: ignore
+                event.positivetest.toEuropeanRecovery() for event in self.positivetests  # type: ignore
             ]
 
         return EuropeanOnlineSigningRequest(

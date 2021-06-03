@@ -120,12 +120,13 @@ def sign(statement: Events) -> List[EUGreenCard]:
 
 
 def get_event_time(statement_to_eu_signer: MessageToEUSigner):
+    # Types are ignored because they map this way: the can not be none if the keyUsage is set as per above logic.
     if statement_to_eu_signer.keyUsage == "vaccination":
-        event_time = statement_to_eu_signer.dgc.v[0].dt
+        event_time = statement_to_eu_signer.dgc.v[0].dt  # type: ignore
     elif statement_to_eu_signer.keyUsage == "recovery":
-        event_time = statement_to_eu_signer.dgc.r[0].fr
+        event_time = statement_to_eu_signer.dgc.r[0].fr  # type: ignore
     elif statement_to_eu_signer.keyUsage == "test":
-        event_time = statement_to_eu_signer.dgc.t[0].sc
+        event_time = statement_to_eu_signer.dgc.t[0].sc  # type: ignore
     else:
         raise ValueError("Not able to retrieve an event time from the statement to the signer. This is very wrong.")
 
