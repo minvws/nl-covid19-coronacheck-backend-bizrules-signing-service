@@ -253,17 +253,17 @@ def _sign(url, data, origins) -> DomesticGreenCard:
 def create_origins_and_attributes(
     events: Events,
 ) -> Tuple[bool, Optional[List[RichOrigin]], Optional[List[DomesticSignerAttributes]]]:
-    # todo: add errors why this cant continue.
+    # todo: add error structure...
 
     # Continue with at least one origin
     origins = create_origins(events)
     if len(origins) == 0:
+        log.warning("No relevant origins, so cannot sign.")
         return False, None, None
 
     attributes = create_attributes(origins)
     if not attributes:
-        # todo: attributes are not extracted yet, something is off. Has to be investigated.
         log.warning("No relevant attributes, so cannot sign.")
-        # return None
+        return False, None, None
 
     return True, origins, attributes
