@@ -2,6 +2,7 @@
 
 import logging
 import pathlib
+from base64 import b64decode
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
@@ -72,7 +73,8 @@ class AppSettings(BaseSettings):
     NONCE_BYTE_SECURITY: int = 256
     EXPIRATION_TIME_IN_SECONDS: int = 60
     REDIS_KEY_PREFIX: str = ""
-
+    REDIS_HMAC_KEY_FILE: str = ""
+    REDIS_HMAC_KEY: bytes = b""
     USE_PYTEST_REDIS: bool = False
 
     INGE4_NACL_PRIVATE_KEY_FILE: str = ""
@@ -144,6 +146,7 @@ def settings_factory(env_file: pathlib.Path) -> AppSettings:
     )
 
     _settings.INGE6_JWT_PUBLIC_CRT = read_file(f"{_settings.SECRETS_FOLDER}/{_settings.INGE6_JWT_PUBLIC_CRT_FILE}")
+    _settings.REDIS_HMAC_KEY = b64decode(read_file(f"{_settings.SECRETS_FOLDER}/{_settings.REDIS_HMAC_KEY_FILE}"))
 
     if _settings.MOCK_MODE or _settings.INGE6_MOCK_MODE or _settings.STOKEN_MOCK:
         # add cool rainbow effect for dramatic impact :)

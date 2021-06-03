@@ -5,6 +5,7 @@ from typing import List, Union
 from uuid import UUID
 
 import requests
+from cryptography.hazmat.primitives import hashes, hmac
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 
@@ -85,3 +86,14 @@ def request_request_with_retries(
 
     # will not do a "raise for status"
     return response
+
+
+def hmac256(message: bytes, key: bytes) -> bytes:
+    # From openssl library:
+    # The Python Cryptographic Authority strongly suggests the use of pyca/cryptography where possible.
+    # If you are using pyOpenSSL for anything other than making a TLS connection you should move to cryptography
+    # and drop your pyOpenSSL dependency.
+
+    hmac_instance = hmac.HMAC(key, hashes.SHA256())
+    hmac_instance.update(message)
+    return hmac_instance.finalize()
