@@ -730,6 +730,10 @@ class IssueMessage(BaseModel):
     credentialsAttributes: List[DomesticSignerAttributes]
 
 
+class StaticIssueMessage(BaseModel):
+    credentialsAttributes: List[DomesticSignerAttributes]
+
+
 class RichOrigin(BaseModel):
     holder: Holder
     type: str
