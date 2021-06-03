@@ -99,7 +99,8 @@ def sign(statement: Events) -> List[EUGreenCard]:
         response = request_post_with_retries(
             settings.EU_INTERNATIONAL_SIGNING_URL,
             # by_alias uses the alias field to create a json object. As such 'is_' will be 'is'.
-            data=statement_to_eu_signer.dict(by_alias=True),
+            # exclude_none is used to omit v, t and r entirely
+            data=statement_to_eu_signer.dict(by_alias=True, exclude_none=True),
             headers={"accept": "application/json", "Content-Type": "application/json"},
         )
         if response.status_code != 200:

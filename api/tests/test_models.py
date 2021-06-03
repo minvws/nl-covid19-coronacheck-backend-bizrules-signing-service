@@ -169,3 +169,18 @@ def test_dutchbirthdate():
     assert example_holder.birthDate.day == 1
     assert example_holder.birthDate.month == 2
     assert example_holder.birthDate.date == date(2020, 2, 1)
+
+
+def test_none_in_european_signing_request():
+    # DCC schema doesn't allow empty v, t, and r lists:
+    no_lists = EuropeanOnlineSigningRequest(
+        ver="2.0",
+        dob="2020-XX-XX",
+        nam=EuropeanOnlineSigningRequestNamingSection(fn="a", gn="", gnt="", fnt=""),
+    )
+
+    assert no_lists.dict(exclude_none=True) == {
+        "ver": "2.0",
+        "dob": 2020,
+        "nam": {"fn": "a", "fnt": "", "gn": "", "gnt": ""},
+    }
