@@ -41,7 +41,9 @@ def eligible_vaccination(events: Events) -> List[RichOrigin]:
 
     if len(events.vaccinations) > 1:
         # Ignoring the complexities of bad data quality (i.e. two events for one vaccination)
-        best_vacc = events.vaccinations[1]
+        # Get the last / latest one.
+        # todo: should it be the second to latest if the current one is within 14 days of now?
+        best_vacc = events.vaccinations[-1]
 
     if len(events.vaccinations) == 1:
         vacc = events.vaccinations[0]
