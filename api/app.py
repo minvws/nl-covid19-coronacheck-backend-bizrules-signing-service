@@ -209,3 +209,14 @@ def save_openapi_json():
     with open("docs/openapi.json", "w") as file:
         json.dump(app.openapi(), file)
     sys.exit()
+
+
+# Some documentation endpoints, as the protocol versions 2 and 3 and messages to signer are not transparent enough
+@app.post("/documentation/DataProviderEventsResult/", response_model=DataProviderEventsResult)
+async def docs_dper(_more_docs: DataProviderEventsResult):  # pylint: disable=unused-argument
+    ...
+
+
+@app.post("/documentation/V2Event/", response_model=V2Event)
+async def docs_v2e(_more_docs: V2Event):  # pylint: disable=unused-argument
+    ...

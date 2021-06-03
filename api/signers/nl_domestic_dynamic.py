@@ -176,8 +176,9 @@ def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBl
                     "validForHours": settings.DOMESTIC_STRIP_VALIDITY_HOURS,
                     "firstNameInitial": holder.first_name_initial,
                     "lastNameInitial": holder.last_name_initial,
-                    "birthDay": str(holder.birthDate.day),
-                    "birthMonth": str(holder.birthDate.month),
+                    # Dutch Birthdays can be unknown, supplied as 1970-XX-XX. See DutchBirthDate
+                    "birthDay": str(holder.birthDate.day) if holder.birthDate.day else "",
+                    "birthMonth": str(holder.birthDate.month) if holder.birthDate.month else "",
                 }
             )
             domestic_signer_attributes.strike()

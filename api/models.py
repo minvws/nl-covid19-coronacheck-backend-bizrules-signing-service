@@ -1,12 +1,11 @@
 # Pydantic models have no methods in many cases.
-# We want to force the casing in certain places in the API: invalid-name
 # pylint: disable=too-few-public-methods,invalid-name
 # Automatic documentation: http://localhost:8000/redoc or http://localhost:8000/docs
 import re
 import uuid
 from datetime import date, datetime, timedelta
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -14,7 +13,115 @@ from unidecode import unidecode
 
 from api.attribute_allowlist import domestic_signer_attribute_allow_list
 
-# Created to distinguish V2 events from v3 events.
+
+class DutchBirthDate(str):
+    """
+    People in the Netherlands can be born on a normal ISO date such as: 1980-12-31.
+    But they can also be born on 1980-XX-XX.
+
+    The EU signer does not understand this date of birth, but can work with "year" instead.
+    The domestic signer expects these fields to be empty when there are XX-es.
+
+    You can throw in any datetime, date, ISO date string with XX for day and month.
+
+    See test_dutchbirthdate for examples.
+
+    Docs for custom type:
+    https://pydantic-docs.helpmanual.io/usage/types/#custom-data-types
+    Todo: type hinting is not correct yet, when giving a string a DutchBirthDate is expected.
+    """
+
+    @classmethod
+    def __modify_schema__(cls, field_schema):
+        field_schema.update(
+            pattern="^[0-9]{4}-([0-9]{2}|XX)-([0-9]{2}|XX)$",
+            examples=["1980-12-31", "1980-XX-XX"],
+        )
+
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    # Needed as attribute in the EU signer, together with date
+    # Defaults to 0 so they evaluate as False.
+    # 1900 - 2100
+    year: int = 0
+
+    # Needed as attribute in domestic signer
+    # 1 - 12
+    month: Optional[int] = None
+
+    # Needed as attribute in domestic signer
+    # 1 - 31
+    day: Optional[int] = None
+
+    def __init__(self, possible_date):
+        super().__init__()
+
+        if isinstance(possible_date, (datetime, date)):
+            possible_date = date.strftime(possible_date, "%Y-%m-%d")
+
+        # Happy flow: a date is given and it's easy to work with:
+        try:
+            converted = datetime.strptime(possible_date, "%Y-%m-%d")
+            self.year = converted.year
+            self.month = converted.month
+            self.day = converted.day
+        # Cannot convert to a date, this is more exceptional.
+        except ValueError:
+            # ignore case:
+            possible_date = possible_date.upper()
+            parts = possible_date.split("-")
+
+            # Year is always known
+            self.year = int(parts[0])
+
+            # It's possible only days or only month are XX
+            if parts[1] != "XX":
+                self.month = int(parts[1])
+
+            if parts[2] != "XX":
+                self.day = int(parts[2])
+
+    @classmethod
+    def validate(cls, possible_date: Union[str, date, datetime]):
+        default_error_message = "Birthdate must match the regular expression: [0-9]{4}-([0-9]{2}|XX)-([0-9]{2}|XX)"
+
+        # Be more flexible than just a string, allow to set dates and datetimes and just work(!)
+        if isinstance(possible_date, (datetime, date)):
+            # possible_date = date.strftime(possible_date, "%Y-%m-%d")
+            return cls(possible_date)
+
+        if not isinstance(possible_date, str):
+            raise TypeError(f"{default_error_message} (must be a string or date)")
+
+        # Any other values than X-s and any incorrect formatting.
+        if not re.fullmatch(r"[0-9]{4}-([0-9]{2}|XX)-([0-9]{2}|XX)", possible_date):
+            raise ValueError(f"{default_error_message} (wrong format or invalid substitution character).")
+
+        return cls(possible_date)
+
+    @property
+    def date(self) -> Union[int, date]:
+        # Needed as attribute in the eu signer
+        if not self.day or not self.month:
+            return self.year
+
+        return date(self.year, self.month, self.day)
+
+    def __str__(self):
+        return str(self.date)
+
+    def __repr__(self):
+        return str(self.date)
+
+    # needed for comparison in unit tests
+    def __eq__(self, other):
+        if isinstance(other, DutchBirthDate):
+            return self.year == other.year and self.month == other.month and self.day == other.day
+        return self == DutchBirthDate(other)
+
+
 INVALID_YEAR_FOR_EU_SIGNING = 1883
 
 
@@ -40,7 +147,12 @@ class Holder(BaseModel):
 
     firstName: str = Field(description="", example="Herman")
     lastName: str = Field(description="", example="Acker")
-    birthDate: date = Field(description="ISO 8601 date string (large to small, YYYY-MM-DD)", example="1970-01-01")
+
+    # note: this is a DutchBirthDate, can contain 1970-XX-XX
+    birthDate: DutchBirthDate = Field(
+        description="ISO 8601 date string (large to small, YYYY-MM-DD), may contain XX on month and day",
+        example="1970-01-01",
+    )
 
     @classmethod
     def _name_initial(cls, name, default=""):
@@ -485,7 +597,8 @@ class EuropeanOnlineSigningRequest(BaseModel):
     )
     nam: EuropeanOnlineSigningRequestNamingSection
     # Signer should convert "1975-XX-XX" to "1975" as the EU DGC can't handle the XX's of unknown birthmonth/day
-    dob: date = Field(
+    # The int is only the year, the date is the date. The DutchBirthDate figures this out.
+    dob: DutchBirthDate = Field(
         description="Date of Birth of the person addressed in the DGC. "
         "ISO 8601 date format restricted to range 1900-2099"
     )

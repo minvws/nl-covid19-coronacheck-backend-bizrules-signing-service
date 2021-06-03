@@ -1,6 +1,15 @@
 from datetime import date, datetime, timezone
 
-from api.models import EventType, V2Event
+import pytest
+
+from api.models import (
+    DutchBirthDate,
+    EuropeanOnlineSigningRequest,
+    EuropeanOnlineSigningRequestNamingSection,
+    EventType,
+    Holder,
+    V2Event,
+)
 
 
 def test_upgrade_to_v3_with_negative_test():
@@ -45,8 +54,118 @@ def test_upgrade_to_v3_with_negative_test():
                 "vaccination": None,
             }
         ],
-        "holder": {"birthDate": date(1883, 6, 9), "firstName": "B", "lastName": "B"},
+        "holder": {"birthDate": "1883-06-09", "firstName": "B", "lastName": "B"},
         "protocolVersion": "2.0",
         "providerIdentifier": "ZZZ",
         "status": "complete",
     }
+
+
+def test_dutchbirthdate_validation():
+    # Garbage flows:
+    with pytest.raises(TypeError, match="must be a string"):
+        DutchBirthDate.validate(None)  # noqa
+
+    with pytest.raises(TypeError, match="must be a string"):
+        DutchBirthDate.validate(10)  # noqa
+
+    with pytest.raises(ValueError, match="wrong format or invalid substitution character"):
+        DutchBirthDate.validate("2020-01-0")
+
+    with pytest.raises(ValueError, match="wrong format or invalid substitution character"):
+        # fullmatch only!
+        DutchBirthDate.validate("2020-01-003")
+
+    with pytest.raises(ValueError, match="wrong format or invalid substitution character"):
+        DutchBirthDate.validate("2020 01 03")
+
+    # Garbage dutch flow:
+    with pytest.raises(ValueError, match="wrong format or invalid substitution character"):
+        DutchBirthDate.validate("2020-YX-XY")
+
+    with pytest.raises(ValueError, match="wrong format or invalid substitution character"):
+        DutchBirthDate.validate("20-20YX-XY")
+
+    # don't allow mixing X with numbers
+    with pytest.raises(ValueError, match="wrong format or invalid substitution character"):
+        DutchBirthDate.validate("2020-1X-00")
+
+
+def test_dutchbirthdate():
+    assert DutchBirthDate("2020-01-03") == DutchBirthDate(datetime(2020, 1, 3))
+    # Happy flow:
+    dbd = DutchBirthDate("2020-01-03")
+    assert dbd.day == 3
+    assert dbd.month == 1
+    assert dbd.date == date(2020, 1, 3)
+
+    # Also accept date
+    dbd = DutchBirthDate(date(2020, 1, 3))
+    assert dbd.day == 3
+    assert dbd.month == 1
+    assert dbd.date == date(2020, 1, 3)
+
+    # Also accept datetime
+    dbd = DutchBirthDate(datetime(2020, 1, 3))
+    assert dbd.day == 3
+    assert dbd.month == 1
+    assert dbd.date == date(2020, 1, 3)
+
+    # Dutch flow, no date means None:
+    dbd = DutchBirthDate("2020-XX-XX")
+    assert dbd.day is None
+    assert dbd.month is None
+    assert dbd.date == 2020
+
+    # Dutch flow, no date means None:
+    dbd = DutchBirthDate("2020-01-XX")
+    assert dbd.day is None
+    assert dbd.month == 1
+    assert dbd.date == 2020
+
+    # Try it in real life.
+    example_signing_request = EuropeanOnlineSigningRequest(
+        ver="1.0",
+        # The Expected Type DutchBirthDate, got str instead is incorrect by design it seems.
+        # If you use the example from https://pydantic-docs.helpmanual.io/usage/types/#custom-data-types
+        # it also shows this same error for the PostCode example.
+        dob="2020-02-02",
+        nam=EuropeanOnlineSigningRequestNamingSection(fn="", gn="", gnt="", fnt=""),
+        v=[],
+        t=[],
+        r=[],
+    )
+    assert example_signing_request.dob.year == 2020
+    assert example_signing_request.dob.day == 2
+
+    # See that validation is triggered when instantiating a model:
+    with pytest.raises(ValueError, match="wrong format or invalid substitution character"):
+        EuropeanOnlineSigningRequest(
+            ver="2.0",
+            dob="2020-AA-XX",
+            nam=EuropeanOnlineSigningRequestNamingSection(fn="a", gn="", gnt="", fnt=""),
+            v=[],
+            t=[],
+            r=[],
+        )
+
+    example_signing_request = EuropeanOnlineSigningRequest(
+        ver="1.0",
+        dob="2020-XX-XX",
+        nam=EuropeanOnlineSigningRequestNamingSection(fn="", gn="", gnt="", fnt=""),
+        v=[],
+        t=[],
+        r=[],
+    )
+    assert example_signing_request.dob.year == 2020
+    assert example_signing_request.dob.day is None
+
+    example_holder = Holder(firstName="A", lastName="B", birthDate="2020-XX-XX")
+    assert example_holder.birthDate.day is None
+    assert example_holder.birthDate.month is None
+    assert example_holder.birthDate.date == 2020
+
+    example_holder = Holder(firstName="A", lastName="B", birthDate=date(2020, 2, 1))
+    assert example_holder.birthDate.day == 1
+    assert example_holder.birthDate.month == 2
+    assert example_holder.birthDate.date == date(2020, 2, 1)
