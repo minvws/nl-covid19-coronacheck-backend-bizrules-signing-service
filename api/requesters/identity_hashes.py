@@ -13,7 +13,6 @@ from nacl.encoding import Base64Encoder
 from nacl.public import Box, PrivateKey, PublicKey
 from nacl.utils import random
 
-from api.enrichment import sbvz
 from api.enrichment.rvig.rvig import get_pii_from_rvig
 from api.models import EventDataProviderJWT, Holder
 from api.settings import settings
@@ -76,7 +75,7 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
 
     # todo: deal with errors.
     errors = None
-    holder: Holder = get_pii_from_rvig(bsn)
+    holder = get_pii_from_rvig(bsn)
     if errors:
         # Service might be down etc.
         log.error(errors)

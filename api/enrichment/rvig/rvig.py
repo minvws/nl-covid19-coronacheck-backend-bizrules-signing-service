@@ -1,5 +1,3 @@
-from typing import Optional
-
 from requests.auth import HTTPBasicAuth
 from requests import Session
 from zeep import Client
@@ -100,7 +98,7 @@ Example response:
 """
 
 
-def get_pii_from_rvig(bsn: str) -> Optional[Holder]:
+def get_pii_from_rvig(bsn: str) -> Holder:
     """
     todo: deal with possible error codes. Give feedback.
     todo: add health check
@@ -146,7 +144,7 @@ def get_pii_from_rvig(bsn: str) -> Optional[Holder]:
     return _to_holder(client.get_element("ns0:vraagResponse")(antwoord))
 
 
-def _to_holder(antwoord) -> Optional[Holder]:
+def _to_holder(antwoord) -> Holder:
     # todo: test unhappy flow(s), no data etc.
 
     voornamen = ""

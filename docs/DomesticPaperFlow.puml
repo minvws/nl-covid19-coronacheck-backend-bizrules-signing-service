@@ -59,14 +59,14 @@ skinparam {
 
 participant "Inge 3" as inge3
 participant "Inge 4 /  Signing Router" as inge4
-participant "SBV-Z / BVBSN / BRP" as sbvz
+participant "RVIG / BVBSN / BRP" as rvig
 participant "DomesticPaperSigningProvider (VWS)" as provider
 
 
 == ACTORS ==
 
 inge3 --> inge4
-inge4 --> sbvz
+inge4 --> rvig
 inge4 --> provider
 
 == FLOW ==
@@ -76,8 +76,8 @@ autonumber
 alt enrich pii using BSN
     inge3 -> inge4: PIIEnrichmentRequest **(encrypted BSN)**
     activate inge4
-        inge4 -> sbvz : OpvragenPersoonsgegevensVraagBericht
-        sbvz -> inge4 : OpvragenPersoonsgegevensAntwoordBericht
+        inge4 -> rvig : OpvragenPersoonsgegevensVraagBericht
+        rvig -> inge4 : OpvragenPersoonsgegevensAntwoordBericht
         inge4 -> inge4 : minimize data
         inge4 -> inge3 : EnrichedPII
     deactivate inge4

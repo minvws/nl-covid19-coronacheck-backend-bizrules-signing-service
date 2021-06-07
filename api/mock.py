@@ -6,11 +6,9 @@ from api.utils import read_file
 app = FastAPI()
 
 
-@app.post("/cibg.sbv.testtool.webservice.dec14/opvragenpersoonsgegevens.asmx")
-async def mock_sbvz():
-    return Response(
-        content=read_file(f"{TESTS_DIR}/sbvz/direct_match_correct_response.xml"), media_type="application/xml"
-    )
+@app.post("/gba-v/online/lo3services/adhoc")
+async def mock_rvig():
+    return Response(content=read_file(f"{TESTS_DIR}/rvig/999995571.xml"), media_type="application/xml")
 
 
 # "at" is the actual query string required so we can't rename

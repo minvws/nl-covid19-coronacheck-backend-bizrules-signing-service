@@ -14,7 +14,7 @@ PyJWT
 json5
 cryptography
 
-# SBVZ enrichment
+# RVIG enrichment
 unidecode
 zeep
 
