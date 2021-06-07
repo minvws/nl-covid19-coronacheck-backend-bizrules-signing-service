@@ -1,0 +1,2303 @@
+{
+  "999990019": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "De",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "9a750c8d-2b1f-40e3-9408-3a169a52cacf",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "f2c0a9b9-06d6-48e1-9baf-9a6e6854cc28",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "89a49094-ce0f-4324-b788-0b7ec2ee33ab",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      }
+    ]
+  },
+  "999994839": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob'",
+      "infix": "\"\"\"abc\"",
+      "lastName": "\u2019s-Gravenhage",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "f1d27414-c3a6-4d30-a106-fd47ed3474d4",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "f3451767-fa8d-4153-9671-0647187fd9ed",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "c5af0c18-281d-4f1f-9fdd-e85e8e5eb38e",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      }
+    ]
+  },
+  "999997324": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "\u0628\u0648\u0628",
+      "infix": "",
+      "lastName": "\u0628\u0648\u064a\u0631",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "c1370c1f-9064-45ae-942d-3d2d3779c819",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "64853393-72bf-45dc-b499-f1875f2ed8fe",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "b671b810-86b9-4d78-97eb-dff1e02aa9b2",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      }
+    ]
+  },
+  "999990032": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "\u05d1\u05d5\u05d1",
+      "infix": "",
+      "lastName": "\u05d1\u05d5\u05e8\u05d3",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "b5e9b842-6523-49f4-b2eb-af34397ff497",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "571a153d-8b34-4809-a49f-e58791314a41",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "c475dd39-221a-4522-ab17-a7cdbebab6a7",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      }
+    ]
+  },
+  "999990044": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "\u9c8d\u52c3",
+      "infix": "",
+      "lastName": "\u5439\u725b",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "8d3781d5-b152-4c4e-9017-9190c59ace91",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "8a5cc206-0d5f-4182-9f7a-118a72b61853",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "f7ff480d-1872-47d8-9639-02c2354c43b7",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      }
+    ]
+  },
+  "999990068": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "bob",
+      "infix": "",
+      "lastName": "\u03bf\u03b9\u03ba\u03bf\u03b4\u03cc\u03bc\u03bf\u03c2",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "58799b66-b45f-4cfa-8462-2bd3fd19635a",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "bf2beff9-2bdb-47a0-9df6-26f355e859c2",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "a120411c-f193-4e4e-a01a-7a64f5c2cc0b",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      }
+    ]
+  },
+  "999990081": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "\u0431\u043e\u0431\u043e\u0432",
+      "infix": "\u043e\u0438\u0442",
+      "lastName": "\u0441\u0442\u0440\u043e\u0438\u0442\u0435\u043b\u044c",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "526285be-bdc6-4537-954a-5a4754d04f4e",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "f1ce5981-afea-45a7-a364-a0e6819fbbbd",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "6b966b2d-a3a3-4f33-8997-9b23bf3129af",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      }
+    ]
+  },
+  "999990093": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "\u2197\u21a9\u21a9\u21ab\u21b9\ud83d\udd19\u21e5\u21cc",
+      "infix": "\u21a9\u21a9\u21ab\u21b9",
+      "lastName": "\ud83d\ude00\ud83d\ude03",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "891c2efa-eaf1-48e0-80ec-fb41a01208f4",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "1208d7cc-d738-436d-b670-e05baa0a65e0",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "fa370a52-97a9-434b-911f-def83a0c693e",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      }
+    ]
+  },
+  "999990111": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "V\u00e6\u00e5\u00eb\u00fd\u00feasd2\u00ff\u00fc\u00efasd\u00f6\u015334\u0153\u00e4\u00df\u00f0\u00e8\u00e9\u00f9\u00fa\u0133\u00f0s\u00f83\u00e1\u00e9\u00f3\u00fa\u00ed;\u00c1\u00e7\u00f9\u00feaah\u00eb\u00fdae\u00f1\u00e4iasdsd\u00e4\u00b5",
+      "infix": "V\u00e6\u00e5\u00eb\u00fd\u00feasd2\u00ff\u00fc\u00efasd\u00f6\u015334\u0153\u00e4\u00df\u00f0\u00e8\u00e9\u00f9\u00fa\u0133\u00f0s\u00f83\u00e1\u00e9\u00f3\u00fa\u00ed;\u00c1\u00e7\u00f9\u00feaah\u00eb\u00fdae\u00f1\u00e4iasdsd\u00e4\u00b5",
+      "lastName": "V\u00e6\u00e5\u00eb\u00fd\u00feasd2\u00ff\u00fc\u00efasd\u00f6\u015334\u0153\u00e4\u00df\u00f0\u00e8\u00e9\u00f9\u00fa\u0133\u00f0s\u00f83\u00e1\u00e9\u00f3\u00fa\u00ed;\u00c1\u00e7\u00f9\u00feaah\u00eb\u00fdae\u00f1\u00e4iasdsd\u00e4\u00b5",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "deb54d15-6203-4186-a4c1-eaa0f84ab6af",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "V\u00e6\u00e5\u00eb\u00fd\u00feasd2\u00ff\u00fc\u00efasd\u00f6\u015334\u0153\u00e4\u00df\u00f0\u00e8\u00e9\u00f9\u00fa\u0133\u00f0s\u00f83\u00e1\u00e9\u00f3\u00fa\u00ed;\u00c1\u00e7\u00f9\u00feaah\u00eb\u00fdae\u00f1\u00e4iasdsd\u00e4\u00b5",
+          "type": "V\u00e6\u00e5\u00eb\u00fd\u00feasd2\u00ff\u00fc\u00efasd\u00f6\u015334\u0153\u00e4\u00df\u00f0\u00e8\u00e9\u00f9\u00fa\u0133\u00f0s\u00f83\u00e1\u00e9\u00f3\u00fa\u00ed;\u00c1\u00e7\u00f9\u00feaah\u00eb\u00fdae\u00f1\u00e4iasdsd\u00e4\u00b5",
+          "manufacturer": "V\u00e6\u00e5\u00eb\u00fd\u00feasd2\u00ff\u00fc\u00efasd\u00f6\u015334\u0153\u00e4\u00df\u00f0\u00e8\u00e9\u00f9\u00fa\u0133\u00f0s\u00f83\u00e1\u00e9\u00f3\u00fa\u00ed;\u00c1\u00e7\u00f9\u00feaah\u00eb\u00fdae\u00f1\u00e4iasdsd\u00e4\u00b5",
+          "brand": "EU/1/20/1507EU/1/20/1507EU/1/20/1507EU/1/20/1507EU/1/20/1507EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "b0726ac5-ee88-4bb0-a260-a8ed8c15b8ac",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "V\u00e6\u00e5\u00eb\u00fd\u00feasd2\u00ff\u00fc\u00efasd\u00f6\u015334\u0153\u00e4\u00df\u00f0\u00e8\u00e9\u00f9\u00fa\u0133\u00f0s\u00f83\u00e1\u00e9\u00f3\u00fa\u00ed;\u00c1\u00e7\u00f9\u00feaah\u00eb\u00fdae\u00f1\u00e4iasdsd\u00e4\u00b5",
+          "type": "",
+          "name": "",
+          "manufacturer": "V\u00e6\u00e5\u00eb\u00fd\u00feasd2\u00ff\u00fc\u00efasd\u00f6\u015334\u0153\u00e4\u00df\u00f0\u00e8\u00e9\u00f9\u00fa\u0133\u00f0s\u00f83\u00e1\u00e9\u00f3\u00fa\u00ed;\u00c1\u00e7\u00f9\u00feaah\u00eb\u00fdae\u00f1\u00e4iasdsd\u00e4\u00b5",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "fef942d7-dce8-4058-a7b6-c03319e428f3",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      }
+    ]
+  },
+  "999990123": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "efda0d21-ea24-43e9-a223-e74b6b58b5db",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "XYZ",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "vaccination",
+        "unique": "c9905f5b-e354-4d91-8720-5158e6d8ab8e",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NL",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "vaccination",
+        "unique": "d13e1815-3a4e-459e-8eab-5c11515c259a",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "Netherlands",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      }
+    ]
+  },
+  "999997336": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-40-50"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "65e9e41a-01d4-41d1-8439-bde846f4654c",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021 June 06"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "38d30ada-51f9-46d2-b6c8-87151353e012",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021 June 06",
+          "resultDate": "2021 June 06"
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "e4daef81-80e0-4355-a491-2ae050b17c1b",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021 June 06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      }
+    ]
+  },
+  "999990147": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01T10:00:00:123456Z"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "e7b9501b-681d-4237-83ec-405b1396ecf8",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-01-01T10:00:00:123456Z"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "54570eb1-24b9-42a2-bec4-3814782929c9",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-01-01T10:00:00:123456Z",
+          "resultDate": "2021-01-01T10:00:00:123456Z"
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "988c2151-281f-43bb-a7e8-916b95ef433a",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-01-01T10:00:00:123456Z",
+          "validFrom": "2021-01-01T10:00:00:123456Z",
+          "validUntil": "2021-01-01T10:00:00:123456Z"
+        }
+      }
+    ]
+  },
+  "999990159": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1800-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "142052b6-c207-417f-a5c0-d19efa68b5f3",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-05-30"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "e9dd70a4-cbbe-42c2-a24d-50e20320eecb",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-05-30T22:06:41+00:00",
+          "resultDate": "2021-05-30T22:06:41+00:00"
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "de33db33-164c-4171-9685-522c3482407e",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-05-30",
+          "validFrom": "2021-05-30",
+          "validUntil": "2021-05-28"
+        }
+      }
+    ]
+  },
+  "999990160": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "4000-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "0664a7fa-3169-4bce-8ea2-19051102a793",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-13"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "9ba0b625-be63-4967-a79b-6518005ae040",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-13T22:06:41+00:00",
+          "resultDate": "2021-05-30T22:06:41+00:00"
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "69313914-d652-43a6-a7fe-87679c310a1c",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-13",
+          "validFrom": "2021-06-13",
+          "validUntil": "2021-06-15"
+        }
+      }
+    ]
+  },
+  "999997361": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "",
+      "infix": "",
+      "lastName": "",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "6d2799a7-c5b6-4b23-ac07-31ccedfefe18",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "",
+          "type": "",
+          "manufacturer": "",
+          "brand": "",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "",
+          "doseNumber": null,
+          "totalDoses": null,
+          "date": ""
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "b685dccd-8103-494a-b999-070109128be1",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "",
+          "facility": "",
+          "type": "",
+          "name": "",
+          "manufacturer": "",
+          "sampleDate": "",
+          "resultDate": ""
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "0e6d0ed2-fbd4-41e2-92bd-36c66c9a7daa",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "",
+          "sampleDate": "",
+          "validFrom": "",
+          "validUntil": ""
+        }
+      }
+    ]
+  },
+  "999997725": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "9d2c1337-be8d-4b63-b1ac-1153a3f362e7",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": true,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      }
+    ]
+  },
+  "999997737": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "5033e8b4-724d-4dd9-895c-6361460f79b1",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": true,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      }
+    ]
+  },
+  "999997749": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "4b02fc79-0bc9-4495-bdbc-0e1a429c9602",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": true,
+          "completedByPersonalStatement": true,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      }
+    ]
+  },
+  "999997750": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "e98cc67e-b5b6-4cd9-8702-a75c1d3ce0d3",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      }
+    ]
+  },
+  "999994840": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "681a2611-ec2e-42f2-8ec7-35c5adf137ec",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 1,
+          "date": "2021-06-05"
+        }
+      },
+      {
+        "type": "vaccination",
+        "unique": "9f358c3e-a6d1-4db5-b40a-7e97c40ffd91",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "FRA",
+          "doseNumber": 1,
+          "totalDoses": 1,
+          "date": "2021-06-06"
+        }
+      }
+    ]
+  },
+  "999997762": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "199e076e-f75b-4543-ae49-c0067b8f0b67",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 1,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "ac1bee63-0ccb-42af-a236-c1f731b098ac",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD RAI Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "cbdaafb3-9afa-4bb8-af0d-c6a579a0c671",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      }
+    ]
+  },
+  "999990020": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Adam",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1980-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "21af41ad-bd37-4328-ba4d-9e7eb8a80667",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100000000",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "f25e5aea-cc95-4f44-a62a-955501863019",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD RAI Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "2321",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "a7c1ac0c-0bef-4750-8de3-31274da2300e",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      }
+    ]
+  },
+  "999997348": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "9bb9bf16-1745-47aa-9601-da19deedcd42",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "5870b6ed-d0d2-43d3-8df4-6a84d7d7503c",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "97bc7bed-0d1c-47f3-9318-ba6075fc39b8",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      }
+    ]
+  },
+  "999997373": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "8957639a-0098-4a1e-873b-736331629e60",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "d949424c-1401-41d8-8d5a-a428e089ebcc",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "d662bec5-5e04-48bc-89e4-49ad62a6271f",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      }
+    ]
+  },
+  "999990056": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "negativetest",
+        "unique": "0693491a-a7f4-4b25-9978-8b6d5f9e94aa",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      }
+    ]
+  },
+  "999997385": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "negativetest",
+        "unique": "53623638-16ef-47b5-8eec-463d0d6771f7",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-05T22:06:41+00:00",
+          "resultDate": "2021-06-05T22:06:41+00:00"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "06bc7981-f5db-4bdd-8d6c-3a9fad7e24b5",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      }
+    ]
+  },
+  "999997415": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "d50733e6-9801-4853-aa3b-c5eb889003f8",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 1,
+          "date": "2021-06-06"
+        }
+      }
+    ]
+  },
+  "999997439": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "9709c003-a30b-4e12-bd41-d5bd8bde1380",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "vaccination",
+        "unique": "33e2d707-0410-40c7-955e-c6408a504713",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 2,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      }
+    ]
+  },
+  "999997440": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "cf2bc737-e233-4b8b-b560-cdbad6f6ce9a",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "vaccination",
+        "unique": "5e1b2240-b971-4e3a-ad06-600032dcbc36",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 2,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "vaccination",
+        "unique": "1995883b-e674-4063-a11a-156e6f907016",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 3,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      }
+    ]
+  },
+  "999997452": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "dd901802-ab22-49c4-a908-dac599b33662",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 0,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "vaccination",
+        "unique": "a1d1540d-6443-493a-a44f-e53bbc45ff74",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 0,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      }
+    ]
+  },
+  "999990135": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "1fdc0b09-07a3-470e-a5c5-571491d1673e",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 2,
+          "totalDoses": 0,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "vaccination",
+        "unique": "1528c501-a226-4fa7-bdef-16a67ae83f11",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 2,
+          "totalDoses": 0,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "vaccination",
+        "unique": "8d57b567-97f1-4c22-9293-aa026aed7a20",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": null,
+          "totalDoses": null,
+          "date": "2021-06-06"
+        }
+      }
+    ]
+  },
+  "999997464": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "c2f5e25a-20dd-4e4d-bc30-855923e387b9",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-09"
+        }
+      }
+    ]
+  },
+  "999997476": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "0abacadd-4ca0-4be3-9800-bbc9a1165683",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-09"
+        }
+      }
+    ]
+  },
+  "999997403": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "b8985f87-13d6-47cc-92e4-7e91798b03f1",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-09"
+        }
+      }
+    ]
+  },
+  "999990172": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "31860efb-e2a2-4849-a388-027694207575",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-09"
+        }
+      }
+    ]
+  },
+  "999990184": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "5cd4fb3f-2fac-498a-a1f4-c1076c56884b",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-05-30"
+        }
+      }
+    ]
+  },
+  "999990196": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "negativetest",
+        "unique": "3e77b85d-d8be-4009-b1c0-b079f4a6c0cc",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:54:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      }
+    ]
+  },
+  "999990202": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "negativetest",
+        "unique": "e451794c-8c5a-48bb-b93f-7f7fa0e78ef2",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T23:18:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      }
+    ]
+  },
+  "999990214": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "negativetest",
+        "unique": "4c325eae-de36-4732-ab46-da0c8b68edcd",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T23:23:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      }
+    ]
+  },
+  "999990226": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "negativetest",
+        "unique": "353f7808-d4e5-4277-9687-7288b8786472",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-13T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      }
+    ]
+  },
+  "999990238": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "negativetest",
+        "unique": "f9d3886e-e9a9-4d6f-9bb6-2ab246190f80",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-05-30T22:06:41+00:00",
+          "resultDate": "2021-05-30T22:06:41+00:00"
+        }
+      }
+    ]
+  },
+  "999990251": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "recovery",
+        "unique": "6a4f645b-029d-41f3-be8e-13059498a6de",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      },
+      {
+        "type": "positivetest",
+        "unique": "13c7dc18-3e7f-4608-a312-389de8cd788e",
+        "isSpecimen": true,
+        "positivetest": {
+          "positiveResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      }
+    ]
+  },
+  "999997567": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "recovery",
+        "unique": "dafc97a4-ab13-4e99-9677-e66c7eecb9ef",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      },
+      {
+        "type": "positivetest",
+        "unique": "f6abe330-6d69-4102-b838-fbeb8fcee22d",
+        "isSpecimen": true,
+        "positivetest": {
+          "positiveResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      }
+    ]
+  },
+  "999997580": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "recovery",
+        "unique": "c70ef6e1-4d6d-4a30-95db-75b91ff85590",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      },
+      {
+        "type": "positivetest",
+        "unique": "5132eac2-a78a-4b2a-861b-0cbe563950e7",
+        "isSpecimen": true,
+        "positivetest": {
+          "positiveResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      }
+    ]
+  },
+  "999997592": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "recovery",
+        "unique": "9b8c6309-a3ce-45da-9173-77f997d8fb52",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      },
+      {
+        "type": "positivetest",
+        "unique": "3fc9cd4a-79d1-484e-a1ab-b6a174333370",
+        "isSpecimen": true,
+        "positivetest": {
+          "positiveResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      }
+    ]
+  },
+  "999997622": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "recovery",
+        "unique": "58257ba8-7635-411f-9279-5f3484e04226",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-05",
+          "validUntil": "2021-06-04"
+        }
+      },
+      {
+        "type": "positivetest",
+        "unique": "b95fbe9e-c36f-4a46-ad4f-23490e04de06",
+        "isSpecimen": true,
+        "positivetest": {
+          "positiveResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      }
+    ]
+  },
+  "999997609": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "positivetest",
+        "unique": "86b0f2e9-f3a0-43c2-8bfb-8f373210d7d2",
+        "isSpecimen": true,
+        "positivetest": {
+          "positiveResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      }
+    ]
+  },
+  "999990263": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "29673982-2857-493b-b38b-27a0f52b103e",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "positivetest",
+        "unique": "96356442-cece-46b5-8db0-17f1056c1809",
+        "isSpecimen": true,
+        "positivetest": {
+          "positiveResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      }
+    ]
+  },
+  "999990275": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "negativetest",
+        "unique": "d6314a94-9496-4510-8e0a-0219526d4ed7",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-05T22:06:41+00:00"
+        }
+      }
+    ]
+  },
+  "999990287": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Bob",
+      "infix": "",
+      "lastName": "Bouwer",
+      "birthDate": "1960-01-01"
+    },
+    "events": [
+      {
+        "type": "recovery",
+        "unique": "e19aee97-6b2b-4c4f-9a08-b2b7f11984c5",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-04"
+        }
+      }
+    ]
+  },
+  "999999011": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Aaltje",
+      "infix": "",
+      "lastName": "Adelaar",
+      "birthDate": "1950-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "5c7c00c9-1f98-442b-b2d1-c8efa7695167",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": false,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      },
+      {
+        "type": "negativetest",
+        "unique": "92c13f52-44ec-42b8-afbb-9fc56cd22d15",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      },
+      {
+        "type": "recovery",
+        "unique": "a670af86-f904-498f-9c2a-e0fe0e46991d",
+        "isSpecimen": true,
+        "recovery": {
+          "country": "NLD",
+          "sampleDate": "2021-06-06",
+          "validFrom": "2021-06-07",
+          "validUntil": "2021-06-08"
+        }
+      },
+      {
+        "type": "positivetest",
+        "unique": "c3a73d67-cdf3-4980-a797-e432190893db",
+        "isSpecimen": true,
+        "positivetest": {
+          "positiveResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      }
+    ]
+  },
+  "999999012": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Pietje",
+      "infix": "",
+      "lastName": "Bel",
+      "birthDate": "1950-01-01"
+    },
+    "events": [
+      {
+        "type": "negativetest",
+        "unique": "0ef4328b-447b-4cc3-810f-e48deabf1834",
+        "isSpecimen": true,
+        "negativetest": {
+          "negativeResult": true,
+          "country": "NLD",
+          "facility": "GGD XL Amsterdam",
+          "type": "",
+          "name": "",
+          "manufacturer": "1232",
+          "sampleDate": "2021-06-06T22:06:41+00:00",
+          "resultDate": "2021-06-06T22:06:41+00:00"
+        }
+      }
+    ]
+  },
+  "999999013": {
+    "protocolVersion": "3.0",
+    "providerIdentifier": "ZZZ",
+    "status": "complete",
+    "holder": {
+      "firstName": "Top",
+      "infix": "",
+      "lastName": "Pertje",
+      "birthDate": "1950-01-01"
+    },
+    "events": [
+      {
+        "type": "vaccination",
+        "unique": "a2c27997-cc17-4ba0-9e6b-27d2327f399e",
+        "isSpecimen": true,
+        "vaccination": {
+          "hpkCode": "2924528",
+          "type": "1119349007",
+          "manufacturer": "ORG-100030215",
+          "brand": "EU/1/20/1507",
+          "completedByMedicalStatement": false,
+          "completedByPersonalStatement": true,
+          "country": "NLD",
+          "doseNumber": 1,
+          "totalDoses": 2,
+          "date": "2021-06-06"
+        }
+      }
+    ]
+  }
+}

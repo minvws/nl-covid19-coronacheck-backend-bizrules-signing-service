@@ -81,6 +81,7 @@ class AppSettings(BaseSettings):
     INGE4_NACL_PUBLIC_KEY_FILE: str = ""
     INGE6_NACL_PUBLIC_KEY_FILE: str = ""
     INGE6_JWT_PUBLIC_CRT_FILE: str = ""
+    INGE4_JWT_AUDIENCE: str = ""
 
     # the following initial values are just temporary and never used (overwritten by the factory code)
     # this is just to make mypy and linters stop complaining
