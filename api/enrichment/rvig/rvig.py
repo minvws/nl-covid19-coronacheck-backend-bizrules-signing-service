@@ -1,3 +1,5 @@
+from typing import Optional
+
 from requests.auth import HTTPBasicAuth
 from requests import Session
 from zeep import Client
@@ -5,19 +7,8 @@ from zeep.transports import Transport
 
 from api import log
 from api.constants import INGE4_ROOT
+from api.models import Holder
 from api.settings import settings
-
-
-class Resultaat:
-    code: int
-    letter: str
-    omschrijving: str
-    referentie: str
-
-
-class VolledigResultaat:
-    persoonslijsten: str
-    resultaat: Resultaat
 
 
 """
@@ -29,7 +20,7 @@ Nummers zijn uit gegevenwoordenboek pagina 240 (LO+GBA+3.13a.pdf)
 """
 RVIG_VOORNAAM = 10210
 RVIG_GESLACHTSNAAM = 10240
-# Todo: jjjjmmdd, jjjjmm00, jjjj0000, 00000000 -> helemaal geen geboortedatum. Dan maar leeg?
+# Todo: jjjjmmdd, jjjjmm00, jjjj0000, 00000000 -> van helemaal geen geboortedatum pakken we het jaar 0000.
 RVIG_GEBOORTEDATUM = 10310
 
 
@@ -109,8 +100,13 @@ Example response:
 """
 
 
-def get_pii(bsn: str):
+def get_pii_from_rvig(bsn: str) -> Optional[Holder]:
     """
+    todo: deal with possible error codes. Give feedback.
+    todo: add health check
+    todo: requests.RequestException etc. Cert errors and whatnot.
+    todo: configure dev/prod
+
     WSDL Specificatie en mogelijke foutcodes: Zie bijlage C 7.3 van:
     https://www.rvig.nl/documenten/publicaties/2020/10/05/logisch-ontwerp-gba-versie-3.13a
 
@@ -144,6 +140,39 @@ def get_pii(bsn: str):
         parameters=[{"item": [{"zoekwaarde": bsn, "rubrieknummer": 10120}]}],
         masker=[{"item": [RVIG_VOORNAAM, RVIG_GESLACHTSNAAM, RVIG_GEBOORTEDATUM]}],
     )
-    antwoord = factory.vraagResponse(client.service.vraag(zoekvraag))
+    antwoord = client.service.vraag(zoekvraag)
 
-    return antwoord
+    return _to_holder(client.get_element("ns0:vraagResponse")(antwoord))
+
+
+def _to_holder(antwoord) -> Optional[Holder]:
+    # todo: test unhappy flow(s), no data etc.
+
+    voornamen = ""
+    geslachtsnaam = ""
+    geboortedatum = ""
+
+    # This is by design.
+    for persoonslijst in antwoord.vraagReturn.persoonslijsten.item:
+        for categoriestapel in persoonslijst.categoriestapels.item:
+            for categorievoorkomen in categoriestapel.categorievoorkomens.item:
+                if categorievoorkomen.categorienummer != 1:
+                    continue
+                for element in categorievoorkomen.elementen.item:
+                    if element.nummer == 210:
+                        voornamen = element.waarde
+                    if element.nummer == 240:
+                        geslachtsnaam = element.waarde
+                    if element.nummer == 310:
+                        geboortedatum = element.waarde
+
+    # todo: Dutchbirthdate has to be able to deal with 00000000 and yyyymmdd format.
+    # for now patch the date to something we can handle, the year 0000 is fine for now.
+    # todo: test ugly conversion / factor out.
+    bd = (
+        f"{geboortedatum[0:4]}-"
+        f"{geboortedatum[4:6] if geboortedatum[4:6] != '00' else 'XX'}-"
+        f"{geboortedatum[6:8] if geboortedatum[6:8] != '00' else 'XX'}"
+    )
+    print(bd)
+    return Holder(firstName=voornamen, lastName=geslachtsnaam, birthDate=bd)

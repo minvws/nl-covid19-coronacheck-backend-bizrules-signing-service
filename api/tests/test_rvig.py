@@ -1,11 +1,16 @@
-from api.enrichment.rvig.rvig import get_pii
+from api.enrichment.rvig.rvig import get_pii_from_rvig
+from api.models import DutchBirthDate
+from api.utils import read_file
 
 
-def test_get_pii():
-    # print(get_pii("999998298"))
-    # print(get_pii("000009830"))
-    # print(get_pii("999995571"))
-    print(get_pii("000009829"))
+def test_get_pii_happy_flow(requests_mock, current_path):
+    requests_mock.post(
+        url="https://147.181.7.110/gba-v/online/lo3services/adhoc",
+        text=read_file(f"{current_path}/rvig/999995571.xml"),
+    )
 
-    data = get_pii("000009829")
-    data.vraagResponse.dasnk
+    holder = get_pii_from_rvig("999995571")
+
+    assert holder.firstName == "Naomi"
+    assert holder.lastName == "Goede"
+    assert holder.birthDate == DutchBirthDate("1987-04-01")
