@@ -61,13 +61,11 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
     # Now decompose and decrypt the message
     first_provider = json_content[0]
     unomi = jwt.decode(
-        # decode uses the plural algorithms and requires an audience (which can be extracted from the exception)
         first_provider["unomi"],
         settings.IDENTITY_HASH_JWT_PUBLIC_KEY,
         audience="https://example.com/unomi/v2/",
         algorithms=["RS256"],
     )
-    unomi = jwt.decode(first_provider["unomi"],  settings.IDENTITY_HASH_JWT_PUBLIC_KEY,  audience="https://example.com/unomi/v2/",     algorithms=["RS256"])
     assert unomi == {
         "aud": "https://example.com/unomi/v2/",
         "exp": 1580688000,
