@@ -49,6 +49,7 @@ class AppSettings(BaseSettings):
     SBVZ_WSDL_ENVIRONMENT: str = ""
     SBVZ_CERT: str = ""
     RVIG_CERT_FILENAME: str = ""
+    RVIG_CERT: str = ""
     RVIG_USERNAME: str = ""
     RVIG_PASSWORD: str = ""
 
@@ -137,6 +138,7 @@ def settings_factory(env_file: pathlib.Path) -> AppSettings:
     )
     # _settings.SBVZ_CERT = read_file(INGE4_ROOT.joinpath(f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}"))
     _settings.SBVZ_CERT = f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}"
+    _settings.RVIG_CERT = f"{_settings.SECRETS_FOLDER}/{_settings.RVIG_CERT_FILENAME}"
 
     _settings.INGE4_NACL_PRIVATE_KEY = read_nacl_private_key(
         f"{_settings.SECRETS_FOLDER}/{_settings.INGE4_NACL_PRIVATE_KEY_FILE}"
