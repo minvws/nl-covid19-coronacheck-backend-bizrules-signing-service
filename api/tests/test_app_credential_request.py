@@ -16,7 +16,7 @@ def test_app_credential_request(requests_mock, current_path, redis_db):
     # mock redis, disableW0212 since we should be able to access private members for mocking
     session_store._redis = redis_db  # pylint: disable=W0212
     # create fake session:
-    session_token = session_store.store_message(b'{"some": "data"}')
+    session_token = session_store.store_message(b64encode(b'{"some": "data"}'))
     client = TestClient(app)
 
     events = json5.loads(read_file(current_path.joinpath("test_data/events1.json5")))
