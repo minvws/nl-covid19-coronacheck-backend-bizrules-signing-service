@@ -48,6 +48,9 @@ class AppSettings(BaseSettings):
     IDENTITY_HASH_JWT_ISSUER_CLAIM: str = "jwt.test.coronacheck.nl"
     SBVZ_WSDL_ENVIRONMENT: str = ""
     SBVZ_CERT: str = ""
+    RVIG_CERT_FILENAME: str = ""
+    RVIG_USERNAME: str = ""
+    RVIG_PASSWORD: str = ""
 
     DOMESTIC_NL_VWS_PREPARE_ISSUE_URL: AnyHttpUrl = Field()
     DOMESTIC_NL_VWS_PAPER_SIGNING_URL: AnyHttpUrl = Field()
