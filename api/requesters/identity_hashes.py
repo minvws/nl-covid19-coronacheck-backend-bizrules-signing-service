@@ -173,5 +173,5 @@ def calculate_identity_hash(bsn: str, pii: Holder, key: str) -> str:
     """
 
     # echo -n "000000012-Pluk-Petteflet-01" | openssl dgst -sha256 -hmac "ZrHsI6MZmObcqrSkVpea"
-    message = "-".join([bsn, pii.firstName, pii.lastName, pii.birthDate.day]).encode()
+    message = "-".join([bsn, pii.firstName, pii.lastName, str(pii.birthDate.day)]).encode()
     return hmac256(message, key.encode()).hex()

@@ -34,8 +34,8 @@ def test_validate_bearer():
 @freeze_time("2020-02-02")
 def test_sign_via_app_step_1(requests_mock, current_path, mocker):
     requests_mock.post(
-        url="http://localhost:8001/cibg.sbv.testtool.webservice.dec14/opvragenpersoonsgegevens.asmx",
-        text=read_file(f"{current_path}/sbvz/direct_match_correct_response.xml"),
+        url="https://147.181.7.110/gba-v/online/lo3services/adhoc",
+        text=read_file(f"{current_path}/rvig/999995571.xml"),
     )
     encrypted_bsn = "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMUND6owfnEdTl4ZeCzPiQwdQNv39vIpNeMlJ8g=="  # bsn=999999138
     requests_mock.post(
@@ -71,7 +71,7 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
         "aud": "https://example.com/unomi/v2/",
         "exp": 1580688000,
         "iat": 1580601600,
-        "identity_hash": "2874fbb129ebe2085b3d9fd43d9326023ad3422075125d668f6c3c1b67cad9d8",
+        "identity_hash": "c06262ecc1b8a5162b147c11f459a36a986811caf76f1571926168c8be503b11",
         "iss": "jwt.test.coronacheck.nl",
         "nbf": 1580601600,
     }
@@ -87,7 +87,7 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
         "bsn": "fb8556301733648f2a2cf721499b3b0690d9d872d4293ed111",
         "exp": 1580688000,
         "iat": 1580601600,
-        "identity_hash": "2874fbb129ebe2085b3d9fd43d9326023ad3422075125d668f6c3c1b67cad9d8",
+        "identity_hash": "c06262ecc1b8a5162b147c11f459a36a986811caf76f1571926168c8be503b11",
         "iss": "jwt.test.coronacheck.nl",
         "nbf": 1580601600,
         "nonce": "303132333435363738393031323334353637383930313233",
