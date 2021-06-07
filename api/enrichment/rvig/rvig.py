@@ -105,7 +105,6 @@ def get_pii_from_rvig(bsn: str) -> Optional[Holder]:
     todo: deal with possible error codes. Give feedback.
     todo: add health check
     todo: requests.RequestException etc. Cert errors and whatnot.
-    todo: configure dev/prod
 
     WSDL Specificatie en mogelijke foutcodes: Zie bijlage C 7.3 van:
     https://www.rvig.nl/documenten/publicaties/2020/10/05/logisch-ontwerp-gba-versie-3.13a
@@ -154,6 +153,7 @@ def _to_holder(antwoord) -> Optional[Holder]:
     geslachtsnaam = ""
     geboortedatum = ""
 
+    # todo: is there an "only first name" option / Roepnaam? Because dual names ""
     # This is by design.
     for persoonslijst in antwoord.vraagReturn.persoonslijsten.item:
         for categoriestapel in persoonslijst.categoriestapels.item:
@@ -162,7 +162,6 @@ def _to_holder(antwoord) -> Optional[Holder]:
                     continue
                 for element in categorievoorkomen.elementen.item:
                     if element.nummer == 210:
-                        # todo: is there an "only first name" option / Roepnaam? Because dual names ""
                         voornamen = element.waarde
                     if element.nummer == 240:
                         geslachtsnaam = element.waarde
