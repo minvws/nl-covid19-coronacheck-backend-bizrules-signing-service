@@ -144,6 +144,6 @@ def get_pii(bsn: str):
         parameters=[{"item": [{"zoekwaarde": bsn, "rubrieknummer": 10120}]}],
         masker=[{"item": [RVIG_VOORNAAM, RVIG_GESLACHTSNAAM, RVIG_GEBOORTEDATUM]}],
     )
-    antwoord = client.service.vraag(zoekvraag)
+    antwoord = factory.vraagResponse(client.service.vraag(zoekvraag))
 
     return antwoord
