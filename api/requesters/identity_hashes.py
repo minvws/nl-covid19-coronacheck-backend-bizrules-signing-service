@@ -30,7 +30,7 @@ async def retrieve_bsn_from_inge6(jwt_token: str):
 
     try:
         _payload = jwt.decode(
-            jwt_token, key=settings.INGE6_JWT_PUBLIC_CRT, algorithms=["RS256"], audience=["test_client"]
+            jwt_token, key=settings.INGE6_JWT_PUBLIC_CRT, algorithms=["RS256"], audience=[settings.INGE4_JWT_AUDIENCE]
         )
     except jwt.DecodeError as err:
         log.warning(f"invalid jwt entered: {repr(err)}")
@@ -73,7 +73,7 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
 
     tokens = []
     for data_provider in settings.EVENT_DATA_PROVIDERS:
-        generic_data["identity_hash"] = calculate_identity_hash(
+        generic_data["identityhash"] = calculate_identity_hash(
             bsn,
             pii,
             key=data_provider["identity_hash_secret"],
@@ -141,8 +141,8 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
         tokens.append(
             EventDataProviderJWT(
                 provider_identifier=data_provider["identifier"],
-                unomi=jwt.encode(unomi_jwt_data, settings.IDENTITY_HASH_JWT_PRIVATE_KEY, algorithm="HS256"),
-                event=jwt.encode(event_jwt_data, settings.IDENTITY_HASH_JWT_PRIVATE_KEY, algorithm="HS256"),
+                unomi=jwt.encode(unomi_jwt_data, settings.IDENTITY_HASH_JWT_PRIVATE_KEY, algorithm="RS256"),
+                event=jwt.encode(event_jwt_data, settings.IDENTITY_HASH_JWT_PRIVATE_KEY, algorithm="RS256"),
             )
         )
 
