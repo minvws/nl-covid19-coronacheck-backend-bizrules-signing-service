@@ -134,7 +134,9 @@ def get_pii_from_rvig(bsn: str) -> Optional[Holder]:
     session.verify = False
     session.cert = settings.RVIG_CERT
     session.auth = HTTPBasicAuth(username=settings.RVIG_USERNAME, password=settings.RVIG_PASSWORD)
-    client = Client(wsdl=f"{INGE4_ROOT}/api/enrichment/rvig/dev_LrdPlus1_1.wsdl", transport=Transport(session=session))
+    wsdl = f"{INGE4_ROOT}/api/enrichment/rvig/{settings.RVIG_ENVIRONMENT}_LrdPlus1_1.wsdl"
+    transport = Transport(session=session)
+    client = Client(wsdl=wsdl, transport=transport)
     factory = client.type_factory("ns0")
     zoekvraag = factory.Vraag(
         parameters=[{"item": [{"zoekwaarde": bsn, "rubrieknummer": 10120}]}],
@@ -160,6 +162,7 @@ def _to_holder(antwoord) -> Optional[Holder]:
                     continue
                 for element in categorievoorkomen.elementen.item:
                     if element.nummer == 210:
+                        # todo: is there an "only first name" option / Roepnaam? Because dual names ""
                         voornamen = element.waarde
                     if element.nummer == 240:
                         geslachtsnaam = element.waarde

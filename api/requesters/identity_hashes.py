@@ -14,7 +14,8 @@ from nacl.public import Box, PrivateKey, PublicKey
 from nacl.utils import random
 
 from api.enrichment import sbvz
-from api.models import EventDataProviderJWT
+from api.enrichment.rvig.rvig import get_pii_from_rvig
+from api.models import EventDataProviderJWT, Holder
 from api.settings import settings
 from api.utils import hmac256, request_post_with_retries
 
@@ -73,7 +74,9 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
         "exp": now + timedelta(days=1),  # Expire at
     }
 
-    errors, pii = sbvz.call_app_step_1(bsn)
+    # todo: deal with errors.
+    errors = None
+    holder: Holder = get_pii_from_rvig(bsn)
     if errors:
         # Service might be down etc.
         log.error(errors)
@@ -84,7 +87,7 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
 
         generic_data["identity_hash"] = calculate_identity_hash(
             bsn,
-            pii,
+            holder,
             key=data_provider["identity_hash_secret"],
         )
 
@@ -158,7 +161,7 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
     return tokens
 
 
-def calculate_identity_hash(bsn: str, pii: Dict[str, str], key: str) -> str:
+def calculate_identity_hash(bsn: str, pii: Holder, key: str) -> str:
     """
     Args:
         bsn: bsn number
@@ -170,5 +173,5 @@ def calculate_identity_hash(bsn: str, pii: Dict[str, str], key: str) -> str:
     """
 
     # echo -n "000000012-Pluk-Petteflet-01" | openssl dgst -sha256 -hmac "ZrHsI6MZmObcqrSkVpea"
-    message = "-".join([bsn, pii["first_name"], pii["last_name"], pii["day_of_birth"]]).encode()
+    message = "-".join([bsn, pii.firstName, pii.lastName, pii.birthDate.day]).encode()
     return hmac256(message, key.encode()).hex()

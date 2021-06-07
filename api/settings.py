@@ -52,6 +52,8 @@ class AppSettings(BaseSettings):
     RVIG_CERT: str = ""
     RVIG_USERNAME: str = ""
     RVIG_PASSWORD: str = ""
+    # todo: add enum validation to dev or prod.
+    RVIG_ENVIRONMENT: str = "dev"
 
     DOMESTIC_NL_VWS_PREPARE_ISSUE_URL: AnyHttpUrl = Field()
     DOMESTIC_NL_VWS_PAPER_SIGNING_URL: AnyHttpUrl = Field()
