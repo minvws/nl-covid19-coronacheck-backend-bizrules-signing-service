@@ -149,11 +149,11 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "dn": 1,
                 "dt": datetime(2021, 2, 1).date(),
                 "is": "Ministry of Health Welfare and Sport",
-                "ma": "JANSSEN",
-                "mp": "COVID-19 VACCIN JANSSEN INJVLST 0,5ML",
+                "ma": "ORG-100001417",  # "JANSSEN"
+                "mp": "EU/1/20/1525",  # "COVID-19 VACCIN JANSSEN INJVLST 0,5ML"
                 "sd": 2,
                 "tg": "840539006",
-                "vp": "C19-mRNA",
+                "vp": "J07BX03",  # "C19-mRNA"
             }
         ],
         "ver": "1.0.0",
@@ -178,11 +178,11 @@ def test_eusign_with_empty_fields(mocker):
                 "dn": 1,
                 "dt": date(2021, 2, 1),
                 "is": "Ministry of Health Welfare and Sport",
-                "ma": "JANSSEN",
-                "mp": "COVID-19 VACCIN JANSSEN INJVLST 0,5ML",
+                "ma": "ORG-100001417",  # "JANSSEN"
+                "mp": "EU/1/20/1525",  # "COVID-19 VACCIN JANSSEN INJVLST 0,5ML"
                 "sd": 2,
                 "tg": "840539006",
-                "vp": "C19-mRNA",
+                "vp": "J07BX03",  # "C19-mRNA"
             }
         ],
         "ver": "1.0.0",

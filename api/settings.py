@@ -40,6 +40,7 @@ class AppSettings(BaseSettings):
     #      we should not even start if the config is not secure enough
 
     SECRETS_FOLDER: pathlib.Path = Field("")
+    CONFIG_FOLDER: pathlib.Path = Field("")
     EVENT_DATA_PROVIDERS_FILENAME: str = ""
     DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME: str = ""
     SBVZ_CERT_FILENAME: str = ""
@@ -48,6 +49,9 @@ class AppSettings(BaseSettings):
     IDENTITY_HASH_JWT_ISSUER_CLAIM: str = "jwt.test.coronacheck.nl"
     SBVZ_WSDL_ENVIRONMENT: str = ""
     SBVZ_CERT: str = ""
+
+    HPK_MAPPING_FILE: str = ""
+    HPK_MAPPING: Dict[Optional[str], Any] = {}
 
     DOMESTIC_NL_VWS_PREPARE_ISSUE_URL: AnyHttpUrl = Field()
     DOMESTIC_NL_VWS_PAPER_SIGNING_URL: AnyHttpUrl = Field()
@@ -124,10 +128,21 @@ def settings_factory(env_file: pathlib.Path) -> AppSettings:
     _settings = AppSettings(_env_file=env_file)
 
     _settings.SECRETS_FOLDER = INGE4_ROOT.joinpath(_settings.SECRETS_FOLDER)
+    _settings.CONFIG_FOLDER = INGE4_ROOT.joinpath(_settings.CONFIG_FOLDER)
 
     _settings.EVENT_DATA_PROVIDERS = json5.loads(
         read_file(f"{_settings.SECRETS_FOLDER}/{_settings.EVENT_DATA_PROVIDERS_FILENAME}")
     )
+
+    hpk_mapping = json5.loads(read_file(f"{_settings.CONFIG_FOLDER}/{_settings.HPK_MAPPING_FILE}"))
+
+    if "hpk_codes" in hpk_mapping:
+        # in case the content is just the output of hpkcodes.nl
+        hpk_mapping = {
+            hpk["hpk_code"]: {"vp": hpk["vp"], "mp": hpk["mp"], "ma": hpk["ma"]} for hpk in hpk_mapping["hpk_codes"]
+        }
+    _settings.HPK_MAPPING = hpk_mapping
+    # _settings.HPK_MAPPING = {hpk_info["hpk_code"]: hpk_info for hpk_info in hpk_mapping["hpk_codes"]}
 
     _settings.IDENTITY_HASH_JWT_PRIVATE_KEY = read_file(
         f"{_settings.SECRETS_FOLDER}/{_settings.DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME}"

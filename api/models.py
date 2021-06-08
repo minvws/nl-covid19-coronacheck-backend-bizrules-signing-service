@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 from unidecode import unidecode
 
 from api.attribute_allowlist import domestic_signer_attribute_allow_list
+from api.settings import settings
 
 
 class DutchBirthDate(str):
@@ -224,7 +225,9 @@ class Vaccination(BaseModel):  # noqa
     hpkCode: Optional[str] = Field(example="2924528", description="hpkcode.nl, will be used to fill EU fields")
     type: Optional[str] = Field(example="1119349007", description="Can be left blank if hpkCode is entered.")
     manufacturer: Optional[str] = Field(description="Can be left blank if hpkCode is entered.", example="ORG-100030215")
-    brand: str = Field(example="EU/1/20/1507")  # todo: what format is this? how?
+    brand: str = Field(
+        description="Can be left blank if hpkCode is entered.", example="EU/1/20/1507"
+    )  # todo: what format is this? how?
     completedByMedicalStatement: Optional[bool] = Field(
         description="If this vaccination is enough to be fully vaccinated"
     )
@@ -250,6 +253,7 @@ class Vaccination(BaseModel):  # noqa
                     "dt": self.date,
                 },
                 **SharedEuropeanFields.as_dict(),
+                **settings.HPK_MAPPING.get(self.hpkCode, {}),  # this mapping contains the vp, mp and ma
             }
         )
 
