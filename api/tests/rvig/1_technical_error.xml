@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <vraagResponse xmlns:ns2="http://www.bprbzk.nl/GBA/LO3/version1.1"
+                       xmlns="http://www.bprbzk.nl/GBA/LRDPlus/version1.1">
+            <vraagReturn>
+                <persoonslijsten/>
+                <resultaat>
+                    <code>1</code>
+                    <letter>X</letter>
+                    <omschrijving>Aantal: 1.</omschrijving>
+                    <referentie>94982454</referentie>
+                </resultaat>
+            </vraagReturn>
+        </vraagResponse>
+    </soap:Body>
+</soap:Envelope>
