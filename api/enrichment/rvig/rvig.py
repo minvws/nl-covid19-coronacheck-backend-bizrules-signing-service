@@ -162,12 +162,13 @@ def deal_with_error_codes(vraag_response) -> None:
 
     res = vraag_response.vraagReturn.resultaat
 
-    log.error(f"RVIG fout. Code: {res.code}, Letter: {res.letter}, "
-              f"Omschrijving: {res.omschrijving}, Referentie: {res.referentie}.")
+    log.error(
+        f"RVIG fout. Code: {res.code}, Letter: {res.letter}, "
+        f"Omschrijving: {res.omschrijving}, Referentie: {res.referentie}."
+    )
     # Do not give feedback about what exactly went wrong
     raise HTTPException(
-        500,
-        detail="Error processing result from enrichment service. Possibly no or incorrect data returned."
+        500, detail="Error processing result from enrichment service. Possibly no or incorrect data returned."
     )
 
 
@@ -194,9 +195,7 @@ def _to_holder(vraag_response) -> Holder:
                         geboortedatum = element.waarde
 
     return Holder(
-        firstName=voornamen,
-        lastName=geslachtsnaam,
-        birthDate=rvig_birtdate_to_dutch_birthdate(geboortedatum)
+        firstName=voornamen, lastName=geslachtsnaam, birthDate=rvig_birtdate_to_dutch_birthdate(geboortedatum)
     )
 
 
