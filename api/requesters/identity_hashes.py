@@ -13,8 +13,8 @@ from nacl.encoding import Base64Encoder
 from nacl.public import Box, PrivateKey, PublicKey
 from nacl.utils import random
 
-from api.enrichment import sbvz
-from api.models import EventDataProviderJWT
+from api.enrichment.rvig.rvig import get_pii_from_rvig
+from api.models import EventDataProviderJWT, Holder
 from api.settings import settings
 from api.utils import hmac256, request_post_with_retries
 
@@ -65,7 +65,9 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
         "exp": now + timedelta(days=1),  # Expire at
     }
 
-    errors, pii = sbvz.call_app_step_1(bsn)
+    # todo: deal with errors.
+    errors = None
+    holder = get_pii_from_rvig(bsn)
     if errors:
         # Service might be down etc.
         log.error(errors)
@@ -75,7 +77,7 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
     for data_provider in settings.EVENT_DATA_PROVIDERS:
         generic_data["identityhash"] = calculate_identity_hash(
             bsn,
-            pii,
+            holder,
             key=data_provider["identity_hash_secret"],
         )
 
@@ -149,7 +151,19 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
     return tokens
 
 
-def calculate_identity_hash(bsn: str, pii: Dict[str, str], key: str) -> str:
+def calculate_identity_hash_message(bsn: str, pii: Holder) -> str:
+    # Strategy now: days from 0 to 31, where 0 is day not known.
+    # Separated to make easier tests on empty dates for different providers
+    # Todo: get to know strategy from providers
+    # Todo: is the day zerofilled?
+    day = pii.birthDate.day
+    if not pii.birthDate.day:
+        day = 0
+
+    return "-".join([bsn, pii.firstName, pii.lastName, str(day)])
+
+
+def calculate_identity_hash(bsn: str, pii: Holder, key: str) -> str:
     """
     Args:
         bsn: bsn number
@@ -158,8 +172,10 @@ def calculate_identity_hash(bsn: str, pii: Dict[str, str], key: str) -> str:
 
     Returns:
         the hash of the bsn and values in pii
+
+    Note: Day can be empty: not all citizens have a birth day / birth month. In that case add an empty string.
     """
 
-    # echo -n "000000012-Pluk-Petteflet-01" | openssl dgst -sha256 -hmac "ZrHsI6MZmObcqrSkVpea"
-    message = "-".join([bsn, pii["first_name"], pii["last_name"], pii["day_of_birth"]]).encode()
-    return hmac256(message, key.encode()).hex()
+    # echo -n "000000012-Pluk-Petteflet-1" | openssl dgst -sha256 -hmac "ZrHsI6MZmObcqrSkVpea"
+    message = calculate_identity_hash_message(bsn, pii)
+    return hmac256(message.encode(), key.encode()).hex()

@@ -19,7 +19,7 @@ The secrets needed are:
 
 - vaccinationproviders.json5 - a database of vaccination providers, used for the mobile app
 - jwt_private.key - For jwt sigingin in the mobile app
-- sbvz-connect.test.brba.nl.cert - For data enrichment in the mobile app
+- tvs-connect.test.coronacheck.nl.key.nopass - For data enrichment in the mobile app
 
 Some examples are stored in 'tests/secrets'. Do NOT use these examples in production!
 
@@ -86,13 +86,13 @@ EU_INTERNATIONAL_SIGNING_URL = http://localhost:4002/get_credential
 INGE6_BSN_RETRIEVAL_URL = https://tvs-connect.acc.coronacheck.nl/bsn_attribute
 
 
-### Run the sbvz mock service:
+### Run the rvig mock service:
 This mocks https://raadplegen.sbv-z.nl on localhost:8001
 ```make run-mock mock_port=8001```
 
 the url where it expects the sbv-z mock to live
 can be changed by modifying the wsdl files in
-api/enrichment/sbvz_api/wsdl/mock
+api/enrichment/rvig_api/wsdl/mock
 
 On some environments the make file is not available and one should execute:
 

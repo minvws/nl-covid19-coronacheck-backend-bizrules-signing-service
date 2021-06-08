@@ -20,59 +20,54 @@ mock_data = json_from_test_data_file("pii_for_mock-v04.json")
 #  }
 # }
 
-SBVZ_RESPONSE = """<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <soap:Body>
-    <OpvragenPersoonsgegevensResponse xmlns="http://CIBG.SBV.Interface.XIS.Webservice/dec14">
-      <OpvragenPersoonsgegevensAntwoordBericht>
-        <Vraag>
-          <BSN>{bsn}</BSN>
-        </Vraag>
-        <Antwoord>
-          <Persoon>
-            <BSN>{bsn}</BSN>
-            <Voornamen Afwijkend="false">{firstName}</Voornamen>
-            <AdellijkeTitelPredikaat>H</AdellijkeTitelPredikaat>
-            <VoorvoegselGeslachtsnaam Afwijkend="false">{infix}</VoorvoegselGeslachtsnaam>
-            <Geslachtsnaam Afwijkend="false">{lastName}</Geslachtsnaam>
-            <Geboortedatum Afwijkend="false">{birthDate}</Geboortedatum>
-            <Geboorteplaats Afwijkend="false">Test_Geboorteplaats</Geboorteplaats>
-            <Geboorteland Afwijkend="false">Test_Geboorteland</Geboorteland>
-            <Geslachtsaanduiding Afwijkend="false">M</Geslachtsaanduiding>
-          </Persoon>
-          <Adres>
-            <GemeenteVanInschrijving Afwijkend="false">Test_Gemeente van inschrijving</GemeenteVanInschrijving>
-            <FunctieAdres>Woonadres</FunctieAdres>
-            <Gemeentedeel>Test_Gemeentedeel</Gemeentedeel>
-            <Straatnaam Afwijkend="false">Test_Straatnaam</Straatnaam>
-            <Huisnummer Afwijkend="false">12345</Huisnummer>
-            <Huisletter Afwijkend="false">A</Huisletter>
-            <Huisnummertoevoeging Afwijkend="false">III</Huisnummertoevoeging>
-            <AanduidingBijHuisnummer Afwijkend="false">to</AanduidingBijHuisnummer>
-            <Postcode Afwijkend="false">1234AB</Postcode>
-            <Locatiebeschrijving>Test_Locatiebeschrijving</Locatiebeschrijving>
-            <LandVanwaarIngeschreven>Test_Land vanwaar ingeschreven</LandVanwaarIngeschreven>
-            <Woonplaatsnaam>Test_Woonplaatsnaam</Woonplaatsnaam>
-            <Regel1AdresBuitenland/>
-            <Regel2AdresBuitenland/>
-            <Regel3AdresBuitenland/>
-            <LandAdresBuitenland/>
-            <DatumAanvangAdresBuitenland/>
-          </Adres>
-          <Inschrijving>
-            <IndicatieGeheim>Geen beperking</IndicatieGeheim>
-          </Inschrijving>
-        </Antwoord>
-        <Resultaat>G</Resultaat>
-        <Melding Soort="G" Code="3002">BSN gevonden. Controleert u zorgvuldig of het resultaat bij de juiste persoon hoort voor u deze gegevens verder gebruikt.</Melding>
-      </OpvragenPersoonsgegevensAntwoordBericht>
-    </OpvragenPersoonsgegevensResponse>
-  </soap:Body>
-</soap:Envelope>"""
+RVIG_RESPONSE = """<?xml version='1.0' encoding='UTF-8'?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <vraagResponse xmlns:ns2="http://www.bprbzk.nl/GBA/LO3/version1.1" xmlns="http://www.bprbzk.nl/GBA/LRDPlus/version1.1">
+            <vraagReturn>
+                <persoonslijsten>
+                    <ns2:item>
+                        <ns2:categoriestapels>
+                            <ns2:item>
+                                <ns2:categorievoorkomens>
+                                    <ns2:item>
+                                        <ns2:categorienummer>1</ns2:categorienummer>
+                                        <ns2:elementen>
+                                            <ns2:item>
+                                                <ns2:nummer>210</ns2:nummer>
+                                                <ns2:waarde>{firstName}</ns2:waarde>
+                                            </ns2:item>
+                                            <ns2:item>
+                                                <ns2:nummer>240</ns2:nummer>
+                                                <ns2:waarde>{lastName}</ns2:waarde>
+                                            </ns2:item>
+                                            <ns2:item>
+                                                <ns2:nummer>310</ns2:nummer>
+                                                <ns2:waarde>{birthDate}</ns2:waarde>
+                                            </ns2:item>
+                                        </ns2:elementen>
+                                    </ns2:item>
+                                </ns2:categorievoorkomens>
+                            </ns2:item>
+                        </ns2:categoriestapels>
+                    </ns2:item>
+                </persoonslijsten>
+                <resultaat>
+                    <code>0</code>
+                    <letter>A</letter>
+                    <omschrijving>Aantal: 1.</omschrijving>
+                    <referentie>94937850</referentie>
+                </resultaat>
+            </vraagReturn>
+        </vraagResponse>
+    </soap:Body>
+</soap:Envelope>
+"""
 
 
 async def app(scope, receive, send):
     logging.error(scope)
+    # {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.1'}, 'http_version': '1.1',
     # {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.1'}, 'http_version': '1.1',
     # 'server': ('127.0.0.1', 80), 'client': ('127.0.0.1', 63760), 'scheme': 'http', 'method': 'POST', 'root_path': '',
     # 'path': '/cibg.sbv.testtool.webservice.dec14/opvragenpersoonsgegevens.asmx',
@@ -84,8 +79,8 @@ async def app(scope, receive, send):
     # {'type': 'http.request', 'body': b'<test>', 'more_body': False}
     body = received["body"]
 
-    if scope["path"] == "/cibg.sbv.testtool.webservice.dec14/opvragenpersoonsgegevens.asmx":
-        bsn_match = re.search("<ns0:BSN>([0-9]*)<\\/ns0:BSN><\\/ns0:Vraag>", body.decode())
+    if scope["path"] == "/gba-v/online/lo3services/adhoc":
+        bsn_match = re.search("<ns0:zoekwaarde>([0-9]*)<\\/ns0:zoekwaarde>", body.decode())
         if bsn_match:
             bsn = bsn_match.groups()[0]
         else:
@@ -104,9 +99,10 @@ async def app(scope, receive, send):
         if bsn in mock_data:
             holder = mock_data[bsn]["holder"]
             holder["birthDate"] = holder["birthDate"][:10].replace("-", "")
-            response = SBVZ_RESPONSE.format(bsn=bsn, **holder)
+            del holder["infix"]
+            response = RVIG_RESPONSE.format(**holder)
         else:
-            response = read_file(f"{TESTS_DIR}/sbvz/direct_match_correct_response.xml")
+            response = read_file(f"{TESTS_DIR}/rvig/1_technical_error.xml")
         await send(
             {
                 "type": "http.response.body",

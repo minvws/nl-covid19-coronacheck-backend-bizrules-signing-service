@@ -43,13 +43,16 @@ class AppSettings(BaseSettings):
     EVENT_DATA_PROVIDERS_FILENAME: str = ""
     DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME: str = ""
     DYNAMIC_FLOW_JWT_PUBLIC_KEY_FILENAME: str = ""
-    SBVZ_CERT_FILENAME: str = ""
     EVENT_DATA_PROVIDERS: List[Dict[str, Any]] = []
     IDENTITY_HASH_JWT_PRIVATE_KEY: str = ""
     IDENTITY_HASH_JWT_PUBLIC_KEY: str = ""
     IDENTITY_HASH_JWT_ISSUER_CLAIM: str = "jwt.test.coronacheck.nl"
-    SBVZ_WSDL_ENVIRONMENT: str = ""
-    SBVZ_CERT: str = ""
+    RVIG_CERT_FILENAME: str = ""
+    RVIG_CERT: str = ""
+    RVIG_USERNAME: str = ""
+    RVIG_PASSWORD: str = ""
+    # todo: add enum validation to dev or prod. Todo: rename to WSDL_ENVIRONMENT
+    RVIG_ENVIRONMENT: str = "dev"
 
     DOMESTIC_NL_VWS_PREPARE_ISSUE_URL: AnyHttpUrl = Field()
     DOMESTIC_NL_VWS_PAPER_SIGNING_URL: AnyHttpUrl = Field()
@@ -135,11 +138,10 @@ def settings_factory(env_file: pathlib.Path) -> AppSettings:
     _settings.IDENTITY_HASH_JWT_PRIVATE_KEY = read_file(
         f"{_settings.SECRETS_FOLDER}/{_settings.DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME}"
     )
+    _settings.RVIG_CERT = f"{_settings.SECRETS_FOLDER}/{_settings.RVIG_CERT_FILENAME}"
     _settings.IDENTITY_HASH_JWT_PUBLIC_KEY = read_file(
         f"{_settings.SECRETS_FOLDER}/{_settings.DYNAMIC_FLOW_JWT_PUBLIC_KEY_FILENAME}"
     )
-    # _settings.SBVZ_CERT = read_file(INGE4_ROOT.joinpath(f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}"))
-    _settings.SBVZ_CERT = f"{_settings.SECRETS_FOLDER}/{_settings.SBVZ_CERT_FILENAME}"
 
     _settings.INGE4_NACL_PRIVATE_KEY = read_nacl_private_key(
         f"{_settings.SECRETS_FOLDER}/{_settings.INGE4_NACL_PRIVATE_KEY_FILE}"
