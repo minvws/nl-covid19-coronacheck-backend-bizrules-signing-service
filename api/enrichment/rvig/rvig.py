@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from requests.auth import HTTPBasicAuth
 from requests import Session
 from zeep import Client
@@ -100,11 +101,10 @@ Example response:
 
 def get_pii_from_rvig(bsn: str) -> Holder:
     """
-    todo: deal with possible error codes. Give feedback.
     todo: add health check
     todo: requests.RequestException etc. Cert errors and whatnot.
 
-    WSDL Specificatie en mogelijke foutcodes: Zie bijlage C 7.3 van:
+    WSDL Specificatie en mogelijke foutcodes: Zie bijlage C 7.3 van: Page 694
     https://www.rvig.nl/documenten/publicaties/2020/10/05/logisch-ontwerp-gba-versie-3.13a
 
     Testomgeving:
@@ -140,11 +140,38 @@ def get_pii_from_rvig(bsn: str) -> Holder:
         masker=[{"item": [RVIG_VOORNAAM, RVIG_GESLACHTSNAAM, RVIG_GEBOORTEDATUM]}],
     )
     antwoord = client.service.vraag(zoekvraag)
+    vraag_response = client.get_element("ns0:vraagResponse")(antwoord)
+    deal_with_error_codes(vraag_response)
+    return _to_holder(vraag_response)
 
-    return _to_holder(client.get_element("ns0:vraagResponse")(antwoord))
+
+def deal_with_error_codes(vraag_response) -> None:
+    # Todo: establish project-wide way to return errors.
+    """
+    <resultaat>
+        <code>0</code>
+        <letter>A</letter>
+        <omschrijving>Aantal: 1.</omschrijving>
+        <referentie>94937850</referentie>
+    </resultaat>
+    """
+
+    # No error. All good.
+    if vraag_response.vraagReturn.resultaat.code == 0:
+        return None
+
+    res = vraag_response.vraagReturn.resultaat
+
+    log.error(f"RVIG fout. Code: {res.code}, Letter: {res.letter}, "
+              f"Omschrijving: {res.omschrijving}, Referentie: {res.referentie}.")
+    # Do not give feedback about what exactly went wrong
+    raise HTTPException(
+        500,
+        detail="Error processing result from enrichment service. Possibly no or incorrect data returned."
+    )
 
 
-def _to_holder(antwoord) -> Holder:
+def _to_holder(vraag_response) -> Holder:
     # todo: test unhappy flow(s), no data etc.
 
     voornamen = ""
@@ -153,7 +180,7 @@ def _to_holder(antwoord) -> Holder:
 
     # todo: is there an "only first name" option / Roepnaam? Because dual names ""
     # This is by design.
-    for persoonslijst in antwoord.vraagReturn.persoonslijsten.item:
+    for persoonslijst in vraag_response.vraagReturn.persoonslijsten.item:
         for categoriestapel in persoonslijst.categoriestapels.item:
             for categorievoorkomen in categoriestapel.categorievoorkomens.item:
                 if categorievoorkomen.categorienummer != 1:
@@ -166,13 +193,21 @@ def _to_holder(antwoord) -> Holder:
                     if element.nummer == 310:
                         geboortedatum = element.waarde
 
-    # todo: Dutchbirthdate has to be able to deal with 00000000 and yyyymmdd format.
-    # for now patch the date to something we can handle, the year 0000 is fine for now.
-    # todo: test ugly conversion / factor out.
-    bd = (
-        f"{geboortedatum[0:4]}-"
-        f"{geboortedatum[4:6] if geboortedatum[4:6] != '00' else 'XX'}-"
-        f"{geboortedatum[6:8] if geboortedatum[6:8] != '00' else 'XX'}"
+    return Holder(
+        firstName=voornamen,
+        lastName=geslachtsnaam,
+        birthDate=rvig_birtdate_to_dutch_birthdate(geboortedatum)
     )
-    print(bd)
-    return Holder(firstName=voornamen, lastName=geslachtsnaam, birthDate=bd)
+
+
+def rvig_birtdate_to_dutch_birthdate(birthdate: str) -> str:
+    # The year 0000 is not accepted in the EU. The spec says:
+    # "Date of Birth of the person addressed in the DGC. ISO 8601 date format restricted to range 1900-2099"
+    # This converts from 00000000 -> 1970-XX-XX
+    birthdate = (
+        f"{birthdate[0:4] if birthdate[0:4] != '0000' else '1900'}-"
+        f"{birthdate[4:6] if birthdate[4:6] != '00' else 'XX'}-"
+        f"{birthdate[6:8] if birthdate[6:8] != '00' else 'XX'}"
+    )
+
+    return birthdate

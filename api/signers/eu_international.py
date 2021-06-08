@@ -17,6 +17,7 @@ TZ = pytz.timezone("UTC")
 def sign(statement: Events) -> List[EUGreenCard]:
     """
     Implements signing against: https://github.com/minvws/nl-covid19-coronacheck-hcert-private
+    https://github.com/ehn-dcc-development/ehn-dcc-schema/blob/release/1.0.1/DGC.combined-schema.json
 
     Business rules implemented below:
     - Only one signing event per type is sent tot he signer.
