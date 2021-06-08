@@ -98,6 +98,17 @@ Example response:
 </soap:Envelope>
 """
 
+# Performance optimization: set all of these things once and keep reusing them
+# todo: make more easily testable
+session = Session()
+session.verify = False
+session.cert = settings.RVIG_CERT
+session.auth = HTTPBasicAuth(username=settings.RVIG_USERNAME, password=settings.RVIG_PASSWORD)
+transport = Transport(session=session)
+wsdl = f"{INGE4_ROOT}/api/enrichment/rvig/{settings.RVIG_ENVIRONMENT}_LrdPlus1_1.wsdl"
+client = Client(wsdl=wsdl, transport=transport)
+factory = client.type_factory("ns0")
+
 
 def get_pii_from_rvig(bsn: str) -> Holder:
     """
@@ -127,20 +138,13 @@ def get_pii_from_rvig(bsn: str) -> Holder:
 
     log.debug(f"Connecting to RVIG with {settings.RVIG_CERT}.")
 
-    session = Session()
-    session.verify = False
-    session.cert = settings.RVIG_CERT
-    session.auth = HTTPBasicAuth(username=settings.RVIG_USERNAME, password=settings.RVIG_PASSWORD)
-    wsdl = f"{INGE4_ROOT}/api/enrichment/rvig/{settings.RVIG_ENVIRONMENT}_LrdPlus1_1.wsdl"
-    transport = Transport(session=session)
-    client = Client(wsdl=wsdl, transport=transport)
-    factory = client.type_factory("ns0")
     zoekvraag = factory.Vraag(
         parameters=[{"item": [{"zoekwaarde": bsn, "rubrieknummer": 10120}]}],
         masker=[{"item": [RVIG_VOORNAAM, RVIG_GESLACHTSNAAM, RVIG_GEBOORTEDATUM]}],
     )
     antwoord = client.service.vraag(zoekvraag)
     vraag_response = client.get_element("ns0:vraagResponse")(antwoord)
+
     deal_with_error_codes(vraag_response)
     return _to_holder(vraag_response)
 

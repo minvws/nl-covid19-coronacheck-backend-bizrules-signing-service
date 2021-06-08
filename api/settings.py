@@ -42,8 +42,10 @@ class AppSettings(BaseSettings):
     SECRETS_FOLDER: pathlib.Path = Field("")
     EVENT_DATA_PROVIDERS_FILENAME: str = ""
     DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME: str = ""
+    DYNAMIC_FLOW_JWT_PUBLIC_KEY_FILENAME: str = ""
     EVENT_DATA_PROVIDERS: List[Dict[str, Any]] = []
     IDENTITY_HASH_JWT_PRIVATE_KEY: str = ""
+    IDENTITY_HASH_JWT_PUBLIC_KEY: str = ""
     IDENTITY_HASH_JWT_ISSUER_CLAIM: str = "jwt.test.coronacheck.nl"
     RVIG_CERT_FILENAME: str = ""
     RVIG_CERT: str = ""
@@ -84,6 +86,7 @@ class AppSettings(BaseSettings):
     INGE4_NACL_PUBLIC_KEY_FILE: str = ""
     INGE6_NACL_PUBLIC_KEY_FILE: str = ""
     INGE6_JWT_PUBLIC_CRT_FILE: str = ""
+    INGE4_JWT_AUDIENCE: str = ""
 
     # the following initial values are just temporary and never used (overwritten by the factory code)
     # this is just to make mypy and linters stop complaining
@@ -136,6 +139,9 @@ def settings_factory(env_file: pathlib.Path) -> AppSettings:
         f"{_settings.SECRETS_FOLDER}/{_settings.DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME}"
     )
     _settings.RVIG_CERT = f"{_settings.SECRETS_FOLDER}/{_settings.RVIG_CERT_FILENAME}"
+    _settings.IDENTITY_HASH_JWT_PUBLIC_KEY = read_file(
+        f"{_settings.SECRETS_FOLDER}/{_settings.DYNAMIC_FLOW_JWT_PUBLIC_KEY_FILENAME}"
+    )
 
     _settings.INGE4_NACL_PRIVATE_KEY = read_nacl_private_key(
         f"{_settings.SECRETS_FOLDER}/{_settings.INGE4_NACL_PRIVATE_KEY_FILE}"

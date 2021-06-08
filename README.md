@@ -82,17 +82,29 @@ Assuming:
 EU_INTERNATIONAL_SIGNING_URL = http://localhost:4002/get_credential
 
 
-### Use the inge6 mock:
+### Use the inge6 staging acceptance environment:
 INGE6_BSN_RETRIEVAL_URL = https://tvs-connect.acc.coronacheck.nl/bsn_attribute
 
 
 ### Run the rvig mock service:
 This mocks https://raadplegen.sbv-z.nl on localhost:8001
-```make run-mock```
+```make run-mock mock_port=8001```
 
 the url where it expects the sbv-z mock to live
 can be changed by modifying the wsdl files in
 api/enrichment/rvig_api/wsdl/mock
+
+On some environments the make file is not available and one should execute:
+
+```. .venv/bin/activate && python3 -m uvicorn api.mock:app --reload --port 8001 --host localhost```
+
+Inside the inge-4 root instead. In order to restart the mock bpr service on
+Inge-4 with new data one just needs to replace the contents of the data in 
+`api/tests/test_data/pii_for_mock-v04.json`. The service is looking for 
+file changes in this directory and if a file changed it will restart
+automatically. If this is not the case then one should kill all processes 
+listening on port 8001 and start the service again.
+
 
 
 ### Run Inge4:

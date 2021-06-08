@@ -61,40 +61,39 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
     # Now decompose and decrypt the message
     first_provider = json_content[0]
     unomi = jwt.decode(
-        # decode uses the plural algorithms and requires an audience (which can be extracted from the exception)
         first_provider["unomi"],
-        settings.IDENTITY_HASH_JWT_PRIVATE_KEY,
+        settings.IDENTITY_HASH_JWT_PUBLIC_KEY,
         audience="https://example.com/unomi/v2/",
-        algorithms=["HS256"],
+        algorithms=["RS256"],
     )
     assert unomi == {
         "aud": "https://example.com/unomi/v2/",
         "exp": 1580688000,
         "iat": 1580601600,
-        "identity_hash": "c06262ecc1b8a5162b147c11f459a36a986811caf76f1571926168c8be503b11",
+        "identityhash": "c06262ecc1b8a5162b147c11f459a36a986811caf76f1571926168c8be503b11",
         "iss": "jwt.test.coronacheck.nl",
         "nbf": 1580601600,
     }
 
     event = jwt.decode(
         first_provider["event"],
-        settings.IDENTITY_HASH_JWT_PRIVATE_KEY,
+        settings.IDENTITY_HASH_JWT_PUBLIC_KEY,
         audience="https://example.com/events/v2/data/",
-        algorithms=["HS256"],
+        algorithms=["RS256"],
     )
     assert event == {
         "aud": "https://example.com/events/v2/data/",
         "bsn": "fb8556301733648f2a2cf721499b3b0690d9d872d4293ed111",
         "exp": 1580688000,
         "iat": 1580601600,
-        "identity_hash": "c06262ecc1b8a5162b147c11f459a36a986811caf76f1571926168c8be503b11",
+        "identityhash": "c06262ecc1b8a5162b147c11f459a36a986811caf76f1571926168c8be503b11",
         "iss": "jwt.test.coronacheck.nl",
         "nbf": 1580601600,
         "nonce": "303132333435363738393031323334353637383930313233",
         "roleIdentifier": "01",
     }
 
-    assert event["identity_hash"] == unomi["identity_hash"]
+    assert event["identityhash"] == unomi["identityhash"]
 
     # vaccination_provider = settings.EVENT_DATA_PROVIDERS[0]
     # private_key = PrivateKey(

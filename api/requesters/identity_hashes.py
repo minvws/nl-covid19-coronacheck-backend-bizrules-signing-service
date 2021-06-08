@@ -24,31 +24,23 @@ HTTPInvalidRetrievalTokenException = HTTPException(status_code=401, detail=["Inv
 
 
 async def retrieve_bsn_from_inge6(jwt_token: str):
-
     # If mock mode and INGE6_MOCK_MODE_BSN is set; dont actually go and get the BSN
     if settings.INGE6_MOCK_MODE and settings.INGE6_MOCK_MODE_BSN:
         return settings.INGE6_MOCK_MODE_BSN
 
     try:
-        payload = jwt.decode(jwt_token, key=settings.INGE6_JWT_PUBLIC_CRT, algorithms=["RS256"], audience=["inge4"])
+        _payload = jwt.decode(
+            jwt_token, key=settings.INGE6_JWT_PUBLIC_CRT, algorithms=["RS256"], audience=[settings.INGE4_JWT_AUDIENCE]
+        )
     except jwt.DecodeError as err:
         log.warning(f"invalid jwt entered: {repr(err)}")
         raise HTTPInvalidRetrievalTokenException from err
 
-    nonce = payload["at_hash"] + "CC"
+    headers = {"Authorization": f"Bearer {jwt_token}"}
 
-    if len(nonce) != inge6_box.NONCE_SIZE:
-        log.error("warning jwt token with wrong 'at_hash' length given")
-        raise HTTPInvalidRetrievalTokenException
-
-    querystring = {"at": jwt_token}
-
-    response = request_post_with_retries(settings.INGE6_BSN_RETRIEVAL_URL, data="", params=querystring)
+    response = request_post_with_retries(settings.INGE6_BSN_RETRIEVAL_URL, data="", headers=headers)
+    response.raise_for_status()
     encrypted_bsn = response.content
-
-    if not Base64Encoder.decode(encrypted_bsn)[: inge6_box.NONCE_SIZE] == nonce.encode():
-        log.warning("nonce is invalid")
-        raise HTTPInvalidRetrievalTokenException
 
     bsn = inge6_box.decrypt(encrypted_bsn, encoder=Base64Encoder)
     return bsn.decode()
@@ -83,8 +75,7 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
 
     tokens = []
     for data_provider in settings.EVENT_DATA_PROVIDERS:
-
-        generic_data["identity_hash"] = calculate_identity_hash(
+        generic_data["identityhash"] = calculate_identity_hash(
             bsn,
             holder,
             key=data_provider["identity_hash_secret"],
@@ -152,8 +143,8 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
         tokens.append(
             EventDataProviderJWT(
                 provider_identifier=data_provider["identifier"],
-                unomi=jwt.encode(unomi_jwt_data, settings.IDENTITY_HASH_JWT_PRIVATE_KEY, algorithm="HS256"),
-                event=jwt.encode(event_jwt_data, settings.IDENTITY_HASH_JWT_PRIVATE_KEY, algorithm="HS256"),
+                unomi=jwt.encode(unomi_jwt_data, settings.IDENTITY_HASH_JWT_PRIVATE_KEY, algorithm="RS256"),
+                event=jwt.encode(event_jwt_data, settings.IDENTITY_HASH_JWT_PRIVATE_KEY, algorithm="RS256"),
             )
         )
 
