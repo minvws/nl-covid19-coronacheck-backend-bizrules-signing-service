@@ -134,5 +134,3 @@ clean_venv:  # Remove venv
 	@echo "Cleaning venv"
 	@rm -rf .venv
 
-maartens_make: venv
-	. .venv/bin/activate && ${env} echo
