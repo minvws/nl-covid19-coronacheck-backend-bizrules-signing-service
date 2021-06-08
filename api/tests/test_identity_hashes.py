@@ -1,7 +1,8 @@
 import pytest
 from freezegun import freeze_time
 
-from api.requesters.identity_hashes import retrieve_bsn_from_inge6
+from api.models import Holder, DutchBirthDate
+from api.requesters.identity_hashes import retrieve_bsn_from_inge6, calculate_identity_hash_message
 from api.settings import settings
 from api.tests.test_utils import json_from_test_data_file
 
@@ -18,3 +19,12 @@ async def test_retrieve_bsn_from_inge6(jwt_token, expected_bsn, requests_mock):
     )
     bsn = await retrieve_bsn_from_inge6(jwt_token)
     assert bsn == expected_bsn
+
+
+def test_calculate_identity_hash_message():
+    assert (
+        calculate_identity_hash_message(
+            "999999138", Holder(firstName="A", lastName="B", birthDate=DutchBirthDate("1970-XX-XX"))
+        )
+        == "999999138-A-B-0"
+    )

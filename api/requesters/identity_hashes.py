@@ -151,6 +151,18 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
     return tokens
 
 
+def calculate_identity_hash_message(bsn: str, pii: Holder) -> str:
+    # Strategy now: days from 0 to 31, where 0 is day not known.
+    # Separated to make easier tests on empty dates for different providers
+    # Todo: get to know strategy from providers
+    # Todo: is the day zerofilled?
+    day = pii.birthDate.day
+    if not pii.birthDate.day:
+        day = 0
+
+    return "-".join([bsn, pii.firstName, pii.lastName, str(day)])
+
+
 def calculate_identity_hash(bsn: str, pii: Holder, key: str) -> str:
     """
     Args:
@@ -160,8 +172,10 @@ def calculate_identity_hash(bsn: str, pii: Holder, key: str) -> str:
 
     Returns:
         the hash of the bsn and values in pii
+
+    Note: Day can be empty: not all citizens have a birth day / birth month. In that case add an empty string.
     """
 
-    # echo -n "000000012-Pluk-Petteflet-01" | openssl dgst -sha256 -hmac "ZrHsI6MZmObcqrSkVpea"
-    message = "-".join([bsn, pii.firstName, pii.lastName, str(pii.birthDate.day)]).encode()
-    return hmac256(message, key.encode()).hex()
+    # echo -n "000000012-Pluk-Petteflet-1" | openssl dgst -sha256 -hmac "ZrHsI6MZmObcqrSkVpea"
+    message = calculate_identity_hash_message(bsn, pii)
+    return hmac256(message.encode(), key.encode()).hex()
