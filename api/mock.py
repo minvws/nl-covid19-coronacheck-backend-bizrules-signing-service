@@ -20,7 +20,7 @@ mock_data = json_from_test_data_file("pii_for_mock-v04.json")
 #  }
 # }
 
-SBVZ_RESPONSE = """<?xml version='1.0' encoding='UTF-8'?>
+RVIG_RESPONSE = """<?xml version='1.0' encoding='UTF-8'?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
     <soap:Body>
         <vraagResponse xmlns:ns2="http://www.bprbzk.nl/GBA/LO3/version1.1" xmlns="http://www.bprbzk.nl/GBA/LRDPlus/version1.1">
@@ -100,7 +100,7 @@ async def app(scope, receive, send):
             holder = mock_data[bsn]["holder"]
             holder["birthDate"] = holder["birthDate"][:10].replace("-", "")
             del holder["infix"]
-            response = SBVZ_RESPONSE.format(**holder)
+            response = RVIG_RESPONSE.format(**holder)
         else:
             response = read_file(f"{TESTS_DIR}/rvig/1_technical_error.xml")
         await send(
