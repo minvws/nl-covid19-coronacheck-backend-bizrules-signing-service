@@ -244,20 +244,6 @@ def test_eusign(requests_mock):
         }
     )
 
-    test = EUGreenCard(
-        **{
-            "origins": [
-                {
-                    "type": "test",
-                    "eventTime": "2021-03-01T00:00:00+00:00",
-                    "expirationTime": "2020-07-31T00:00:00+00:00",
-                    "validFrom": "2021-03-01T00:00:00+00:00",
-                }
-            ],
-            "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
-        }
-    )
-
     # todo: this should be a recovery, positive tests transform to recoveries in EU.
     test2 = EUGreenCard(
         **{
@@ -273,4 +259,18 @@ def test_eusign(requests_mock):
         }
     )
 
-    assert answer == [vaccination, recovery, test, test2]
+    test = EUGreenCard(
+        **{
+            "origins": [
+                {
+                    "type": "test",
+                    "eventTime": "2021-03-01T00:00:00+00:00",
+                    "expirationTime": "2020-07-31T00:00:00+00:00",
+                    "validFrom": "2021-03-01T00:00:00+00:00",
+                }
+            ],
+            "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
+        }
+    )
+
+    assert answer == [vaccination, recovery, test2, test]
