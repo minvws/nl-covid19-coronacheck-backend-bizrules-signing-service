@@ -1,6 +1,6 @@
 from fastapi import HTTPException
-from requests.auth import HTTPBasicAuth
 from requests import Session
+from requests.auth import HTTPBasicAuth
 from zeep import Client
 from zeep.transports import Transport
 
@@ -8,7 +8,6 @@ from api import log
 from api.constants import INGE4_ROOT
 from api.models import Holder
 from api.settings import settings
-
 
 """
 Het rubrieknummer bestaat uit zes cijfers. De eerste twee cijfers geven het categorienummer op de PL, de code voor

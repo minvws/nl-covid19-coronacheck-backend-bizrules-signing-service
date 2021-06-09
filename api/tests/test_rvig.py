@@ -2,7 +2,8 @@ import pytest
 from fastapi import HTTPException
 
 from api.enrichment.rvig.rvig import get_pii_from_rvig, rvig_birtdate_to_dutch_birthdate
-from api.models import DutchBirthDate as Dbd, Holder
+from api.models import DutchBirthDate as Dbd
+from api.models import Holder
 from api.utils import read_file
 
 RVIG_PATH = "/gba-v/online/lo3services/adhoc"
