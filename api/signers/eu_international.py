@@ -1,7 +1,9 @@
 import copy
+import json
 import logging
 from datetime import date, datetime, timedelta
 from typing import List, Optional
+import os.path
 
 import json5
 import pytz
@@ -14,6 +16,10 @@ from api.models import (
     EventType,
     Event,
     EuropeanVaccination,
+    Vaccination,
+    Negativetest,
+    Positivetest,
+    Recovery,
 )
 from api.settings import settings
 from api.utils import request_post_with_retries, read_file
@@ -21,6 +27,27 @@ from api.utils import request_post_with_retries, read_file
 log = logging.getLogger(__package__)
 
 TZ = pytz.timezone("UTC")
+
+
+def read_resource_file(filename: str) -> dict:
+    with open(os.path.join(settings.RESOURCE_FOLDER, filename)) as f:
+        return json.load(f)
+
+
+HPK_CODES = read_resource_file('hpk-codes.json')
+HPK = {c: HPK_CODES['hpk_codes'][c] for c in HPK_CODES['hpk_codes']}
+ELIGIBLE_HPK_CODES = [c['hpk_code'] for c in HPK_CODES['hpk_codes']]
+
+MA = read_resource_file('vaccine-mah-manf.json')
+ELIGIBLE_MA = MA['valueSetValues'].keys()
+
+MP = read_resource_file('vaccine-medicinal-product.json')
+ELIGIBLE_MP = MP['valueSetValues'].keys()
+
+TT = read_resource_file('test-type.json')
+ELIGIBLE_TT = TT['valueSetValues'].keys()
+
+REQUIRED_DOSES = read_resource_file('required-doses-per-brand.json')
 
 
 def get_eu_expirationtime() -> datetime:
@@ -38,7 +65,6 @@ def create_eu_signer_message(event: Event, event_type: EventType) -> MessageToEU
 
 
 def exclude_non_dgc_approved_products(events: List[Event]) -> List[Event]:
-
     # todo: cache
     # todo: {settings.EU_VACCINE_MEDICINAL_PRODUCT}
     approved_product_list = json5.loads(read_file(f"{settings.CONFIG_FOLDER}/vaccine-medicinal-product.json"))
@@ -100,44 +126,193 @@ def the_best_vaccination(events: Events) -> Optional[List[Event]]:
     # 2 vaccinaties van een merk dat er 2 vereist
     return usable_vaccination_events
 
+def deduplicate_events(events: List[Event]) -> List[Event]:
+    retained: List[Event] = []
+    for event in events:
+        if event in retained:
+            continue
+
+        new_retained = []
+        for other in retained:
+            if event.type != other.type:
+                continue
+            if isinstance(event.vaccination, Vaccination) and isinstance(other.vaccination, Vaccination):
+                if event.vaccination.date != other.vaccination.date:
+                    continue
+            elif isinstance(event.negativetest, Negativetest) and isinstance(other.negativetest, Negativetest):
+                if event.negativetest.sampleDate != other.negativetest.sampleDate:
+                    continue
+            elif isinstance(event.positivetest, Positivetest) and isinstance(other.positivetest, Positivetest):
+                if event.positivetest.sampleDate != other.positivetest.sampleDate:
+                    continue
+            elif isinstance(event.recovery, Recovery) and isinstance(other.recovery, Recovery):
+                if event.recovery.sampleDate != other.recovery.sampleDate:
+                    continue
+            new_retained.append(event)
+        retained.extend(new_retained)
+
+    return retained
+
+
+def is_eligible(event: Event) -> bool:
+    if isinstance(event.vaccination, Vaccination):
+        if event.vaccination.hpkCode in ELIGIBLE_HPK_CODES:
+            return True
+        if event.vaccination.brand in ELIGIBLE_MA:
+            return True
+        if event.vaccination.manufacturer in ELIGIBLE_MA:
+            return True
+        logging.debug('Ineligible vaccine', json.dumps(event.vaccination))
+        return False
+    if isinstance(event.negativetest, Negativetest) or isinstance(event.positivetest, Positivetest):
+        if event.negativetest.type in ELIGIBLE_TT:
+            return True
+        logging.debug('Ineligible test', json.dumps(event.negativetest), json.dumps(event.positivetest))
+        return False
+    if isinstance(event.recovery, Recovery):
+        return True
+    logging.warning("Received unknown event type; marking ineligible", json.dumps(event))
+    return False
+
+
+def _equal_brand_vaccines(this_vacc: Vaccination, other_vacc: Vaccination) -> bool:
+    if this_vacc.hpkCode and other_vacc.hpkCode and this_vacc.hpkCode == other_vacc.hpkCode:
+        return True
+    if this_vacc.brand and other_vacc.brand and this_vacc.brand == other_vacc.brand:
+        return True
+
+    if this_vacc.brand is None and this_vacc.hpkCode is None:
+        logging.warning("Cannot determine brand of vaccination", json.dumps(this_vacc))
+        return False
+    if other_vacc.brand is None and other_vacc.hpkCode is None:
+        logging.warning("Cannot determine brand of vaccination", json.dumps(other_vacc))
+        return False
+
+    this_brand = this_vacc.brand if this_vacc.brand else HPK_CODES[this_vacc.hpkCode]
+    other_brand = other_vacc.brand if other_vacc.brand else HPK_CODES[other_vacc.hpkCode]
+
+    return this_brand and other_brand and this_brand == other_brand
+
+
+def _relevant_vaccinations(vaccs: List[Event]) -> List[Event]:
+    if not vaccs or len(vaccs) == 1:
+        return vaccs
+
+    # do we have a full qualification, pick the most recent one
+    completions: List[Event] = []
+    for vacc in vaccs:
+        if vacc.vaccination.doseNumber and vacc.vaccination.totalDoses and \
+                vacc.vaccination.doseNumber >= vacc.vaccination.totalDoses:
+            completions.append(vacc)
+        if vacc.vaccination.completedByMedicalStatement or vacc.vaccination.completedByPersonalStatement:
+            completions.append(vacc)
+    if completions:
+        # we have one or more completing vaccinations, use the most recent one
+        return [completions[-1]]
+
+    # return the most recent one of a total-dose fulfilling vaccination
+    by_total_dose = {}
+    for vacc in vaccs:
+        if not vacc.vaccination.totalDoses in by_total_dose:
+            by_total_dose[vacc.vaccination.totalDoses] = [vacc]
+        else:
+            by_total_dose[vacc.vaccination.totalDoses].append(vacc)
+    if 1 in by_total_dose:
+        # pick the last of single-dose vaccinations
+        best_vacc = by_total_dose[1][-1]
+        best_vacc.vaccination.doseNumber = 1
+        return [best_vacc]
+    elif 2 in by_total_dose:
+        if len(by_total_dose[2]) >= 2:
+            # pick the last of dual-dose vaccinations
+            best_vacc = by_total_dose[2][-1]
+            best_vacc.vaccination.doseNumber = 2
+            return [best_vacc]
+
+    logging.warning("all, but multiple vaccinations are relevant")
+    return vaccs
+
+
+def _only_most_recent(events: List[Event]) -> List[Event]:
+    if events and len(events) > 1:
+        return [events[-1]]
+    return events
+
+
+def filter_redundant_events(events: Events) -> Events:
+    """
+    Return the events that are relevant, filtering out obsolete events
+    """
+    vaccinations = _relevant_vaccinations(events.vaccinations)
+    positive_tests = _only_most_recent(events.positivetests)
+    negative_tests = _only_most_recent(events.negativetests)
+    recoveries = _only_most_recent(events.recoveries)
+
+    relevant_events = Events()
+    relevant_events.events = [*vaccinations, *positive_tests, *negative_tests, *recoveries]
+    return relevant_events
+
+
+def evaluate_cross_type_events(events: Events) -> Events:
+    """
+    Logic to deal with cross-type influences
+    """
+
+    # if we have at least one vaccination and a positive test,
+    # we declare the vaccination complete
+    if not events.vaccinations or events.positivetests:
+        return events
+
+    if len(events.vaccinations) > 1:
+        logging.warning("We have at least one positive test and multiple vaccinations, "
+                        "using the most recent vaccination")
+        vacc = events.vaccinations[-1]
+    else:
+        vacc = events.vaccinations[0]
+
+    vacc.vaccination.doseNumber = 1
+    vacc.vaccination.totalDoses = 1
+
+    retained_events = [e
+                       for e in events.events
+                       if e.type != 'vaccination' or e == vacc]
+    events.events = retained_events
+    return events
+
 
 def create_signing_messages_based_on_events(events: Events) -> List[MessageToEUSigner]:
     """
     Based on events this creates messages sent to the EU signer. Each message is a digital
     green certificates. It's only allowed to have one message of each type.
 
-    So only one recovery, one test and one vaccination. The right events according to business logic
-    are reduced before calling this method.
     :param events:
     :return:
     """
-    blank_statement = copy.deepcopy(events)
-    blank_statement.events = []
+    eligible_events = Events()
 
-    messages_to_signer = []
-    # Als je er twee hebt gehad moet het 2/2, ookal heb je er maar twee.
-    # EventTime: vaccination: dt, test: sc, recovery: fr
-    # Get the first item from the list and perform a type check for mypy as vaccination is nested.
-    if events.vaccinations:
-        messages_to_signer.append(create_eu_signer_message(events.vaccinations[0], EventType.vaccination))
+    # remove ineligible events
+    eligible_events.events = [e for e in events.events if is_eligible(e)]
 
-    if events.recoveries:
-        messages_to_signer.append(create_eu_signer_message(events.recoveries[-1], EventType.recovery))
+    # set required doses, if not given
+    for vacc in [e for e in eligible_events.vaccinations]:
+        if not vacc.vaccination.totalDoses:
+            if vacc.vaccination.brand:
+                mp = vacc.vaccination.brand
+            elif vacc.vaccination.hpkCode and vacc.vaccination.hpkCode in HPK_CODES:
+                mp = HPK_CODES[vacc.vaccination.hpkCode]['mp']
+            else:
+                logging.warning("Cannot determine mp of vaccination; not setting default total doses",
+                                json.dumps(vacc.vaccination))
+                continue
+            vacc.vaccination.totalDoses = REQUIRED_DOSES[mp]
 
-    # todo: should only be possible to send ONE recovery, not two!
-    if events.positivetests:
-        messages_to_signer.append(create_eu_signer_message(events.positivetests[-1], EventType.recovery))
+    # remove duplications
+    eligible_events.events = deduplicate_events(eligible_events.events)
 
-    # Some negative tests are not eligible for signing, they are upgrade v2 events that
-    # have incomplete holder information: the year is wrong, the first and last name are one letter.
-    eligible_negative_tests = [
-        test for test in events.negativetests if test.holder.birthDate.year != INVALID_YEAR_FOR_EU_SIGNING
-    ]
-    if eligible_negative_tests:
-        # The EU only has test, not positive test or negative test.
-        messages_to_signer.append(create_eu_signer_message(eligible_negative_tests[-1], EventType.test))
+    # filter out redundant events
+    eligible_events = filter_redundant_events(eligible_events)
 
-    return messages_to_signer
+    return [create_eu_signer_message(e, e.type) for e in eligible_events.events]
 
 
 def sign(events: Events) -> List[EUGreenCard]:

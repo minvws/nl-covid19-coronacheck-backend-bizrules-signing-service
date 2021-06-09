@@ -41,6 +41,7 @@ class AppSettings(BaseSettings):
 
     SECRETS_FOLDER: pathlib.Path = Field("")
     CONFIG_FOLDER: pathlib.Path = Field("")
+    RESOURCE_FOLDER: pathlib.Path = Field("")
     EVENT_DATA_PROVIDERS_FILENAME: str = ""
     DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME: str = ""
     DYNAMIC_FLOW_JWT_PUBLIC_KEY_FILENAME: str = ""
