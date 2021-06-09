@@ -225,9 +225,7 @@ class Vaccination(BaseModel):  # noqa
     hpkCode: Optional[str] = Field(example="2924528", description="hpkcode.nl, will be used to fill EU fields")
     type: Optional[str] = Field(example="1119349007", description="Can be left blank if hpkCode is entered.")
     manufacturer: Optional[str] = Field(description="Can be left blank if hpkCode is entered.", example="ORG-100030215")
-    brand: str = Field(
-        description="Can be left blank if hpkCode is entered.", example="EU/1/20/1507"
-    )  # todo: what format is this? how?
+    brand: Optional[str] = Field(description="Can be left blank if hpkCode is entered.", example="EU/1/20/1507")
     completedByMedicalStatement: Optional[bool] = Field(
         description="If this vaccination is enough to be fully vaccinated"
     )
@@ -244,16 +242,16 @@ class Vaccination(BaseModel):  # noqa
     def toEuropeanVaccination(self):
         return EuropeanVaccination(
             **{
+                **settings.HPK_MAPPING.get(self.hpkCode, {}),  # this mapping contains the vp, mp and ma
+                **({"vp": self.type} if self.type else {}),
+                **({"mp": self.brand} if self.brand else {}),
+                **({"ma": self.manufacturer} if self.manufacturer else {}),
                 **{
-                    "vp": self.type,
-                    "mp": self.brand,
-                    "ma": self.manufacturer,
                     "dn": self.doseNumber,
                     "sd": self.totalDoses,
                     "dt": self.date,
                 },
                 **SharedEuropeanFields.as_dict(),
-                **settings.HPK_MAPPING.get(self.hpkCode, {}),  # this mapping contains the vp, mp and ma
             }
         )
 
