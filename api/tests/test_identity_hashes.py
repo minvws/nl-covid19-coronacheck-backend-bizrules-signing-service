@@ -1,8 +1,8 @@
 import pytest
 from freezegun import freeze_time
 
-from api.models import Holder, DutchBirthDate
-from api.requesters.identity_hashes import retrieve_bsn_from_inge6, calculate_identity_hash_message
+from api.models import DutchBirthDate, Holder
+from api.requesters.identity_hashes import calculate_identity_hash_message, retrieve_bsn_from_inge6
 from api.settings import settings
 from api.tests.test_utils import json_from_test_data_file
 
@@ -26,5 +26,5 @@ def test_calculate_identity_hash_message():
         calculate_identity_hash_message(
             "999999138", Holder(firstName="A", lastName="B", birthDate=DutchBirthDate("1970-XX-XX"))
         )
-        == "999999138-A-B-0"
+        == "999999138-A-B-00"
     )
