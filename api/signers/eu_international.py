@@ -5,7 +5,7 @@ from typing import List
 
 import pytz
 
-from api.models import INVALID_YEAR_FOR_EU_SIGNING, EUGreenCard, Events, MessageToEUSigner
+from api.models import INVALID_YEAR_FOR_EU_SIGNING, EUGreenCard, Events, MessageToEUSigner, EventType, Event
 from api.settings import settings
 from api.utils import request_post_with_retries
 
@@ -14,7 +14,58 @@ log = logging.getLogger(__package__)
 TZ = pytz.timezone("UTC")
 
 
-def sign(statement: Events) -> List[EUGreenCard]:
+def create_eu_signer_message(event: Event, type: EventType) -> MessageToEUSigner:
+    expiration_time = datetime.now(pytz.utc) + timedelta(days=settings.EU_INTERNATIONAL_GREENCARD_EXPIRATION_TIME_DAYS)
+    expiration_time = expiration_time.replace(microsecond=0)
+
+    return MessageToEUSigner(
+        keyUsage=type,
+        expirationTime=expiration_time,
+        # Use a clean events object that only has a single event so there are no interfering other events
+        dgc=Events(events=[event]).toEuropeanOnlineSigningRequest(),
+    )
+
+
+def create_signing_messages_based_on_events(events: Events) -> List[MessageToEUSigner]:
+    """
+    Based on events this creates messages sent to the EU signer. Each message is a digital
+    green certificates. It's only allowed to have one message of each type.
+
+    So only one recovery, one test and one vaccination. The right events according to business logic
+    are reduced before calling this method.
+    :param events:
+    :return:
+    """
+    blank_statement = copy.deepcopy(events)
+    blank_statement.events = []
+
+    messages_to_signer = []
+    # Als je er twee hebt gehad moet het 2/2, ookal heb je er maar twee.
+    # EventTime: vaccination: dt, test: sc, recovery: fr
+    # Get the first item from the list and perform a type check for mypy as vaccination is nested.
+    if events.vaccinations:
+        messages_to_signer.append(create_eu_signer_message(events.vaccinations[0], EventType.vaccination))
+
+    if events.recoveries:
+        messages_to_signer.append(create_eu_signer_message(events.recoveries[-1], EventType.recovery))
+
+    # Some negative tests are not eligible for signing, they are upgrade v2 events that
+    # have incomplete holder information: the year is wrong, the first and last name are one letter.
+    eligible_negative_tests = [
+        test for test in events.negativetests if test.holder.birthDate.year != INVALID_YEAR_FOR_EU_SIGNING
+    ]
+    if eligible_negative_tests:
+        # The EU only has test, not positive test or negative test.
+        messages_to_signer.append(create_eu_signer_message(eligible_negative_tests[-1], EventType.test))
+
+    # todo: should only be possible to send ONE recovery, not two!
+    if events.positivetests:
+        messages_to_signer.append(create_eu_signer_message(events.positivetests[-1], EventType.recovery))
+
+    return messages_to_signer
+
+
+def sign(events: Events) -> List[EUGreenCard]:
     """
     Implements signing against: https://github.com/minvws/nl-covid19-coronacheck-hcert-private
     https://github.com/ehn-dcc-development/ehn-dcc-schema/blob/release/1.0.1/DGC.combined-schema.json
@@ -30,73 +81,14 @@ def sign(statement: Events) -> List[EUGreenCard]:
     - the oldest vaccination: as vaccinations are valid for a long time and it takes time before a vaccination 'works'
     - the oldest recovery
     """
-    blank_statement = copy.deepcopy(statement)
-    blank_statement.events = []
 
-    # todo; it's unclear what expiration time is. This is just a mock implementation.
-    expiration_time = datetime.now(pytz.utc) + timedelta(days=180)
+    # todo: add reduction of events.
+
+    expiration_time = datetime.now(pytz.utc) + timedelta(days=settings.EU_INTERNATIONAL_GREENCARD_EXPIRATION_TIME_DAYS)
     expiration_time = expiration_time.replace(microsecond=0)
 
-    statements_to_eu_signer = []
-    # EventTime: vaccination: dt, test: sc, recovery: fr
-    # Get the first item from the list and perform a type check for mypy as vaccination is nested.
-    if statement.vaccinations:
-        blank_statement.events = [statement.vaccinations[0]]
-        statements_to_eu_signer.append(
-            MessageToEUSigner(
-                **{
-                    "keyUsage": "vaccination",
-                    "expirationTime": expiration_time,
-                    "dgc": blank_statement.toEuropeanOnlineSigningRequest(),
-                }
-            )
-        )
-
-    if statement.recoveries:
-        blank_statement.events = [statement.recoveries[-1]]
-        statements_to_eu_signer.append(
-            MessageToEUSigner(
-                **{
-                    "keyUsage": "recovery",
-                    "expirationTime": expiration_time,
-                    "dgc": blank_statement.toEuropeanOnlineSigningRequest(),
-                }
-            )
-        )
-
-    # Some negative tests are not eligible for signing, they are upgrade v2 events that
-    # have incomplete holder information: the year is wrong, the first and last name are one letter.
-    eligible_negative_tests = [
-        test for test in statement.negativetests if test.holder.birthDate.year != INVALID_YEAR_FOR_EU_SIGNING
-    ]
-    if eligible_negative_tests:
-        blank_statement.events = [eligible_negative_tests[-1]]
-        statements_to_eu_signer.append(
-            MessageToEUSigner(
-                **{
-                    # The EU only has test, not positive test or negative test.
-                    "keyUsage": "test",
-                    "expirationTime": expiration_time,
-                    "dgc": blank_statement.toEuropeanOnlineSigningRequest(),
-                }
-            )
-        )
-
-    if statement.positivetests:
-        blank_statement.events = [statement.positivetests[-1]]
-        statements_to_eu_signer.append(
-            MessageToEUSigner(
-                **{
-                    # A positive test in the EU means a recovery
-                    "keyUsage": "recovery",
-                    "expirationTime": expiration_time,
-                    "dgc": blank_statement.toEuropeanOnlineSigningRequest(),
-                }
-            )
-        )
-
     greencards = []
-    for statement_to_eu_signer in statements_to_eu_signer:
+    for statement_to_eu_signer in create_signing_messages_based_on_events(events):
         response = request_post_with_retries(
             settings.EU_INTERNATIONAL_SIGNING_URL,
             # by_alias uses the alias field to create a json object. As such 'is_' will be 'is'.

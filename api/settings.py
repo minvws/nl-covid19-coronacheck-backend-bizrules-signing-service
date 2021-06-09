@@ -61,6 +61,7 @@ class AppSettings(BaseSettings):
     DOMESTIC_MAXIMUM_ISSUANCE_DAYS: int = 14
     DOMESTIC_MAXIMUM_RANDOMIZED_OVERLAP_HOURS: int = 4
     EU_INTERNATIONAL_SIGNING_URL: AnyHttpUrl = Field()
+    EU_INTERNATIONAL_GREENCARD_EXPIRATION_TIME_DAYS: int = 28
 
     # The requests library has a feature that:
     # - False ignores any certificate, True uses system CA and file = against the bundle supplied.
