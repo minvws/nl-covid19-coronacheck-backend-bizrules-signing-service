@@ -1,0 +1,24 @@
+// We also just accept a full dump of https://hpkcode.nl/ but the contents here
+// are what we actually need
+{
+  "2924528": {
+    "vp": "1119349007",
+    "mp": "EU/1/20/1528",
+    "ma": "ORG-100030215"
+  },
+  "2924536": {
+    "vp": "1119349007",
+    "mp": "EU/1/20/1507",
+    "ma": "ORG-100031184"
+  },
+  "2925508": {
+    "vp": "J07BX03",
+    "mp": "EU/1/21/1529",
+    "ma": "ORG-100001699"
+  },
+  "2934701": {
+    "vp": "J07BX03",
+    "mp": "EU/1/20/1525",
+    "ma": "ORG-100001417"
+  }
+}

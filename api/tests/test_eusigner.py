@@ -29,6 +29,27 @@ testcase_event_vaccination = {
         "totalDoses": 2,
     },
 }
+
+testcase_event_vaccination_empty = {
+    "source_provider_identifier": "XXX",
+    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+    "type": "vaccination",
+    "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
+    "negativetest": None,
+    "positivetest": None,
+    "recovery": None,
+    "vaccination": {
+        "completedByMedicalStatement": False,
+        "date": "2021-02-01",
+        "hpkCode": "2934701",
+        "administeringCenter": "",
+        "manufacturer": "",
+        "country": "NLD",
+        "doseNumber": 1,
+        "totalDoses": 2,
+    },
+}
+
 testcase_event_negativetest = {
     "source_provider_identifier": "XXX",
     "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
@@ -166,7 +187,7 @@ def test_eusign_with_empty_fields(mocker):
 
     # Send one vaccination event, the other keys have to be empty.
     mocker.patch("uuid.UUID", return_value="d540cb87-7774-4c40-bcef-d46a933da826")
-    eu_request = Events(**{"events": [testcase_event_vaccination]}).toEuropeanOnlineSigningRequest()
+    eu_request = Events(**{"events": [testcase_event_vaccination_empty]}).toEuropeanOnlineSigningRequest()
 
     assert eu_request.dict(by_alias=True, exclude_none=True) == {
         "dob": "1970-01-01",
@@ -178,11 +199,11 @@ def test_eusign_with_empty_fields(mocker):
                 "dn": 1,
                 "dt": date(2021, 2, 1),
                 "is": "Ministry of Health Welfare and Sport",
-                "ma": "JANSSEN",
-                "mp": "COVID-19 VACCIN JANSSEN INJVLST 0,5ML",
+                "ma": "ORG-100001417",  # "JANSSEN"
+                "mp": "EU/1/20/1525",  # "COVID-19 VACCIN JANSSEN INJVLST 0,5ML"
                 "sd": 2,
                 "tg": "840539006",
-                "vp": "C19-mRNA",
+                "vp": "J07BX03",  # "C19-mRNA"
             }
         ],
         "ver": "1.0.0",

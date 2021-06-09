@@ -1,0 +1,686 @@
+//obtained from https://hpkcode.nl/
+{
+  "version": "2021060402",
+  "hpk_codes": [
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "EJ6795",
+      "entry_date": "2021-01-04",
+      "expiration_date": "2021-04-30",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "EJ6796",
+      "entry_date": "2021-01-04",
+      "expiration_date": "2021-04-30",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "EM0477",
+      "entry_date": "2021-01-11",
+      "expiration_date": "2021-04-30",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "EJ6134",
+      "entry_date": "2021-01-18",
+      "expiration_date": "2021-04-30",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2924536",
+      "product_name": "COVID-19 VACCIN MODERNA INJVLST 0,5ML",
+      "lot_number": "300042698",
+      "entry_date": "2021-01-18",
+      "expiration_date": "2021-06-18",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1507",
+      "ma": "ORG-100031184"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "EJ6788",
+      "entry_date": "2021-01-18",
+      "expiration_date": "2021-04-30",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "EL8723",
+      "entry_date": "2021-02-02",
+      "expiration_date": "2021-05-31",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "EJ6136",
+      "entry_date": "2021-02-02",
+      "expiration_date": "2021-04-30",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "EK9788",
+      "entry_date": "2021-02-02",
+      "expiration_date": "2021-05-31",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2924536",
+      "product_name": "COVID-19 VACCIN MODERNA INJVLST 0,5ML",
+      "lot_number": "300042721",
+      "entry_date": "2021-02-02",
+      "expiration_date": "2021-08-11",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1507",
+      "ma": "ORG-100031184"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "EJ6789",
+      "entry_date": "2021-02-08",
+      "expiration_date": "2021-05-31",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "ABV3025",
+      "entry_date": "2021-02-08",
+      "expiration_date": "2021-05-31",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "EJ6790",
+      "entry_date": "2021-02-15",
+      "expiration_date": "2021-05-31",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2924536",
+      "product_name": "COVID-19 VACCIN MODERNA INJVLST 0,5ML",
+      "lot_number": "300042722",
+      "entry_date": "2021-02-15",
+      "expiration_date": "2021-08-14",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1507",
+      "ma": "ORG-100031184"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "ABV5300",
+      "entry_date": "2021-02-15",
+      "expiration_date": "2021-06-30",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "EP9598",
+      "entry_date": "2021-02-22",
+      "expiration_date": "2021-06-30",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "ABV5441",
+      "entry_date": "2021-02-22",
+      "expiration_date": "2021-06-30",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "EP2166",
+      "entry_date": "2021-03-01",
+      "expiration_date": "2021-05-31",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2924536",
+      "product_name": "COVID-19 VACCIN MODERNA INJVLST 0,5ML",
+      "lot_number": "3000495",
+      "entry_date": "2021-03-01",
+      "expiration_date": "2021-09-02",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1507",
+      "ma": "ORG-100031184"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "ABV5443",
+      "entry_date": "2021-03-01",
+      "expiration_date": "2021-06-30",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "ABV8139",
+      "entry_date": "2021-03-01",
+      "expiration_date": "2021-06-30",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "EP9605",
+      "entry_date": "2021-03-08",
+      "expiration_date": "2021-06-30",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "ABV6514",
+      "entry_date": "2021-03-08",
+      "expiration_date": "2021-06-30",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "ER7812",
+      "entry_date": "2021-03-15",
+      "expiration_date": "2021-06-30",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "ABW0018",
+      "entry_date": "2021-03-15",
+      "expiration_date": "2021-07-31",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "ET3674",
+      "entry_date": "2021-03-22",
+      "expiration_date": "2021-07-31",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2924536",
+      "product_name": "COVID-19 VACCIN MODERNA INJVLST 0,5ML",
+      "lot_number": "3001442",
+      "entry_date": "2021-03-22",
+      "expiration_date": "2021-09-24",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1507",
+      "ma": "ORG-100031184"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "ABV5297",
+      "entry_date": "2021-03-22",
+      "expiration_date": "2021-06-30",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "ER9480",
+      "entry_date": "2021-03-29",
+      "expiration_date": "2021-07-31",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "ABV7764",
+      "entry_date": "2021-03-29",
+      "expiration_date": "2021-06-30",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "ET9096",
+      "entry_date": "2021-04-06",
+      "expiration_date": "2021-07-31",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "EW2243",
+      "entry_date": "2021-04-06",
+      "expiration_date": "2021-07-31",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2924536",
+      "product_name": "COVID-19 VACCIN MODERNA INJVLST 0,5ML",
+      "lot_number": "3001655",
+      "entry_date": "2021-04-06",
+      "expiration_date": "2021-10-12",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1507",
+      "ma": "ORG-100031184"
+    },
+    {
+      "hpk_code": "2924536",
+      "product_name": "COVID-19 VACCIN MODERNA INJVLST 0,5ML",
+      "lot_number": "3001653",
+      "entry_date": "2021-03-29",
+      "expiration_date": "2021-10-09",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1507",
+      "ma": "ORG-100031184"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "ABW0549",
+      "entry_date": "2021-04-06",
+      "expiration_date": "2021-07-31",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "ABW0003",
+      "entry_date": "2021-04-06",
+      "expiration_date": "2021-07-31",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "EW9127",
+      "entry_date": "2021-04-12",
+      "expiration_date": "2021-07-31",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "ABW9941",
+      "entry_date": "2021-04-12",
+      "expiration_date": "2021-07-31",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "EX0893",
+      "entry_date": "2021-04-19",
+      "expiration_date": "2021-07-31",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2924536",
+      "product_name": "COVID-19 VACCIN MODERNA INJVLST 0,5ML",
+      "lot_number": "3001941",
+      "entry_date": "2021-04-19",
+      "expiration_date": "2021-10-22",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1507",
+      "ma": "ORG-100031184"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "ABW7197",
+      "entry_date": "2021-04-19",
+      "expiration_date": "2021-07-31",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2934701",
+      "product_name": "COVID-19 VACCIN JANSSEN INJVLST 0,5ML",
+      "lot_number": "XD955",
+      "entry_date": "2021-04-21",
+      "expiration_date": "2023-02-28",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/20\/1525",
+      "ma": "ORG-100001417"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "ET6956",
+      "entry_date": "2021-04-26",
+      "expiration_date": "2021-08-31",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2924536",
+      "product_name": "COVID-19 VACCIN MODERNA INJVLST 0,5ML",
+      "lot_number": "3001946",
+      "entry_date": "2021-04-26",
+      "expiration_date": "2021-10-26",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1507",
+      "ma": "ORG-100031184"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "ABW2953",
+      "entry_date": "2021-04-26",
+      "expiration_date": "2021-07-31",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "EX7389",
+      "entry_date": "2021-05-03",
+      "expiration_date": "2021-08-31",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2924536",
+      "product_name": "COVID-19 VACCIN MODERNA INJVLST 0,5ML",
+      "lot_number": "3002184",
+      "entry_date": "2021-05-03",
+      "expiration_date": "2021-11-09",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1507",
+      "ma": "ORG-100031184"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "ABX2057",
+      "entry_date": "2021-05-03",
+      "expiration_date": "2021-08-31",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2934701",
+      "product_name": "COVID-19 VACCIN JANSSEN INJVLST 0,5ML",
+      "lot_number": "21C10-02",
+      "entry_date": "2021-05-03",
+      "expiration_date": "2023-02-28",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/20\/1525",
+      "ma": "ORG-100001417"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "EX7823",
+      "entry_date": "2021-05-10",
+      "expiration_date": "2021-08-31",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2924536",
+      "product_name": "COVID-19 VACCIN MODERNA INJVLST 0,5ML",
+      "lot_number": "3002335",
+      "entry_date": "2021-05-10",
+      "expiration_date": "2021-11-16",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1507",
+      "ma": "ORG-100031184"
+    },
+    {
+      "hpk_code": "2924536",
+      "product_name": "COVID-19 VACCIN MODERNA INJVLST 0,5ML",
+      "lot_number": "3002332",
+      "entry_date": "2021-05-10",
+      "expiration_date": "2021-11-15",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1507",
+      "ma": "ORG-100031184"
+    },
+    {
+      "hpk_code": "2924536",
+      "product_name": "COVID-19 VACCIN MODERNA INJVLST 0,5ML",
+      "lot_number": "3001659",
+      "entry_date": "2021-05-10",
+      "expiration_date": "2021-10-16",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1507",
+      "ma": "ORG-100031184"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "FA7082",
+      "entry_date": "2021-05-17",
+      "expiration_date": "2021-09-30",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2924536",
+      "product_name": "COVID-19 VACCIN MODERNA INJVLST 0,5ML",
+      "lot_number": "3002537",
+      "entry_date": "2021-05-17",
+      "expiration_date": "2021-11-21",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1507",
+      "ma": "ORG-100031184"
+    },
+    {
+      "hpk_code": "2924536",
+      "product_name": "COVID-19 VACCIN MODERNA INJVLST 0,5ML",
+      "lot_number": "3002338",
+      "entry_date": "2021-05-17",
+      "expiration_date": "2021-11-19",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1507",
+      "ma": "ORG-100031184"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "ABX5182",
+      "entry_date": "2021-05-17",
+      "expiration_date": "2021-08-31",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2934701",
+      "product_name": "COVID-19 VACCIN JANSSEN INJVLST 0,5ML",
+      "lot_number": "21C11-02",
+      "entry_date": "2021-05-17",
+      "expiration_date": "2023-02-28",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/20\/1525",
+      "ma": "ORG-100001417"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "FA8016",
+      "entry_date": "2021-05-19",
+      "expiration_date": "2021-09-30",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2934701",
+      "product_name": "COVID-19 VACCIN JANSSEN INJVLST 0,5ML",
+      "lot_number": "XD975",
+      "entry_date": "2021-05-19",
+      "expiration_date": "2023-03-31",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/20\/1525",
+      "ma": "ORG-100001417"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "ABW3114",
+      "entry_date": "2021-05-25",
+      "expiration_date": "2021-07-31",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2924536",
+      "product_name": "COVID-19 VACCIN MODERNA INJVLST 0,5ML",
+      "lot_number": "3002545",
+      "entry_date": "2021-05-25",
+      "expiration_date": "2021-11-28",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1507",
+      "ma": "ORG-100031184"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "FD0785",
+      "entry_date": "2021-05-28",
+      "expiration_date": "2021-09-30",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2934701",
+      "product_name": "COVID-19 VACCIN JANSSEN INJVLST 0,5ML",
+      "lot_number": "XD985",
+      "entry_date": "2021-05-31",
+      "expiration_date": "2023-03-31",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/20\/1525",
+      "ma": "ORG-100001417"
+    },
+    {
+      "hpk_code": "2924528",
+      "product_name": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+      "lot_number": "FC3143",
+      "entry_date": "2021-06-02",
+      "expiration_date": "2021-07-03",
+      "vp": "1119349007",
+      "mp": "EU\/1\/20\/1528",
+      "ma": "ORG-100030215"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "210073",
+      "entry_date": "2021-06-01",
+      "expiration_date": "2021-10-31",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2925508",
+      "product_name": "COVID-19 VACCIN ASTRAZENECA INJVLST",
+      "lot_number": "210077",
+      "entry_date": "2021-06-01",
+      "expiration_date": "2021-10-31",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/21\/1529",
+      "ma": "ORG-100001699"
+    },
+    {
+      "hpk_code": "2934701",
+      "product_name": "COVID-19 VACCIN JANSSEN INJVLST 0,5ML",
+      "lot_number": "XD974",
+      "entry_date": "2021-06-02",
+      "expiration_date": "2023-02-28",
+      "vp": "J07BX03",
+      "mp": "EU\/1\/20\/1525",
+      "ma": "ORG-100001417"
+    }
+  ]
+}
