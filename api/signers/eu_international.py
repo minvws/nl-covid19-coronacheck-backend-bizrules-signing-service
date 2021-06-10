@@ -126,6 +126,7 @@ def the_best_vaccination(events: Events) -> Optional[List[Event]]:
     # 2 vaccinaties van een merk dat er 2 vereist
     return usable_vaccination_events
 
+
 def deduplicate_events(events: List[Event]) -> List[Event]:
     retained: List[Event] = []
     for event in events:
@@ -133,21 +134,24 @@ def deduplicate_events(events: List[Event]) -> List[Event]:
             continue
 
         new_retained = []
-        for other in retained:
-            if event.type != other.type:
-                continue
-            if isinstance(event.vaccination, Vaccination) and isinstance(other.vaccination, Vaccination):
-                if event.vaccination.date != other.vaccination.date:
+        for r in retained:
+            if isinstance(event.vaccination, Vaccination) and isinstance(r.vaccination, Vaccination):
+                # vaccines at the same date are duplicates
+                if event.vaccination.date == r.vaccination.date:
                     continue
-            elif isinstance(event.negativetest, Negativetest) and isinstance(other.negativetest, Negativetest):
-                if event.negativetest.sampleDate != other.negativetest.sampleDate:
+            elif isinstance(event.negativetest, Negativetest) and isinstance(r.negativetest, Negativetest):
+                # negative tests at the same date are duplicates
+                if event.negativetest.sampleDate == r.negativetest.sampleDate:
                     continue
-            elif isinstance(event.positivetest, Positivetest) and isinstance(other.positivetest, Positivetest):
-                if event.positivetest.sampleDate != other.positivetest.sampleDate:
+            elif isinstance(event.positivetest, Positivetest) and isinstance(r.positivetest, Positivetest):
+                # positive tests at the same date are duplicates
+                if event.positivetest.sampleDate == r.positivetest.sampleDate:
                     continue
-            elif isinstance(event.recovery, Recovery) and isinstance(other.recovery, Recovery):
-                if event.recovery.sampleDate != other.recovery.sampleDate:
+            elif isinstance(event.recovery, Recovery) and isinstance(r.recovery, Recovery):
+                # recoveries at the same date are duplicates
+                if event.recovery.sampleDate == r.recovery.sampleDate:
                     continue
+            # event is not a duplicate, retain it
             new_retained.append(event)
         retained.extend(new_retained)
 
@@ -210,27 +214,25 @@ def _relevant_vaccinations(vaccs: List[Event]) -> List[Event]:
         # we have one or more completing vaccinations, use the most recent one
         return [completions[-1]]
 
-    # return the most recent one of a total-dose fulfilling vaccination
+    # return the most recent one of a total-dose fulfilling vaccination (irrespective of brand)
     by_total_dose = {}
     for vacc in vaccs:
-        if not vacc.vaccination.totalDoses in by_total_dose:
+        if vacc.vaccination.totalDoses not in by_total_dose:
             by_total_dose[vacc.vaccination.totalDoses] = [vacc]
         else:
             by_total_dose[vacc.vaccination.totalDoses].append(vacc)
-    if 1 in by_total_dose:
-        # pick the last of single-dose vaccinations
-        best_vacc = by_total_dose[1][-1]
-        best_vacc.vaccination.doseNumber = 1
-        return [best_vacc]
-    elif 2 in by_total_dose:
-        if len(by_total_dose[2]) >= 2:
-            # pick the last of dual-dose vaccinations
-            best_vacc = by_total_dose[2][-1]
-            best_vacc.vaccination.doseNumber = 2
-            return [best_vacc]
+    completions: List[Event] = []
+    for d in by_total_dose.keys():
+        if len(by_total_dose[d]) >= d:
+            best_vacc = by_total_dose[d][-1]
+            best_vacc.vaccination.doseNumber = d
+            completions.append(best_vacc)
+    if completions:
+        # if we have one or more completed vaccinations, by default, return the most recent one
+        return [max(completions, key=lambda e: e.vaccination.date)]
 
-    logging.warning("all, but multiple vaccinations are relevant")
-    return vaccs
+    logging.warning("but multiple vaccinations are relevant; selecting the most recent one")
+    return [vaccs[-1]]
 
 
 def _only_most_recent(events: List[Event]) -> List[Event]:
@@ -249,7 +251,12 @@ def filter_redundant_events(events: Events) -> Events:
     recoveries = _only_most_recent(events.recoveries)
 
     relevant_events = Events()
-    relevant_events.events = [*vaccinations, *positive_tests, *negative_tests, *recoveries]
+    relevant_events.events = [
+        *(vaccinations or []),
+        *(positive_tests or []),
+        *(negative_tests or []),
+        *(recoveries or [])
+    ]
     return relevant_events
 
 
