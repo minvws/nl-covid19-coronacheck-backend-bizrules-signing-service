@@ -264,6 +264,7 @@ class Vaccination(BaseModel):  # noqa
     completedByMedicalStatement: Optional[bool] = Field(
         description="If this vaccination is enough to be fully vaccinated"
     )
+    completedByPersonalStatement: Optional[bool] = Field(description="Individual self-declares fully vaccinated")
 
     country: Iso3166Dash1Alpha3CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
     doseNumber: Optional[int] = Field(example=1, description="will be based on business rules / brand info if left out")
@@ -385,7 +386,6 @@ class DataProviderEvent(BaseModel):
     isSpecimen: bool = Field(False, description="Boolean")
     negativetest: Optional[Negativetest] = Field(None, description="Negativetest")
     positivetest: Optional[Positivetest] = Field(None, description="Positivetest")
-    # todo: only one vaccination per event?
     vaccination: Optional[Vaccination] = Field(None, description="Vaccination")
     recovery: Optional[Recovery] = Field(None, description="Recovery")
 

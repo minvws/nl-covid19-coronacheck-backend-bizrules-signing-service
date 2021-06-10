@@ -53,6 +53,6 @@ loggers:
     level: DEBUG
 
 root:
-  level: ERROR
+  level: DEBUG
   handlers: [console]
   propagate: false

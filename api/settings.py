@@ -41,6 +41,7 @@ class AppSettings(BaseSettings):
 
     SECRETS_FOLDER: pathlib.Path = Field("")
     CONFIG_FOLDER: pathlib.Path = Field("")
+    RESOURCE_FOLDER: pathlib.Path = Field("")
     EVENT_DATA_PROVIDERS_FILENAME: str = ""
     DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME: str = ""
     DYNAMIC_FLOW_JWT_PUBLIC_KEY_FILENAME: str = ""
@@ -66,6 +67,7 @@ class AppSettings(BaseSettings):
     DOMESTIC_MAXIMUM_ISSUANCE_DAYS: int = 14
     DOMESTIC_MAXIMUM_RANDOMIZED_OVERLAP_HOURS: int = 4
     EU_INTERNATIONAL_SIGNING_URL: AnyHttpUrl = Field()
+    EU_INTERNATIONAL_GREENCARD_EXPIRATION_TIME_DAYS: int = 28
 
     # The requests library has a feature that:
     # - False ignores any certificate, True uses system CA and file = against the bundle supplied.
