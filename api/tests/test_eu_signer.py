@@ -289,15 +289,6 @@ def test_eusign_separate(requests_mock):
 def test_eusign_all_events(requests_mock):
     example_answer = {"credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G"}
     requests_mock.post(settings.EU_INTERNATIONAL_SIGNING_URL, json=example_answer)
-
-    testcase_events = {
-        "events": [
-            testcase_event_vaccination,
-            testcase_event_negativetest,
-            testcase_event_positivetest,
-            testcase_event_recovery,
-        ],
-    }
     answer = sign(Events(**testcase_events))
 
     assert answer == [vaccinationGreenCard, convertedPositiveTestToRecoveryGreencard, testGreenCard, recoveryGreenCard]

@@ -16,11 +16,11 @@ from api.models import (
     Vaccination,
     Negativetest,
     Positivetest,
-    Recovery, EventType,
+    Recovery,
+    EventType,
 )
 from api.settings import settings
 from api.utils import request_post_with_retries
-
 
 TZ = pytz.timezone("UTC")
 
@@ -51,7 +51,6 @@ def get_eu_expirationtime() -> datetime:
 
 
 def create_eu_signer_message(event: Event) -> MessageToEUSigner:
-
     event_type = event.type
 
     # The EU signer does not know positive tests only recovery:
@@ -70,38 +69,35 @@ def create_eu_signer_message(event: Event) -> MessageToEUSigner:
     )
 
 
+def same_type_and_same_day(event1, event2, data_type, date_field) -> bool:
+    # the same test type on the same at the same date are duplicates
+    if isinstance(event1, data_type) and isinstance(event2, data_type):
+        if getattr(event1, date_field) == getattr(event2, date_field):
+            log.debug(f"{data_type} at the same date are duplicates.")
+            return True
+    return False
+
+
 def deduplicate_events(events: Events) -> Events:
     # TODO retain the most complete event rather than just this first one
     log.debug(f"Deduplicating {len(events.events)} events.")
     retained: List[Event] = []
     for event in events.events:
-        # log.debug(f"Deduplicating {event}.")
         if event in retained:
             log.debug("Event already in retained, continuing...")
             continue
 
         duplicate = False
         for ret in retained:
-            if isinstance(event.vaccination, Vaccination) and isinstance(ret.vaccination, Vaccination):
-                # vaccines at the same date are duplicates
-                if event.vaccination.date == ret.vaccination.date:
-                    log.debug(f"Vaccines at the same date are duplicates. Ignoring {event.unique}.")
-                    duplicate = True
-            elif isinstance(event.negativetest, Negativetest) and isinstance(ret.negativetest, Negativetest):
-                # negative tests at the same date are duplicates
-                if event.negativetest.sampleDate == ret.negativetest.sampleDate:
-                    log.debug(f"negative tests at the same date are duplicates. Ignoring {event.unique}.")
-                    duplicate = True
-            elif isinstance(event.positivetest, Positivetest) and isinstance(ret.positivetest, Positivetest):
-                # positive tests at the same date are duplicates
-                if event.positivetest.sampleDate == ret.positivetest.sampleDate:
-                    log.debug(f"positive tests at the same date are duplicates. Ignoring {event.unique}.")
-                    duplicate = True
-            elif isinstance(event.recovery, Recovery) and isinstance(ret.recovery, Recovery):
-                # recoveries at the same date are duplicates
-                if event.recovery.sampleDate == ret.recovery.sampleDate:
-                    log.debug(f"recoveries at the same date are duplicates. Ignoring {event.unique}.")
-                    duplicate = True
+            if any(
+                [
+                    same_type_and_same_day(event.vaccination, ret.vaccination, Vaccination, "date"),
+                    same_type_and_same_day(event.negativetest, ret.negativetest, Negativetest, "sampleDate"),
+                    same_type_and_same_day(event.positivetest, ret.positivetest, Positivetest, "sampleDate"),
+                    same_type_and_same_day(event.recovery, ret.recovery, Recovery, "sampleDate"),
+                ]
+            ):
+                duplicate = True
 
         # event is not a duplicate, retain it
         if not duplicate:
@@ -129,8 +125,7 @@ def set_missing_total_doses(events: Events) -> Events:
                 brand = HPK_CODES[vacc.vaccination.hpkCode]["mp"]
             else:
                 logging.warning(
-                    "Cannot determine mp of vaccination; not setting default total doses; "
-                    f"{vacc.vaccination}"
+                    "Cannot determine mp of vaccination; not setting default total doses; " f"{vacc.vaccination}"
                 )
                 continue
             vacc.vaccination.totalDoses = REQUIRED_DOSES[brand]
@@ -335,8 +330,10 @@ def create_signing_messages_based_on_events(events: Events) -> List[MessageToEUS
 
     # remove ineligible events
     eligible_events: Events = remove_ineligble_events(events)
-    log.debug(f"remove_ineligble_events: {len(eligible_events.events)}: "
-              f"{[e.type.lower() for e in eligible_events.events]}")
+    log.debug(
+        f"remove_ineligble_events: {len(eligible_events.events)}: "
+        f"{[e.type.lower() for e in eligible_events.events]}"
+    )
 
     # set required doses, if not given
     eligible_events = set_missing_total_doses(eligible_events)

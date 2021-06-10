@@ -3,7 +3,7 @@ import logging
 from api.models import Events, CredentialsRequestData
 from api.signers.eu_international import sign as eu_sign
 from api.signers.nl_domestic_dynamic import sign as nl_sign
-from api.tests.test_eusigner import testcase_events
+from api.tests.test_eu_signer import testcase_events
 
 log = logging.getLogger(__package__)
 
