@@ -28,12 +28,11 @@ async def test_retrieve_bsn_from_inge6(jwt_token, expected_bsn, requests_mock):
 
 
 def test_calculate_identity_hash_message():
-    assert (
-        calculate_identity_hash_message(
-            "999999138", Holder(firstName="A", lastName="B", birthDate=DutchBirthDate("1970-XX-XX"))
-        )
-        == "999999138-A-B-00"
-    )
+    holder = Holder(firstName="A", lastName="B", birthDate=DutchBirthDate("1970-XX-XX"))
+    assert calculate_identity_hash_message("999999138", holder) == "999999138-A-B-00"
+
+    holder = Holder(firstName="Herman", lastName="Acker", birthDate=DutchBirthDate("1983-12-28"))
+    assert calculate_identity_hash_message("999999138", holder) == "999999138-Herman-Acker-28"
 
 
 identity_hashes = json_from_test_data_file("identity_hashes.json")
