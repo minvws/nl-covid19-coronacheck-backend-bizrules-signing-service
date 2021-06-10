@@ -127,9 +127,9 @@ def the_best_vaccination(events: Events) -> Optional[List[Event]]:
     return usable_vaccination_events
 
 
-def deduplicate_events(events: List[Event]) -> List[Event]:
+def deduplicate_events(events: Events) -> Events:
     retained: List[Event] = []
-    for event in events:
+    for event in events.events:
         if event in retained:
             continue
 
@@ -155,15 +155,40 @@ def deduplicate_events(events: List[Event]) -> List[Event]:
             new_retained.append(event)
         retained.extend(new_retained)
 
-    return retained
+    retained_events = Events()
+    retained_events.events = retained
+    return retained_events
+
+
+def set_missing_total_doses(events: Events) -> Events:
+    """
+    Update the `totalDoses` field on vaccination events that do not have it. Set to the default per mp.
+    """
+    for vacc in [e for e in events.vaccinations]:
+        if not vacc.vaccination.totalDoses:
+            if vacc.vaccination.brand:
+                mp = vacc.vaccination.brand
+            elif vacc.vaccination.hpkCode and vacc.vaccination.hpkCode in HPK_CODES:
+                mp = HPK_CODES[vacc.vaccination.hpkCode]['mp']
+            else:
+                logging.warning("Cannot determine mp of vaccination; not setting default total doses",
+                                json.dumps(vacc.vaccination))
+                continue
+            vacc.vaccination.totalDoses = REQUIRED_DOSES[mp]
+
+    return events
 
 
 def is_eligible(event: Event) -> bool:
+    """
+    Return whether a given event is eligible under the business rules.
+    """
     # Some negative tests are not eligible for signing, they are upgrade v2 events that
     # have incomplete holder information: the year is wrong, the first and last name are one letter.
     if isinstance(event.negativetest, Negativetest) and event.holder.birthDate.year == INVALID_YEAR_FOR_EU_SIGNING:
         return False
 
+    # rules V080, V090, V130
     if isinstance(event.vaccination, Vaccination):
         if event.vaccination.hpkCode in ELIGIBLE_HPK_CODES:
             return True
@@ -173,18 +198,26 @@ def is_eligible(event: Event) -> bool:
             return True
         logging.debug('Ineligible vaccine', json.dumps(event.vaccination))
         return False
+
+    # rules N030, N040, N050, P020, P030, P040
     if isinstance(event.negativetest, Negativetest) or isinstance(event.positivetest, Positivetest):
         if event.negativetest.type in ELIGIBLE_TT:
             return True
         logging.debug('Ineligible test', json.dumps(event.negativetest), json.dumps(event.positivetest))
         return False
+
+    # no rules
     if isinstance(event.recovery, Recovery):
         return True
+
     logging.warning("Received unknown event type; marking ineligible", json.dumps(event))
     return False
 
 
 def _equal_brand_vaccines(this_vacc: Vaccination, other_vacc: Vaccination) -> bool:
+    """
+    Determine if two vaccinations are of the same brand
+    """
     if this_vacc.hpkCode and other_vacc.hpkCode and this_vacc.hpkCode == other_vacc.hpkCode:
         return True
     if this_vacc.brand and other_vacc.brand and this_vacc.brand == other_vacc.brand:
@@ -204,10 +237,17 @@ def _equal_brand_vaccines(this_vacc: Vaccination, other_vacc: Vaccination) -> bo
 
 
 def _relevant_vaccinations(vaccs: List[Event]) -> List[Event]:
+    """
+    Apply business rules to reduce a list of vaccination events to a list of a single vaccination event.
+    This function assumes that all vaccinations have the field `totalDoses` set to the appropriate value.
+    """
+
+    # if we have none or only one, that is the relevant one
     if not vaccs or len(vaccs) == 1:
         return vaccs
 
     # do we have a full qualification, pick the most recent one
+    # rules V010, V040, V100, V110
     completions: List[Event] = []
     for vacc in vaccs:
         if vacc.vaccination.doseNumber and vacc.vaccination.totalDoses and \
@@ -220,6 +260,7 @@ def _relevant_vaccinations(vaccs: List[Event]) -> List[Event]:
         return [completions[-1]]
 
     # return the most recent one of a total-dose fulfilling vaccination (irrespective of brand)
+    # rules V020, V030
     by_total_dose = {}
     for vacc in vaccs:
         if vacc.vaccination.totalDoses not in by_total_dose:
@@ -241,7 +282,11 @@ def _relevant_vaccinations(vaccs: List[Event]) -> List[Event]:
 
 
 def _only_most_recent(events: List[Event]) -> List[Event]:
+    """
+    Return the most recent one from a list of events
+    """
     if events and len(events) > 1:
+        # assume the events are in date order, the last one on the list is the most recent
         return [events[-1]]
     return events
 
@@ -272,6 +317,7 @@ def evaluate_cross_type_events(events: Events) -> Events:
 
     # if we have at least one vaccination and a positive test,
     # we declare the vaccination complete
+    # rule V120
     if not events.vaccinations or events.positivetests:
         return events
 
@@ -306,23 +352,16 @@ def create_signing_messages_based_on_events(events: Events) -> List[MessageToEUS
     eligible_events.events = [e for e in events.events if is_eligible(e)]
 
     # set required doses, if not given
-    for vacc in [e for e in eligible_events.vaccinations]:
-        if not vacc.vaccination.totalDoses:
-            if vacc.vaccination.brand:
-                mp = vacc.vaccination.brand
-            elif vacc.vaccination.hpkCode and vacc.vaccination.hpkCode in HPK_CODES:
-                mp = HPK_CODES[vacc.vaccination.hpkCode]['mp']
-            else:
-                logging.warning("Cannot determine mp of vaccination; not setting default total doses",
-                                json.dumps(vacc.vaccination))
-                continue
-            vacc.vaccination.totalDoses = REQUIRED_DOSES[mp]
+    eligible_events = set_missing_total_doses(eligible_events)
 
     # remove duplications
-    eligible_events.events = deduplicate_events(eligible_events.events)
+    eligible_events = deduplicate_events(eligible_events)
 
     # filter out redundant events
     eligible_events = filter_redundant_events(eligible_events)
+
+    # deal with cross-type events
+    eligible_events = evaluate_cross_type_events(eligible_events)
 
     return [create_eu_signer_message(e, e.type) for e in eligible_events.events]
 
