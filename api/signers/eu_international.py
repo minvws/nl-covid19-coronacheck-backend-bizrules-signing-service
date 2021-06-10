@@ -32,7 +32,6 @@ def read_resource_file(filename: str) -> dict:
 
 
 HPK_CODES = read_resource_file("hpk-codes.json")
-HPK = {c: HPK_CODES["hpk_codes"][c] for c in HPK_CODES["hpk_codes"]}
 ELIGIBLE_HPK_CODES = [c["hpk_code"] for c in HPK_CODES["hpk_codes"]]
 
 MA = read_resource_file("vaccine-mah-manf.json")
