@@ -294,6 +294,12 @@ def evaluate_cross_type_events(events: Events) -> Events:
     return events
 
 
+def remove_ineligble_events(events: Events) -> Events:
+    eligible_events = Events()
+    eligible_events.events = [e for e in events.events if is_eligible(e)]
+    return eligible_events
+
+
 def create_signing_messages_based_on_events(events: Events) -> List[MessageToEUSigner]:
     """
     Based on events this creates messages sent to the EU signer. Each message is a digital
@@ -302,10 +308,8 @@ def create_signing_messages_based_on_events(events: Events) -> List[MessageToEUS
     :param events:
     :return:
     """
-    eligible_events = Events()
-
     # remove ineligible events
-    eligible_events.events = [e for e in events.events if is_eligible(e)]
+    eligible_events: Events = remove_ineligble_events(events)
 
     # set required doses, if not given
     eligible_events = set_missing_total_doses(eligible_events)
