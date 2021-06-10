@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import date, datetime, timedelta
-from typing import List, Optional
+from typing import List
 import os.path
 
 import pytz
@@ -106,7 +106,7 @@ def set_missing_total_doses(events: Events) -> Events:
             else:
                 logging.warning(
                     "Cannot determine mp of vaccination; not setting default total doses; "
-                    & f"{json.dumps(vacc.vaccination)}"
+                    f"{json.dumps(vacc.vaccination)}"
                 )
                 continue
             vacc.vaccination.totalDoses = REQUIRED_DOSES[brand]
