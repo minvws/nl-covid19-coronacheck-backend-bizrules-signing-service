@@ -191,11 +191,11 @@ def _to_holder(vraag_response) -> Holder:
                     continue
                 for element in categorievoorkomen.elementen.item:
                     if element.nummer == 210:
-                        voornamen = element.waarde
+                        voornamen = element.waarde or voornamen
                     if element.nummer == 240:
-                        geslachtsnaam = element.waarde
+                        geslachtsnaam = element.waarde or geslachtsnaam
                     if element.nummer == 310:
-                        geboortedatum = element.waarde
+                        geboortedatum = element.waarde or geboortedatum
 
     return Holder(
         firstName=voornamen, lastName=geslachtsnaam, birthDate=rvig_birtdate_to_dutch_birthdate(geboortedatum)

@@ -7,6 +7,7 @@ from freezegun import freeze_time
 from api.app import app
 from api.settings import settings
 from api.tests.test_identity_hashes import bsn_test_data
+from api.tests.test_rvig import RVIG_URL
 from api.utils import read_file
 
 jwt_token = bsn_test_data[0][0]
@@ -34,7 +35,7 @@ def test_validate_bearer():
 @freeze_time("2020-02-02")
 def test_sign_via_app_step_1(requests_mock, current_path, mocker):
     requests_mock.post(
-        url="https://147.181.7.110/gba-v/online/lo3services/adhoc",
+        url=RVIG_URL,
         text=read_file(f"{current_path}/rvig/999995571.xml"),
     )
     encrypted_bsn = "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMUND6owfnEdTl4ZeCzPiQwdQNv39vIpNeMlJ8g=="  # bsn=999999138

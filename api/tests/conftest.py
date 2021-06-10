@@ -28,3 +28,9 @@ def root_path():
 @pytest.fixture
 def current_path():
     yield TESTS_DIR
+
+
+if settings.RVIG_ENVIRONMENT == "mock":
+    require_rvig_mock = lambda f: f  # decorator that does nothing
+else:
+    require_rvig_mock = pytest.mark.skip(reason="Skipping since settings.RVIG_ENVIRONMENT != mock")
