@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import date, datetime, timedelta
-from typing import List
+from typing import List, Any, Dict
 import os.path
 
 import pytz
@@ -25,7 +25,7 @@ from api.utils import request_post_with_retries
 TZ = pytz.timezone("UTC")
 
 
-def read_resource_file(filename: str) -> dict:
+def read_resource_file(filename: str) -> Any:
     with open(os.path.join(settings.RESOURCE_FOLDER, filename)) as file:
         return json.load(file)
 
@@ -55,11 +55,11 @@ def create_eu_signer_message(event: Event) -> MessageToEUSigner:
 
     # The EU signer does not know positive tests only recovery:
     if event_type == EventType.positivetest:
-        event_type = "recovery"
+        event_type = EventType.recovery
 
     # The EU signer does not know negative tests, only tests.
     if event_type == EventType.negativetest:
-        event_type = "test"
+        event_type = EventType.test
 
     return MessageToEUSigner(
         keyUsage=event_type,
@@ -118,6 +118,10 @@ def set_missing_total_doses(events: Events) -> Events:
     Update the `totalDoses` field on vaccination events that do not have it. Set to the default per mp.
     """
     for vacc in events.vaccinations:
+        # make mypy happy
+        if not vacc.vaccination:
+            continue
+
         if not vacc.vaccination.totalDoses:
             if vacc.vaccination.brand:
                 brand = vacc.vaccination.brand
@@ -135,6 +139,11 @@ def set_missing_total_doses(events: Events) -> Events:
 
 def _is_eligible_vaccination(event: Event) -> bool:
     # rules V080, V090, V130
+
+    # make mypy happy
+    if not event.vaccination:
+        return False
+
     if (
         event.vaccination.hpkCode in ELIGIBLE_HPK_CODES
         or event.vaccination.brand in ELIGIBLE_MA
@@ -200,13 +209,15 @@ def _equal_brand_vaccines(this_vacc: Vaccination, other_vacc: Vaccination) -> bo
     this_brand = this_vacc.brand if this_vacc.brand else HPK_CODES[this_vacc.hpkCode]
     other_brand = other_vacc.brand if other_vacc.brand else HPK_CODES[other_vacc.hpkCode]
 
-    return this_brand and other_brand and this_brand == other_brand
+    return all([this_brand, other_brand, this_brand == other_brand])
 
 
 def _relevant_vaccinations(vaccs: List[Event]) -> List[Event]:
     """
     Apply business rules to reduce a list of vaccination events to a list of a single vaccination event.
     This function assumes that all vaccinations have the field `totalDoses` set to the appropriate value.
+
+    Todo: split this into better semantical methods as most seem to be abracadabra
     """
 
     # if we have none or only one, that is the relevant one
@@ -218,6 +229,11 @@ def _relevant_vaccinations(vaccs: List[Event]) -> List[Event]:
     # rules V010, V040, V100, V110
     completions: List[Event] = []
     for vacc in vaccs:
+
+        # make mypy happy, this state will never happen.
+        if not vacc.vaccination:
+            continue
+
         if (
             vacc.vaccination.doseNumber
             and vacc.vaccination.totalDoses
@@ -233,23 +249,34 @@ def _relevant_vaccinations(vaccs: List[Event]) -> List[Event]:
         best_vacc = completions[-1]
         return [best_vacc]
 
+    return most_recent_vaccination_of_a_total_dose_fulfilling_vaccination(vaccs)
+
+
+def most_recent_vaccination_of_a_total_dose_fulfilling_vaccination(vaccs) -> List[Event]:
     # return the most recent one of a total-dose fulfilling vaccination (irrespective of brand)
     # rules V020, V030
-    by_total_dose = {}
+    by_total_dose: Dict[int, List[Event]] = {}
     for vacc in vaccs:
+
+        # make mypy happy, this state will never happen.
+        if not vacc.vaccination:
+            continue
+
         if vacc.vaccination.totalDoses not in by_total_dose:
-            by_total_dose[vacc.vaccination.totalDoses] = [vacc]
+            # note that totalDoses and dose are optional.
+            by_total_dose[vacc.vaccination.totalDoses if vacc.vaccination.totalDoses else 0] = [vacc]
         else:
-            by_total_dose[vacc.vaccination.totalDoses].append(vacc)
+            by_total_dose[vacc.vaccination.totalDoses if vacc.vaccination.totalDoses else 0].append(vacc)
     completions = []
     for dose in by_total_dose:
         if len(by_total_dose[dose]) >= dose:
             best_vacc = by_total_dose[dose][-1]
-            best_vacc.vaccination.doseNumber = dose
+            # todo: fix typing to something correct.
+            best_vacc.vaccination.doseNumber = dose  # type: ignore
             completions.append(best_vacc)
     if completions:
         # if we have one or more completed vaccinations, by default, return the most recent one
-        return [max(completions, key=lambda e: e.vaccination.date)]
+        return [max(completions, key=lambda e: e.vaccination.date)]  # type: ignore
 
     logging.warning("but multiple vaccinations are relevant; selecting the most recent one")
     return [vaccs[-1]]
@@ -305,7 +332,8 @@ def evaluate_cross_type_events(events: Events) -> Events:
     else:
         vacc = events.vaccinations[0]
 
-    vacc.vaccination.doseNumber = vacc.vaccination.totalDoses
+    # todo: are doeses optional? Or are they always set?
+    vacc.vaccination.doseNumber = vacc.vaccination.totalDoses  # type: ignore
 
     retained_events = [e for e in events.events if e.type != "vaccination" or e == vacc]
     events.events = retained_events
@@ -393,12 +421,14 @@ def sign(events: Events) -> List[EUGreenCard]:
 def get_event_time(statement_to_eu_signer: MessageToEUSigner):
     # Types are ignored because they map this way: the can not be none if the keyUsage is set as per above logic.
 
-    if statement_to_eu_signer.dgc.v:
-        event_time = statement_to_eu_signer.dgc.v[0].dt  # type: ignore
-    elif statement_to_eu_signer.dgc.r:
-        event_time = statement_to_eu_signer.dgc.r[0].fr  # type: ignore
-    elif statement_to_eu_signer.dgc.t:
-        event_time = statement_to_eu_signer.dgc.t[0].sc  # type: ignore
+    dgc = statement_to_eu_signer.dgc
+
+    if dgc.v:
+        event_time = dgc.v[0].dt
+    elif dgc.r:
+        event_time = dgc.r[0].fr
+    elif dgc.t:
+        event_time = dgc.t[0].sc
     else:
         raise ValueError("Not able to retrieve an event time from the statement to the signer. This is very wrong.")
 
