@@ -253,6 +253,7 @@ def _relevant_vaccinations(vaccs: List[Event]) -> List[Event]:
     """
 
     # if we have none or only one, that is the relevant one
+    # rules V050, V060, V070
     if not vaccs or len(vaccs) == 1:
         return vaccs
 
@@ -295,10 +296,12 @@ def _only_most_recent(events: List[Event]) -> List[Event]:
     """
     Return the most recent one from a list of events
     """
-    if events and len(events) > 1:
-        # assume the events are in date order, the last one on the list is the most recent
-        return [events[-1]]
-    return events
+
+    # rules N010, N020, P010
+    if not events or len(events) == 1:
+        return events
+    # assume the events are in date order, the last one on the list is the most recent
+    return [events[-1]]
 
 
 def filter_redundant_events(events: Events) -> Events:
