@@ -219,7 +219,7 @@ def _relevant_vaccinations(vaccs: List[Event]) -> List[Event]:
             by_total_dose[vacc.vaccination.totalDoses] = [vacc]
         else:
             by_total_dose[vacc.vaccination.totalDoses].append(vacc)
-    completions: List[Event] = []
+    completions = []
     for dose in by_total_dose:
         if len(by_total_dose[dose]) >= dose:
             best_vacc = by_total_dose[dose][-1]
