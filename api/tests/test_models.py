@@ -8,8 +8,8 @@ from api.models import (
     EuropeanOnlineSigningRequestNamingSection,
     EventType,
     Holder,
-    V2Event,
     Iso3166Dash1Alpha3CountryCode,
+    V2Event,
 )
 
 

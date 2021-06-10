@@ -12,6 +12,7 @@ from fastapi import FastAPI, Header, HTTPException
 
 from api.enrichment.rvig import rvig
 from api.models import (
+    ApplicationHealth,
     CMSSignedDataBlob,
     CredentialsRequestData,
     DataProviderEventsResult,
@@ -23,7 +24,6 @@ from api.models import (
     MobileAppProofOfVaccination,
     PrepareIssueResponse,
     V2Event,
-    ApplicationHealth,
 )
 from api.requesters import identity_hashes
 from api.requesters.prepare_issue import get_prepare_issue

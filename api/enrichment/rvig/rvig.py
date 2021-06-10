@@ -1,7 +1,7 @@
 from typing import List
 
 from fastapi import HTTPException
-from requests import Session, RequestException
+from requests import RequestException, Session
 from requests.auth import HTTPBasicAuth
 from zeep import Client
 from zeep.transports import Transport
