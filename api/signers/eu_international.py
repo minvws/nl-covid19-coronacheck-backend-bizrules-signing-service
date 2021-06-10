@@ -53,14 +53,14 @@ def get_eu_expirationtime() -> datetime:
 def create_eu_signer_message(event: Event) -> MessageToEUSigner:
 
     event_type = event.type
+
+    # The EU signer does not know positive tests only recovery:
+    if event_type == EventType.positivetest:
+        event_type = "recovery"
+
     # The EU signer does not know negative tests, only tests.
     if event_type == EventType.negativetest:
         event_type = "test"
-
-    # The EU signer does not know positive tests only recovery:
-    # Todo: the wrong message is probably being created with the positive test. It should call the toEuropeanRecovery.
-    if event_type == EventType.positivetest:
-        event_type = "recovery"
 
     return MessageToEUSigner(
         keyUsage=event_type,
@@ -130,7 +130,7 @@ def set_missing_total_doses(events: Events) -> Events:
             else:
                 logging.warning(
                     "Cannot determine mp of vaccination; not setting default total doses; "
-                    f"{json.dumps(vacc.vaccination)}"
+                    f"{vacc.vaccination}"
                 )
                 continue
             vacc.vaccination.totalDoses = REQUIRED_DOSES[brand]
@@ -146,7 +146,7 @@ def _is_eligible_vaccination(event: Event) -> bool:
         or event.vaccination.manufacturer in ELIGIBLE_MP
     ):
         return True
-    logging.debug(f"Ineligible vaccine; {json.dumps(event.vaccination)}")
+    logging.debug(f"Ineligible vaccine; {event.vaccination}")
     return False
 
 
@@ -159,7 +159,7 @@ def _is_eligible_test(event: Event) -> bool:
     if isinstance(event.positivetest, Positivetest) and event.positivetest.type in ELIGIBLE_TT:
         return True
 
-    logging.debug(f"Ineligible test; {json.dumps(event.negativetest), json.dumps(event.positivetest)}")
+    logging.debug(f"Ineligible test; {event}")
     return False
 
 
@@ -182,7 +182,7 @@ def is_eligible(event: Event) -> bool:
     if isinstance(event.recovery, Recovery):
         return True
 
-    logging.warning(f"Received unknown event type; marking ineligible; {json.dumps(event)}")
+    logging.warning(f"Received unknown event type; marking ineligible; {event}")
     return False
 
 
@@ -196,10 +196,10 @@ def _equal_brand_vaccines(this_vacc: Vaccination, other_vacc: Vaccination) -> bo
         return True
 
     if this_vacc.brand is None and this_vacc.hpkCode is None:
-        logging.warning(f"Cannot determine brand of vaccination; {json.dumps(this_vacc)}")
+        logging.warning(f"Cannot determine brand of vaccination; {this_vacc}")
         return False
     if other_vacc.brand is None and other_vacc.hpkCode is None:
-        logging.warning(f"Cannot determine brand of vaccination; {json.dumps(other_vacc)}")
+        logging.warning(f"Cannot determine brand of vaccination; {other_vacc}")
         return False
 
     this_brand = this_vacc.brand if this_vacc.brand else HPK_CODES[this_vacc.hpkCode]
@@ -335,7 +335,8 @@ def create_signing_messages_based_on_events(events: Events) -> List[MessageToEUS
 
     # remove ineligible events
     eligible_events: Events = remove_ineligble_events(events)
-    log.debug(f"remove_ineligble_events: {len(eligible_events.events)}")
+    log.debug(f"remove_ineligble_events: {len(eligible_events.events)}: "
+              f"{[e.type.lower() for e in eligible_events.events]}")
 
     # set required doses, if not given
     eligible_events = set_missing_total_doses(eligible_events)
@@ -368,12 +369,12 @@ def sign(events: Events) -> List[EUGreenCard]:
     greencards = []
     messages_to_eu_signer = create_signing_messages_based_on_events(events)
     log.debug(f"Messages to EU signer: {len(messages_to_eu_signer)}")
-    for statement_to_eu_signer in messages_to_eu_signer:
+    for message_to_eu_signer in messages_to_eu_signer:
         response = request_post_with_retries(
             settings.EU_INTERNATIONAL_SIGNING_URL,
             # by_alias uses the alias field to create a json object. As such 'is_' will be 'is'.
             # exclude_none is used to omit v, t and r entirely
-            data=statement_to_eu_signer.dict(by_alias=True, exclude_none=True),
+            data=message_to_eu_signer.dict(by_alias=True, exclude_none=True),
             headers={"accept": "application/json", "Content-Type": "application/json"},
         )
         if response.status_code != 200:
@@ -382,10 +383,10 @@ def sign(events: Events) -> List[EUGreenCard]:
         data = response.json()
         origins = [
             {
-                "type": statement_to_eu_signer.keyUsage,
-                "eventTime": str(get_event_time(statement_to_eu_signer).isoformat()),
+                "type": message_to_eu_signer.keyUsage,
+                "eventTime": str(get_event_time(message_to_eu_signer).isoformat()),
                 "expirationTime": str(get_eu_expirationtime().isoformat()),
-                "validFrom": str(get_event_time(statement_to_eu_signer).isoformat()),
+                "validFrom": str(get_event_time(message_to_eu_signer).isoformat()),
             }
         ]
         greencards.append(EUGreenCard(**{**data, **{"origins": origins}}))
@@ -395,11 +396,11 @@ def sign(events: Events) -> List[EUGreenCard]:
 def get_event_time(statement_to_eu_signer: MessageToEUSigner):
     # Types are ignored because they map this way: the can not be none if the keyUsage is set as per above logic.
 
-    if statement_to_eu_signer.keyUsage == "vaccination":
+    if statement_to_eu_signer.dgc.v:
         event_time = statement_to_eu_signer.dgc.v[0].dt  # type: ignore
-    elif statement_to_eu_signer.keyUsage == "recovery":
+    elif statement_to_eu_signer.dgc.r:
         event_time = statement_to_eu_signer.dgc.r[0].fr  # type: ignore
-    elif statement_to_eu_signer.keyUsage == "test":
+    elif statement_to_eu_signer.dgc.t:
         event_time = statement_to_eu_signer.dgc.t[0].sc  # type: ignore
     else:
         raise ValueError("Not able to retrieve an event time from the statement to the signer. This is very wrong.")
