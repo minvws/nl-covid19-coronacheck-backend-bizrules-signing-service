@@ -1,4 +1,3 @@
-import copy
 import json
 import logging
 from datetime import date, datetime, timedelta
@@ -30,8 +29,8 @@ TZ = pytz.timezone("UTC")
 
 
 def read_resource_file(filename: str) -> dict:
-    with open(os.path.join(settings.RESOURCE_FOLDER, filename)) as f:
-        return json.load(f)
+    with open(os.path.join(settings.RESOURCE_FOLDER, filename)) as file:
+        return json.load(file)
 
 
 HPK_CODES = read_resource_file('hpk-codes.json')
@@ -134,22 +133,22 @@ def deduplicate_events(events: Events) -> Events:
             continue
 
         new_retained = []
-        for r in retained:
-            if isinstance(event.vaccination, Vaccination) and isinstance(r.vaccination, Vaccination):
+        for ret in retained:
+            if isinstance(event.vaccination, Vaccination) and isinstance(ret.vaccination, Vaccination):
                 # vaccines at the same date are duplicates
-                if event.vaccination.date == r.vaccination.date:
+                if event.vaccination.date == ret.vaccination.date:
                     continue
-            elif isinstance(event.negativetest, Negativetest) and isinstance(r.negativetest, Negativetest):
+            elif isinstance(event.negativetest, Negativetest) and isinstance(ret.negativetest, Negativetest):
                 # negative tests at the same date are duplicates
-                if event.negativetest.sampleDate == r.negativetest.sampleDate:
+                if event.negativetest.sampleDate == ret.negativetest.sampleDate:
                     continue
-            elif isinstance(event.positivetest, Positivetest) and isinstance(r.positivetest, Positivetest):
+            elif isinstance(event.positivetest, Positivetest) and isinstance(ret.positivetest, Positivetest):
                 # positive tests at the same date are duplicates
-                if event.positivetest.sampleDate == r.positivetest.sampleDate:
+                if event.positivetest.sampleDate == ret.positivetest.sampleDate:
                     continue
-            elif isinstance(event.recovery, Recovery) and isinstance(r.recovery, Recovery):
+            elif isinstance(event.recovery, Recovery) and isinstance(ret.recovery, Recovery):
                 # recoveries at the same date are duplicates
-                if event.recovery.sampleDate == r.recovery.sampleDate:
+                if event.recovery.sampleDate == ret.recovery.sampleDate:
                     continue
             # event is not a duplicate, retain it
             new_retained.append(event)
@@ -164,19 +163,42 @@ def set_missing_total_doses(events: Events) -> Events:
     """
     Update the `totalDoses` field on vaccination events that do not have it. Set to the default per mp.
     """
-    for vacc in [e for e in events.vaccinations]:
+    for vacc in events.vaccinations:
         if not vacc.vaccination.totalDoses:
             if vacc.vaccination.brand:
-                mp = vacc.vaccination.brand
+                brand = vacc.vaccination.brand
             elif vacc.vaccination.hpkCode and vacc.vaccination.hpkCode in HPK_CODES:
-                mp = HPK_CODES[vacc.vaccination.hpkCode]['mp']
+                brand = HPK_CODES[vacc.vaccination.hpkCode]['mp']
             else:
-                logging.warning("Cannot determine mp of vaccination; not setting default total doses",
-                                json.dumps(vacc.vaccination))
+                logging.warning("Cannot determine mp of vaccination; not setting default total doses; " &
+                                f"{json.dumps(vacc.vaccination)}")
                 continue
-            vacc.vaccination.totalDoses = REQUIRED_DOSES[mp]
+            vacc.vaccination.totalDoses = REQUIRED_DOSES[brand]
 
     return events
+
+
+def _is_eligible_vaccination(event: Event) -> bool:
+    # rules V080, V090, V130
+    if event.vaccination.hpkCode in ELIGIBLE_HPK_CODES or \
+            event.vaccination.brand in ELIGIBLE_MA or \
+            event.vaccination.manufacturer in ELIGIBLE_MP:
+        return True
+    logging.debug(f"Ineligible vaccine; {json.dumps(event.vaccination)}")
+    return False
+
+
+def _is_eligible_test(event: Event) -> bool:
+    # rules N030, N040, N050
+    if isinstance(event.negativetest, Negativetest) and event.negativetest.type in ELIGIBLE_TT:
+        return True
+
+    # rules P020, P030, P040
+    if isinstance(event.positivetest, Positivetest) and event.positivetest.type in ELIGIBLE_TT:
+        return True
+
+    logging.debug(f"Ineligible test; {json.dumps(event.negativetest), json.dumps(event.positivetest)}")
+    return False
 
 
 def is_eligible(event: Event) -> bool:
@@ -188,29 +210,17 @@ def is_eligible(event: Event) -> bool:
     if isinstance(event.negativetest, Negativetest) and event.holder.birthDate.year == INVALID_YEAR_FOR_EU_SIGNING:
         return False
 
-    # rules V080, V090, V130
     if isinstance(event.vaccination, Vaccination):
-        if event.vaccination.hpkCode in ELIGIBLE_HPK_CODES:
-            return True
-        if event.vaccination.brand in ELIGIBLE_MA:
-            return True
-        if event.vaccination.manufacturer in ELIGIBLE_MP:
-            return True
-        logging.debug('Ineligible vaccine', json.dumps(event.vaccination))
-        return False
+        return _is_eligible_vaccination(event)
 
-    # rules N030, N040, N050, P020, P030, P040
     if isinstance(event.negativetest, Negativetest) or isinstance(event.positivetest, Positivetest):
-        if event.negativetest.type in ELIGIBLE_TT:
-            return True
-        logging.debug('Ineligible test', json.dumps(event.negativetest), json.dumps(event.positivetest))
-        return False
+        return _is_eligible_test(event)
 
     # no rules
     if isinstance(event.recovery, Recovery):
         return True
 
-    logging.warning("Received unknown event type; marking ineligible", json.dumps(event))
+    logging.warning(f"Received unknown event type; marking ineligible; {json.dumps(event)}")
     return False
 
 
@@ -224,10 +234,10 @@ def _equal_brand_vaccines(this_vacc: Vaccination, other_vacc: Vaccination) -> bo
         return True
 
     if this_vacc.brand is None and this_vacc.hpkCode is None:
-        logging.warning("Cannot determine brand of vaccination", json.dumps(this_vacc))
+        logging.warning(f"Cannot determine brand of vaccination; {json.dumps(this_vacc)}")
         return False
     if other_vacc.brand is None and other_vacc.hpkCode is None:
-        logging.warning("Cannot determine brand of vaccination", json.dumps(other_vacc))
+        logging.warning(f"Cannot determine brand of vaccination; {json.dumps(other_vacc)}")
         return False
 
     this_brand = this_vacc.brand if this_vacc.brand else HPK_CODES[this_vacc.hpkCode]
@@ -268,10 +278,10 @@ def _relevant_vaccinations(vaccs: List[Event]) -> List[Event]:
         else:
             by_total_dose[vacc.vaccination.totalDoses].append(vacc)
     completions: List[Event] = []
-    for d in by_total_dose.keys():
-        if len(by_total_dose[d]) >= d:
-            best_vacc = by_total_dose[d][-1]
-            best_vacc.vaccination.doseNumber = d
+    for dose in by_total_dose:
+        if len(by_total_dose[dose]) >= dose:
+            best_vacc = by_total_dose[dose][-1]
+            best_vacc.vaccination.doseNumber = dose
             completions.append(best_vacc)
     if completions:
         # if we have one or more completed vaccinations, by default, return the most recent one
