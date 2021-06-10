@@ -6,6 +6,7 @@ import os.path
 
 import pytz
 
+from api import log
 from api.models import (
     INVALID_YEAR_FOR_EU_SIGNING,
     EUGreenCard,
@@ -21,7 +22,6 @@ from api.models import (
 from api.settings import settings
 from api.utils import request_post_with_retries
 
-log = logging.getLogger(__package__)
 
 TZ = pytz.timezone("UTC")
 
@@ -52,6 +52,7 @@ def get_eu_expirationtime() -> datetime:
 
 
 def create_eu_signer_message(event: Event, event_type: EventType) -> MessageToEUSigner:
+    log.debug(f"Creating EU signer message: {event}, {event_type}")
     return MessageToEUSigner(
         keyUsage=event_type,
         expirationTime=get_eu_expirationtime(),
@@ -308,20 +309,27 @@ def create_signing_messages_based_on_events(events: Events) -> List[MessageToEUS
     :param events:
     :return:
     """
+    log.debug(f"Filtering, reducing and preparing eu signing requests, starting with N events: {len(events.events)}")
+
     # remove ineligible events
     eligible_events: Events = remove_ineligble_events(events)
+    log.debug(f"remove_ineligble_events: {len(eligible_events.events)}")
 
     # set required doses, if not given
     eligible_events = set_missing_total_doses(eligible_events)
+    log.debug(f"set_missing_total_doses: {len(eligible_events.events)}")
 
     # remove duplications
     eligible_events = deduplicate_events(eligible_events)
+    log.debug(f"deduplicate_events: {len(eligible_events.events)}")
 
     # filter out redundant events
     eligible_events = filter_redundant_events(eligible_events)
+    log.debug(f"filter_redundant_events: {len(eligible_events.events)}")
 
     # deal with cross-type events
     eligible_events = evaluate_cross_type_events(eligible_events)
+    log.debug(f"evaluate_cross_type_events: {len(eligible_events.events)}")
 
     return [create_eu_signer_message(e, e.type) for e in eligible_events.events]
 
@@ -336,7 +344,9 @@ def sign(events: Events) -> List[EUGreenCard]:
     # todo: add picking of the best applicable events, such as the_best_vaccination
 
     greencards = []
-    for statement_to_eu_signer in create_signing_messages_based_on_events(events):
+    messages_to_eu_signer = create_signing_messages_based_on_events(events)
+    log.debug(f"Messages to EU signer: {len(messages_to_eu_signer)}")
+    for statement_to_eu_signer in messages_to_eu_signer:
         response = request_post_with_retries(
             settings.EU_INTERNATIONAL_SIGNING_URL,
             # by_alias uses the alias field to create a json object. As such 'is_' will be 'is'.
