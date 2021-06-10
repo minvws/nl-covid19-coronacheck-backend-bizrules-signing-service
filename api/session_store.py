@@ -1,9 +1,11 @@
 from base64 import b64encode
-from typing import Dict, Optional, Union
+from typing import Optional, List
 from uuid import UUID, uuid4
 
 import redis
 
+from api import log
+from api.models import ServiceHealth
 from api.settings import AppSettings, RedisSettings, redis_settings, settings
 from api.utils import hmac256
 
@@ -43,12 +45,14 @@ class SessionStore:
             return message
         return None
 
-    def health_check(self) -> Dict[str, Union[bool, str]]:
+    def health_check(self) -> List[ServiceHealth]:
         try:
             self._redis.ping()
-            return {"is_healthy": True, "message": "ping succeeded"}
+            return [ServiceHealth(service="redis", is_healthy=True, message="ping succeeded")]
         except redis.exceptions.RedisError as err:
-            return {"is_healthy": False, "message": repr(err)}
+            # Do not publish specifics about the service.
+            log.exception(err)
+            return [ServiceHealth(service="redis", is_healthy=False, message="Could not ping redis.")]
 
 
 session_store = SessionStore(settings, redis_settings)
