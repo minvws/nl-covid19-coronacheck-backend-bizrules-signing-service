@@ -55,6 +55,7 @@ class AppSettings(BaseSettings):
     RVIG_PASSWORD: str = ""
     # todo: add enum validation to dev or prod. Todo: rename to WSDL_ENVIRONMENT
     RVIG_ENVIRONMENT: str = "dev"
+    RVIG_HEALTH_CHECK_BSN: str = ""
 
     HPK_MAPPING_FILE: str = ""
     HPK_MAPPING: Dict[Optional[str], Any] = {}

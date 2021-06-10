@@ -5,12 +5,14 @@ import json
 import logging
 import sys
 from http import HTTPStatus
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 from uuid import UUID
 
 from fastapi import FastAPI, Header, HTTPException
 
+from api.enrichment.rvig import rvig
 from api.models import (
+    ApplicationHealth,
     CMSSignedDataBlob,
     CredentialsRequestData,
     DataProviderEventsResult,
@@ -33,18 +35,9 @@ app = FastAPI()
 
 
 @app.get("/")
-@app.get("/health")
-async def health_request() -> Dict[str, Any]:
-    """
-    Show the system health and status of internal dependencies
-    """
-    redis_health = session_store.health_check()
-    return {
-        "running": True,
-        "service_status": {
-            "redis": redis_health,
-        },
-    }
+@app.get("/health", response_model=ApplicationHealth)
+async def health_request() -> ApplicationHealth:
+    return ApplicationHealth(running=True, service_status=session_store.health_check() + rvig.health())
 
 
 def get_jwt_from_authorization_header(header_data: str) -> str:

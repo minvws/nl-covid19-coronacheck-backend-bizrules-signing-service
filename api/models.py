@@ -135,7 +135,9 @@ class DutchBirthDate(str):
 
         # Any other values than X-s and any incorrect formatting.
         if not re.fullmatch(r"[0-9]{4}-([0-9]{2}|XX)-([0-9]{2}|XX)", possible_date):
-            raise ValueError(f"{default_error_message} (wrong format or invalid substitution character).")
+            raise ValueError(
+                f"{default_error_message} ({possible_date} has wrong format or invalid substitution character)."
+            )
 
         return cls(possible_date)
 
@@ -887,3 +889,33 @@ class V2Event(BaseModel):
                 )
             ],
         )
+
+
+class ServiceHealth(BaseModel):  # noqa
+    service: str = Field(description="Name of the service.", example="redis")
+    is_healthy: bool
+    message: str = Field(
+        description="A vague, non-technical, message that describe what was checked. "
+        "In case of not healthy: a vague message of what went wrong."
+        "Do not add entire exceptions in this message.",
+        example="Ping success!",
+    )
+
+
+class ApplicationHealth(BaseModel):  # noqa
+    """
+    Show the system health and status of internal dependencies.
+
+    It does not show any specifics in case of errors, only vague hints of where to look. Always log the exception
+    or error with log.exception() so operations can take a look.
+    """
+
+    running: bool = Field(
+        description="Indication if the service is running at all. Usually true from the app itself.", default=True
+    )
+    # This is a list because there is no concrete idea about what services should be active or checked.
+    # Adding a hardcoded key is less flexible.
+    # This makes it easier to add new ServiceHealth for any application.
+    # Todo: Checks should preferably happen in parallel, as a multitude of checks could take longer than the
+    #  webserver timeout. Currently not an issue.
+    service_status: List[ServiceHealth]

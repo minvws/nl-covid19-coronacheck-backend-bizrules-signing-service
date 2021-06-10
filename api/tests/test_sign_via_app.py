@@ -7,6 +7,7 @@ from freezegun import freeze_time
 from api.app import app
 from api.settings import settings
 from api.tests.test_identity_hashes import bsn_test_data
+from api.tests.test_rvig import RVIG_URL
 from api.utils import read_file
 
 jwt_token = bsn_test_data[0][0]
@@ -34,7 +35,7 @@ def test_validate_bearer():
 @freeze_time("2020-02-02")
 def test_sign_via_app_step_1(requests_mock, current_path, mocker):
     requests_mock.post(
-        url="https://147.181.7.110/gba-v/online/lo3services/adhoc",
+        url=RVIG_URL,
         text=read_file(f"{current_path}/rvig/999995571.xml"),
     )
     encrypted_bsn = "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMUND6owfnEdTl4ZeCzPiQwdQNv39vIpNeMlJ8g=="  # bsn=999999138
@@ -70,7 +71,7 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
         "aud": "https://example.com/unomi/v2/",
         "exp": 1580688000,
         "iat": 1580601600,
-        "identityhash": "c06262ecc1b8a5162b147c11f459a36a986811caf76f1571926168c8be503b11",
+        "identityhash": "e74bd4ced20748704a6526ac63ece6b8c9fa96a08aedd280573071b186ecf939",
         "iss": "jwt.test.coronacheck.nl",
         "nbf": 1580601600,
     }
@@ -86,7 +87,7 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
         "bsn": "fb8556301733648f2a2cf721499b3b0690d9d872d4293ed111",
         "exp": 1580688000,
         "iat": 1580601600,
-        "identityhash": "c06262ecc1b8a5162b147c11f459a36a986811caf76f1571926168c8be503b11",
+        "identityhash": "e74bd4ced20748704a6526ac63ece6b8c9fa96a08aedd280573071b186ecf939",
         "iss": "jwt.test.coronacheck.nl",
         "nbf": 1580601600,
         "nonce": "303132333435363738393031323334353637383930313233",

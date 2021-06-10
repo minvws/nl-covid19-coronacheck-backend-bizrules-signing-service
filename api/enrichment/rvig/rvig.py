@@ -1,14 +1,15 @@
+from typing import List
+
 from fastapi import HTTPException
+from requests import RequestException, Session
 from requests.auth import HTTPBasicAuth
-from requests import Session
 from zeep import Client
 from zeep.transports import Transport
 
 from api import log
 from api.constants import INGE4_ROOT
-from api.models import Holder
+from api.models import Holder, ServiceHealth
 from api.settings import settings
-
 
 """
 Het rubrieknummer bestaat uit zes cijfers. De eerste twee cijfers geven het categorienummer op de PL, de code voor
@@ -19,7 +20,6 @@ Nummers zijn uit gegevenwoordenboek pagina 240 (LO+GBA+3.13a.pdf)
 """
 RVIG_VOORNAAM = 10210
 RVIG_GESLACHTSNAAM = 10240
-# Todo: jjjjmmdd, jjjjmm00, jjjj0000, 00000000 -> van helemaal geen geboortedatum pakken we het jaar 0000.
 RVIG_GEBOORTEDATUM = 10310
 
 
@@ -98,23 +98,37 @@ Example response:
 </soap:Envelope>
 """
 
-# Performance optimization: set all of these things once and keep reusing them
-# todo: make more easily testable
-session = Session()
-session.verify = False
-session.cert = settings.RVIG_CERT
-session.auth = HTTPBasicAuth(username=settings.RVIG_USERNAME, password=settings.RVIG_PASSWORD)
-transport = Transport(session=session)
-wsdl = f"{INGE4_ROOT}/api/enrichment/rvig/{settings.RVIG_ENVIRONMENT}_LrdPlus1_1.wsdl"
-client = Client(wsdl=wsdl, transport=transport)
-factory = client.type_factory("ns0")
+
+def create_rvig_client():
+    session = Session()
+    session.verify = False
+    session.cert = settings.RVIG_CERT
+    session.auth = HTTPBasicAuth(username=settings.RVIG_USERNAME, password=settings.RVIG_PASSWORD)
+    transport = Transport(session=session)
+    wsdl = f"{INGE4_ROOT}/api/enrichment/rvig/{settings.RVIG_ENVIRONMENT}_LrdPlus1_1.wsdl"
+    _client = Client(wsdl=wsdl, transport=transport)
+    _factory = _client.type_factory("ns0")
+
+    return _client, _factory
+
+
+# Performance optimization: set all of these things once and keep reusing them, reading the wsdl from disk etc.
+client, factory = create_rvig_client()
+
+
+def health() -> List[ServiceHealth]:
+    try:
+        get_pii_from_rvig(settings.RVIG_HEALTH_CHECK_BSN)
+        return [ServiceHealth(service="rvig", is_healthy=True, message="Data request successful")]
+    except Exception as err:  # pylint: disable=broad-except
+        # There are too many exceptions that could happen here, so we're catching and logging everything.
+        # For example: certificate / encryption / network / authentication / message.
+        log.exception(err)
+        return [ServiceHealth(service="rvig", is_healthy=False, message="Could not perform test call.")]
 
 
 def get_pii_from_rvig(bsn: str) -> Holder:
     """
-    todo: add health check
-    todo: requests.RequestException etc. Cert errors and whatnot.
-
     WSDL Specificatie en mogelijke foutcodes: Zie bijlage C 7.3 van: Page 694
     https://www.rvig.nl/documenten/publicaties/2020/10/05/logisch-ontwerp-gba-versie-3.13a
 
@@ -138,19 +152,22 @@ def get_pii_from_rvig(bsn: str) -> Holder:
 
     log.debug(f"Connecting to RVIG with {settings.RVIG_CERT}.")
 
-    zoekvraag = factory.Vraag(
-        parameters=[{"item": [{"zoekwaarde": bsn, "rubrieknummer": 10120}]}],
-        masker=[{"item": [RVIG_VOORNAAM, RVIG_GESLACHTSNAAM, RVIG_GEBOORTEDATUM]}],
-    )
-    antwoord = client.service.vraag(zoekvraag)
-    vraag_response = client.get_element("ns0:vraagResponse")(antwoord)
+    try:
+        zoekvraag = factory.Vraag(
+            parameters=[{"item": [{"zoekwaarde": bsn, "rubrieknummer": 10120}]}],
+            masker=[{"item": [RVIG_VOORNAAM, RVIG_GESLACHTSNAAM, RVIG_GEBOORTEDATUM]}],
+        )
+        antwoord = client.service.vraag(zoekvraag)
+        vraag_response = client.get_element("ns0:vraagResponse")(antwoord)
 
-    deal_with_error_codes(vraag_response)
-    return _to_holder(vraag_response)
+        deal_with_error_codes(vraag_response)
+        return _to_holder(vraag_response)
+    except RequestException as err:
+        log.exception(err)
+        raise HTTPException(500, detail="Could not connect to enrichment service.") from err
 
 
 def deal_with_error_codes(vraag_response) -> None:
-    # Todo: establish project-wide way to return errors.
     """
     <resultaat>
         <code>0</code>
@@ -166,24 +183,20 @@ def deal_with_error_codes(vraag_response) -> None:
 
     res = vraag_response.vraagReturn.resultaat
 
-    log.error(
+    error_message = (
         f"RVIG fout. Code: {res.code}, Letter: {res.letter}, "
-        f"Omschrijving: {res.omschrijving}, Referentie: {res.referentie}."
+        f"Omschrijving: {res.omschrijving}, Referentie: {res.referentie}"
     )
-    # Do not give feedback about what exactly went wrong
-    raise HTTPException(
-        500, detail="Error processing result from enrichment service. Possibly no or incorrect data returned."
-    )
+    log.error(error_message)
+    raise HTTPException(500, detail="Error processing result from enrichment service.")
 
 
 def _to_holder(vraag_response) -> Holder:
-    # todo: test unhappy flow(s), no data etc.
-
     voornamen = ""
     geslachtsnaam = ""
     geboortedatum = ""
 
-    # todo: is there an "only first name" option / Roepnaam? Because dual names ""
+    # Note: there is no "only first name" option.
     # This is by design.
     for persoonslijst in vraag_response.vraagReturn.persoonslijsten.item:
         for categoriestapel in persoonslijst.categoriestapels.item:
@@ -192,11 +205,11 @@ def _to_holder(vraag_response) -> Holder:
                     continue
                 for element in categorievoorkomen.elementen.item:
                     if element.nummer == 210:
-                        voornamen = element.waarde
+                        voornamen = element.waarde or voornamen
                     if element.nummer == 240:
-                        geslachtsnaam = element.waarde
+                        geslachtsnaam = element.waarde or geslachtsnaam
                     if element.nummer == 310:
-                        geboortedatum = element.waarde
+                        geboortedatum = element.waarde or geboortedatum
 
     return Holder(
         firstName=voornamen, lastName=geslachtsnaam, birthDate=rvig_birtdate_to_dutch_birthdate(geboortedatum)

@@ -154,13 +154,11 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
 def calculate_identity_hash_message(bsn: str, pii: Holder) -> str:
     # Strategy now: days from 0 to 31, where 0 is day not known.
     # Separated to make easier tests on empty dates for different providers
-    # Todo: get to know strategy from providers
-    # Todo: is the day zerofilled?
     day = pii.birthDate.day
     if not pii.birthDate.day:
         day = 0
 
-    return "-".join([bsn, pii.firstName, pii.lastName, str(day)])
+    return "-".join([bsn, pii.firstName, pii.lastName, f"{day:02}"])
 
 
 def calculate_identity_hash(bsn: str, pii: Holder, key: str) -> str:
