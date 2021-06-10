@@ -7,6 +7,8 @@ https://docs.google.com/spreadsheets/d/1d66HXvh9bxZTwlTqaxxqE-IKmv22MkB8isZj87a-
 # 2 vaccinaties van een merk dat er 2 vereist
 # Kopieer e.e.a. dus.
 # from api.models import Event
+from api.models import Event, Events
+from api.signers.eu_international import deduplicate_events
 
 DEFAULT_PFIZER_VACCINATION = {
     "source_provider_identifier": "ZZZ",
@@ -41,3 +43,12 @@ def test_2_vaccinaties_van_een_merk_dat_er_2_vereist():
     # Todo: this approach does not work as there are rules that undermine all other rules. The challenge is not
     #  to apply the rules but to find the best possible vaccination. See eu_international.py
     ...
+
+
+def test_deduplicate_events():
+    vac_1 = Event(**DEFAULT_PFIZER_VACCINATION)
+    vac_2 = Event(**DEFAULT_PFIZER_VACCINATION)
+    events = Events()
+    events.events = [vac_1, vac_2]
+    deduplicated = deduplicate_events(events)
+    assert deduplicated.events == [vac_1]
