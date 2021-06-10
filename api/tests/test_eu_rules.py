@@ -48,7 +48,10 @@ def test_2_vaccinaties_van_een_merk_dat_er_2_vereist():
 def test_deduplicate_events():
     vac_1 = Event(**DEFAULT_PFIZER_VACCINATION)
     vac_2 = Event(**DEFAULT_PFIZER_VACCINATION)
+    vac_2.source_provider_identifier = "YYY"
+    vac_3 = Event(**DEFAULT_PFIZER_VACCINATION)
+    vac_3.unique = "ef958a52-5717-44f1-bf63-f803c9ef5c46"
     events = Events()
-    events.events = [vac_1, vac_2]
+    events.events = [vac_1, vac_2, vac_3, vac_1]
     deduplicated = deduplicate_events(events)
     assert deduplicated.events == [vac_1]

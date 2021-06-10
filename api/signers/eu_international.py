@@ -63,32 +63,45 @@ def create_eu_signer_message(event: Event, event_type: EventType) -> MessageToEU
 
 def deduplicate_events(events: Events) -> Events:
     # TODO retain the most complete event rather than just this first one
+    log.debug(f"Deduplicating {len(events.events)} events.")
     retained: List[Event] = []
     for event in events.events:
+        # log.debug(f"Deduplicating {event}.")
         if event in retained:
+            log.debug("Event already in retained, continuing...")
             continue
 
-        new_retained = []
+        duplicate = False
         for ret in retained:
             if isinstance(event.vaccination, Vaccination) and isinstance(ret.vaccination, Vaccination):
                 # vaccines at the same date are duplicates
                 if event.vaccination.date == ret.vaccination.date:
-                    continue
+                    log.debug(f"Vaccines at the same date are duplicates. Ignoring {event.unique}.")
+                    duplicate = True
             elif isinstance(event.negativetest, Negativetest) and isinstance(ret.negativetest, Negativetest):
                 # negative tests at the same date are duplicates
                 if event.negativetest.sampleDate == ret.negativetest.sampleDate:
-                    continue
+                    log.debug(f"negative tests at the same date are duplicates. Ignoring {event.unique}.")
+                    duplicate = True
             elif isinstance(event.positivetest, Positivetest) and isinstance(ret.positivetest, Positivetest):
                 # positive tests at the same date are duplicates
                 if event.positivetest.sampleDate == ret.positivetest.sampleDate:
-                    continue
+                    log.debug(f"positive tests at the same date are duplicates. Ignoring {event.unique}.")
+                    duplicate = True
             elif isinstance(event.recovery, Recovery) and isinstance(ret.recovery, Recovery):
                 # recoveries at the same date are duplicates
                 if event.recovery.sampleDate == ret.recovery.sampleDate:
-                    continue
-            # event is not a duplicate, retain it
-            new_retained.append(event)
-        retained.extend(new_retained)
+                    log.debug(f"recoveries at the same date are duplicates. Ignoring {event.unique}.")
+                    duplicate = True
+
+        # event is not a duplicate, retain it
+        if not duplicate:
+            log.debug(f"Retaining {event.unique}.")
+            retained.append(event)
+        else:
+            log.debug(f"Not retaining {event.unique}.")
+
+    log.debug(f"Retaining {len(retained)} event(s).")
 
     retained_events = Events()
     retained_events.events = retained
