@@ -88,6 +88,8 @@ promise==2.3
     # via
     #   graphql-core
     #   graphql-relay
+pycountry==20.7.3
+    # via -r requirements.in
 pycparser==2.20
     # via cffi
 pydantic==1.8.2

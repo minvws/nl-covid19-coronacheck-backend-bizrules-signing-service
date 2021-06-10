@@ -9,6 +9,7 @@ from api.models import (
     EventType,
     Holder,
     V2Event,
+    Iso3166Dash1Alpha3CountryCode,
 )
 
 
@@ -184,3 +185,33 @@ def test_none_in_european_signing_request():
         "dob": 2020,
         "nam": {"fn": "a", "fnt": "", "gn": "", "gnt": ""},
     }
+
+
+def test_iso3316_1_alpha_3_country():
+    Iso3166Dash1Alpha3CountryCode.validate("NLD")
+    Iso3166Dash1Alpha3CountryCode.validate("MAR")
+    Iso3166Dash1Alpha3CountryCode.validate("DZA")
+    Iso3166Dash1Alpha3CountryCode.validate("VGB")
+
+    with pytest.raises(TypeError, match="string required"):
+        Iso3166Dash1Alpha3CountryCode.validate(None)  # noqa
+
+    with pytest.raises(ValueError, match="ISO 3166-1 alpha-3 requires three characters."):
+        Iso3166Dash1Alpha3CountryCode.validate("")  # noqa
+
+    with pytest.raises(TypeError, match="string required"):
+        Iso3166Dash1Alpha3CountryCode.validate(1)  # noqa
+
+    with pytest.raises(ValueError, match="ISO 3166-1 alpha-3 requires three characters."):
+        Iso3166Dash1Alpha3CountryCode.validate("NONSENSE")
+
+    # Purpleland is not accepted: XXP
+    # See: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
+    with pytest.raises(ValueError, match="Given country is not known to ISO 3166-1 alpha-3."):
+        Iso3166Dash1Alpha3CountryCode.validate("XXP")
+
+    # Machine readable passports are also not allowed
+    with pytest.raises(ValueError, match="Given country is not known to ISO 3166-1 alpha-3."):
+        Iso3166Dash1Alpha3CountryCode.validate("XPO")
+
+    print(Iso3166Dash1Alpha3CountryCode("NLD"))

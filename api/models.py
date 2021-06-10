@@ -8,11 +8,44 @@ from enum import Enum
 from typing import List, Optional, Union
 from uuid import UUID
 
+import pycountry
 from pydantic import BaseModel, Field
 from unidecode import unidecode
 
 from api.attribute_allowlist import domestic_signer_attribute_allow_list
 from api.settings import settings
+
+
+class Iso3166Dash1Alpha3CountryCode(str):
+    type = "ISO 3166-1 alpha-3"
+
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def __modify_schema__(cls, field_schema):
+        field_schema.update(
+            pattern="^[A-Z]{3}$",
+            examples=["NLD", "BEL"],
+        )
+
+    @classmethod
+    def validate(cls, v: str):
+        if not isinstance(v, str):
+            raise TypeError("string required")
+
+        if not re.fullmatch(r"[A-Z]{3}", v):
+            raise ValueError(f"{cls.type} requires three characters.")
+
+        country = pycountry.countries.get(alpha_3=v)
+        if not country:
+            raise ValueError(f"Given country is not known to {cls.type}.")
+
+        return cls(v)
+
+    def __repr__(self):
+        return f"{self.type} country({super().__repr__()})"
 
 
 class DutchBirthDate(str):
@@ -232,12 +265,7 @@ class Vaccination(BaseModel):  # noqa
         description="If this vaccination is enough to be fully vaccinated"
     )
 
-    country: Optional[str] = Field(
-        description="Optional iso 3166 3-letter country field, will be set to NLD if "
-        "left out. Can be used if shot was administered abroad",
-        example="NLD",
-        default="NLD",
-    )
+    country: Iso3166Dash1Alpha3CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
     doseNumber: Optional[int] = Field(example=1, description="will be based on business rules / brand info if left out")
     totalDoses: Optional[int] = Field(example=2, description="will be based on business rules / brand info if left out")
 
@@ -267,7 +295,7 @@ class Positivetest(BaseModel):  # noqa
     type: str = Field(example="???")
     name: str = Field(example="???")
     manufacturer: str = Field(example="1232")
-    country: str = Field(example="NLD")
+    country: Iso3166Dash1Alpha3CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
 
     """
     Positive tests mean that there is a recovery. For the EU a positive test should be seen and
@@ -303,7 +331,7 @@ class Negativetest(BaseModel):  # noqa
     type: str = Field(example="A great one")
     name: str = Field(example="Bestest")
     manufacturer: str = Field(example="Acme Inc")
-    country: str = Field(example="NLD")
+    country: Iso3166Dash1Alpha3CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
 
     def toEuropeanTest(self):
         return EuropeanTest(
@@ -326,7 +354,7 @@ class Recovery(BaseModel):  # noqa
     sampleDate: datetime = Field(example="2021-01-01")
     validFrom: datetime = Field(example="2021-01-12")
     validUntil: datetime = Field(example="2021-06-30")
-    country: str = Field(example="NLD")
+    country: Iso3166Dash1Alpha3CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
 
     def toEuropeanRecovery(self):
         return EuropeanRecovery(

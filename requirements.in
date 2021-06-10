@@ -29,3 +29,6 @@ redis
 hiredis
 
 colorlog
+
+# Model validation
+pycountry
