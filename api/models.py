@@ -264,9 +264,7 @@ class Vaccination(BaseModel):  # noqa
     completedByMedicalStatement: Optional[bool] = Field(
         description="If this vaccination is enough to be fully vaccinated"
     )
-    completedByPersonalStatement: Optional[bool] = Field(
-        description="Individual self-declares fully vaccinated"
-    )
+    completedByPersonalStatement: Optional[bool] = Field(description="Individual self-declares fully vaccinated")
 
     country: Iso3166Dash1Alpha3CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
     doseNumber: Optional[int] = Field(example=1, description="will be based on business rules / brand info if left out")

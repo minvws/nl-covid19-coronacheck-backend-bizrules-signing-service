@@ -33,20 +33,20 @@ def read_resource_file(filename: str) -> dict:
         return json.load(file)
 
 
-HPK_CODES = read_resource_file('hpk-codes.json')
-HPK = {c: HPK_CODES['hpk_codes'][c] for c in HPK_CODES['hpk_codes']}
-ELIGIBLE_HPK_CODES = [c['hpk_code'] for c in HPK_CODES['hpk_codes']]
+HPK_CODES = read_resource_file("hpk-codes.json")
+HPK = {c: HPK_CODES["hpk_codes"][c] for c in HPK_CODES["hpk_codes"]}
+ELIGIBLE_HPK_CODES = [c["hpk_code"] for c in HPK_CODES["hpk_codes"]]
 
-MA = read_resource_file('vaccine-mah-manf.json')
-ELIGIBLE_MA = MA['valueSetValues'].keys()
+MA = read_resource_file("vaccine-mah-manf.json")
+ELIGIBLE_MA = MA["valueSetValues"].keys()
 
-MP = read_resource_file('vaccine-medicinal-product.json')
-ELIGIBLE_MP = MP['valueSetValues'].keys()
+MP = read_resource_file("vaccine-medicinal-product.json")
+ELIGIBLE_MP = MP["valueSetValues"].keys()
 
-TT = read_resource_file('test-type.json')
-ELIGIBLE_TT = TT['valueSetValues'].keys()
+TT = read_resource_file("test-type.json")
+ELIGIBLE_TT = TT["valueSetValues"].keys()
 
-REQUIRED_DOSES = read_resource_file('required-doses-per-brand.json')
+REQUIRED_DOSES = read_resource_file("required-doses-per-brand.json")
 
 
 def get_eu_expirationtime() -> datetime:
@@ -168,10 +168,12 @@ def set_missing_total_doses(events: Events) -> Events:
             if vacc.vaccination.brand:
                 brand = vacc.vaccination.brand
             elif vacc.vaccination.hpkCode and vacc.vaccination.hpkCode in HPK_CODES:
-                brand = HPK_CODES[vacc.vaccination.hpkCode]['mp']
+                brand = HPK_CODES[vacc.vaccination.hpkCode]["mp"]
             else:
-                logging.warning("Cannot determine mp of vaccination; not setting default total doses; " &
-                                f"{json.dumps(vacc.vaccination)}")
+                logging.warning(
+                    "Cannot determine mp of vaccination; not setting default total doses; "
+                    & f"{json.dumps(vacc.vaccination)}"
+                )
                 continue
             vacc.vaccination.totalDoses = REQUIRED_DOSES[brand]
 
@@ -180,9 +182,11 @@ def set_missing_total_doses(events: Events) -> Events:
 
 def _is_eligible_vaccination(event: Event) -> bool:
     # rules V080, V090, V130
-    if event.vaccination.hpkCode in ELIGIBLE_HPK_CODES or \
-            event.vaccination.brand in ELIGIBLE_MA or \
-            event.vaccination.manufacturer in ELIGIBLE_MP:
+    if (
+        event.vaccination.hpkCode in ELIGIBLE_HPK_CODES
+        or event.vaccination.brand in ELIGIBLE_MA
+        or event.vaccination.manufacturer in ELIGIBLE_MP
+    ):
         return True
     logging.debug(f"Ineligible vaccine; {json.dumps(event.vaccination)}")
     return False
@@ -261,8 +265,11 @@ def _relevant_vaccinations(vaccs: List[Event]) -> List[Event]:
     # rules V010, V040, V100, V110
     completions: List[Event] = []
     for vacc in vaccs:
-        if vacc.vaccination.doseNumber and vacc.vaccination.totalDoses and \
-                vacc.vaccination.doseNumber >= vacc.vaccination.totalDoses:
+        if (
+            vacc.vaccination.doseNumber
+            and vacc.vaccination.totalDoses
+            and vacc.vaccination.doseNumber >= vacc.vaccination.totalDoses
+        ):
             completions.append(vacc)
         if vacc.vaccination.completedByMedicalStatement or vacc.vaccination.completedByPersonalStatement:
             completions.append(vacc)
@@ -318,7 +325,7 @@ def filter_redundant_events(events: Events) -> Events:
         *(vaccinations or []),
         *(positive_tests or []),
         *(negative_tests or []),
-        *(recoveries or [])
+        *(recoveries or []),
     ]
     return relevant_events
 
@@ -335,8 +342,9 @@ def evaluate_cross_type_events(events: Events) -> Events:
         return events
 
     if len(events.vaccinations) > 1:
-        logging.warning("We have at least one positive test and multiple vaccinations, "
-                        "using the most recent vaccination")
+        logging.warning(
+            "We have at least one positive test and multiple vaccinations, " "using the most recent vaccination"
+        )
         vacc = events.vaccinations[-1]
     else:
         vacc = events.vaccinations[0]
@@ -344,9 +352,7 @@ def evaluate_cross_type_events(events: Events) -> Events:
     vacc.vaccination.doseNumber = 1
     vacc.vaccination.totalDoses = 1
 
-    retained_events = [e
-                       for e in events.events
-                       if e.type != 'vaccination' or e == vacc]
+    retained_events = [e for e in events.events if e.type != "vaccination" or e == vacc]
     events.events = retained_events
     return events
 
