@@ -34,7 +34,7 @@ from api.signers import eu_international, nl_domestic_dynamic, nl_domestic_stati
 app = FastAPI()
 
 
-@app.get("/")
+@app.get("/", response_model=ApplicationHealth)
 @app.get("/health", response_model=ApplicationHealth)
 async def health_request() -> ApplicationHealth:
     return ApplicationHealth(running=True, service_status=session_store.health_check() + rvig.health())
