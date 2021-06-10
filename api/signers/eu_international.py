@@ -159,12 +159,17 @@ def deduplicate_events(events: List[Event]) -> List[Event]:
 
 
 def is_eligible(event: Event) -> bool:
+    # Some negative tests are not eligible for signing, they are upgrade v2 events that
+    # have incomplete holder information: the year is wrong, the first and last name are one letter.
+    if isinstance(event.negativetest, Negativetest) and event.holder.birthDate.year == INVALID_YEAR_FOR_EU_SIGNING:
+        return False
+
     if isinstance(event.vaccination, Vaccination):
         if event.vaccination.hpkCode in ELIGIBLE_HPK_CODES:
             return True
         if event.vaccination.brand in ELIGIBLE_MA:
             return True
-        if event.vaccination.manufacturer in ELIGIBLE_MA:
+        if event.vaccination.manufacturer in ELIGIBLE_MP:
             return True
         logging.debug('Ineligible vaccine', json.dumps(event.vaccination))
         return False
