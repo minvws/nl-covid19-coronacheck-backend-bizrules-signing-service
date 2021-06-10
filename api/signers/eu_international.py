@@ -12,12 +12,11 @@ from api.models import (
     EUGreenCard,
     Events,
     MessageToEUSigner,
-    EventType,
     Event,
     Vaccination,
     Negativetest,
     Positivetest,
-    Recovery,
+    Recovery, EventType,
 )
 from api.settings import settings
 from api.utils import request_post_with_retries
@@ -51,8 +50,18 @@ def get_eu_expirationtime() -> datetime:
     return expiration_time.replace(microsecond=0)
 
 
-def create_eu_signer_message(event: Event, event_type: EventType) -> MessageToEUSigner:
-    log.debug(f"Creating EU signer message: {event}, {event_type}")
+def create_eu_signer_message(event: Event) -> MessageToEUSigner:
+
+    event_type = event.type
+    # The EU signer does not know negative tests, only tests.
+    if event_type == EventType.negativetest:
+        event_type = "test"
+
+    # The EU signer does not know positive tests only recovery:
+    # Todo: the wrong message is probably being created with the positive test. It should call the toEuropeanRecovery.
+    if event_type == EventType.positivetest:
+        event_type = "recovery"
+
     return MessageToEUSigner(
         keyUsage=event_type,
         expirationTime=get_eu_expirationtime(),
@@ -344,7 +353,7 @@ def create_signing_messages_based_on_events(events: Events) -> List[MessageToEUS
     eligible_events = evaluate_cross_type_events(eligible_events)
     log.debug(f"evaluate_cross_type_events: {len(eligible_events.events)}")
 
-    return [create_eu_signer_message(e, e.type) for e in eligible_events.events]
+    return [create_eu_signer_message(e) for e in eligible_events.events]
 
 
 def sign(events: Events) -> List[EUGreenCard]:
@@ -385,6 +394,7 @@ def sign(events: Events) -> List[EUGreenCard]:
 
 def get_event_time(statement_to_eu_signer: MessageToEUSigner):
     # Types are ignored because they map this way: the can not be none if the keyUsage is set as per above logic.
+
     if statement_to_eu_signer.keyUsage == "vaccination":
         event_time = statement_to_eu_signer.dgc.v[0].dt  # type: ignore
     elif statement_to_eu_signer.keyUsage == "recovery":
