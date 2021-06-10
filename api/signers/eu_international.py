@@ -61,6 +61,7 @@ def create_eu_signer_message(event: Event, event_type: EventType) -> MessageToEU
 
 
 def deduplicate_events(events: Events) -> Events:
+    # TODO retain the most complete event rather than just this first one
     retained: List[Event] = []
     for event in events.events:
         if event in retained:
@@ -205,11 +206,14 @@ def _relevant_vaccinations(vaccs: List[Event]) -> List[Event]:
             and vacc.vaccination.doseNumber >= vacc.vaccination.totalDoses
         ):
             completions.append(vacc)
-        if vacc.vaccination.completedByMedicalStatement or vacc.vaccination.completedByPersonalStatement:
+        elif vacc.vaccination.completedByMedicalStatement or vacc.vaccination.completedByPersonalStatement:
+            vacc.vaccination.doseNumber = 1
+            vacc.vaccination.totalDoses = 1
             completions.append(vacc)
     if completions:
         # we have one or more completing vaccinations, use the most recent one
-        return [completions[-1]]
+        best_vacc = completions[-1]
+        return [best_vacc]
 
     # return the most recent one of a total-dose fulfilling vaccination (irrespective of brand)
     # rules V020, V030
@@ -250,7 +254,7 @@ def filter_redundant_events(events: Events) -> Events:
     Return the events that are relevant, filtering out obsolete events
     """
     vaccinations = _relevant_vaccinations(events.vaccinations)
-    positive_tests = _only_most_recent(events.positivetests)
+    positive_tests = _only_most_recent(events.positivetests)  # TODO do we want to create recoveries for these?
     negative_tests = _only_most_recent(events.negativetests)
     recoveries = _only_most_recent(events.recoveries)
 
@@ -272,7 +276,7 @@ def evaluate_cross_type_events(events: Events) -> Events:
     # if we have at least one vaccination and a positive test,
     # we declare the vaccination complete
     # rule V120
-    if not events.vaccinations or events.positivetests:
+    if not events.vaccinations or not events.positivetests:
         return events
 
     if len(events.vaccinations) > 1:
@@ -283,8 +287,7 @@ def evaluate_cross_type_events(events: Events) -> Events:
     else:
         vacc = events.vaccinations[0]
 
-    vacc.vaccination.doseNumber = 1
-    vacc.vaccination.totalDoses = 1
+    vacc.vaccination.doseNumber = vacc.vaccination.totalDoses
 
     retained_events = [e for e in events.events if e.type != "vaccination" or e == vacc]
     events.events = retained_events
@@ -323,17 +326,6 @@ def sign(events: Events) -> List[EUGreenCard]:
     """
     Implements signing against: https://github.com/minvws/nl-covid19-coronacheck-hcert-private
     https://github.com/ehn-dcc-development/ehn-dcc-schema/blob/release/1.0.1/DGC.combined-schema.json
-
-    Business rules implemented below:
-    - Only one signing event per type is sent tot he signer.
-    - Todo: a validity is set to 180 days from now, regardless of dates of recovery etc
-
-    Todo: the dates of what events are chosen might/will impact someone. It's a political choice what has preference.
-
-    We now use:
-    - the latest test, as that may have expired.
-    - the oldest vaccination: as vaccinations are valid for a long time and it takes time before a vaccination 'works'
-    - the oldest recovery
     """
 
     # todo: add reduction of events.
