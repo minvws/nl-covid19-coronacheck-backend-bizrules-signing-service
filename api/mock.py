@@ -1,6 +1,6 @@
-import logging
 import re
 
+from api import log
 from api.constants import TESTS_DIR
 from api.tests.test_utils import json_from_test_data_file
 from api.utils import read_file
@@ -66,7 +66,7 @@ RVIG_RESPONSE = """<?xml version='1.0' encoding='UTF-8'?>
 
 
 async def app(scope, receive, send):
-    logging.error(scope)
+    log.debug(f"scope: {scope}")
     # {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.1'}, 'http_version': '1.1',
     # {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.1'}, 'http_version': '1.1',
     # 'server': ('127.0.0.1', 80), 'client': ('127.0.0.1', 63760), 'scheme': 'http', 'method': 'POST', 'root_path': '',
@@ -75,7 +75,7 @@ async def app(scope, receive, send):
     # 'headers': [(b'host', b'localhost:8001'), (b'user-agent', b'insomnia/2021.3.0'),
     #             (b'content-type', b'application/xml'), (b'accept', b'*/*'), (b'content-length', b'6')]}
     received = await receive()
-    logging.error(received)
+    log.debug(f"received {received}")
     # {'type': 'http.request', 'body': b'<test>', 'more_body': False}
     body = received["body"]
 
@@ -85,7 +85,7 @@ async def app(scope, receive, send):
             bsn = bsn_match.groups()[0]
         else:
             bsn = None
-        logging.error(f"bsn: {bsn} \nbody: {body.decode()}")
+        log.error(f"bsn: {bsn} \nbody: {body.decode()}")
         await send(
             {
                 "type": "http.response.start",
@@ -99,7 +99,8 @@ async def app(scope, receive, send):
         if bsn in mock_data:
             holder = mock_data[bsn]["holder"]
             holder["birthDate"] = holder["birthDate"][:10].replace("-", "")
-            del holder["infix"]
+            if "infix" in holder:
+                del holder["infix"]
             response = RVIG_RESPONSE.format(**holder)
         else:
             response = read_file(f"{TESTS_DIR}/rvig/1_technical_error.xml")

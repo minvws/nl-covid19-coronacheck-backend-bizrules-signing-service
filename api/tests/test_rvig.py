@@ -4,10 +4,15 @@ from fastapi import HTTPException
 from api.enrichment.rvig.rvig import get_pii_from_rvig, rvig_birtdate_to_dutch_birthdate
 from api.models import DutchBirthDate as Dbd
 from api.models import Holder
+from api.settings import settings
+from api.tests.conftest import require_rvig_mock
 from api.utils import read_file
 
 RVIG_PATH = "/gba-v/online/lo3services/adhoc"
-RVIG_URL = f"https://147.181.7.110{RVIG_PATH}"
+if settings.RVIG_ENVIRONMENT == "mock":
+    RVIG_URL = f"http://localhost:8001{RVIG_PATH}"
+else:
+    RVIG_URL = f"https://147.181.7.110{RVIG_PATH}"
 
 
 def test_get_pii_unhappy_flows(requests_mock, current_path, caplog):
@@ -42,7 +47,7 @@ def test_error_scenarios(bsn):
     get_pii_from_rvig(bsn)
 
 
-@pytest.mark.skip(reason="Todo: alter settings to use mock wsdl while testing.")
+@require_rvig_mock
 def test_rvig_mock():
     # todo: alter settings to talk to mock.
     assert get_pii_from_rvig("999990019") == Holder(firstName="Bob", lastName="Bouwer", birthDate=Dbd("1960-01-01"))

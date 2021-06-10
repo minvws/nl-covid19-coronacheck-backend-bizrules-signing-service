@@ -102,7 +102,9 @@ class DutchBirthDate(str):
 
         # Any other values than X-s and any incorrect formatting.
         if not re.fullmatch(r"[0-9]{4}-([0-9]{2}|XX)-([0-9]{2}|XX)", possible_date):
-            raise ValueError(f"{default_error_message} (wrong format or invalid substitution character).")
+            raise ValueError(
+                f"{default_error_message} ({possible_date} has wrong format or invalid substitution character)."
+            )
 
         return cls(possible_date)
 
