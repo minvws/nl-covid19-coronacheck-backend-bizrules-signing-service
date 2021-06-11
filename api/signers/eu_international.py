@@ -7,6 +7,7 @@ from typing import Any, Dict, List
 import pytz
 
 from api import log
+from api.http_utils import request_post_with_retries
 from api.models import (
     INVALID_YEAR_FOR_EU_SIGNING,
     EUGreenCard,
@@ -20,7 +21,6 @@ from api.models import (
     Vaccination,
 )
 from api.settings import settings
-from api.utils import request_post_with_retries
 
 TZ = pytz.timezone("UTC")
 

@@ -1,10 +1,10 @@
 import base64
 import math
 
+from api.http_utils import request_post_with_retries
 from api.models import PrepareIssueResponse
 from api.session_store import session_store
 from api.settings import settings
-from api.utils import request_post_with_retries
 
 
 async def get_prepare_issue() -> PrepareIssueResponse:

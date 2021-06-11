@@ -5,9 +5,9 @@ from uuid import UUID, uuid4
 import redis
 
 from api import log
+from api.http_utils import hmac256
 from api.models import ServiceHealth
 from api.settings import AppSettings, RedisSettings, redis_settings, settings
-from api.utils import hmac256
 
 
 class SessionStore:
