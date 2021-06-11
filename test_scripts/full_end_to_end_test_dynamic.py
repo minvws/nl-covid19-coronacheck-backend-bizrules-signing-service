@@ -1,6 +1,6 @@
 import json
 from api.models import Events, CredentialsRequestData
-from api.utils import defaultconverter
+from api.http_utils import defaultconverter
 from test_scripts.example_eu_signing import issue_commitment_message, testcase_events
 
 import requests

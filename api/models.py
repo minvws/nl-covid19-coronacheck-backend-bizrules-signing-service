@@ -352,9 +352,9 @@ class Negativetest(BaseModel):  # noqa
 
 
 class Recovery(BaseModel):  # noqa
-    sampleDate: datetime = Field(example="2021-01-01")
-    validFrom: datetime = Field(example="2021-01-12")
-    validUntil: datetime = Field(example="2021-06-30")
+    sampleDate: date = Field(example="2021-01-01")
+    validFrom: date = Field(example="2021-01-12")
+    validUntil: date = Field(example="2021-06-30")
     country: Iso3166Dash1Alpha3CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
 
     def toEuropeanRecovery(self):
