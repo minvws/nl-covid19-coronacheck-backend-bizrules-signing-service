@@ -98,9 +98,9 @@ testcase_event_recovery = {
     "negativetest": None,
     "positivetest": None,
     "recovery": {
-        "sampleDate": "2021-04-01T19:38:00+00:00",
-        "validFrom": "2021-02-01T19:38:00+00:00",
-        "validUntil": "2021-02-01T19:38:00+00:00",
+        "sampleDate": "2021-04-01",
+        "validFrom": "2021-02-01",
+        "validUntil": "2021-02-01",
         "country": "NLD",
     },
     "vaccination": None,

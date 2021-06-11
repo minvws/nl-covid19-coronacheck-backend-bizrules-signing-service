@@ -6,6 +6,7 @@ from typing import List, Optional, Tuple, Union
 import pytz
 
 from api import log
+from api.http_utils import request_post_with_retries
 from api.models import (
     ContiguousOriginsBlock,
     DomesticGreenCard,
@@ -19,7 +20,6 @@ from api.models import (
 )
 from api.settings import settings
 from api.signers import hpkcodes
-from api.utils import request_post_with_retries
 
 ALLOWED_POSITIVE_TEST_TYPES = ["LP217198-3", "LP6464-4"]
 TZ = pytz.timezone("UTC")

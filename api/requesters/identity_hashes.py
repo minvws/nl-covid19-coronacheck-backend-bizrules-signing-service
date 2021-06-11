@@ -14,9 +14,9 @@ from nacl.public import Box, PrivateKey, PublicKey
 from nacl.utils import random
 
 from api.enrichment.rvig.rvig import get_pii_from_rvig
+from api.http_utils import hmac256, request_post_with_retries
 from api.models import EventDataProviderJWT, Holder
 from api.settings import settings
-from api.utils import hmac256, request_post_with_retries
 
 log = logging.getLogger(__package__)
 inge6_box = Box(settings.INGE4_NACL_PRIVATE_KEY, settings.INGE6_NACL_PUBLIC_KEY)
