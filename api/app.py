@@ -40,6 +40,11 @@ async def health_request() -> ApplicationHealth:
     return ApplicationHealth(running=True, service_status=session_store.health_check() + rvig.health())
 
 
+@app.get("/unhealth")
+async def unhealth_request() -> ApplicationHealth:
+    raise RuntimeError
+
+
 def get_jwt_from_authorization_header(header_data: str) -> str:
     # Some basic checks that the bearer is set. Real validation happens down the line.
     if not header_data:
