@@ -1,8 +1,8 @@
 import json
 import logging
-from datetime import date, datetime, timedelta
-from typing import List, Any, Dict
 import os.path
+from datetime import date, datetime, timedelta
+from typing import Any, Dict, List
 
 import pytz
 
@@ -10,14 +10,14 @@ from api import log
 from api.models import (
     INVALID_YEAR_FOR_EU_SIGNING,
     EUGreenCard,
-    Events,
-    MessageToEUSigner,
     Event,
-    Vaccination,
+    Events,
+    EventType,
+    MessageToEUSigner,
     Negativetest,
     Positivetest,
     Recovery,
-    EventType,
+    Vaccination,
 )
 from api.settings import settings
 from api.utils import request_post_with_retries
