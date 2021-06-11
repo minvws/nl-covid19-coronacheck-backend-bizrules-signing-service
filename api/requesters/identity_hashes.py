@@ -75,7 +75,7 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
 
     tokens = []
     for data_provider in settings.EVENT_DATA_PROVIDERS:
-        generic_data["identityhash"] = calculate_identity_hash(
+        generic_data["identityHash"] = calculate_identity_hash(
             bsn,
             holder,
             key=data_provider["identity_hash_secret"],
