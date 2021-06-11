@@ -8,8 +8,10 @@ from http import HTTPStatus
 from typing import List, Optional
 from uuid import UUID
 
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi.responses import JSONResponse
 
+from api import log
 from api.enrichment.rvig import rvig
 from api.models import (
     ApplicationHealth,
@@ -34,6 +36,16 @@ from api.signers import eu_international, nl_domestic_dynamic, nl_domestic_stati
 app = FastAPI()
 
 
+@app.exception_handler(Exception)
+async def fallback_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    base_error_message = f"Internal server error: {request.method}: {request.url} failed!"
+    log.exception(base_error_message, exc_info=exc, stack_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={"message": base_error_message},
+    )
+
+
 @app.get("/", response_model=ApplicationHealth)
 @app.get("/health", response_model=ApplicationHealth)
 async def health_request() -> ApplicationHealth:
@@ -42,7 +54,7 @@ async def health_request() -> ApplicationHealth:
 
 @app.get("/unhealth")
 async def unhealth_request() -> ApplicationHealth:
-    raise RuntimeError
+    raise RuntimeError("Don't worry this endpoint is supposed to produce an internal server error")
 
 
 def get_jwt_from_authorization_header(header_data: str) -> str:
