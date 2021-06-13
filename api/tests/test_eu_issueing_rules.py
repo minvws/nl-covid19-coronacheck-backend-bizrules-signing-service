@@ -1184,7 +1184,7 @@ def test_p010(requests_mock):
                 "positiveResult": true,
                 "country": "NLD",
                 "facility": "GGD XL Amsterdam",
-                "type": "PCR",
+                "type": "LP217198-3",
                 "name": "",
                 "manufacturer": "1232",
                 "sampleDate": "2021-05-01T21:26:52+00:00",
@@ -1199,7 +1199,7 @@ def test_p010(requests_mock):
     signing_messages = create_signing_messages_based_on_events(events)
     assert len(signing_messages) == 1
 
-    ci = signing_messages[0].dgc.t[0].ci
+    ci = signing_messages[0].dgc.r[0].ci
     expected_signing_messages = [
         MessageToEUSigner(
             keyUsage=EventType.recovery,
