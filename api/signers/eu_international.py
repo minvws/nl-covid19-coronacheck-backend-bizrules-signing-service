@@ -39,6 +39,8 @@ ELIGIBLE_MA = MA["valueSetValues"].keys()
 MP = read_resource_file("vaccine-medicinal-product.json")
 ELIGIBLE_MP = MP["valueSetValues"].keys()
 
+HPK_TO_MP = {hpk['hpk_code']: hpk['mp'] for hpk in HPK_CODES['hpk_codes']}
+
 TT = read_resource_file("test-type.json")
 ELIGIBLE_TT = TT["valueSetValues"].keys()
 
@@ -125,8 +127,8 @@ def set_missing_total_doses(events: Events) -> Events:
         if not vacc.vaccination.totalDoses:
             if vacc.vaccination.brand:
                 brand = vacc.vaccination.brand
-            elif vacc.vaccination.hpkCode and vacc.vaccination.hpkCode in HPK_CODES:
-                brand = HPK_CODES[vacc.vaccination.hpkCode]["mp"]
+            elif vacc.vaccination.hpkCode and vacc.vaccination.hpkCode in HPK_TO_MP:
+                brand = HPK_TO_MP[vacc.vaccination.hpkCode]
             else:
                 logging.warning(
                     "Cannot determine mp of vaccination; not setting default total doses; " f"{vacc.vaccination}"
