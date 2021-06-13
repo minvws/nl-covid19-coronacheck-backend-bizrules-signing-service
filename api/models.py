@@ -634,7 +634,7 @@ class EuropeanOnlineSigningRequestNamingSection(BaseModel):
 
 class EuropeanOnlineSigningRequest(BaseModel):
     ver: str = Field(
-        description="Version of the schema, according to Semantic versioning", default="1.0.0", example="1.0.0"
+        description="Version of the schema, according to Semantic versioning", default="1.3.0", example="1.0.0"
     )
     nam: EuropeanOnlineSigningRequestNamingSection
     # Signer should convert "1975-XX-XX" to "1975" as the EU DGC can't handle the XX's of unknown birthmonth/day

@@ -72,7 +72,7 @@ def test_n010(requests_mock):
             keyUsage=EventType.test,
             expirationTime="2021-12-10T19:20:21+00:00",
             dgc=EuropeanOnlineSigningRequest(
-                ver="1.0.0",
+                ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
                     fn="Test",
                     fnt="TEST",
@@ -239,7 +239,7 @@ def test_v010(requests_mock):
             keyUsage=EventType.vaccination,
             expirationTime=datetime.datetime(2021, 12, 10, 19, 20, 21, 0, tzinfo=pytz.utc),
             dgc=EuropeanOnlineSigningRequest(
-                ver="1.0.0",
+                ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
                     fn="Pricks Same Brand",
                     fnt="PRICKS<SAME<BRAND",
@@ -332,7 +332,7 @@ def test_v020(requests_mock):
             keyUsage=EventType.vaccination,
             expirationTime=datetime.datetime(2021, 12, 10, 19, 20, 21, 0, tzinfo=pytz.utc),
             dgc=EuropeanOnlineSigningRequest(
-                ver="1.0.0",
+                ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
                     fn="Pricks Same Brand",
                     fnt="PRICKS<SAME<BRAND",
@@ -425,7 +425,7 @@ def test_v030(requests_mock):
             keyUsage=EventType.vaccination,
             expirationTime=datetime.datetime(2021, 12, 10, 19, 20, 21, 0, tzinfo=pytz.utc),
             dgc=EuropeanOnlineSigningRequest(
-                ver="1.0.0",
+                ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
                     fn="Pricks Different Brands",
                     fnt="PRICKS<DIFFERENT<BRANDS",
@@ -501,7 +501,7 @@ def test_v040(requests_mock):
             keyUsage=EventType.vaccination,
             expirationTime=datetime.datetime(2021, 12, 10, 19, 20, 21, 0, tzinfo=pytz.utc),
             dgc=EuropeanOnlineSigningRequest(
-                ver="1.0.0",
+                ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
                     fn="Prick And Done",
                     fnt="PRICK<AND<DONE",
@@ -577,7 +577,7 @@ def test_v050(requests_mock):
             keyUsage=EventType.vaccination,
             expirationTime=datetime.datetime(2021, 12, 10, 19, 20, 21, 0, tzinfo=pytz.utc),
             dgc=EuropeanOnlineSigningRequest(
-                ver="1.0.0",
+                ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
                     fn="Prick Not Done",
                     fnt="PRICK<NOT<DONE",
@@ -653,7 +653,7 @@ def test_v060(requests_mock):
             keyUsage=EventType.vaccination,
             expirationTime=datetime.datetime(2021, 12, 10, 19, 20, 21, 0, tzinfo=pytz.utc),
             dgc=EuropeanOnlineSigningRequest(
-                ver="1.0.0",
+                ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
                     fn="Prick and still Done",
                     fnt="PRICK<AND<STILL<DONE",
@@ -729,7 +729,7 @@ def test_v070(requests_mock):
             keyUsage=EventType.vaccination,
             expirationTime=datetime.datetime(2021, 12, 10, 19, 20, 21, 0, tzinfo=pytz.utc),
             dgc=EuropeanOnlineSigningRequest(
-                ver="1.0.0",
+                ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
                     fn="Prick from Outerland",
                     fnt="PRICK<FROM<OUTERLAND",
@@ -850,7 +850,7 @@ def test_v100(requests_mock):
             keyUsage=EventType.vaccination,
             expirationTime=datetime.datetime(2021, 12, 10, 19, 20, 21, 0, tzinfo=pytz.utc),
             dgc=EuropeanOnlineSigningRequest(
-                ver="1.0.0",
+                ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
                     fn="Done by Doctor",
                     fnt="DONE<BY<DOCTOR",
@@ -927,7 +927,7 @@ def test_v110(requests_mock):
             keyUsage=EventType.vaccination,
             expirationTime=datetime.datetime(2021, 12, 10, 19, 20, 21, 0, tzinfo=pytz.utc),
             dgc=EuropeanOnlineSigningRequest(
-                ver="1.0.0",
+                ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
                     fn="Done by Self",
                     fnt="DONE<BY<SELF",
@@ -1018,7 +1018,7 @@ def test_v120(requests_mock):
             keyUsage=EventType.vaccination,
             expirationTime=datetime.datetime(2021, 12, 10, 19, 20, 21, 0, tzinfo=pytz.utc),
             dgc=EuropeanOnlineSigningRequest(
-                ver="1.0.0",
+                ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
                     fn="Plus Positive Test",
                     fnt="PLUS<POSITIVE<TEST",
@@ -1043,7 +1043,7 @@ def test_v120(requests_mock):
             keyUsage=EventType.recovery,
             expirationTime=datetime.datetime(2021, 12, 10, 19, 20, 21, 0, tzinfo=pytz.utc),
             dgc=EuropeanOnlineSigningRequest(
-                ver="1.0.0",
+                ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
                     fn="Plus Positive Test",
                     fnt="PLUS<POSITIVE<TEST",
@@ -1131,7 +1131,7 @@ def test_v130(requests_mock):
             keyUsage=EventType.vaccination,
             expirationTime=datetime.datetime(2021, 12, 10, 19, 20, 21, 0, tzinfo=pytz.utc),
             dgc=EuropeanOnlineSigningRequest(
-                ver="1.0.0",
+                ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
                     fn="Plus Alien Test",
                     fnt="PLUS<ALIEN<TEST",
@@ -1205,7 +1205,7 @@ def test_p010(requests_mock):
             keyUsage=EventType.recovery,
             expirationTime=datetime.datetime(2021, 12, 10, 19, 20, 21, 0, tzinfo=pytz.utc),
             dgc=EuropeanOnlineSigningRequest(
-                ver="1.0.0",
+                ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
                     fn="Positive Test",
                     fnt="POSITIVE<TEST",
