@@ -146,8 +146,8 @@ def _is_eligible_vaccination(event: Event) -> bool:
 
     if (
         event.vaccination.hpkCode in ELIGIBLE_HPK_CODES
-        or event.vaccination.brand in ELIGIBLE_MA
-        or event.vaccination.manufacturer in ELIGIBLE_MP
+        or event.vaccination.manufacturer in ELIGIBLE_MA
+        or event.vaccination.brand in ELIGIBLE_MP
     ):
         return True
     logging.debug(f"Ineligible vaccine; {event.vaccination}")
