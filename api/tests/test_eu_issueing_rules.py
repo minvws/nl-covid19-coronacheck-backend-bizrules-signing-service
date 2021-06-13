@@ -1055,7 +1055,7 @@ def test_v120(requests_mock):
                     EuropeanRecovery(
                         fr=datetime.datetime(2021, 6, 12, 21, 26, 52, 0, tzinfo=pytz.utc),
                         df=datetime.datetime(2021, 6, 12, 21, 26, 52, 0, tzinfo=pytz.utc),
-                        du=datetime.datetime(2021, 6, 12, 21, 26, 52, 0, tzinfo=pytz.utc) + datetime.timedelta(days=180),
+                        du=datetime.datetime(2021, 6, 12, 21, 26, 52, 0, tzinfo=pytz.utc)+datetime.timedelta(days=9000),
                         ci=cis[1],
                     )
                 ]
