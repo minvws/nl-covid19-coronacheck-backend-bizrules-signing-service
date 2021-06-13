@@ -432,6 +432,6 @@ def get_event_time(statement_to_eu_signer: MessageToEUSigner):
     else:
         raise ValueError("Not able to retrieve an event time from the statement to the signer. This is very wrong.")
 
-    if isinstance(event_time, date):
+    if not isinstance(event_time, datetime):
         event_time = datetime.combine(event_time, datetime.min.time())
-    return TZ.localize(event_time)
+    return TZ.localize(event_time) if event_time.tzinfo is None else event_time
