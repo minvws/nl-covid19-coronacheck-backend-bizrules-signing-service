@@ -1215,9 +1215,9 @@ def test_p010(requests_mock):
                 dob=DutchBirthDate("1950-03-01"),
                 r=[
                     EuropeanRecovery(
-                        fr=datetime.datetime(2021, 6, 12, 21, 26, 52, 0, tzinfo=pytz.utc),
-                        df=datetime.datetime(2021, 6, 12, 21, 26, 52, 0, tzinfo=pytz.utc),
-                        du=datetime.datetime(2021, 6, 12, 21, 26, 52, 0, tzinfo=pytz.utc) + datetime.timedelta(days=180),
+                        fr=datetime.datetime(2021, 5, 1, 21, 26, 52, 0, tzinfo=pytz.utc),
+                        df=datetime.datetime(2021, 5, 1, 21, 26, 52, 0, tzinfo=pytz.utc),
+                        du=datetime.datetime(2021, 5, 1, 21, 26, 52, 0, tzinfo=pytz.utc)+datetime.timedelta(days=9000),
                         ci=ci
                     )
                 ]
@@ -1225,4 +1225,4 @@ def test_p010(requests_mock):
         )
     ]
 
-    assert expected_signing_messages == expected_signing_messages
+    assert signing_messages == expected_signing_messages
