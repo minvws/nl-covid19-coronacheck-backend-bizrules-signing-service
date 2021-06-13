@@ -96,7 +96,7 @@ def test_n010(requests_mock):
         )
     ]
 
-    assert expected_signing_messages == expected_signing_messages
+    assert signing_messages == expected_signing_messages
 
     example_answer = {"credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G"}
     requests_mock.post(settings.EU_INTERNATIONAL_SIGNING_URL, json=example_answer)
