@@ -28,6 +28,11 @@ def _create_events(incoming_events: list[dict]) -> Events:
 
 @freeze_time("2021-06-13T19:20:21+00:00")
 def test_n010(requests_mock):
+    """
+    1 neg testbewijs antigen (sneltest = RAT)
+
+    expected: one Test (Negative) Signing Message
+    """
     negative_test = json.loads("""
         {
           "protocolVersion": "3.0",
@@ -118,6 +123,11 @@ def test_n010(requests_mock):
 
 @freeze_time("2021-06-13T19:20:21+00:00")
 def test_n030(requests_mock):
+    """
+    1 neg testbewijs breathalizer (sneltest)
+
+    Expected: No Signing Messages
+    """
     negative_test = json.loads("""
         {
           "protocolVersion": "3.0",
@@ -166,6 +176,8 @@ def test_n030(requests_mock):
 def test_v010(requests_mock):
     """
     2 vaccinaties van een merk dat er 2 vereist
+
+    Expected: One Vaccination Signing Message with 2/2
     """
     vaccination = json.loads("""
         {
@@ -257,6 +269,8 @@ def test_v010(requests_mock):
 def test_v020(requests_mock):
     """
     2 vaccinaties van een merk dat er 2 vereist maar in beide staat 1 van 2
+
+    Expected: One Vaccination Signing Message with 2/2
     """
     vaccination = json.loads("""
         {
@@ -348,6 +362,8 @@ def test_v020(requests_mock):
 def test_v030(requests_mock):
     """
     1 vaccinatie van een merk dan er 2 vereist, en nog een vaccinatie van een ander merk dat er 2 vereist
+
+    Expected: One Vaccination Signing Message with 2/2
     """
     vaccination = json.loads("""
         {
@@ -439,6 +455,8 @@ def test_v030(requests_mock):
 def test_v040(requests_mock):
     """
     1 vaccinatie van een merk dat er 1 vereist
+
+    Expected: One Vaccination Siging Message with 1/1
     """
     vaccination = json.loads("""
         {
@@ -513,6 +531,8 @@ def test_v040(requests_mock):
 def test_v050(requests_mock):
     """
     1 vaccinatie van een merk dat er 2 vereist
+
+    Expected: One Vaccination Sigining Message with 1/2
     """
     vaccination = json.loads("""
         {
@@ -587,6 +607,8 @@ def test_v050(requests_mock):
 def test_v060(requests_mock):
     """
     1 vaccinatie van een merk dat er 2 vereist maar in document staat 1/1
+
+    Expected: One Vaccination Signing Message with 1/1
     """
     vaccination = json.loads("""
         {
@@ -661,6 +683,8 @@ def test_v060(requests_mock):
 def test_v070(requests_mock):
     """
     1 vaccinatie van een merk dat wel op de EMA lijst staat maar we in nl niet gebruiken
+
+    Expected: One Vaccination Signing Message with 1/2
     """
     vaccination = json.loads("""
         {
@@ -735,6 +759,8 @@ def test_v070(requests_mock):
 def test_v080(requests_mock):
     """
     1 vaccinatie van merk dat niet op de EMA goedgekeurde lijst staat maar wel in de DGC value list
+
+    Expected: No Signing Messages
     """
     vaccination = json.loads("""
         {
@@ -778,6 +804,8 @@ def test_v080(requests_mock):
 def test_v100(requests_mock):
     """
     artsenverklaring op je laatste vaccinatie dat die ene voldoende is, ongeacht hoeveelste het is
+
+    Expected: One Vaccination Signing Message with 1/1
     """
     vaccination = json.loads("""
         {
@@ -853,6 +881,8 @@ def test_v110(requests_mock):
     """
     1 vaccinatie van een merk dat er 2 vereist + persoonlijke verklaring bij je vaccinatie dat je het afgelopen
     half jaar al corona had (vinkje coronatest.nl)
+
+    Expected: One Vaccination Signing Message with 1/1
     """
     vaccination = json.loads("""
         {
@@ -927,6 +957,8 @@ def test_v110(requests_mock):
 def test_v120(requests_mock):
     """
     1 vaccinatie van een merk dat er 2 vereist + positieve test
+
+    Expected: One Vaccination Signing Message with 1/1 + One Recovery Signing Message
     """
     vaccination = json.loads("""
         {
@@ -1038,6 +1070,8 @@ def test_v120(requests_mock):
 def test_v130(requests_mock):
     """
     1 vaccinatie van een merk dat er 2 vereist + serologische test (antistoffen / bloedtest)
+
+    Expected: One Vaccination Signing Message with 1/2
     """
     vaccination = json.loads("""
         {
@@ -1111,7 +1145,7 @@ def test_v130(requests_mock):
                         mp="EU/1/20/1528",
                         ma="ORG-100030215",
                         dn=1,
-                        sd=1,
+                        sd=2,
                         dt="2021-05-13",
                         ci=cis[0]
                     )
@@ -1127,6 +1161,8 @@ def test_v130(requests_mock):
 def test_p010(requests_mock):
     """
     1 positief pcr test
+
+    Expected: One Recovery Signing Message
     """
     positive_test = json.loads("""
         {
