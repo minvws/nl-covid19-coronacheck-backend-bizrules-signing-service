@@ -736,7 +736,7 @@ def test_v070(requests_mock):
                     gn="One",
                     gnt="ONE"
                 ),
-                dob=DutchBirthDate("1950-02-06"),
+                dob=DutchBirthDate("1950-02-07"),
                 v=[
                     EuropeanVaccination(
                         vp="1119349007",
