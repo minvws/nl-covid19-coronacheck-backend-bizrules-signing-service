@@ -332,8 +332,8 @@ def evaluate_cross_type_events(events: Events) -> Events:
     else:
         vacc = events.vaccinations[0]
 
-    # todo: are doeses optional? Or are they always set?
-    vacc.vaccination.doseNumber = vacc.vaccination.totalDoses  # type: ignore
+    vacc.vaccination.totalDoses = 1
+    vacc.vaccination.doseNumber = 1
 
     retained_events = [e for e in events.events if e.type != "vaccination" or e == vacc]
     events.events = retained_events

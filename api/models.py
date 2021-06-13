@@ -290,7 +290,7 @@ class Vaccination(BaseModel):  # noqa
 class Positivetest(BaseModel):  # noqa
     sampleDate: datetime = Field(example="2021-01-01")
     resultDate: datetime = Field(example="2021-01-02")
-    negativeResult: bool = Field(example=True)
+    positiveResult: bool = Field(example=True)
     facility: str = Field(example="GGD XL Amsterdam")
     # this is not specified yet
     type: str = Field(example="???")
