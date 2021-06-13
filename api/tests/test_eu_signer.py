@@ -2,7 +2,8 @@ from datetime import date, datetime, timezone
 
 from freezegun import freeze_time
 
-from api.models import DutchBirthDate, EUGreenCard, Events
+from api.models import DutchBirthDate, EUGreenCard, Event, Events, DataProviderEventsResult
+
 from api.settings import settings
 from api.signers.eu_international import sign
 
