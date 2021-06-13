@@ -222,7 +222,7 @@ def _relevant_vaccinations(vaccs: List[Event]) -> List[Event]:
 
     # if we have none or only one, that is the relevant one
     # rules V050, V060, V070
-    if not vaccs or len(vaccs) == 1:
+    if not vaccs:
         return vaccs
 
     # do we have a full qualification, pick the most recent one
