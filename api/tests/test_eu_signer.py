@@ -79,7 +79,7 @@ testcase_event_positivetest = {
     "positivetest": {
         "sampleDate": "2021-03-01T19:38:00+00:00",
         "resultDate": "2021-02-01T19:38:00+00:00",
-        "negativeResult": True,
+        "positiveResult": True,
         "facility": "GGD XL Amsterdam",
         "type": "LP217198-3",
         "name": "???",
@@ -177,7 +177,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "vp": "C19-mRNA",
             }
         ],
-        "ver": "1.0.0",
+        "ver": "1.3.0",
     }
 
 
@@ -206,7 +206,7 @@ def test_eusign_with_empty_fields(mocker):
                 "vp": "J07BX03",  # "C19-mRNA"
             }
         ],
-        "ver": "1.0.0",
+        "ver": "1.3.0",
     }
 
 
@@ -258,9 +258,9 @@ testGreenCard = EUGreenCard(
         "origins": [
             {
                 "type": "test",
-                "eventTime": "2021-03-01T00:00:00+00:00",
+                "eventTime": "2021-03-01T19:38:00+00:00",
                 "expirationTime": "2020-07-31T00:00:00+00:00",
-                "validFrom": "2021-03-01T00:00:00+00:00",
+                "validFrom": "2021-03-01T19:38:00+00:00",
             }
         ],
         "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
