@@ -366,7 +366,7 @@ def evaluate_cross_type_events(events: Events) -> Events:
         vacc = events.vaccinations[0]
 
     # fix optional vacc
-    if not vacc:
+    if not vacc.vaccination:
         return events
 
     vacc.vaccination.totalDoses = 1
