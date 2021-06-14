@@ -39,6 +39,10 @@ ELIGIBLE_MA = MA["valueSetValues"].keys()
 MP = read_resource_file("vaccine-medicinal-product.json")
 ELIGIBLE_MP = MP["valueSetValues"].keys()
 
+VP = read_resource_file("vaccine-prophylaxis.json")
+
+HPK_TO_VP = {hpk['hpk_code']: hpk['vp'] for hpk in HPK_CODES['hpk_codes']}
+HPK_TO_MA = {hpk['hpk_code']: hpk['ma'] for hpk in HPK_CODES['hpk_codes']}
 HPK_TO_MP = {hpk['hpk_code']: hpk['mp'] for hpk in HPK_CODES['hpk_codes']}
 
 TT = read_resource_file("test-type.json")
@@ -113,6 +117,23 @@ def deduplicate_events(events: Events) -> Events:
     retained_events = Events()
     retained_events.events = retained
     return retained_events
+
+
+def enrich_from_hpk(events: Events) -> Events:
+    for vacc in events.vaccinations:
+        if not vacc.vaccination.hpkCode:
+            continue
+
+        if vacc.vaccination not in ELIGIBLE_HPK_CODES:
+            logging.warning(f"received HPK code {vacc.vaccination.hpkCode} that is not in our list")
+            continue
+
+        if not vacc.vaccination.type:
+            vacc.vaccination.type = HPK_TO_VP[vacc.vaccination.hpkCode]
+        if not vacc.vaccination.brand:
+            vacc.vaccination.brand = HPK_TO_MP[vacc.vaccination.hpkCode]
+        if not vacc.vaccination.manufacturer:
+            vacc.vaccination.manufacturer = HPK_TO_MA[vacc.vaccination.hpkCode]
 
 
 def set_missing_total_doses(events: Events) -> Events:
@@ -364,6 +385,10 @@ def create_signing_messages_based_on_events(events: Events) -> List[MessageToEUS
         f"remove_ineligble_events: {len(eligible_events.events)}: "
         f"{[e.type.lower() for e in eligible_events.events]}"
     )
+
+    # enrich vaccinations, based on HPK code
+    eligible_events = enrich_from_hpk(eligible_events)
+    log.debug(f"enrich_from_hpk: {len(eligible_events)}")
 
     # set required doses, if not given
     eligible_events = set_missing_total_doses(eligible_events)
