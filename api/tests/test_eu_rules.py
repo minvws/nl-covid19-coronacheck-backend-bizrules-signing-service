@@ -58,7 +58,16 @@ def test_deduplicate_events():
 
 
 def test_enrich_from_hpk():
-    vacs = Events(events=[Event(**DEFAULT_PFIZER_VACCINATION)])
+    vac_1 = Event(**DEFAULT_PFIZER_VACCINATION)
+    vac_1.vaccination.type = ""
+    vac_1.vaccination.brand = ""
+    vac_1.vaccination.manufacturer = ""
+
+    vacs = Events(events=[vac_1])
     # Should not drop this one because of the HPK code for example.
     vacs = enrich_from_hpk(vacs)
-    assert vacs == Events(events=[Event(**DEFAULT_PFIZER_VACCINATION)])
+    returned_vac = vacs.events[0]
+    # Should be enriched now:
+    assert returned_vac.vaccination.type == "J07BX03"
+    assert returned_vac.vaccination.brand == "EU/1/20/1525"
+    assert returned_vac.vaccination.manufacturer == "ORG-100001417"
