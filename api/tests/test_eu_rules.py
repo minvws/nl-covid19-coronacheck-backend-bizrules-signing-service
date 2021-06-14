@@ -8,7 +8,7 @@ https://docs.google.com/spreadsheets/d/1d66HXvh9bxZTwlTqaxxqE-IKmv22MkB8isZj87a-
 # Kopieer e.e.a. dus.
 # from api.models import Event
 from api.models import Event, Events
-from api.signers.eu_international import deduplicate_events
+from api.signers.eu_international import deduplicate_events, enrich_from_hpk
 
 DEFAULT_PFIZER_VACCINATION = {
     "source_provider_identifier": "ZZZ",
@@ -55,3 +55,10 @@ def test_deduplicate_events():
     events.events = [vac_1, vac_2, vac_3, vac_1]
     deduplicated = deduplicate_events(events)
     assert deduplicated.events == [vac_1]
+
+
+def test_enrich_from_hpk():
+    vacs = Events(events=[Event(**DEFAULT_PFIZER_VACCINATION)])
+    # Should not drop this one because of the HPK code for example.
+    vacs = enrich_from_hpk(vacs)
+    assert vacs == Events(events=[Event(**DEFAULT_PFIZER_VACCINATION)])
