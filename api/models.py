@@ -34,6 +34,8 @@ class Iso3166Dash1Alpha2CountryCode(str):
             examples=["NL", "BE", "NLD", "BEL"],
         )
 
+    # Todo: Issues here should return the known pydantic errors, not a 500 internal server error.
+    #  "country": "Netherlands", https://pydantic-docs.helpmanual.io/usage/types/#custom-data-types
     @classmethod
     def validate(cls, v: str):
         if not isinstance(v, str):
@@ -206,7 +208,7 @@ class Holder(BaseModel):
         example="1970-01-01",
     )
 
-    infix: str = Field(description="Infix received via app", example="van den")
+    infix: Optional[str] = Field(description="Infix received via app", example="van den")
 
     @classmethod
     def _name_initial(cls, name, default=""):

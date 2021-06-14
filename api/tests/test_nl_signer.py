@@ -1,18 +1,16 @@
-from api.models import Events
+import pytest
+
+from api.models import Events, Event
 from api.signers.nl_domestic_static import sign
 
 
-def testcases():
+@pytest.mark.skip(reason="this was a piece of code to check some signing.")
+def test_nl_testcases():
     event = {
         "protocolVersion": "3.0",
         "providerIdentifier": "GGD",
         "status": "complete",
-        "holder": {
-            "firstName": "Bertje",
-            "lastName": "Fruitplukker",
-            "infix": None,
-            "birthDate": "1972-06-23"
-        },
+        "holder": {"firstName": "Bertje", "lastName": "Fruitplukker", "infix": "", "birthDate": "1972-06-23"},
         "events": [
             {
                 "type": "positivetest",
@@ -24,12 +22,11 @@ def testcases():
                     "facility": "to_be_determined",
                     "type": "LP217198-3",
                     "name": "to_be_determined",
-                    "manufacturer": "1232"
-                }
+                    "manufacturer": "1232",
+                },
             }
-        ]
+        ],
     }
 
-
-    # sign(Events(events=[**event]))
-    ...
+    answer = sign(Events(events=[Event(**event)]))
+    assert answer == {}
