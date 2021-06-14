@@ -43,7 +43,6 @@ def test_upgrade_to_v3_with_negative_test():
                     "manufacturer": "not available",
                     "name": "not available",
                     "negativeResult": True,
-                    "resultDate": datetime(2021, 6, 1, 5, 40, tzinfo=timezone.utc),
                     "sampleDate": datetime(2021, 6, 1, 5, 40, tzinfo=timezone.utc),
                     "type": "LP217198-3",
                 },

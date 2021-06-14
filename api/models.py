@@ -600,7 +600,6 @@ class EuropeanTest(SharedEuropeanFields):
 
 class EuropeanRecovery(SharedEuropeanFields):
     fr: date = Field(description="date of first positive test result. recovery.sampleDate", example="todo")
-    df: date = Field(description="certificate valid from. recovery.validFrom", example="todo")
     du: date = Field(
         description="certificate valid until. not more than 180 days after the date of first positive "
         "test result. recovery.validUntil",
@@ -623,7 +622,7 @@ class EuropeanOnlineSigningRequestNamingSection(BaseModel):
         example="VAN<DEN<ACKER",
     )
     gn: str = Field(description="Given name, based on holder.firstName", example="Herman")
-    # Yes, signer will take care of generating this normalized version
+    # Yes, signer will take care of test_eu_issuing_rulesgenerating this normalized version
     gnt: str = Field(description="The given name(s) of the person transliterated")
 
 
