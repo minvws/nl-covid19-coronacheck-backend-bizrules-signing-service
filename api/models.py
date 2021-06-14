@@ -183,7 +183,8 @@ class PrepareIssueResponse(BaseModel):
 
 
 class Holder(BaseModel):
-    _first_alphabetic = re.compile("('[a-z]-|[^a-zA-Z])*([a-zA-Z]).*")
+    # https://www.ernieramaker.nl/raar.php?t=achternamen
+    _first_alphabetic = re.compile("(<[A-Z]-|[^A-Z])*([A-Z]).*")
 
     firstName: str = Field(description="", example="Herman")
     lastName: str = Field(description="", example="Acker")
@@ -211,6 +212,7 @@ class Holder(BaseModel):
         More testdata: https://docs.google.com/spreadsheets/d/1JuUyqmhtrqe1ibuSWOK-DOOaqec4p8bKBFvxCurGQWU/edit
         """
         match = cls._first_alphabetic.match(normalize_name(name))
+
         if match and match.group(2):
             return match.group(2).upper()
         return default
