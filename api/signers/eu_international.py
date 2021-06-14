@@ -120,7 +120,9 @@ def deduplicate_events(events: Events) -> Events:
     return retained_events
 
 
-# todo: test
+# todo: test, this is already done in the models?
+# todo: what happened with HPK_MAPPING? This seems to have disappeared without us noticing in tests.
+# todo: we need the mapping before this becomes a EU thing, so we need this as soon as something reaches inge4.
 def enrich_from_hpk(events: Events) -> Events:
     for vacc in events.vaccinations:
         # make mypy happy
