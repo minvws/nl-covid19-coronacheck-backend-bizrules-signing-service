@@ -11,7 +11,7 @@ from uuid import UUID
 import pycountry
 from pydantic import BaseModel, Field
 
-from enrichment.name_normalizer import normalize_name
+from api.enrichment.name_normalizer import normalize_name
 from api.attribute_allowlist import domestic_signer_attribute_allow_list
 from api.settings import settings
 
