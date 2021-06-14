@@ -20,7 +20,6 @@ async def test_get_prepare_issue(redis_db, requests_mock):
     requests_mock.post(settings.DOMESTIC_NL_VWS_PREPARE_ISSUE_URL, json=example_response)
 
     data: PrepareIssueResponse = await get_prepare_issue()
-    print(b64decode(data.prepareIssueMessage))
     assert (
         data.prepareIssueMessage == "eyJpc3N1ZXJQa0lkIjogIlRTVC1LRVktMDEiLCAiaXNzdWVyTm9uY2UiOiAia2RSTkZSSXpYaWFlWUF"
         "ldEpCUWRNZz09IiwgImNyZWRlbnRpYWxBbW91bnQiOiAyOH0="
