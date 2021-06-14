@@ -226,3 +226,10 @@ def test_iso3316_1_alpha_3_country():
     # safely switch between NL and NLD.
     assert str(Iso3166Dash1Alpha2CountryCode.validate("NLD")) == "NL"
     assert str(Iso3166Dash1Alpha2CountryCode.validate("NL")) == "NL"
+
+    # https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
+    # BES -> BQ
+    assert str(Iso3166Dash1Alpha2CountryCode.validate("BES")) == "BQ"
+    assert str(Iso3166Dash1Alpha2CountryCode.validate("ABW")) == "AW"
+    assert str(Iso3166Dash1Alpha2CountryCode.validate("CUW")) == "CW"
+    assert str(Iso3166Dash1Alpha2CountryCode.validate("SXM")) == "SX"
