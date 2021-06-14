@@ -12,7 +12,7 @@ from api.signers.eu_international import deduplicate_events
 
 DEFAULT_PFIZER_VACCINATION = {
     "source_provider_identifier": "ZZZ",
-    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01", "infix": ""},
     "type": "vaccination",
     "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
     "negativetest": None,

@@ -206,6 +206,8 @@ class Holder(BaseModel):
         example="1970-01-01",
     )
 
+    infix: str = Field(description="Infix received via app", example="van den")
+
     @classmethod
     def _name_initial(cls, name, default=""):
         """
@@ -866,6 +868,8 @@ class V2Event(BaseModel):
             birthDate=datetime(
                 INVALID_YEAR_FOR_EU_SIGNING, int(self.result.holder.birthMonth), int(self.result.holder.birthDay)
             ),
+            # protocol v2 has no infix
+            infix="",
         )
 
         return DataProviderEventsResult(

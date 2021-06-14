@@ -10,7 +10,7 @@ from api.signers.eu_international import sign
 
 testcase_event_vaccination = {
     "source_provider_identifier": "XXX",
-    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01", "infix": ""},
     "type": "vaccination",
     "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
     "negativetest": None,
@@ -32,7 +32,7 @@ testcase_event_vaccination = {
 
 testcase_event_vaccination_empty = {
     "source_provider_identifier": "XXX",
-    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01", "infix": ""},
     "type": "vaccination",
     "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
     "negativetest": None,
@@ -52,7 +52,7 @@ testcase_event_vaccination_empty = {
 
 testcase_event_negativetest = {
     "source_provider_identifier": "XXX",
-    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01", "infix": ""},
     "type": "negativetest",
     "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
     "negativetest": {
@@ -72,7 +72,7 @@ testcase_event_negativetest = {
 
 testcase_event_positivetest = {
     "source_provider_identifier": "XXX",
-    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01", "infix": ""},
     "type": "positivetest",
     "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
     "negativetest": None,
@@ -92,7 +92,7 @@ testcase_event_positivetest = {
 
 testcase_event_recovery = {
     "source_provider_identifier": "XXX",
-    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01", "infix": ""},
     "type": "recovery",
     "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
     "negativetest": None,
