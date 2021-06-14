@@ -77,8 +77,6 @@ def eligible_vaccination(events: Events) -> List[RichOrigin]:
 
 
 def eligible_recovery(events) -> List[RichOrigin]:
-    eligible_recs = list(filter(lambda pt: pt.positivetest.type in ALLOWED_POSITIVE_TEST_TYPES, events.positivetests))
-
     # TODO: Determine if we really want to blindly copy these values, or just use the same
     #  calculations as a positive test, based on the sampleDate
     return [
@@ -89,7 +87,7 @@ def eligible_recovery(events) -> List[RichOrigin]:
             validFrom=floor_hours(rec.recovery.validFrom),
             expirationTime=floor_hours(rec.recovery.validUntil),
         )
-        for rec in eligible_recs
+        for rec in events.recoveries
     ]
 
 

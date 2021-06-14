@@ -393,8 +393,9 @@ class EventType(str, Enum):
 
 class DataProviderEvent(BaseModel):
     type: EventType = Field(description="Type of event")
-    unique: str = Field(description="Some unique string")
-    isSpecimen: bool = Field(False, description="Boolean")
+    # RVIM does not have a unique
+    unique: Optional[str] = Field(description="Some unique string")
+    isSpecimen: Optional[bool] = Field(False, description="Boolean")
     negativetest: Optional[Negativetest] = Field(None, description="Negativetest")
     positivetest: Optional[Positivetest] = Field(None, description="Positivetest")
     vaccination: Optional[Vaccination] = Field(None, description="Vaccination")
@@ -530,8 +531,8 @@ class DomesticStaticQrResponse(BaseModel):
             birthDay: str = Field(example="27", description="Day (not date!) of birth.")
             birthMonth: str = Field(example="12", description="Month (not date!) of birth.")
             isPaperProof: str = Field(example="1", default="1")
-            # todo: enum, is this a boolean?
-            isSpecimen: str = Field(
+            # The crypto library only understands strings, there booleans are "0" or "1".
+            isSpecimen: Optional[bool] = Field(
                 example="0",
                 description="Boolean cast as string, if this is a testcase. " "To facilitate testing in production.",
             )
@@ -739,6 +740,7 @@ class StripType(str, Enum):
 
 
 class DomesticSignerAttributes(BaseModel):
+    # this is a string because the crypto library only supports strings
     isSpecimen: str = Field(
         example="0",
         description="Boolean cast as string, if this is a testcase. " "To facilitate testing in production.",
@@ -806,11 +808,12 @@ class V2Holder(BaseModel):
 
 
 class V2DataProviderEvent(BaseModel):  # noqa
+    # V2 messages always have a unique, all test providers have one, in contrast of v3
     unique: str
     sampleDate: datetime
     testType: str
     negativeResult: bool
-    isSpecimen: bool
+    isSpecimen: Optional[bool]
     holder: V2Holder
 
 
