@@ -8,7 +8,7 @@ from api.models import (
     EuropeanOnlineSigningRequestNamingSection,
     EventType,
     Holder,
-    Iso3166Dash1Alpha3CountryCode,
+    Iso3166Dash1Alpha2CountryCode,
     V2Event,
 )
 
@@ -38,7 +38,7 @@ def test_upgrade_to_v3_with_negative_test():
                 # "holder": {"birthDate": date(INVALID_YEAR_FOR_EU_SIGNING, 6, 9), "firstName": "B", "lastName": "B"},
                 "isSpecimen": True,
                 "negativetest": {
-                    "country": "NLD",
+                    "country": "NL",
                     "facility": "not available",
                     "manufacturer": "not available",
                     "name": "not available",
@@ -187,30 +187,42 @@ def test_none_in_european_signing_request():
 
 
 def test_iso3316_1_alpha_3_country():
-    Iso3166Dash1Alpha3CountryCode.validate("NLD")
-    Iso3166Dash1Alpha3CountryCode.validate("MAR")
-    Iso3166Dash1Alpha3CountryCode.validate("DZA")
-    Iso3166Dash1Alpha3CountryCode.validate("VGB")
+    Iso3166Dash1Alpha2CountryCode.validate("NLD")
+    Iso3166Dash1Alpha2CountryCode.validate("MAR")
+    Iso3166Dash1Alpha2CountryCode.validate("DZA")
+    Iso3166Dash1Alpha2CountryCode.validate("VGB")
 
     with pytest.raises(TypeError, match="string required"):
-        Iso3166Dash1Alpha3CountryCode.validate(None)  # noqa
+        Iso3166Dash1Alpha2CountryCode.validate(None)  # noqa
 
-    with pytest.raises(ValueError, match="ISO 3166-1 alpha-3 requires three characters."):
-        Iso3166Dash1Alpha3CountryCode.validate("")  # noqa
+    with pytest.raises(ValueError, match="ISO 3166-1 alpha-2|3 requires two or three characters."):
+        Iso3166Dash1Alpha2CountryCode.validate("")  # noqa
 
     with pytest.raises(TypeError, match="string required"):
-        Iso3166Dash1Alpha3CountryCode.validate(1)  # noqa
+        Iso3166Dash1Alpha2CountryCode.validate(1)  # noqa
 
-    with pytest.raises(ValueError, match="ISO 3166-1 alpha-3 requires three characters."):
-        Iso3166Dash1Alpha3CountryCode.validate("NONSENSE")
+    with pytest.raises(ValueError, match="ISO 3166-1 alpha-2|3 requires two or three characters."):
+        Iso3166Dash1Alpha2CountryCode.validate("NONSENSE")
 
     # Purpleland is not accepted: XXP
     # See: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
-    with pytest.raises(ValueError, match="Given country is not known to ISO 3166-1 alpha-3."):
-        Iso3166Dash1Alpha3CountryCode.validate("XXP")
+    with pytest.raises(ValueError, match="Given country is not known to ISO 3166-1 alpha-2|3."):
+        Iso3166Dash1Alpha2CountryCode.validate("XXP")
 
     # Machine readable passports are also not allowed
-    with pytest.raises(ValueError, match="Given country is not known to ISO 3166-1 alpha-3."):
-        Iso3166Dash1Alpha3CountryCode.validate("XPO")
+    with pytest.raises(ValueError, match="Given country is not known to ISO 3166-1 alpha-2|3."):
+        Iso3166Dash1Alpha2CountryCode.validate("XPO")
 
-    print(Iso3166Dash1Alpha3CountryCode("NLD"))
+    print(Iso3166Dash1Alpha2CountryCode("NLD"))
+
+    Iso3166Dash1Alpha2CountryCode.validate("NL")
+    Iso3166Dash1Alpha2CountryCode.validate("BE")
+    Iso3166Dash1Alpha2CountryCode.validate("DE")
+    Iso3166Dash1Alpha2CountryCode.validate("FR")
+
+    with pytest.raises(ValueError, match="Given country is not known to ISO 3166-1 alpha-2|3."):
+        Iso3166Dash1Alpha2CountryCode.validate("XY")
+
+    # safely switch between NL and NLD.
+    assert str(Iso3166Dash1Alpha2CountryCode.validate("NLD")) == "NL"
+    assert str(Iso3166Dash1Alpha2CountryCode.validate("NL")) == "NL"
