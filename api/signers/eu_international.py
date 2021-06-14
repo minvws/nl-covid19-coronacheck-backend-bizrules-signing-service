@@ -39,7 +39,8 @@ ELIGIBLE_MA = MA["valueSetValues"].keys()
 MP = read_resource_file("vaccine-medicinal-product.json")
 ELIGIBLE_MP = MP["valueSetValues"].keys()
 
-VP = read_resource_file("vaccine-prophylaxis.json")
+# todo: future: check that received VP's are valid.
+# VP = read_resource_file("vaccine-prophylaxis.json")
 
 HPK_TO_VP = {hpk['hpk_code']: hpk['vp'] for hpk in HPK_CODES['hpk_codes']}
 HPK_TO_MA = {hpk['hpk_code']: hpk['ma'] for hpk in HPK_CODES['hpk_codes']}
@@ -119,6 +120,7 @@ def deduplicate_events(events: Events) -> Events:
     return retained_events
 
 
+# todo: test
 def enrich_from_hpk(events: Events) -> Events:
     for vacc in events.vaccinations:
         # make mypy happy
