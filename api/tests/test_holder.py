@@ -290,3 +290,11 @@ def test_first_name_initial(holder_dict: dict, expected: dict):
 def test_last_name_initial(holder_dict: dict, expected: dict):
     holder = Holder(**holder_dict)
     assert holder.last_name_initial == expected["lastInitial"]
+
+
+def test_eu_holder():
+    holder = Holder(firstName="Henk", lastName="vries", infix="de", birthDate="2000-01-01")
+    assert holder.last_name_eu_normalized == "DE<VRIES"
+
+    holder = Holder(firstName="Henk", lastName="vries", infix="", birthDate="2000-01-01")
+    assert holder.last_name_eu_normalized == "VRIES"

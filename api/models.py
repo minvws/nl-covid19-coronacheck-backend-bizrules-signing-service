@@ -250,6 +250,9 @@ class Holder(BaseModel):
 
     @property
     def last_name_eu_normalized(self):
+        # Add the infix to EU messages, with a space in between.
+        if self.infix:
+            return Holder._eu_normalize(f"{self.infix} {self.lastName}")
         return Holder._eu_normalize(self.lastName)
 
     def equal_to(self, other):
