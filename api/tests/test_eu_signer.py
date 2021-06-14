@@ -132,7 +132,6 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
             {
                 "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
                 "co": "NLD",
-                "df": datetime(2021, 2, 1).date(),
                 "du": datetime(2021, 2, 1).date(),
                 "fr": datetime(2021, 4, 1).date(),
                 "is": "Ministry of Health Welfare and Sport",
@@ -141,8 +140,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
             {
                 "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
                 "co": "NLD",
-                "df": datetime(2021, 2, 1).date(),
-                "du": datetime(2045, 9, 23).date(),
+                "du": datetime(2045, 10, 21).date(),
                 "fr": datetime(2021, 3, 1).date(),
                 "is": "Ministry of Health Welfare and Sport",
                 "tg": "840539006",
@@ -152,7 +150,6 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
             {
                 "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
                 "co": "NLD",
-                "dr": datetime(2021, 2, 1, 19, 38, tzinfo=timezone.utc),
                 "is": "Ministry of Health Welfare and Sport",
                 "ma": "???",
                 "nm": "???",

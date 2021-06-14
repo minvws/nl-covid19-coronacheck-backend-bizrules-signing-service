@@ -289,7 +289,6 @@ class Vaccination(BaseModel):  # noqa
 
 class Positivetest(BaseModel):  # noqa
     sampleDate: datetime = Field(example="2021-01-01")
-    resultDate: datetime = Field(example="2021-01-02")
     positiveResult: bool = Field(example=True)
     facility: str = Field(example="GGD XL Amsterdam")
     # this is not specified yet
@@ -312,11 +311,9 @@ class Positivetest(BaseModel):  # noqa
                 **{
                     # sampletime
                     "fr": self.sampleDate,
-                    # date from
-                    "df": self.resultDate,
                     # date until
                     # tod
-                    "du": self.resultDate + timedelta(days=9000),
+                    "du": self.sampleDate + timedelta(days=9000),
                 },
                 **SharedEuropeanFields.as_dict(),
             }
@@ -326,7 +323,6 @@ class Positivetest(BaseModel):  # noqa
 # V3
 class Negativetest(BaseModel):  # noqa
     sampleDate: datetime = Field(example="2021-01-01")
-    resultDate: datetime = Field(example="2021-01-02")
     negativeResult: bool = Field(example=True)
     facility: str = Field(example="Facility1")
     type: str = Field(example="A great one")
@@ -342,7 +338,6 @@ class Negativetest(BaseModel):  # noqa
                     "nm": self.name,
                     "ma": self.manufacturer,
                     "sc": self.sampleDate,
-                    "dr": self.resultDate,
                     "tr": self.negativeResult,
                     "tc": self.facility,
                 },
@@ -597,9 +592,6 @@ class EuropeanTest(SharedEuropeanFields):
     # Iso 8601, date and time
     sc: datetime = Field(description="testresult.sampleDate", example="")
 
-    # Iso 8601, date and time
-    dr: datetime = Field(description="testresult.resultDate", example="")
-
     # "In provider results: true/false
     # In EU QR: https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/test-result.json"
     tr: str = Field(description="testresult.negativeResult", example="")
@@ -608,7 +600,6 @@ class EuropeanTest(SharedEuropeanFields):
 
 class EuropeanRecovery(SharedEuropeanFields):
     fr: date = Field(description="date of first positive test result. recovery.sampleDate", example="todo")
-    df: date = Field(description="certificate valid from. recovery.validFrom", example="todo")
     du: date = Field(
         description="certificate valid until. not more than 180 days after the date of first positive "
         "test result. recovery.validUntil",
@@ -631,7 +622,7 @@ class EuropeanOnlineSigningRequestNamingSection(BaseModel):
         example="VAN<DEN<ACKER",
     )
     gn: str = Field(description="Given name, based on holder.firstName", example="Herman")
-    # Yes, signer will take care of generating this normalized version
+    # Yes, signer will take care of test_eu_issuing_rulesgenerating this normalized version
     gnt: str = Field(description="The given name(s) of the person transliterated")
 
 
@@ -878,8 +869,6 @@ class V2Event(BaseModel):
                     isSpecimen=self.result.isSpecimen,
                     negativetest=Negativetest(
                         sampleDate=self.result.sampleDate,
-                        # This field will be deleted anyway
-                        resultDate=self.result.sampleDate,
                         facility="not available",
                         type=testtypes_to_code.get(self.result.testType, "unknown"),
                         name="not available",
