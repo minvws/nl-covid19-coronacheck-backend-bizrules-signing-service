@@ -10,9 +10,9 @@ from uuid import UUID
 
 import pycountry
 from pydantic import BaseModel, Field
-from unidecode import unidecode
 
 from api.attribute_allowlist import domestic_signer_attribute_allow_list
+from api.enrichment.name_normalizer import normalize_name
 from api.settings import settings
 
 
@@ -183,7 +183,8 @@ class PrepareIssueResponse(BaseModel):
 
 
 class Holder(BaseModel):
-    _first_alphabetic = re.compile("('[a-z]-|[^a-zA-Z])*([a-zA-Z]).*")
+    # https://www.ernieramaker.nl/raar.php?t=achternamen
+    _first_alphabetic = re.compile("(<[A-Z]-|[^A-Z])*([A-Z]).*")
 
     firstName: str = Field(description="", example="Herman")
     lastName: str = Field(description="", example="Acker")
@@ -203,14 +204,15 @@ class Holder(BaseModel):
         new link: https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/feature/normalization-1
         /architecture/Domestic%20Data%20Normalisation.md
 
-        The parameter default is returned if `unidecode(name)` does not contain a character matchin [a-zA-Z], for
-        example if it is the empty string
+        The parameter default is returned if the transliteration of `name)` does not contain a character
+        matching [a-zA-Z], for example if it is the empty string
 
         Testdata: https://github.com/minvws/nl-covid19-coronacheck-app-coronatestprovider-portal/blob/main/default-test-
         cases.csv
         More testdata: https://docs.google.com/spreadsheets/d/1JuUyqmhtrqe1ibuSWOK-DOOaqec4p8bKBFvxCurGQWU/edit
         """
-        match = cls._first_alphabetic.match(unidecode(name))
+        match = cls._first_alphabetic.match(normalize_name(name))
+
         if match and match.group(2):
             return match.group(2).upper()
         return default
@@ -227,9 +229,7 @@ class Holder(BaseModel):
 
     @staticmethod
     def _eu_normalize(value):
-        # todo: test
-        # todo: figure out format
-        return unidecode(value).upper().replace(" ", "<")
+        return normalize_name(value)
 
     @property
     def first_name_eu_normalized(self):
@@ -290,7 +290,7 @@ class Vaccination(BaseModel):  # noqa
 class Positivetest(BaseModel):  # noqa
     sampleDate: datetime = Field(example="2021-01-01")
     resultDate: datetime = Field(example="2021-01-02")
-    negativeResult: bool = Field(example=True)
+    positiveResult: bool = Field(example=True)
     facility: str = Field(example="GGD XL Amsterdam")
     # this is not specified yet
     type: str = Field(example="???")
@@ -626,7 +626,10 @@ class EuropeanOnlineSigningRequestNamingSection(BaseModel):
 
     fn: str = Field(description="Family name, based on holder.lastName", example="Acker")
     # Yes, signer will take care of generating this normalized version
-    fnt: str = Field(description="Transliterated family name (A-Z, unidecoded) with<instead of space.", example="Acker")
+    fnt: str = Field(
+        description="Machine Readable Zone of family name (A-Z, transliterated) with<instead of space.",
+        example="VAN<DEN<ACKER",
+    )
     gn: str = Field(description="Given name, based on holder.firstName", example="Herman")
     # Yes, signer will take care of generating this normalized version
     gnt: str = Field(description="The given name(s) of the person transliterated")
@@ -634,7 +637,7 @@ class EuropeanOnlineSigningRequestNamingSection(BaseModel):
 
 class EuropeanOnlineSigningRequest(BaseModel):
     ver: str = Field(
-        description="Version of the schema, according to Semantic versioning", default="1.0.0", example="1.0.0"
+        description="Version of the schema, according to Semantic versioning", default="1.3.0", example="1.0.0"
     )
     nam: EuropeanOnlineSigningRequestNamingSection
     # Signer should convert "1975-XX-XX" to "1975" as the EU DGC can't handle the XX's of unknown birthmonth/day

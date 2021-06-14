@@ -138,9 +138,9 @@ def test_static_sign(current_path, requests_mock):
             origins=[
                 GreenCardOrigin(
                     type="test",
-                    eventTime="2021-05-27T00:00:00+00:00",
+                    eventTime="2021-05-27T19:23:00+00:00",
                     expirationTime="2021-11-16T00:00:00+00:00",
-                    validFrom="2021-05-27T00:00:00+00:00",
+                    validFrom="2021-05-27T19:23:00+00:00",
                 )
             ],
             credential="HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%I0/IVB58WA",

@@ -94,10 +94,10 @@ def test_app_credential_request(requests_mock, current_path, redis_db):
                 "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%I0/IVB58WA",
                 "origins": [
                     {
-                        "eventTime": "2021-05-27T00:00:00+00:00",
+                        "eventTime": "2021-05-27T19:23:00+00:00",
                         "expirationTime": "2021-11-16T00:00:00+00:00",
                         "type": "test",
-                        "validFrom": "2021-05-27T00:00:00+00:00",
+                        "validFrom": "2021-05-27T19:23:00+00:00",
                     }
                 ],
             }
