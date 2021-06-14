@@ -11,7 +11,7 @@ from api.settings import settings
 
 @freeze_time("2021-05-20")
 @pytest.mark.asyncio
-async def test_get_prepare_issue(redisdb, requests_mock):
+async def test_get_prepare_issue(redis_db, requests_mock):
 
     example_response = {"issuerPkId": "TST-KEY-01", "issuerNonce": "kdRNFRIzXiaeYAetJBQdMg==", "credentialAmount": 28}
     requests_mock.post(settings.DOMESTIC_NL_VWS_PREPARE_ISSUE_URL, json=example_response)
