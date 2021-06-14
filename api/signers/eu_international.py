@@ -135,6 +135,8 @@ def enrich_from_hpk(events: Events) -> Events:
         if not vacc.vaccination.manufacturer:
             vacc.vaccination.manufacturer = HPK_TO_MA[vacc.vaccination.hpkCode]
 
+    return events
+
 
 def set_missing_total_doses(events: Events) -> Events:
     """
@@ -363,7 +365,7 @@ def evaluate_cross_type_events(events: Events) -> Events:
     return events
 
 
-def remove_ineligble_events(events: Events) -> Events:
+def remove_ineligible_events(events: Events) -> Events:
     eligible_events = Events()
     eligible_events.events = [e for e in events.events if is_eligible(e)]
     return eligible_events
@@ -380,15 +382,15 @@ def create_signing_messages_based_on_events(events: Events) -> List[MessageToEUS
     log.debug(f"Filtering, reducing and preparing eu signing requests, starting with N events: {len(events.events)}")
 
     # remove ineligible events
-    eligible_events: Events = remove_ineligble_events(events)
+    eligible_events: Events = remove_ineligible_events(events)
     log.debug(
-        f"remove_ineligble_events: {len(eligible_events.events)}: "
+        f"remove_ineligible_events: {len(eligible_events.events)}: "
         f"{[e.type.lower() for e in eligible_events.events]}"
     )
 
     # enrich vaccinations, based on HPK code
     eligible_events = enrich_from_hpk(eligible_events)
-    log.debug(f"enrich_from_hpk: {len(eligible_events)}")
+    log.debug(f"enrich_from_hpk: {len(eligible_events.events)}")
 
     # set required doses, if not given
     eligible_events = set_missing_total_doses(eligible_events)
