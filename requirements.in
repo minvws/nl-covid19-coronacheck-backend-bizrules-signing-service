@@ -32,3 +32,6 @@ colorlog
 
 # Model validation
 pycountry
+
+# Name Normalization
+mrz
