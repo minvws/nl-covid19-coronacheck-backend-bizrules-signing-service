@@ -16,8 +16,12 @@ from api.enrichment.name_normalizer import normalize_name
 from api.settings import settings
 
 
-class Iso3166Dash1Alpha3CountryCode(str):
-    type = "ISO 3166-1 alpha-3"
+class Iso3166Dash1Alpha2CountryCode(str):
+    """
+    This class can accept 2 or 3 letter alpha codes and will always return the 2 letter variant downstream.
+    """
+
+    type = "ISO 3166-1 alpha-2|3"
 
     @classmethod
     def __get_validators__(cls):
@@ -26,8 +30,8 @@ class Iso3166Dash1Alpha3CountryCode(str):
     @classmethod
     def __modify_schema__(cls, field_schema):
         field_schema.update(
-            pattern="^[A-Z]{3}$",
-            examples=["NLD", "BEL"],
+            pattern="^[A-Z]{2,3}$",
+            examples=["NL", "BE", "NLD", "BEL"],
         )
 
     @classmethod
@@ -35,10 +39,17 @@ class Iso3166Dash1Alpha3CountryCode(str):
         if not isinstance(v, str):
             raise TypeError("string required")
 
-        if not re.fullmatch(r"[A-Z]{3}", v):
-            raise ValueError(f"{cls.type} requires three characters.")
+        if not re.fullmatch(r"[A-Z]{2,3}", v):
+            raise ValueError(f"{cls.type} requires two or three characters.")
 
-        country = pycountry.countries.get(alpha_3=v)
+        if len(v) == 3:
+            # Cast Iso3166Dash1Alpha3 to Iso3166Dash1Alpha2
+            country = pycountry.countries.get(alpha_3=v)
+            if not country:
+                raise ValueError(f"Given country is not known to {cls.type}.")
+            v = country.alpha_2
+
+        country = pycountry.countries.get(alpha_2=v)
         if not country:
             raise ValueError(f"Given country is not known to {cls.type}.")
 
@@ -266,7 +277,7 @@ class Vaccination(BaseModel):  # noqa
     )
     completedByPersonalStatement: Optional[bool] = Field(description="Individual self-declares fully vaccinated")
 
-    country: Iso3166Dash1Alpha3CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
+    country: Iso3166Dash1Alpha2CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
     doseNumber: Optional[int] = Field(example=1, description="will be based on business rules / brand info if left out")
     totalDoses: Optional[int] = Field(example=2, description="will be based on business rules / brand info if left out")
 
@@ -295,7 +306,7 @@ class Positivetest(BaseModel):  # noqa
     type: str = Field(example="???")
     name: str = Field(example="???")
     manufacturer: str = Field(example="1232")
-    country: Iso3166Dash1Alpha3CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
+    country: Iso3166Dash1Alpha2CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
 
     """
     Positive tests mean that there is a recovery. For the EU a positive test should be seen and
@@ -328,7 +339,7 @@ class Negativetest(BaseModel):  # noqa
     type: str = Field(example="A great one")
     name: str = Field(example="Bestest")
     manufacturer: str = Field(example="Acme Inc")
-    country: Iso3166Dash1Alpha3CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
+    country: Iso3166Dash1Alpha2CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
 
     def toEuropeanTest(self):
         return EuropeanTest(
@@ -350,7 +361,7 @@ class Recovery(BaseModel):  # noqa
     sampleDate: date = Field(example="2021-01-01")
     validFrom: date = Field(example="2021-01-12")
     validUntil: date = Field(example="2021-06-30")
-    country: Iso3166Dash1Alpha3CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
+    country: Iso3166Dash1Alpha2CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
 
     def toEuropeanRecovery(self):
         return EuropeanRecovery(
