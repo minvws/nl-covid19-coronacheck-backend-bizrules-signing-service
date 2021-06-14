@@ -1,6 +1,6 @@
 import datetime
 import json
-from typing import List
+from typing import List, Dict, Any
 
 import pytz
 from freezegun import freeze_time
@@ -10,7 +10,7 @@ from api.models import DutchBirthDate, EUGreenCard, Event, Events, EventType, Eu
 from api.signers.eu_international import create_signing_messages_based_on_events, sign
 
 
-def _create_events(incoming_events: List[dict]) -> Events:
+def _create_events(incoming_events: List[Dict[str, Any]]) -> Events:
     events = Events()
     for incoming_event in incoming_events:
         provider_event = DataProviderEventsResult(**incoming_event)
