@@ -11,8 +11,8 @@ from uuid import UUID
 import pycountry
 from pydantic import BaseModel, Field
 
-from api.enrichment.name_normalizer import normalize_name
 from api.attribute_allowlist import domestic_signer_attribute_allow_list
+from api.enrichment.name_normalizer import normalize_name
 from api.settings import settings
 
 
@@ -626,8 +626,10 @@ class EuropeanOnlineSigningRequestNamingSection(BaseModel):
 
     fn: str = Field(description="Family name, based on holder.lastName", example="Acker")
     # Yes, signer will take care of generating this normalized version
-    fnt: str = Field(description="Machine Readable Zone of family name (A-Z, transliterated) with<instead of space.",
-                     example="VAN<DEN<ACKER")
+    fnt: str = Field(
+        description="Machine Readable Zone of family name (A-Z, transliterated) with<instead of space.",
+        example="VAN<DEN<ACKER",
+    )
     gn: str = Field(description="Given name, based on holder.firstName", example="Herman")
     # Yes, signer will take care of generating this normalized version
     gnt: str = Field(description="The given name(s) of the person transliterated")

@@ -1,7 +1,7 @@
 import json
 import logging
 import os.path
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from typing import Any, Dict, List
 
 import pytz
@@ -42,9 +42,9 @@ ELIGIBLE_MP = MP["valueSetValues"].keys()
 # todo: future: check that received VP's are valid.
 # VP = read_resource_file("vaccine-prophylaxis.json")
 
-HPK_TO_VP = {hpk['hpk_code']: hpk['vp'] for hpk in HPK_CODES['hpk_codes']}
-HPK_TO_MA = {hpk['hpk_code']: hpk['ma'] for hpk in HPK_CODES['hpk_codes']}
-HPK_TO_MP = {hpk['hpk_code']: hpk['mp'] for hpk in HPK_CODES['hpk_codes']}
+HPK_TO_VP = {hpk["hpk_code"]: hpk["vp"] for hpk in HPK_CODES["hpk_codes"]}
+HPK_TO_MA = {hpk["hpk_code"]: hpk["ma"] for hpk in HPK_CODES["hpk_codes"]}
+HPK_TO_MP = {hpk["hpk_code"]: hpk["mp"] for hpk in HPK_CODES["hpk_codes"]}
 
 TT = read_resource_file("test-type.json")
 ELIGIBLE_TT = TT["valueSetValues"].keys()

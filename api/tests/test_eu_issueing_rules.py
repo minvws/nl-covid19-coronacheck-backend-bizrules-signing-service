@@ -1,12 +1,25 @@
 import datetime
 import json
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 import pytz
 from freezegun import freeze_time
 
+from api.models import (
+    DataProviderEventsResult,
+    DutchBirthDate,
+    EUGreenCard,
+    EuropeanOnlineSigningRequest,
+    EuropeanOnlineSigningRequestNamingSection,
+    EuropeanRecovery,
+    EuropeanTest,
+    EuropeanVaccination,
+    Event,
+    Events,
+    EventType,
+    MessageToEUSigner,
+)
 from api.settings import settings
-from api.models import DutchBirthDate, EUGreenCard, Event, Events, EventType, EuropeanTest, EuropeanRecovery, EuropeanVaccination, MessageToEUSigner, DataProviderEventsResult, EuropeanOnlineSigningRequestNamingSection, EuropeanOnlineSigningRequest
 from api.signers.eu_international import create_signing_messages_based_on_events, sign
 
 
@@ -17,11 +30,7 @@ def _create_events(incoming_events: List[Dict[str, Any]]) -> Events:
         holder = provider_event.holder
         for event in provider_event.events:
             events.events.append(
-                Event(
-                    source_provider_identifier=incoming_event['providerIdentifier'],
-                    holder=holder,
-                    **event.dict()
-                )
+                Event(source_provider_identifier=incoming_event["providerIdentifier"], holder=holder, **event.dict())
             )
 
     return events
@@ -34,7 +43,8 @@ def test_n010(requests_mock):
 
     expected: one Test (Negative) Signing Message
     """
-    negative_test = json.loads("""
+    negative_test = json.loads(
+        """
         {
           "protocolVersion": "3.0",
           "providerIdentifier": "ZZZ",
@@ -63,7 +73,8 @@ def test_n010(requests_mock):
             }
           ]
         }
-    """)
+    """
+    )
     events = _create_events([negative_test])
 
     signing_messages = create_signing_messages_based_on_events(events)
@@ -74,12 +85,7 @@ def test_n010(requests_mock):
             expirationTime="2021-12-10T19:20:21+00:00",
             dgc=EuropeanOnlineSigningRequest(
                 ver="1.3.0",
-                nam=EuropeanOnlineSigningRequestNamingSection(
-                    fn="Test",
-                    fnt="TEST",
-                    gn="Rat",
-                    gnt="RAT"
-                ),
+                nam=EuropeanOnlineSigningRequestNamingSection(fn="Test", fnt="TEST", gn="Rat", gnt="RAT"),
                 dob=DutchBirthDate("1950-01-01"),
                 t=[
                     EuropeanTest(
@@ -92,8 +98,8 @@ def test_n010(requests_mock):
                         tc="Some RAT Test Place",
                         ci=ci,
                     )
-                ]
-            )
+                ],
+            ),
         )
     ]
 
@@ -129,7 +135,8 @@ def test_n030(requests_mock):
 
     Expected: No Signing Messages
     """
-    negative_test = json.loads("""
+    negative_test = json.loads(
+        """
         {
           "protocolVersion": "3.0",
           "providerIdentifier": "ZZZ",
@@ -158,7 +165,8 @@ def test_n030(requests_mock):
             }
           ]
         }
-    """)
+    """
+    )
     events = _create_events([negative_test])
 
     signing_messages = create_signing_messages_based_on_events(events)
@@ -180,7 +188,8 @@ def test_v010(requests_mock):
 
     Expected: One Vaccination Signing Message with 2/2
     """
-    vaccination = json.loads("""
+    vaccination = json.loads(
+        """
         {
           "protocolVersion": "3.0",
           "providerIdentifier": "ZZZ",
@@ -228,7 +237,8 @@ def test_v010(requests_mock):
             }
           ]
         }
-    """)
+    """
+    )
     events = _create_events([vaccination])
 
     signing_messages = create_signing_messages_based_on_events(events)
@@ -242,24 +252,15 @@ def test_v010(requests_mock):
             dgc=EuropeanOnlineSigningRequest(
                 ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
-                    fn="Pricks Same Brand",
-                    fnt="PRICKS<SAME<BRAND",
-                    gn="Two",
-                    gnt="TWO"
+                    fn="Pricks Same Brand", fnt="PRICKS<SAME<BRAND", gn="Two", gnt="TWO"
                 ),
                 dob=DutchBirthDate("1950-02-01"),
                 v=[
                     EuropeanVaccination(
-                        vp="1119349007",
-                        mp="EU/1/20/1528",
-                        ma="ORG-100030215",
-                        dn=2,
-                        sd=2,
-                        dt="2021-06-07",
-                        ci=cis[0]
+                        vp="1119349007", mp="EU/1/20/1528", ma="ORG-100030215", dn=2, sd=2, dt="2021-06-07", ci=cis[0]
                     )
-                ]
-            )
+                ],
+            ),
         )
     ]
 
@@ -273,7 +274,8 @@ def test_v020(requests_mock):
 
     Expected: One Vaccination Signing Message with 2/2
     """
-    vaccination = json.loads("""
+    vaccination = json.loads(
+        """
         {
           "protocolVersion": "3.0",
           "providerIdentifier": "ZZZ",
@@ -321,7 +323,8 @@ def test_v020(requests_mock):
             }
           ]
         }
-    """)
+    """
+    )
     events = _create_events([vaccination])
 
     signing_messages = create_signing_messages_based_on_events(events)
@@ -335,24 +338,15 @@ def test_v020(requests_mock):
             dgc=EuropeanOnlineSigningRequest(
                 ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
-                    fn="Pricks Same Brand",
-                    fnt="PRICKS<SAME<BRAND",
-                    gn="Two",
-                    gnt="TWO"
+                    fn="Pricks Same Brand", fnt="PRICKS<SAME<BRAND", gn="Two", gnt="TWO"
                 ),
                 dob=DutchBirthDate("1950-02-02"),
                 v=[
                     EuropeanVaccination(
-                        vp="1119349007",
-                        mp="EU/1/20/1528",
-                        ma="ORG-100030215",
-                        dn=2,
-                        sd=2,
-                        dt="2021-06-07",
-                        ci=cis[0]
+                        vp="1119349007", mp="EU/1/20/1528", ma="ORG-100030215", dn=2, sd=2, dt="2021-06-07", ci=cis[0]
                     )
-                ]
-            )
+                ],
+            ),
         )
     ]
 
@@ -366,7 +360,8 @@ def test_v030(requests_mock):
 
     Expected: One Vaccination Signing Message with 2/2
     """
-    vaccination = json.loads("""
+    vaccination = json.loads(
+        """
         {
           "protocolVersion": "3.0",
           "providerIdentifier": "ZZZ",
@@ -414,7 +409,8 @@ def test_v030(requests_mock):
             }
           ]
         }
-    """)
+    """
+    )
     events = _create_events([vaccination])
 
     signing_messages = create_signing_messages_based_on_events(events)
@@ -428,24 +424,15 @@ def test_v030(requests_mock):
             dgc=EuropeanOnlineSigningRequest(
                 ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
-                    fn="Pricks Different Brands",
-                    fnt="PRICKS<DIFFERENT<BRANDS",
-                    gn="Two",
-                    gnt="TWO"
+                    fn="Pricks Different Brands", fnt="PRICKS<DIFFERENT<BRANDS", gn="Two", gnt="TWO"
                 ),
                 dob=DutchBirthDate("1950-02-03"),
                 v=[
                     EuropeanVaccination(
-                        vp="1119349007",
-                        mp="EU/1/20/1507",
-                        ma="ORG-100031184",
-                        dn=2,
-                        sd=2,
-                        dt="2021-06-07",
-                        ci=cis[0]
+                        vp="1119349007", mp="EU/1/20/1507", ma="ORG-100031184", dn=2, sd=2, dt="2021-06-07", ci=cis[0]
                     )
-                ]
-            )
+                ],
+            ),
         )
     ]
 
@@ -459,7 +446,8 @@ def test_v040(requests_mock):
 
     Expected: One Vaccination Siging Message with 1/1
     """
-    vaccination = json.loads("""
+    vaccination = json.loads(
+        """
         {
           "protocolVersion": "3.0",
           "providerIdentifier": "ZZZ",
@@ -490,7 +478,8 @@ def test_v040(requests_mock):
             }
           ]
         }
-    """)
+    """
+    )
     events = _create_events([vaccination])
 
     signing_messages = create_signing_messages_based_on_events(events)
@@ -504,24 +493,15 @@ def test_v040(requests_mock):
             dgc=EuropeanOnlineSigningRequest(
                 ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
-                    fn="Prick And Done",
-                    fnt="PRICK<AND<DONE",
-                    gn="One",
-                    gnt="ONE"
+                    fn="Prick And Done", fnt="PRICK<AND<DONE", gn="One", gnt="ONE"
                 ),
                 dob=DutchBirthDate("1950-02-04"),
                 v=[
                     EuropeanVaccination(
-                        vp="J07BX03",
-                        mp="EU/1/20/1525",
-                        ma="ORG-100001417",
-                        dn=1,
-                        sd=1,
-                        dt="2021-05-13",
-                        ci=cis[0]
+                        vp="J07BX03", mp="EU/1/20/1525", ma="ORG-100001417", dn=1, sd=1, dt="2021-05-13", ci=cis[0]
                     )
-                ]
-            )
+                ],
+            ),
         )
     ]
 
@@ -535,7 +515,8 @@ def test_v050(requests_mock):
 
     Expected: One Vaccination Sigining Message with 1/2
     """
-    vaccination = json.loads("""
+    vaccination = json.loads(
+        """
         {
           "protocolVersion": "3.0",
           "providerIdentifier": "ZZZ",
@@ -566,7 +547,8 @@ def test_v050(requests_mock):
             }
           ]
         }
-    """)
+    """
+    )
     events = _create_events([vaccination])
 
     signing_messages = create_signing_messages_based_on_events(events)
@@ -580,24 +562,15 @@ def test_v050(requests_mock):
             dgc=EuropeanOnlineSigningRequest(
                 ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
-                    fn="Prick Not Done",
-                    fnt="PRICK<NOT<DONE",
-                    gn="One",
-                    gnt="ONE"
+                    fn="Prick Not Done", fnt="PRICK<NOT<DONE", gn="One", gnt="ONE"
                 ),
                 dob=DutchBirthDate("1950-02-05"),
                 v=[
                     EuropeanVaccination(
-                        vp="1119349007",
-                        mp="EU/1/20/1528",
-                        ma="ORG-100030215",
-                        dn=1,
-                        sd=2,
-                        dt="2021-05-13",
-                        ci=cis[0]
+                        vp="1119349007", mp="EU/1/20/1528", ma="ORG-100030215", dn=1, sd=2, dt="2021-05-13", ci=cis[0]
                     )
-                ]
-            )
+                ],
+            ),
         )
     ]
 
@@ -611,7 +584,8 @@ def test_v060(requests_mock):
 
     Expected: One Vaccination Signing Message with 1/1
     """
-    vaccination = json.loads("""
+    vaccination = json.loads(
+        """
         {
           "protocolVersion": "3.0",
           "providerIdentifier": "ZZZ",
@@ -642,7 +616,8 @@ def test_v060(requests_mock):
             }
           ]
         }
-    """)
+    """
+    )
     events = _create_events([vaccination])
 
     signing_messages = create_signing_messages_based_on_events(events)
@@ -656,24 +631,15 @@ def test_v060(requests_mock):
             dgc=EuropeanOnlineSigningRequest(
                 ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
-                    fn="Prick and still Done",
-                    fnt="PRICK<AND<STILL<DONE",
-                    gn="One",
-                    gnt="ONE"
+                    fn="Prick and still Done", fnt="PRICK<AND<STILL<DONE", gn="One", gnt="ONE"
                 ),
                 dob=DutchBirthDate("1950-02-06"),
                 v=[
                     EuropeanVaccination(
-                        vp="1119349007",
-                        mp="EU/1/20/1528",
-                        ma="ORG-100030215",
-                        dn=1,
-                        sd=1,
-                        dt="2021-05-13",
-                        ci=cis[0]
+                        vp="1119349007", mp="EU/1/20/1528", ma="ORG-100030215", dn=1, sd=1, dt="2021-05-13", ci=cis[0]
                     )
-                ]
-            )
+                ],
+            ),
         )
     ]
 
@@ -687,7 +653,8 @@ def test_v070(requests_mock):
 
     Expected: One Vaccination Signing Message with 1/2
     """
-    vaccination = json.loads("""
+    vaccination = json.loads(
+        """
         {
           "protocolVersion": "3.0",
           "providerIdentifier": "ZZZ",
@@ -718,7 +685,8 @@ def test_v070(requests_mock):
             }
           ]
         }
-    """)
+    """
+    )
     events = _create_events([vaccination])
 
     signing_messages = create_signing_messages_based_on_events(events)
@@ -732,24 +700,15 @@ def test_v070(requests_mock):
             dgc=EuropeanOnlineSigningRequest(
                 ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
-                    fn="Prick from Outerland",
-                    fnt="PRICK<FROM<OUTERLAND",
-                    gn="One",
-                    gnt="ONE"
+                    fn="Prick from Outerland", fnt="PRICK<FROM<OUTERLAND", gn="One", gnt="ONE"
                 ),
                 dob=DutchBirthDate("1950-02-07"),
                 v=[
                     EuropeanVaccination(
-                        vp="1119349007",
-                        mp="BBIBP-CorV",
-                        ma="ORG-100024420",
-                        dn=1,
-                        sd=2,
-                        dt="2021-05-13",
-                        ci=cis[0]
+                        vp="1119349007", mp="BBIBP-CorV", ma="ORG-100024420", dn=1, sd=2, dt="2021-05-13", ci=cis[0]
                     )
-                ]
-            )
+                ],
+            ),
         )
     ]
 
@@ -763,7 +722,8 @@ def test_v080(requests_mock):
 
     Expected: No Signing Messages
     """
-    vaccination = json.loads("""
+    vaccination = json.loads(
+        """
         {
           "protocolVersion": "3.0",
           "providerIdentifier": "ZZZ",
@@ -794,7 +754,8 @@ def test_v080(requests_mock):
             }
           ]
         }
-    """)
+    """
+    )
     events = _create_events([vaccination])
 
     signing_messages = create_signing_messages_based_on_events(events)
@@ -808,7 +769,8 @@ def test_v100(requests_mock):
 
     Expected: One Vaccination Signing Message with 1/1
     """
-    vaccination = json.loads("""
+    vaccination = json.loads(
+        """
         {
           "protocolVersion": "3.0",
           "providerIdentifier": "ZZZ",
@@ -839,7 +801,8 @@ def test_v100(requests_mock):
             }
           ]
         }
-    """)
+    """
+    )
     events = _create_events([vaccination])
 
     signing_messages = create_signing_messages_based_on_events(events)
@@ -853,24 +816,15 @@ def test_v100(requests_mock):
             dgc=EuropeanOnlineSigningRequest(
                 ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
-                    fn="Done by Doctor",
-                    fnt="DONE<BY<DOCTOR",
-                    gn="One",
-                    gnt="ONE"
+                    fn="Done by Doctor", fnt="DONE<BY<DOCTOR", gn="One", gnt="ONE"
                 ),
                 dob=DutchBirthDate("1950-02-10"),
                 v=[
                     EuropeanVaccination(
-                        vp="1119349007",
-                        mp="EU/1/20/1528",
-                        ma="ORG-100030215",
-                        dn=1,
-                        sd=1,
-                        dt="2021-05-13",
-                        ci=cis[0]
+                        vp="1119349007", mp="EU/1/20/1528", ma="ORG-100030215", dn=1, sd=1, dt="2021-05-13", ci=cis[0]
                     )
-                ]
-            )
+                ],
+            ),
         )
     ]
 
@@ -885,7 +839,8 @@ def test_v110(requests_mock):
 
     Expected: One Vaccination Signing Message with 1/1
     """
-    vaccination = json.loads("""
+    vaccination = json.loads(
+        """
         {
           "protocolVersion": "3.0",
           "providerIdentifier": "ZZZ",
@@ -916,7 +871,8 @@ def test_v110(requests_mock):
             }
           ]
         }
-    """)
+    """
+    )
     events = _create_events([vaccination])
 
     signing_messages = create_signing_messages_based_on_events(events)
@@ -930,24 +886,15 @@ def test_v110(requests_mock):
             dgc=EuropeanOnlineSigningRequest(
                 ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
-                    fn="Done by Self",
-                    fnt="DONE<BY<SELF",
-                    gn="One",
-                    gnt="ONE"
+                    fn="Done by Self", fnt="DONE<BY<SELF", gn="One", gnt="ONE"
                 ),
                 dob=DutchBirthDate("1950-02-11"),
                 v=[
                     EuropeanVaccination(
-                        vp="1119349007",
-                        mp="EU/1/20/1528",
-                        ma="ORG-100030215",
-                        dn=1,
-                        sd=1,
-                        dt="2021-05-13",
-                        ci=cis[0]
+                        vp="1119349007", mp="EU/1/20/1528", ma="ORG-100030215", dn=1, sd=1, dt="2021-05-13", ci=cis[0]
                     )
-                ]
-            )
+                ],
+            ),
         )
     ]
 
@@ -961,7 +908,8 @@ def test_v120(requests_mock):
 
     Expected: One Vaccination Signing Message with 1/1 + One Recovery Signing Message
     """
-    vaccination = json.loads("""
+    vaccination = json.loads(
+        """
         {
           "protocolVersion": "3.0",
           "providerIdentifier": "ZZZ",
@@ -1007,7 +955,8 @@ def test_v120(requests_mock):
             }
           ]
         }
-    """)
+    """
+    )
     events = _create_events([vaccination])
 
     signing_messages = create_signing_messages_based_on_events(events)
@@ -1021,24 +970,15 @@ def test_v120(requests_mock):
             dgc=EuropeanOnlineSigningRequest(
                 ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
-                    fn="Plus Positive Test",
-                    fnt="PLUS<POSITIVE<TEST",
-                    gn="One",
-                    gnt="ONE"
+                    fn="Plus Positive Test", fnt="PLUS<POSITIVE<TEST", gn="One", gnt="ONE"
                 ),
                 dob=DutchBirthDate("1950-02-12"),
                 v=[
                     EuropeanVaccination(
-                        vp="1119349007",
-                        mp="EU/1/20/1528",
-                        ma="ORG-100030215",
-                        dn=1,
-                        sd=1,
-                        dt="2021-05-13",
-                        ci=cis[0]
+                        vp="1119349007", mp="EU/1/20/1528", ma="ORG-100030215", dn=1, sd=1, dt="2021-05-13", ci=cis[0]
                     )
-                ]
-            )
+                ],
+            ),
         ),
         MessageToEUSigner(
             keyUsage=EventType.recovery,
@@ -1046,22 +986,20 @@ def test_v120(requests_mock):
             dgc=EuropeanOnlineSigningRequest(
                 ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
-                    fn="Plus Positive Test",
-                    fnt="PLUS<POSITIVE<TEST",
-                    gn="One",
-                    gnt="ONE"
+                    fn="Plus Positive Test", fnt="PLUS<POSITIVE<TEST", gn="One", gnt="ONE"
                 ),
                 dob=DutchBirthDate("1950-02-12"),
                 r=[
                     EuropeanRecovery(
                         fr=datetime.datetime(2021, 6, 12, 21, 26, 52, 0, tzinfo=pytz.utc),
                         df=datetime.datetime(2021, 6, 12, 21, 26, 52, 0, tzinfo=pytz.utc),
-                        du=datetime.datetime(2021, 6, 12, 21, 26, 52, 0, tzinfo=pytz.utc)+datetime.timedelta(days=9000),
+                        du=datetime.datetime(2021, 6, 12, 21, 26, 52, 0, tzinfo=pytz.utc)
+                        + datetime.timedelta(days=9000),
                         ci=cis[1],
                     )
-                ]
-            )
-        )
+                ],
+            ),
+        ),
     ]
 
     assert signing_messages == expected_signing_messages
@@ -1074,7 +1012,8 @@ def test_v130(requests_mock):
 
     Expected: One Vaccination Signing Message with 1/2
     """
-    vaccination = json.loads("""
+    vaccination = json.loads(
+        """
         {
           "protocolVersion": "3.0",
           "providerIdentifier": "ZZZ",
@@ -1120,7 +1059,8 @@ def test_v130(requests_mock):
             }
           ]
         }
-    """)
+    """
+    )
     events = _create_events([vaccination])
 
     signing_messages = create_signing_messages_based_on_events(events)
@@ -1134,24 +1074,15 @@ def test_v130(requests_mock):
             dgc=EuropeanOnlineSigningRequest(
                 ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
-                    fn="Plus Alien Test",
-                    fnt="PLUS<ALIEN<TEST",
-                    gn="One",
-                    gnt="ONE"
+                    fn="Plus Alien Test", fnt="PLUS<ALIEN<TEST", gn="One", gnt="ONE"
                 ),
                 dob=DutchBirthDate("1950-02-13"),
                 v=[
                     EuropeanVaccination(
-                        vp="1119349007",
-                        mp="EU/1/20/1528",
-                        ma="ORG-100030215",
-                        dn=1,
-                        sd=2,
-                        dt="2021-05-13",
-                        ci=cis[0]
+                        vp="1119349007", mp="EU/1/20/1528", ma="ORG-100030215", dn=1, sd=2, dt="2021-05-13", ci=cis[0]
                     )
-                ]
-            )
+                ],
+            ),
         ),
     ]
 
@@ -1165,7 +1096,8 @@ def test_p010(requests_mock):
 
     Expected: One Recovery Signing Message
     """
-    positive_test = json.loads("""
+    positive_test = json.loads(
+        """
         {
           "protocolVersion": "3.0",
           "providerIdentifier": "ZZZ",
@@ -1194,7 +1126,8 @@ def test_p010(requests_mock):
             }
           ]
         }
-    """)
+    """
+    )
     events = _create_events([positive_test])
 
     signing_messages = create_signing_messages_based_on_events(events)
@@ -1208,21 +1141,19 @@ def test_p010(requests_mock):
             dgc=EuropeanOnlineSigningRequest(
                 ver="1.3.0",
                 nam=EuropeanOnlineSigningRequestNamingSection(
-                    fn="Positive Test",
-                    fnt="POSITIVE<TEST",
-                    gn="One",
-                    gnt="ONE"
+                    fn="Positive Test", fnt="POSITIVE<TEST", gn="One", gnt="ONE"
                 ),
                 dob=DutchBirthDate("1950-03-01"),
                 r=[
                     EuropeanRecovery(
                         fr=datetime.datetime(2021, 5, 1, 21, 26, 52, 0, tzinfo=pytz.utc),
                         df=datetime.datetime(2021, 5, 1, 21, 26, 52, 0, tzinfo=pytz.utc),
-                        du=datetime.datetime(2021, 5, 1, 21, 26, 52, 0, tzinfo=pytz.utc)+datetime.timedelta(days=9000),
-                        ci=ci
+                        du=datetime.datetime(2021, 5, 1, 21, 26, 52, 0, tzinfo=pytz.utc)
+                        + datetime.timedelta(days=9000),
+                        ci=ci,
                     )
-                ]
-            )
+                ],
+            ),
         )
     ]
 

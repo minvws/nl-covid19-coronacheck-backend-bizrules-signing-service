@@ -1,14 +1,14 @@
 import re
 
-from mrz.base.functions import transliterate
 import mrz.generator._transliterations as dictionaries
+from mrz.base.functions import transliterate
 
 # Compile universal transliteration dictionary
 TRANSLITERATION = {
     **dictionaries.latin_based(),
     **dictionaries.arabic(),
     **dictionaries.greek(),
-    **dictionaries.cyrillic()
+    **dictionaries.cyrillic(),
 }
 
 

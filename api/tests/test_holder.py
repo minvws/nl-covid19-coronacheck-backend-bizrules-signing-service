@@ -67,7 +67,6 @@ holder_test_data = [
     [{"firstName": "þ", "lastName": "þ", "birthDate": "1970-01-01"}, {"firstInitial": "T", "lastInitial": "T"}],  # P->T
     [{"firstName": "ÿ", "lastName": "ÿ", "birthDate": "1970-01-01"}, {"firstInitial": "Y", "lastInitial": "Y"}],
     [{"firstName": "ÿ", "lastName": "ÿ", "birthDate": "1970-01-01"}, {"firstInitial": "Y", "lastInitial": "Y"}],
-
     # https://www.ernieramaker.nl/raar.php?t=achternamen
     # todo: is 's not an infix? Are there more similar cases with 's 't etcetera?
     # Because of mrz (machine readable zone) we can't distinguish between 's and A.B. and such last names.
@@ -77,14 +76,10 @@ holder_test_data = [
         {"firstName": "Maarten", "lastName": "'s-Gravezande", "birthDate": "1970-01-01"},
         {"firstInitial": "M", "lastInitial": "S"},
     ],
-
     [
         {"firstName": "Bert", "lastName": "Gmelig zich noemende en schrijvende Meijling", "birthDate": "1970-01-01"},
         {"firstInitial": "B", "lastInitial": "G"},
     ],
-
-
-
 ]
 
 
