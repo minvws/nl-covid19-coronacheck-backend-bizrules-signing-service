@@ -1,3 +1,7 @@
+# pylint: disable=invalid-name,too-many-lines
+# Naming such as ci are by design.
+# The amount of verbose testcases is by design: this makes it easy to test and inspect the results without additional
+# abstraction layers. This is how we receive data in the real world.
 import datetime
 import json
 from typing import Any, Dict, List
@@ -182,7 +186,7 @@ def test_n030(requests_mock):
 
 
 @freeze_time(datetime.datetime(2021, 6, 13, 19, 20, 21, 0, tzinfo=pytz.utc))
-def test_v010(requests_mock):
+def test_v010():
     """
     2 vaccinaties van een merk dat er 2 vereist
 
@@ -268,7 +272,7 @@ def test_v010(requests_mock):
 
 
 @freeze_time(datetime.datetime(2021, 6, 13, 19, 20, 21, 0, tzinfo=pytz.utc))
-def test_v020(requests_mock):
+def test_v020():
     """
     2 vaccinaties van een merk dat er 2 vereist maar in beide staat 1 van 2
 
@@ -354,7 +358,7 @@ def test_v020(requests_mock):
 
 
 @freeze_time(datetime.datetime(2021, 6, 13, 19, 20, 21, 0, tzinfo=pytz.utc))
-def test_v030(requests_mock):
+def test_v030():
     """
     1 vaccinatie van een merk dan er 2 vereist, en nog een vaccinatie van een ander merk dat er 2 vereist
 
@@ -440,7 +444,7 @@ def test_v030(requests_mock):
 
 
 @freeze_time(datetime.datetime(2021, 6, 13, 19, 20, 21, 0, tzinfo=pytz.utc))
-def test_v040(requests_mock):
+def test_v040():
     """
     1 vaccinatie van een merk dat er 1 vereist
 
@@ -509,7 +513,7 @@ def test_v040(requests_mock):
 
 
 @freeze_time(datetime.datetime(2021, 6, 13, 19, 20, 21, 0, tzinfo=pytz.utc))
-def test_v050(requests_mock):
+def test_v050():
     """
     1 vaccinatie van een merk dat er 2 vereist
 
@@ -578,7 +582,7 @@ def test_v050(requests_mock):
 
 
 @freeze_time(datetime.datetime(2021, 6, 13, 19, 20, 21, 0, tzinfo=pytz.utc))
-def test_v060(requests_mock):
+def test_v060():
     """
     1 vaccinatie van een merk dat er 2 vereist maar in document staat 1/1
 
@@ -647,7 +651,7 @@ def test_v060(requests_mock):
 
 
 @freeze_time(datetime.datetime(2021, 6, 13, 19, 20, 21, 0, tzinfo=pytz.utc))
-def test_v070(requests_mock):
+def test_v070():
     """
     1 vaccinatie van een merk dat wel op de EMA lijst staat maar we in nl niet gebruiken
 
@@ -716,7 +720,7 @@ def test_v070(requests_mock):
 
 
 @freeze_time(datetime.datetime(2021, 6, 13, 19, 20, 21, 0, tzinfo=pytz.utc))
-def test_v080(requests_mock):
+def test_v080():
     """
     1 vaccinatie van merk dat niet op de EMA goedgekeurde lijst staat maar wel in de DGC value list
 
@@ -763,7 +767,7 @@ def test_v080(requests_mock):
 
 
 @freeze_time(datetime.datetime(2021, 6, 13, 19, 20, 21, 0, tzinfo=pytz.utc))
-def test_v100(requests_mock):
+def test_v100():
     """
     artsenverklaring op je laatste vaccinatie dat die ene voldoende is, ongeacht hoeveelste het is
 
@@ -832,7 +836,7 @@ def test_v100(requests_mock):
 
 
 @freeze_time(datetime.datetime(2021, 6, 13, 19, 20, 21, 0, tzinfo=pytz.utc))
-def test_v110(requests_mock):
+def test_v110():
     """
     1 vaccinatie van een merk dat er 2 vereist + persoonlijke verklaring bij je vaccinatie dat je het afgelopen
     half jaar al corona had (vinkje coronatest.nl)
@@ -902,7 +906,7 @@ def test_v110(requests_mock):
 
 
 @freeze_time(datetime.datetime(2021, 6, 13, 19, 20, 21, 0, tzinfo=pytz.utc))
-def test_v120(requests_mock):
+def test_v120():
     """
     1 vaccinatie van een merk dat er 2 vereist + positieve test
 
@@ -1006,7 +1010,7 @@ def test_v120(requests_mock):
 
 
 @freeze_time(datetime.datetime(2021, 6, 13, 19, 20, 21, 0, tzinfo=pytz.utc))
-def test_v130(requests_mock):
+def test_v130():
     """
     1 vaccinatie van een merk dat er 2 vereist + serologische test (antistoffen / bloedtest)
 
@@ -1090,7 +1094,7 @@ def test_v130(requests_mock):
 
 
 @freeze_time("2021-06-13T19:20:21+00:00")
-def test_p010(requests_mock):
+def test_p010():
     """
     1 positief pcr test
 
