@@ -284,7 +284,9 @@ class Vaccination(BaseModel):  # noqa
     )
     completedByPersonalStatement: Optional[bool] = Field(description="Individual self-declares fully vaccinated")
 
-    country: Iso3166Dash1Alpha2CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
+    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
+        description="Defaults to NLD", example="NLD", default="NLD"
+    )
     doseNumber: Optional[int] = Field(example=1, description="will be based on business rules / brand info if left out")
     totalDoses: Optional[int] = Field(example=2, description="will be based on business rules / brand info if left out")
 
@@ -313,7 +315,9 @@ class Positivetest(BaseModel):  # noqa
     type: str = Field(example="???")
     name: str = Field(example="???")
     manufacturer: str = Field(example="1232")
-    country: Iso3166Dash1Alpha2CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
+    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
+        description="Defaults to NLD", example="NLD", default="NLD"
+    )
 
     """
     Positive tests mean that there is a recovery. For the EU a positive test should be seen and
@@ -346,7 +350,9 @@ class Negativetest(BaseModel):  # noqa
     type: str = Field(example="A great one")
     name: str = Field(example="Bestest")
     manufacturer: str = Field(example="Acme Inc")
-    country: Iso3166Dash1Alpha2CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
+    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
+        description="Defaults to NLD", example="NLD", default="NLD"
+    )
 
     def toEuropeanTest(self):
         return EuropeanTest(
@@ -368,7 +374,9 @@ class Recovery(BaseModel):  # noqa
     sampleDate: date = Field(example="2021-01-01")
     validFrom: date = Field(example="2021-01-12")
     validUntil: date = Field(example="2021-06-30")
-    country: Iso3166Dash1Alpha2CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
+    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
+        description="Defaults to NLD", example="NLD", default="NLD"
+    )
 
     def toEuropeanRecovery(self):
         return EuropeanRecovery(
@@ -563,6 +571,8 @@ class SharedEuropeanFields(BaseModel):
         description="Certificate Identifier, format as per UVCI (*), "
         "Yes (conversion of unique to V-XXX-YYYYYYYY-Z, provider only needs to provide unique"
     )
+    # Todo: has to be moved to all four types, because we have to follow what is sent, if nothing is sent
+    #  then NLD is the fallback.
     co: str = Field(description="Member State, ISO 3166", default="NLD", regex=r"[A-Z]{1,10}")
     is_: str = Field(description="certificate issuer", default="Ministry of Health Welfare and Sport", alias="is")
 
