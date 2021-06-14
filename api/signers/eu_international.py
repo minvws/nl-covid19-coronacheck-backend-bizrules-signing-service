@@ -121,6 +121,10 @@ def deduplicate_events(events: Events) -> Events:
 
 def enrich_from_hpk(events: Events) -> Events:
     for vacc in events.vaccinations:
+        # make mypy happy
+        if not vacc.vaccination:
+            continue
+
         if not vacc.vaccination.hpkCode:
             continue
 
