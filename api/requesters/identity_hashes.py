@@ -14,9 +14,9 @@ from nacl.public import Box, PrivateKey, PublicKey
 from nacl.utils import random
 
 from api.enrichment.rvig.rvig import get_pii_from_rvig
+from api.http_utils import hmac256, request_post_with_retries
 from api.models import EventDataProviderJWT, Holder
 from api.settings import settings
-from api.utils import hmac256, request_post_with_retries
 
 log = logging.getLogger(__package__)
 inge6_box = Box(settings.INGE4_NACL_PRIVATE_KEY, settings.INGE6_NACL_PUBLIC_KEY)
@@ -75,7 +75,7 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
 
     tokens = []
     for data_provider in settings.EVENT_DATA_PROVIDERS:
-        generic_data["identityhash"] = calculate_identity_hash(
+        generic_data["identityHash"] = calculate_identity_hash(
             bsn,
             holder,
             key=data_provider["identity_hash_secret"],

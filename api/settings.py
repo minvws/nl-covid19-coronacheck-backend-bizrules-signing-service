@@ -12,6 +12,7 @@ from nacl.public import PrivateKey, PublicKey
 from pydantic import AnyHttpUrl, BaseSettings, Field
 
 from api.constants import ENV_FILE, INGE4_ROOT
+from api.utils import read_file
 
 log = logging.getLogger(__package__)
 
@@ -27,11 +28,6 @@ def read_nacl_private_key(path: Union[str, Path]) -> PrivateKey:
     return PrivateKey(key_bytes, encoder=Base64Encoder)
 
 
-def read_file(path: Union[str, Path], encoding: str = "UTF-8") -> str:
-    with open(path, "rb") as file_handle:
-        return file_handle.read().decode(encoding)
-
-
 class AppSettings(BaseSettings):
     # pylint: disable=too-many-instance-attributes
     # todo: make a model out of vaccination providers and enforce minumum length of
@@ -40,7 +36,6 @@ class AppSettings(BaseSettings):
     #      we should not even start if the config is not secure enough
 
     SECRETS_FOLDER: pathlib.Path = Field("")
-    CONFIG_FOLDER: pathlib.Path = Field("")
     RESOURCE_FOLDER: pathlib.Path = Field("")
     EVENT_DATA_PROVIDERS_FILENAME: str = ""
     DYNAMIC_FLOW_JWT_PRIVATE_KEY_FILENAME: str = ""
@@ -137,13 +132,13 @@ def settings_factory(env_file: pathlib.Path) -> AppSettings:
     _settings = AppSettings(_env_file=env_file)
 
     _settings.SECRETS_FOLDER = INGE4_ROOT.joinpath(_settings.SECRETS_FOLDER)
-    _settings.CONFIG_FOLDER = INGE4_ROOT.joinpath(_settings.CONFIG_FOLDER)
+    _settings.RESOURCE_FOLDER = INGE4_ROOT.joinpath(_settings.RESOURCE_FOLDER)
 
     _settings.EVENT_DATA_PROVIDERS = json5.loads(
         read_file(f"{_settings.SECRETS_FOLDER}/{_settings.EVENT_DATA_PROVIDERS_FILENAME}")
     )
 
-    hpk_mapping = json5.loads(read_file(f"{_settings.CONFIG_FOLDER}/{_settings.HPK_MAPPING_FILE}"))
+    hpk_mapping = json5.loads(read_file(f"{_settings.RESOURCE_FOLDER}/{_settings.HPK_MAPPING_FILE}"))
 
     if "hpk_codes" in hpk_mapping:
         # in case the content is just the output of hpkcodes.nl

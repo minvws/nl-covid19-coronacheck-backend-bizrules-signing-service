@@ -19,6 +19,7 @@ door een nummer voor het gegeven binnen de groep.
 Nummers zijn uit gegevenwoordenboek pagina 240 (LO+GBA+3.13a.pdf)
 """
 RVIG_VOORNAAM = 10210
+# RVIG_INFIX = 10230
 RVIG_GESLACHTSNAAM = 10240
 RVIG_GEBOORTEDATUM = 10310
 
@@ -195,6 +196,7 @@ def _to_holder(vraag_response) -> Holder:
     voornamen = ""
     geslachtsnaam = ""
     geboortedatum = ""
+    # infix = ""
 
     # Note: there is no "only first name" option.
     # This is by design.
@@ -206,13 +208,18 @@ def _to_holder(vraag_response) -> Holder:
                 for element in categorievoorkomen.elementen.item:
                     if element.nummer == 210:
                         voornamen = element.waarde or voornamen
+                    # if element.nummer == 230:
+                    #     infix = element.waarde or infix
                     if element.nummer == 240:
                         geslachtsnaam = element.waarde or geslachtsnaam
                     if element.nummer == 310:
                         geboortedatum = element.waarde or geboortedatum
 
     return Holder(
-        firstName=voornamen, lastName=geslachtsnaam, birthDate=rvig_birtdate_to_dutch_birthdate(geboortedatum)
+        firstName=voornamen,
+        lastName=geslachtsnaam,
+        birthDate=rvig_birtdate_to_dutch_birthdate(geboortedatum),
+        infix=None,
     )
 
 

@@ -2,7 +2,7 @@ from datetime import date, datetime, timezone
 
 from freezegun import freeze_time
 
-from api.models import EUGreenCard, Events, DutchBirthDate
+from api.models import DutchBirthDate, EUGreenCard, Events
 from api.settings import settings
 from api.signers.eu_international import sign
 
@@ -10,7 +10,7 @@ from api.signers.eu_international import sign
 
 testcase_event_vaccination = {
     "source_provider_identifier": "XXX",
-    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01", "infix": ""},
     "type": "vaccination",
     "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
     "negativetest": None,
@@ -32,7 +32,7 @@ testcase_event_vaccination = {
 
 testcase_event_vaccination_empty = {
     "source_provider_identifier": "XXX",
-    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01", "infix": ""},
     "type": "vaccination",
     "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
     "negativetest": None,
@@ -52,7 +52,7 @@ testcase_event_vaccination_empty = {
 
 testcase_event_negativetest = {
     "source_provider_identifier": "XXX",
-    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01", "infix": ""},
     "type": "negativetest",
     "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
     "negativetest": {
@@ -72,14 +72,14 @@ testcase_event_negativetest = {
 
 testcase_event_positivetest = {
     "source_provider_identifier": "XXX",
-    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01", "infix": ""},
     "type": "positivetest",
     "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
     "negativetest": None,
     "positivetest": {
         "sampleDate": "2021-03-01T19:38:00+00:00",
         "resultDate": "2021-02-01T19:38:00+00:00",
-        "negativeResult": True,
+        "positiveResult": True,
         "facility": "GGD XL Amsterdam",
         "type": "LP217198-3",
         "name": "???",
@@ -92,15 +92,15 @@ testcase_event_positivetest = {
 
 testcase_event_recovery = {
     "source_provider_identifier": "XXX",
-    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01", "infix": ""},
     "type": "recovery",
     "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
     "negativetest": None,
     "positivetest": None,
     "recovery": {
-        "sampleDate": "2021-04-01T19:38:00+00:00",
-        "validFrom": "2021-02-01T19:38:00+00:00",
-        "validUntil": "2021-02-01T19:38:00+00:00",
+        "sampleDate": "2021-04-01",
+        "validFrom": "2021-02-01",
+        "validUntil": "2021-02-01",
         "country": "NLD",
     },
     "vaccination": None,
@@ -132,7 +132,6 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
             {
                 "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
                 "co": "NLD",
-                "df": datetime(2021, 2, 1).date(),
                 "du": datetime(2021, 2, 1).date(),
                 "fr": datetime(2021, 4, 1).date(),
                 "is": "Ministry of Health Welfare and Sport",
@@ -141,8 +140,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
             {
                 "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
                 "co": "NLD",
-                "df": datetime(2021, 2, 1).date(),
-                "du": datetime(2045, 9, 23).date(),
+                "du": datetime(2045, 10, 21).date(),
                 "fr": datetime(2021, 3, 1).date(),
                 "is": "Ministry of Health Welfare and Sport",
                 "tg": "840539006",
@@ -152,7 +150,6 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
             {
                 "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
                 "co": "NLD",
-                "dr": datetime(2021, 2, 1, 19, 38, tzinfo=timezone.utc),
                 "is": "Ministry of Health Welfare and Sport",
                 "ma": "???",
                 "nm": "???",
@@ -177,7 +174,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "vp": "C19-mRNA",
             }
         ],
-        "ver": "1.0.0",
+        "ver": "1.3.0",
     }
 
 
@@ -206,7 +203,7 @@ def test_eusign_with_empty_fields(mocker):
                 "vp": "J07BX03",  # "C19-mRNA"
             }
         ],
-        "ver": "1.0.0",
+        "ver": "1.3.0",
     }
 
 
@@ -258,9 +255,9 @@ testGreenCard = EUGreenCard(
         "origins": [
             {
                 "type": "test",
-                "eventTime": "2021-03-01T00:00:00+00:00",
+                "eventTime": "2021-03-01T19:38:00+00:00",
                 "expirationTime": "2020-07-31T00:00:00+00:00",
-                "validFrom": "2021-03-01T00:00:00+00:00",
+                "validFrom": "2021-03-01T19:38:00+00:00",
             }
         ],
         "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",

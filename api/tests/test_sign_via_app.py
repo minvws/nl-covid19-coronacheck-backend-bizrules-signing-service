@@ -8,6 +8,7 @@ from api.app import app
 from api.settings import settings
 from api.tests.test_identity_hashes import bsn_test_data
 from api.tests.test_rvig import RVIG_URL
+from api.tests.test_utils import json_from_test_data_file
 from api.utils import read_file
 
 jwt_token = bsn_test_data[0][0]
@@ -57,7 +58,7 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
     )
     json_content = json.loads(response.content.decode("UTF-8"))
 
-    assert json_content == json.loads(read_file(current_path.joinpath("test_data/event_data_provider_jwt.json")))
+    assert json_content == json_from_test_data_file("event_data_provider_jwt.json")
 
     # Now decompose and decrypt the message
     first_provider = json_content[0]
@@ -71,7 +72,7 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
         "aud": "https://example.com/unomi/v2/",
         "exp": 1580688000,
         "iat": 1580601600,
-        "identityhash": "e74bd4ced20748704a6526ac63ece6b8c9fa96a08aedd280573071b186ecf939",
+        "identityHash": "e74bd4ced20748704a6526ac63ece6b8c9fa96a08aedd280573071b186ecf939",
         "iss": "jwt.test.coronacheck.nl",
         "nbf": 1580601600,
     }
@@ -87,14 +88,14 @@ def test_sign_via_app_step_1(requests_mock, current_path, mocker):
         "bsn": "fb8556301733648f2a2cf721499b3b0690d9d872d4293ed111",
         "exp": 1580688000,
         "iat": 1580601600,
-        "identityhash": "e74bd4ced20748704a6526ac63ece6b8c9fa96a08aedd280573071b186ecf939",
+        "identityHash": "e74bd4ced20748704a6526ac63ece6b8c9fa96a08aedd280573071b186ecf939",
         "iss": "jwt.test.coronacheck.nl",
         "nbf": 1580601600,
         "nonce": "303132333435363738393031323334353637383930313233",
         "roleIdentifier": "01",
     }
 
-    assert event["identityhash"] == unomi["identityhash"]
+    assert event["identityHash"] == unomi["identityHash"]
 
     # vaccination_provider = settings.EVENT_DATA_PROVIDERS[0]
     # private_key = PrivateKey(

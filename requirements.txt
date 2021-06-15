@@ -78,6 +78,8 @@ lxml==4.6.3
     # via zeep
 markupsafe==2.0.1
     # via jinja2
+mrz==0.6.2
+    # via -r requirements.in
 orjson==3.5.2
     # via fastapi
 pep517==0.10.0

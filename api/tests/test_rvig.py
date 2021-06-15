@@ -18,7 +18,9 @@ else:
 def test_get_pii_unhappy_flows(requests_mock, current_path, caplog):
     # PL met geboortedatum 19710000
     requests_mock.post(url=RVIG_URL, text=read_file(f"{current_path}/rvig/999995844.xml"))
-    assert get_pii_from_rvig("999995844") == Holder(firstName="Bernhard", lastName="Boer", birthDate=Dbd("1971-XX-XX"))
+    assert get_pii_from_rvig("999995844") == Holder(
+        firstName="Bernhard", lastName="Boer", birthDate=Dbd("1971-XX-XX"), infix=None
+    )
 
     # technical error
     with pytest.raises(HTTPException):
@@ -37,7 +39,9 @@ def test_get_pii_unhappy_flows(requests_mock, current_path, caplog):
 
 def test_get_pii_happy_flow(requests_mock, current_path):
     requests_mock.post(url=RVIG_URL, text=read_file(f"{current_path}/rvig/999995571.xml"))
-    assert get_pii_from_rvig("999995571") == Holder(firstName="Naomi", lastName="Goede", birthDate=Dbd("1987-04-01"))
+    assert get_pii_from_rvig("999995571") == Holder(
+        firstName="Naomi", lastName="Goede", birthDate=Dbd("1987-04-01"), infix=None
+    )
 
 
 @pytest.mark.skip(reason="Only useful for distilling new testcases from the RVIG test environment")
@@ -50,7 +54,9 @@ def test_error_scenarios(bsn):
 @require_rvig_mock
 def test_rvig_mock():
     # todo: alter settings to talk to mock.
-    assert get_pii_from_rvig("999990019") == Holder(firstName="Bob", lastName="Bouwer", birthDate=Dbd("1960-01-01"))
+    assert get_pii_from_rvig("999990019") == Holder(
+        firstName="Bob", lastName="Bouwer", birthDate=Dbd("1960-01-01"), infix=""
+    )
 
 
 def test_rvig_birtdate_to_dutch_birthdate():

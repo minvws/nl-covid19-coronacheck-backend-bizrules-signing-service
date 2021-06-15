@@ -10,14 +10,18 @@ from uuid import UUID
 
 import pycountry
 from pydantic import BaseModel, Field
-from unidecode import unidecode
 
 from api.attribute_allowlist import domestic_signer_attribute_allow_list
+from api.enrichment.name_normalizer import normalize_name
 from api.settings import settings
 
 
-class Iso3166Dash1Alpha3CountryCode(str):
-    type = "ISO 3166-1 alpha-3"
+class Iso3166Dash1Alpha2CountryCode(str):
+    """
+    This class can accept 2 or 3 letter alpha codes and will always return the 2 letter variant downstream.
+    """
+
+    type = "ISO 3166-1 alpha-2|3"
 
     @classmethod
     def __get_validators__(cls):
@@ -26,19 +30,28 @@ class Iso3166Dash1Alpha3CountryCode(str):
     @classmethod
     def __modify_schema__(cls, field_schema):
         field_schema.update(
-            pattern="^[A-Z]{3}$",
-            examples=["NLD", "BEL"],
+            pattern="^[A-Z]{2,3}$",
+            examples=["NL", "BE", "NLD", "BEL"],
         )
 
+    # Todo: Issues here should return the known pydantic errors, not a 500 internal server error.
+    #  "country": "Netherlands", https://pydantic-docs.helpmanual.io/usage/types/#custom-data-types
     @classmethod
     def validate(cls, v: str):
         if not isinstance(v, str):
             raise TypeError("string required")
 
-        if not re.fullmatch(r"[A-Z]{3}", v):
-            raise ValueError(f"{cls.type} requires three characters.")
+        if not re.fullmatch(r"[A-Z]{2,3}", v):
+            raise ValueError(f"{cls.type} requires two or three characters.")
 
-        country = pycountry.countries.get(alpha_3=v)
+        if len(v) == 3:
+            # Cast Iso3166Dash1Alpha3 to Iso3166Dash1Alpha2
+            country = pycountry.countries.get(alpha_3=v)
+            if not country:
+                raise ValueError(f"Given country is not known to {cls.type}.")
+            v = country.alpha_2
+
+        country = pycountry.countries.get(alpha_2=v)
         if not country:
             raise ValueError(f"Given country is not known to {cls.type}.")
 
@@ -183,7 +196,8 @@ class PrepareIssueResponse(BaseModel):
 
 
 class Holder(BaseModel):
-    _first_alphabetic = re.compile("('[a-z]-|[^a-zA-Z])*([a-zA-Z]).*")
+    # https://www.ernieramaker.nl/raar.php?t=achternamen
+    _first_alphabetic = re.compile("(<[A-Z]-|[^A-Z])*([A-Z]).*")
 
     firstName: str = Field(description="", example="Herman")
     lastName: str = Field(description="", example="Acker")
@@ -194,6 +208,8 @@ class Holder(BaseModel):
         example="1970-01-01",
     )
 
+    infix: Optional[str] = Field(description="Infix received via app", example="van den")
+
     @classmethod
     def _name_initial(cls, name, default=""):
         """
@@ -203,14 +219,15 @@ class Holder(BaseModel):
         new link: https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/feature/normalization-1
         /architecture/Domestic%20Data%20Normalisation.md
 
-        The parameter default is returned if `unidecode(name)` does not contain a character matchin [a-zA-Z], for
-        example if it is the empty string
+        The parameter default is returned if the transliteration of `name)` does not contain a character
+        matching [a-zA-Z], for example if it is the empty string
 
         Testdata: https://github.com/minvws/nl-covid19-coronacheck-app-coronatestprovider-portal/blob/main/default-test-
         cases.csv
         More testdata: https://docs.google.com/spreadsheets/d/1JuUyqmhtrqe1ibuSWOK-DOOaqec4p8bKBFvxCurGQWU/edit
         """
-        match = cls._first_alphabetic.match(unidecode(name))
+        match = cls._first_alphabetic.match(normalize_name(name))
+
         if match and match.group(2):
             return match.group(2).upper()
         return default
@@ -227,9 +244,7 @@ class Holder(BaseModel):
 
     @staticmethod
     def _eu_normalize(value):
-        # todo: test
-        # todo: figure out format
-        return unidecode(value).upper().replace(" ", "<")
+        return normalize_name(value)
 
     @property
     def first_name_eu_normalized(self):
@@ -237,6 +252,9 @@ class Holder(BaseModel):
 
     @property
     def last_name_eu_normalized(self):
+        # Add the infix to EU messages, with a space in between.
+        if self.infix:
+            return Holder._eu_normalize(f"{self.infix} {self.lastName}")
         return Holder._eu_normalize(self.lastName)
 
     def equal_to(self, other):
@@ -266,7 +284,9 @@ class Vaccination(BaseModel):  # noqa
     )
     completedByPersonalStatement: Optional[bool] = Field(description="Individual self-declares fully vaccinated")
 
-    country: Iso3166Dash1Alpha3CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
+    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
+        description="Defaults to NLD", example="NLD", default="NLD"
+    )
     doseNumber: Optional[int] = Field(example=1, description="will be based on business rules / brand info if left out")
     totalDoses: Optional[int] = Field(example=2, description="will be based on business rules / brand info if left out")
 
@@ -289,14 +309,15 @@ class Vaccination(BaseModel):  # noqa
 
 class Positivetest(BaseModel):  # noqa
     sampleDate: datetime = Field(example="2021-01-01")
-    resultDate: datetime = Field(example="2021-01-02")
-    negativeResult: bool = Field(example=True)
+    positiveResult: bool = Field(example=True)
     facility: str = Field(example="GGD XL Amsterdam")
     # this is not specified yet
     type: str = Field(example="???")
     name: str = Field(example="???")
     manufacturer: str = Field(example="1232")
-    country: Iso3166Dash1Alpha3CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
+    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
+        description="Defaults to NLD", example="NLD", default="NLD"
+    )
 
     """
     Positive tests mean that there is a recovery. For the EU a positive test should be seen and
@@ -312,11 +333,9 @@ class Positivetest(BaseModel):  # noqa
                 **{
                     # sampletime
                     "fr": self.sampleDate,
-                    # date from
-                    "df": self.resultDate,
                     # date until
                     # tod
-                    "du": self.resultDate + timedelta(days=9000),
+                    "du": self.sampleDate + timedelta(days=9000),
                 },
                 **SharedEuropeanFields.as_dict(),
             }
@@ -326,13 +345,14 @@ class Positivetest(BaseModel):  # noqa
 # V3
 class Negativetest(BaseModel):  # noqa
     sampleDate: datetime = Field(example="2021-01-01")
-    resultDate: datetime = Field(example="2021-01-02")
     negativeResult: bool = Field(example=True)
     facility: str = Field(example="Facility1")
     type: str = Field(example="A great one")
     name: str = Field(example="Bestest")
     manufacturer: str = Field(example="Acme Inc")
-    country: Iso3166Dash1Alpha3CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
+    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
+        description="Defaults to NLD", example="NLD", default="NLD"
+    )
 
     def toEuropeanTest(self):
         return EuropeanTest(
@@ -342,7 +362,6 @@ class Negativetest(BaseModel):  # noqa
                     "nm": self.name,
                     "ma": self.manufacturer,
                     "sc": self.sampleDate,
-                    "dr": self.resultDate,
                     "tr": self.negativeResult,
                     "tc": self.facility,
                 },
@@ -352,10 +371,12 @@ class Negativetest(BaseModel):  # noqa
 
 
 class Recovery(BaseModel):  # noqa
-    sampleDate: datetime = Field(example="2021-01-01")
-    validFrom: datetime = Field(example="2021-01-12")
-    validUntil: datetime = Field(example="2021-06-30")
-    country: Iso3166Dash1Alpha3CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
+    sampleDate: date = Field(example="2021-01-01")
+    validFrom: date = Field(example="2021-01-12")
+    validUntil: date = Field(example="2021-06-30")
+    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
+        description="Defaults to NLD", example="NLD", default="NLD"
+    )
 
     def toEuropeanRecovery(self):
         return EuropeanRecovery(
@@ -382,8 +403,9 @@ class EventType(str, Enum):
 
 class DataProviderEvent(BaseModel):
     type: EventType = Field(description="Type of event")
-    unique: str = Field(description="Some unique string")
-    isSpecimen: bool = Field(False, description="Boolean")
+    # RVIM does not have a unique
+    unique: Optional[str] = Field(description="Some unique string")
+    isSpecimen: Optional[bool] = Field(False, description="Boolean")
     negativetest: Optional[Negativetest] = Field(None, description="Negativetest")
     positivetest: Optional[Positivetest] = Field(None, description="Positivetest")
     vaccination: Optional[Vaccination] = Field(None, description="Vaccination")
@@ -519,8 +541,8 @@ class DomesticStaticQrResponse(BaseModel):
             birthDay: str = Field(example="27", description="Day (not date!) of birth.")
             birthMonth: str = Field(example="12", description="Month (not date!) of birth.")
             isPaperProof: str = Field(example="1", default="1")
-            # todo: enum, is this a boolean?
-            isSpecimen: str = Field(
+            # The crypto library only understands strings, there booleans are "0" or "1".
+            isSpecimen: Optional[bool] = Field(
                 example="0",
                 description="Boolean cast as string, if this is a testcase. " "To facilitate testing in production.",
             )
@@ -549,6 +571,8 @@ class SharedEuropeanFields(BaseModel):
         description="Certificate Identifier, format as per UVCI (*), "
         "Yes (conversion of unique to V-XXX-YYYYYYYY-Z, provider only needs to provide unique"
     )
+    # Todo: has to be moved to all four types, because we have to follow what is sent, if nothing is sent
+    #  then NLD is the fallback.
     co: str = Field(description="Member State, ISO 3166", default="NLD", regex=r"[A-Z]{1,10}")
     is_: str = Field(description="certificate issuer", default="Ministry of Health Welfare and Sport", alias="is")
 
@@ -597,9 +621,6 @@ class EuropeanTest(SharedEuropeanFields):
     # Iso 8601, date and time
     sc: datetime = Field(description="testresult.sampleDate", example="")
 
-    # Iso 8601, date and time
-    dr: datetime = Field(description="testresult.resultDate", example="")
-
     # "In provider results: true/false
     # In EU QR: https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/test-result.json"
     tr: str = Field(description="testresult.negativeResult", example="")
@@ -608,7 +629,6 @@ class EuropeanTest(SharedEuropeanFields):
 
 class EuropeanRecovery(SharedEuropeanFields):
     fr: date = Field(description="date of first positive test result. recovery.sampleDate", example="todo")
-    df: date = Field(description="certificate valid from. recovery.validFrom", example="todo")
     du: date = Field(
         description="certificate valid until. not more than 180 days after the date of first positive "
         "test result. recovery.validUntil",
@@ -626,15 +646,18 @@ class EuropeanOnlineSigningRequestNamingSection(BaseModel):
 
     fn: str = Field(description="Family name, based on holder.lastName", example="Acker")
     # Yes, signer will take care of generating this normalized version
-    fnt: str = Field(description="Transliterated family name (A-Z, unidecoded) with<instead of space.", example="Acker")
+    fnt: str = Field(
+        description="Machine Readable Zone of family name (A-Z, transliterated) with<instead of space.",
+        example="VAN<DEN<ACKER",
+    )
     gn: str = Field(description="Given name, based on holder.firstName", example="Herman")
-    # Yes, signer will take care of generating this normalized version
+    # Yes, signer will take care of test_eu_issuing_rulesgenerating this normalized version
     gnt: str = Field(description="The given name(s) of the person transliterated")
 
 
 class EuropeanOnlineSigningRequest(BaseModel):
     ver: str = Field(
-        description="Version of the schema, according to Semantic versioning", default="1.0.0", example="1.0.0"
+        description="Version of the schema, according to Semantic versioning", default="1.3.0", example="1.0.0"
     )
     nam: EuropeanOnlineSigningRequestNamingSection
     # Signer should convert "1975-XX-XX" to "1975" as the EU DGC can't handle the XX's of unknown birthmonth/day
@@ -729,6 +752,7 @@ class StripType(str, Enum):
 
 
 class DomesticSignerAttributes(BaseModel):
+    # this is a string because the crypto library only supports strings
     isSpecimen: str = Field(
         example="0",
         description="Boolean cast as string, if this is a testcase. " "To facilitate testing in production.",
@@ -796,11 +820,12 @@ class V2Holder(BaseModel):
 
 
 class V2DataProviderEvent(BaseModel):  # noqa
+    # V2 messages always have a unique, all test providers have one, in contrast of v3
     unique: str
     sampleDate: datetime
     testType: str
     negativeResult: bool
-    isSpecimen: bool
+    isSpecimen: Optional[bool]
     holder: V2Holder
 
 
@@ -861,6 +886,8 @@ class V2Event(BaseModel):
             birthDate=datetime(
                 INVALID_YEAR_FOR_EU_SIGNING, int(self.result.holder.birthMonth), int(self.result.holder.birthDay)
             ),
+            # protocol v2 has no infix
+            infix="",
         )
 
         return DataProviderEventsResult(
@@ -875,8 +902,6 @@ class V2Event(BaseModel):
                     isSpecimen=self.result.isSpecimen,
                     negativetest=Negativetest(
                         sampleDate=self.result.sampleDate,
-                        # This field will be deleted anyway
-                        resultDate=self.result.sampleDate,
                         facility="not available",
                         type=testtypes_to_code.get(self.result.testType, "unknown"),
                         name="not available",

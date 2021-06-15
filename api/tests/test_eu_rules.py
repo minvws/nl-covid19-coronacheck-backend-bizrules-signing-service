@@ -8,11 +8,11 @@ https://docs.google.com/spreadsheets/d/1d66HXvh9bxZTwlTqaxxqE-IKmv22MkB8isZj87a-
 # Kopieer e.e.a. dus.
 # from api.models import Event
 from api.models import Event, Events
-from api.signers.eu_international import deduplicate_events
+from api.signers.eu_international import deduplicate_events, enrich_from_hpk
 
 DEFAULT_PFIZER_VACCINATION = {
     "source_provider_identifier": "ZZZ",
-    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01"},
+    "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01", "infix": ""},
     "type": "vaccination",
     "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
     "negativetest": None,
@@ -55,3 +55,19 @@ def test_deduplicate_events():
     events.events = [vac_1, vac_2, vac_3, vac_1]
     deduplicated = deduplicate_events(events)
     assert deduplicated.events == [vac_1]
+
+
+def test_enrich_from_hpk():
+    vac_1 = Event(**DEFAULT_PFIZER_VACCINATION)
+    vac_1.vaccination.type = ""
+    vac_1.vaccination.brand = ""
+    vac_1.vaccination.manufacturer = ""
+
+    vacs = Events(events=[vac_1])
+    # Should not drop this one because of the HPK code for example.
+    vacs = enrich_from_hpk(vacs)
+    returned_vac = vacs.events[0]
+    # Should be enriched now:
+    assert returned_vac.vaccination.type == "J07BX03"
+    assert returned_vac.vaccination.brand == "EU/1/20/1525"
+    assert returned_vac.vaccination.manufacturer == "ORG-100001417"

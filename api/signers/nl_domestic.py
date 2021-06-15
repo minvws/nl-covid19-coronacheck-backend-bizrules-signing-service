@@ -6,6 +6,7 @@ from typing import List, Optional, Tuple, Union
 import pytz
 
 from api import log
+from api.http_utils import request_post_with_retries
 from api.models import (
     ContiguousOriginsBlock,
     DomesticGreenCard,
@@ -19,7 +20,6 @@ from api.models import (
 )
 from api.settings import settings
 from api.signers import hpkcodes
-from api.utils import request_post_with_retries
 
 ALLOWED_POSITIVE_TEST_TYPES = ["LP217198-3", "LP6464-4"]
 TZ = pytz.timezone("UTC")
@@ -69,7 +69,7 @@ def eligible_vaccination(events: Events) -> List[RichOrigin]:
                 type=EventType.vaccination,
                 eventTime=event_time,
                 validFrom=event_time,
-                expirationTime=(event_time + timedelta(days=365)),
+                expirationTime=(event_time + timedelta(days=365 * 4)),
             )
         ]
 
@@ -77,8 +77,6 @@ def eligible_vaccination(events: Events) -> List[RichOrigin]:
 
 
 def eligible_recovery(events) -> List[RichOrigin]:
-    eligible_recs = list(filter(lambda pt: pt.positivetest.type in ALLOWED_POSITIVE_TEST_TYPES, events.positivetests))
-
     # TODO: Determine if we really want to blindly copy these values, or just use the same
     #  calculations as a positive test, based on the sampleDate
     return [
@@ -89,7 +87,7 @@ def eligible_recovery(events) -> List[RichOrigin]:
             validFrom=floor_hours(rec.recovery.validFrom),
             expirationTime=floor_hours(rec.recovery.validUntil),
         )
-        for rec in eligible_recs
+        for rec in events.recoveries
     ]
 
 

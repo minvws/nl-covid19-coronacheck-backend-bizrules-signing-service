@@ -1,26 +1,26 @@
 import json
 import logging
-from datetime import date, datetime, timedelta
-from typing import List, Any, Dict
 import os.path
+from datetime import datetime, timedelta
+from typing import Any, Dict, List
 
 import pytz
 
 from api import log
+from api.http_utils import request_post_with_retries
 from api.models import (
     INVALID_YEAR_FOR_EU_SIGNING,
     EUGreenCard,
-    Events,
-    MessageToEUSigner,
     Event,
-    Vaccination,
+    Events,
+    EventType,
+    MessageToEUSigner,
     Negativetest,
     Positivetest,
     Recovery,
-    EventType,
+    Vaccination,
 )
 from api.settings import settings
-from api.utils import request_post_with_retries
 
 TZ = pytz.timezone("UTC")
 
@@ -38,6 +38,13 @@ ELIGIBLE_MA = MA["valueSetValues"].keys()
 
 MP = read_resource_file("vaccine-medicinal-product.json")
 ELIGIBLE_MP = MP["valueSetValues"].keys()
+
+# todo: future: check that received VP's are valid.
+# VP = read_resource_file("vaccine-prophylaxis.json")
+
+HPK_TO_VP = {hpk["hpk_code"]: hpk["vp"] for hpk in HPK_CODES["hpk_codes"]}
+HPK_TO_MA = {hpk["hpk_code"]: hpk["ma"] for hpk in HPK_CODES["hpk_codes"]}
+HPK_TO_MP = {hpk["hpk_code"]: hpk["mp"] for hpk in HPK_CODES["hpk_codes"]}
 
 TT = read_resource_file("test-type.json")
 ELIGIBLE_TT = TT["valueSetValues"].keys()
@@ -113,6 +120,32 @@ def deduplicate_events(events: Events) -> Events:
     return retained_events
 
 
+# todo: test, this is already done in the models?
+# todo: what happened with HPK_MAPPING? This seems to have disappeared without us noticing in tests.
+# todo: we need the mapping before this becomes a EU thing, so we need this as soon as something reaches inge4.
+def enrich_from_hpk(events: Events) -> Events:
+    for vacc in events.vaccinations:
+        # make mypy happy
+        if not vacc.vaccination:
+            continue
+
+        if not vacc.vaccination.hpkCode:
+            continue
+
+        if vacc.vaccination.hpkCode not in ELIGIBLE_HPK_CODES:
+            logging.warning(f"received HPK code {vacc.vaccination.hpkCode} that is not in our list")
+            continue
+
+        if not vacc.vaccination.type:
+            vacc.vaccination.type = HPK_TO_VP[vacc.vaccination.hpkCode]
+        if not vacc.vaccination.brand:
+            vacc.vaccination.brand = HPK_TO_MP[vacc.vaccination.hpkCode]
+        if not vacc.vaccination.manufacturer:
+            vacc.vaccination.manufacturer = HPK_TO_MA[vacc.vaccination.hpkCode]
+
+    return events
+
+
 def set_missing_total_doses(events: Events) -> Events:
     """
     Update the `totalDoses` field on vaccination events that do not have it. Set to the default per mp.
@@ -125,8 +158,8 @@ def set_missing_total_doses(events: Events) -> Events:
         if not vacc.vaccination.totalDoses:
             if vacc.vaccination.brand:
                 brand = vacc.vaccination.brand
-            elif vacc.vaccination.hpkCode and vacc.vaccination.hpkCode in HPK_CODES:
-                brand = HPK_CODES[vacc.vaccination.hpkCode]["mp"]
+            elif vacc.vaccination.hpkCode and vacc.vaccination.hpkCode in HPK_TO_MP:
+                brand = HPK_TO_MP[vacc.vaccination.hpkCode]
             else:
                 logging.warning(
                     "Cannot determine mp of vaccination; not setting default total doses; " f"{vacc.vaccination}"
@@ -146,8 +179,8 @@ def _is_eligible_vaccination(event: Event) -> bool:
 
     if (
         event.vaccination.hpkCode in ELIGIBLE_HPK_CODES
-        or event.vaccination.brand in ELIGIBLE_MA
-        or event.vaccination.manufacturer in ELIGIBLE_MP
+        or event.vaccination.manufacturer in ELIGIBLE_MA
+        or event.vaccination.brand in ELIGIBLE_MP
     ):
         return True
     logging.debug(f"Ineligible vaccine; {event.vaccination}")
@@ -222,7 +255,7 @@ def _relevant_vaccinations(vaccs: List[Event]) -> List[Event]:
 
     # if we have none or only one, that is the relevant one
     # rules V050, V060, V070
-    if not vaccs or len(vaccs) == 1:
+    if not vaccs:
         return vaccs
 
     # do we have a full qualification, pick the most recent one
@@ -332,15 +365,19 @@ def evaluate_cross_type_events(events: Events) -> Events:
     else:
         vacc = events.vaccinations[0]
 
-    # todo: are doeses optional? Or are they always set?
-    vacc.vaccination.doseNumber = vacc.vaccination.totalDoses  # type: ignore
+    # fix optional vacc
+    if not vacc.vaccination:
+        return events
+
+    vacc.vaccination.totalDoses = 1
+    vacc.vaccination.doseNumber = 1
 
     retained_events = [e for e in events.events if e.type != "vaccination" or e == vacc]
     events.events = retained_events
     return events
 
 
-def remove_ineligble_events(events: Events) -> Events:
+def remove_ineligible_events(events: Events) -> Events:
     eligible_events = Events()
     eligible_events.events = [e for e in events.events if is_eligible(e)]
     return eligible_events
@@ -357,11 +394,15 @@ def create_signing_messages_based_on_events(events: Events) -> List[MessageToEUS
     log.debug(f"Filtering, reducing and preparing eu signing requests, starting with N events: {len(events.events)}")
 
     # remove ineligible events
-    eligible_events: Events = remove_ineligble_events(events)
+    eligible_events: Events = remove_ineligible_events(events)
     log.debug(
-        f"remove_ineligble_events: {len(eligible_events.events)}: "
+        f"remove_ineligible_events: {len(eligible_events.events)}: "
         f"{[e.type.lower() for e in eligible_events.events]}"
     )
+
+    # enrich vaccinations, based on HPK code
+    eligible_events = enrich_from_hpk(eligible_events)
+    log.debug(f"enrich_from_hpk: {len(eligible_events.events)}")
 
     # set required doses, if not given
     eligible_events = set_missing_total_doses(eligible_events)
@@ -432,6 +473,6 @@ def get_event_time(statement_to_eu_signer: MessageToEUSigner):
     else:
         raise ValueError("Not able to retrieve an event time from the statement to the signer. This is very wrong.")
 
-    if isinstance(event_time, date):
+    if not isinstance(event_time, datetime):
         event_time = datetime.combine(event_time, datetime.min.time())
-    return TZ.localize(event_time)
+    return TZ.localize(event_time) if event_time.tzinfo is None else event_time
