@@ -172,18 +172,17 @@ def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBl
             valid_from = expiration_time_scrubber - timedelta(hours=settings.DOMESTIC_STRIP_VALIDITY_HOURS)
             holder = overlapping_block.origins[0].holder
 
+            # The signer only understands strings.
             domestic_signer_attributes = DomesticSignerAttributes(
-                **{
-                    "isSpecimen": "0",
-                    "stripType": StripType.APP_STRIP,
-                    "validFrom": str(int(valid_from.now().timestamp())),
-                    "validForHours": settings.DOMESTIC_STRIP_VALIDITY_HOURS,
-                    "firstNameInitial": holder.first_name_initial,
-                    "lastNameInitial": holder.last_name_initial,
-                    # Dutch Birthdays can be unknown, supplied as 1970-XX-XX. See DutchBirthDate
-                    "birthDay": str(holder.birthDate.day) if holder.birthDate.day else "",
-                    "birthMonth": str(holder.birthDate.month) if holder.birthDate.month else "",
-                }
+                isSpecimen="0",
+                stripType=StripType.APP_STRIP,
+                validFrom=str(int(valid_from.now().timestamp())),
+                validForHours=settings.DOMESTIC_STRIP_VALIDITY_HOURS,
+                firstNameInitial=holder.first_name_initial,
+                lastNameInitial=holder.last_name_initial,
+                # Dutch Birthdays can be unknown, supplied as 1970-XX-XX. See DutchBirthDate
+                birthDay=str(holder.birthDate.day) if holder.birthDate.day else "",
+                birthMonth=str(holder.birthDate.month) if holder.birthDate.month else "",
             )
             domestic_signer_attributes.strike()
             attributes.append(domestic_signer_attributes)

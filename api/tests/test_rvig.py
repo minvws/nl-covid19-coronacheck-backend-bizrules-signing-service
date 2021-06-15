@@ -43,6 +43,22 @@ def test_get_pii_happy_flow(requests_mock, current_path):
         firstName="Naomi", lastName="Goede", birthDate=Dbd("1987-04-01"), infix=None
     )
 
+    # with diacritics
+    requests_mock.post(url=RVIG_URL, text=read_file(f"{current_path}/rvig/999990743.xml"))
+    assert get_pii_from_rvig("999990743") == Holder(
+        firstName="Ŗî Ãō Øū Ŋÿ Ği ŢžŰŲ ŜŞőĠĪ Ŷŵ Ĉŷ",
+        lastName="T.Śar ŃĆ ĹāÑ ŤÙmön ĊéŴÀŅŇĩ Ļl'ÁÚŘŠĎÉ Pomme-d' Or ĽÒÓĢÛŨ\n                                                ",
+        birthDate=Dbd("2010-01-01"),
+        infix=None,
+    )
+
+
+@pytest.mark.skip(reason="Useful for gathering testdata from rvig.")
+@pytest.mark.parametrize("bsn", [999990743, 999994888, 4322630, 4322320])
+def test_manually(bsn):
+    # Invalid BSN is no data found, code 33
+    get_pii_from_rvig(bsn)
+
 
 @pytest.mark.skip(reason="Only useful for distilling new testcases from the RVIG test environment")
 @pytest.mark.parametrize("bsn", [999994979, 999994991, "XX"])
