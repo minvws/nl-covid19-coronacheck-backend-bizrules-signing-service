@@ -92,15 +92,49 @@ async def app_prepare_issue_request():
     return await get_prepare_issue()
 
 
+def extract_results(blobs: List[CMSSignedDataBlob]) -> List[DataProviderEventsResult]:
+    results = []
+    for cms_signed_blob in blobs:
+        dp_event_json = json.loads(base64.b64decode(cms_signed_blob.payload))
+        if dp_event_json["protocolVersion"] == "3.0":
+            dp_event_result: DataProviderEventsResult = DataProviderEventsResult(**dp_event_json)
+        elif dp_event_json["protocolVersion"] == "2.0":
+            # V2 is contains only one single negative test
+            # V2 messages are not eligible for EU signing because it contains no full name and a wrong year(!)
+            dp_event_result = V2Event(**dp_event_json).upgrade_to_v3()
+        else:
+            raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=["Unsupported protocolVersion"])
+        results.append(dp_event_result)
+
+    return results
+
+
+def has_unique_holder(events_results: List[DataProviderEventsResult]) -> bool:
+    if not events_results or len(events_results) <= 1:
+        return True
+
+    holder = None
+    for dp_event_result in events_results:
+        if not holder:
+            holder = dp_event_result.holder
+        else:
+            if any([
+                holder.birthDate != dp_event_result.holder.birthDate,
+                holder.firstName != dp_event_result.holder.firstName,
+                holder.lastName != dp_event_result.holder.lastName,
+                holder.infix != dp_event_result.holder.infix
+            ]):
+                return False
+
+    return True
+
+
 def decode_and_normalize_events(request_data_events: List[CMSSignedDataBlob]) -> Events:
     # TODO: CMS signature checks
     # for loop over events -> cms sig check
     # signature should be a pkcs7 over payload with a cert.
 
     """
-    Waarom zou er verschillende holders: als je met token ophaalt dus heeft wellicht de naam anders dan in de BRP.
-    Als je met bsn enzo ophaalt kan je naar BRP. - De vaccinatie en recovery moet dezelfde holder zijn.
-
     Incoming Request
     {
         "events": [{
@@ -149,18 +183,13 @@ def decode_and_normalize_events(request_data_events: List[CMSSignedDataBlob]) ->
     """
     # Merge the events from multiple providers into one list
     events: Events = Events()
-    for cms_signed_blob in request_data_events:
-        dp_event_json = json.loads(base64.b64decode(cms_signed_blob.payload))
+    events_result = extract_results(request_data_events)
 
-        if dp_event_json["protocolVersion"] == "3.0":
-            dp_event_result: DataProviderEventsResult = DataProviderEventsResult(**dp_event_json)
-        elif dp_event_json["protocolVersion"] == "2.0":
-            # V2 is contains only one single negative test
-            # V2 messages are not eligible for EU signing because it contains no full name and a wrong year(!)
-            dp_event_result = V2Event(**dp_event_json).upgrade_to_v3()
-        else:
-            raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=["Unsupported protocolVersion"])
+    if not has_unique_holder(events_result):
+        # we have a request with different holders, raise an error
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=["error code 99966"])
 
+    for dp_event_result in events_result:
         holder = dp_event_result.holder
 
         for dp_event in dp_event_result.events:
