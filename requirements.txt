@@ -104,6 +104,8 @@ python-dotenv==0.17.1
     # via uvicorn
 python-multipart==0.0.5
     # via fastapi
+python-stdnum==1.16
+    # via -r requirements.in
 pytz==2021.1
     # via
     #   -r requirements.in

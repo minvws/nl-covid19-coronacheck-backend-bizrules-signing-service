@@ -1,6 +1,7 @@
 # Pydantic models have no methods in many cases.
 # pylint: disable=too-few-public-methods,invalid-name
 # Automatic documentation: http://localhost:8000/redoc or http://localhost:8000/docs
+import json
 import re
 import uuid
 from datetime import date, datetime, timedelta
@@ -11,9 +12,11 @@ from uuid import UUID
 import pycountry
 from pydantic import BaseModel, Field
 
+from api import uci_log, log
 from api.attribute_allowlist import domestic_signer_attribute_allow_list
 from api.enrichment.name_normalizer import normalize_name
 from api.settings import settings
+from api.uci import generate_uci_01
 
 
 class Iso3166Dash1Alpha2CountryCode(str):
@@ -426,6 +429,25 @@ class Event(DataProviderEvent):
     source_provider_identifier: str = Field(None)
     holder: Holder
 
+    def to_uci_01(self):
+        """
+        These codes are logged using the UCI_LOGGER, this can be configured to anything, but samples are given
+        to syslog, console and file.
+
+        Todo:
+        The Unique is not yet in the RIVM data, but has to be in order to be compliant with the
+        EU vaccin proof interoperability guidelines.
+
+        :return:
+        """
+
+        if not self.unique:
+            log.error("Event has no unique, currently we'll let this pass but a unique is mandatory for the EU!")
+
+        uci = generate_uci_01()
+        uci_log.info(json.dumps({"uci": uci, "provider": self.source_provider_identifier, "unique": self.unique}))
+        return uci
+
 
 class Events(BaseModel):
     events: List[Event] = Field(default=[])
@@ -567,10 +589,7 @@ class SharedEuropeanFields(BaseModel):
     # https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/disease-agent-targeted.json
     # Signer will assume covid as we're not covering other diseases yet
     tg: str = Field(description="disease or agent targeted", example="840539006", default="840539006")
-    ci: str = Field(
-        description="Certificate Identifier, format as per UVCI (*), "
-        "Yes (conversion of unique to V-XXX-YYYYYYYY-Z, provider only needs to provide unique"
-    )
+    ci: str = Field(description="Certificate Identifier, format as per UCI (*)")
     # Todo: has to be moved to all four types, because we have to follow what is sent, if nothing is sent
     #  then NLD is the fallback.
     co: str = Field(description="Member State, ISO 3166", default="NLD", regex=r"[A-Z]{1,10}")

@@ -15,3 +15,6 @@ with open(
     config.dictConfig(yaml.safe_load(f))
 
 log = logging.getLogger(__package__)
+
+# The UCI logger is used to trace outgoing EU certificates
+uci_log = logging.getLogger("uci")
