@@ -10,14 +10,16 @@ def test_random_unique_identifier():
 def test_generate_uvci_01():
     for _ in range(0, 200):
         data = generate_uci_01()
-        assert len(data) in [34, 35]
+        assert len(data) in [42, 43]
 
         # verify that we can check this.
         assert verify_uci_01(data) is True
 
-    assert verify_uci_01("01:NL:AZ7MRTRW2ZAKXANTGRWLP3NRMA#19") is True
+        print(data)
+
+    assert verify_uci_01("URN:UCI:01:NL:B7L6YIZIZFD3BMTEFA4CVUI6ZM#0") is True
     # invalid checksum
-    assert verify_uci_01("01:NL:AZ7MRTRW2ZAKXANTGRWLP3NRMA#18") is False
+    assert verify_uci_01("URN:UCI:01:NL:B7L6YIZIZFD3BMTEFA4CVUI6ZM#1") is False
     assert verify_uci_01("Hallo Wereld") is False
     assert verify_uci_01("Hallo#Wereld") is False
 
