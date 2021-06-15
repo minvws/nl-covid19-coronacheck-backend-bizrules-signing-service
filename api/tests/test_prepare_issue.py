@@ -6,8 +6,8 @@ from freezegun import freeze_time
 
 from api.models import PrepareIssueResponse
 from api.requesters.prepare_issue import get_prepare_issue
-from api.settings import settings
 from api.session_store import session_store
+from api.settings import settings
 
 
 @freeze_time("2021-05-20")

@@ -4,7 +4,7 @@ from base64 import b64encode
 from freezegun import freeze_time
 
 from api.app import decode_and_normalize_events
-from api.models import CMSSignedDataBlob, GreenCardOrigin, DomesticGreenCard
+from api.models import CMSSignedDataBlob, DomesticGreenCard, GreenCardOrigin
 from api.settings import settings
 from api.signers.nl_domestic_static import sign
 
