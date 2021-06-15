@@ -327,14 +327,14 @@ def _only_most_recent(events: List[Event]) -> List[Event]:
     return [events[-1]]
 
 
-def _not_from_future(events: Events) -> Events:
-    if not events or not events.events:
+def _not_from_future(events: List[Event]) -> List[Event]:
+    if not events:
         return events
 
     today = date.today()
 
-    result = Events()
-    for event in events.events:
+    result = []
+    for event in events:
         if any([
                 event.vaccination and event.vaccination.date > today,
                 event.positivetest and event.positivetest.sampleDate > today,
@@ -343,7 +343,7 @@ def _not_from_future(events: Events) -> Events:
         ]):
             logging.warning(f"removing event with date in the future; {event.unique}")
             continue
-        result.events.append(event)
+        result.append(event)
     return result
 
 
@@ -351,12 +351,14 @@ def filter_redundant_events(events: Events) -> Events:
     """
     Return the events that are relevant, filtering out obsolete events
     """
-    events_passed = _not_from_future(events)
+    vaccinations = _not_from_future(events.vaccinations)
+    vaccinations = _relevant_vaccinations(vaccinations)
 
-    vaccinations = _relevant_vaccinations(events_passed.vaccinations)
-    positive_tests = _only_most_recent(events_passed.positivetests)  # TODO do we want to create recoveries for these?
-    negative_tests = _only_most_recent(events_passed.negativetests)
-    recoveries = _only_most_recent(events_passed.recoveries)
+    negative_tests = _not_from_future(events.negativetests)
+    negative_tests = _only_most_recent(negative_tests)
+
+    positive_tests = _only_most_recent(events.positivetests)  # TODO do we want to create recoveries for these?
+    recoveries = _only_most_recent(events.recoveries)
 
     relevant_events = Events()
     relevant_events.events = [
