@@ -70,6 +70,7 @@ def eligible_vaccination(events: Events) -> List[RichOrigin]:
                 eventTime=event_time,
                 validFrom=event_time,
                 expirationTime=(event_time + timedelta(days=settings.DOMESTIC_NL_EXPIRY_DAYS_VACCINATION)),
+                isSpecimen=best_vacc.isSpecimen,
             )
         ]
 
@@ -86,6 +87,7 @@ def eligible_recovery(events) -> List[RichOrigin]:
             eventTime=floor_hours(rec.recovery.sampleDate),
             validFrom=floor_hours(rec.recovery.validFrom),
             expirationTime=floor_hours(rec.recovery.validUntil),
+            isSpecimen=rec.isSpecimen,
         )
         for rec in events.recoveries
     ]
@@ -110,6 +112,7 @@ def eligible_positive_tests(events) -> List[RichOrigin]:
                     days=settings.DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS
                     + settings.DOMESTIC_NL_EXPIRY_DAYS_POSITIVE_TEST
                 ),
+                isSpecimen=positive_test.isSpecimen,
             )
         )
 
@@ -132,6 +135,7 @@ def eligible_negative_tests(events) -> List[RichOrigin]:
                 eventTime=event_time,
                 validFrom=event_time,
                 expirationTime=event_time + timedelta(hours=settings.DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST),
+                isSpecimen=negative_test.isSpecimen,
             )
         )
 
@@ -174,7 +178,8 @@ def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBl
 
             # The signer only understands strings.
             domestic_signer_attributes = DomesticSignerAttributes(
-                isSpecimen="0",
+                # mixing specimen with non-specimen requests is weird. We'll use what's in the first origin
+                isSpecimen="1" if overlapping_block.origins[0].isSpecimen else "0",
                 stripType=StripType.APP_STRIP,
                 validFrom=str(int(valid_from.now().timestamp())),
                 validForHours=settings.DOMESTIC_STRIP_VALIDITY_HOURS,
@@ -195,7 +200,7 @@ def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBl
     return attributes
 
 
-def create_origins(events) -> Optional[List[RichOrigin]]:
+def create_origins(events: Events) -> Optional[List[RichOrigin]]:
     origins: List[RichOrigin] = (
         eligible_vaccination(events)
         + eligible_recovery(events)
@@ -258,7 +263,7 @@ def create_origins_and_attributes(
     # todo: add error structure...
 
     # Continue with at least one origin
-    origins = create_origins(events)
+    origins: List[RichOrigin] = create_origins(events)
     if not origins:
         log.warning("No relevant origins, so cannot sign.")
         return False, None, None

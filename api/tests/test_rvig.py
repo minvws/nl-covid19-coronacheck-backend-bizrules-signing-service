@@ -44,10 +44,11 @@ def test_get_pii_happy_flow(requests_mock, current_path):
     )
 
     # with diacritics
+    lastna = "T.Śar ŃĆ ĹāÑ ŤÙmön ĊéŴÀŅŇĩ Ļl'ÁÚŘŠĎÉ Pomme-d' Or ĽÒÓĢÛŨ\n                                                "
     requests_mock.post(url=RVIG_URL, text=read_file(f"{current_path}/rvig/999990743.xml"))
     assert get_pii_from_rvig("999990743") == Holder(
         firstName="Ŗî Ãō Øū Ŋÿ Ği ŢžŰŲ ŜŞőĠĪ Ŷŵ Ĉŷ",
-        lastName="T.Śar ŃĆ ĹāÑ ŤÙmön ĊéŴÀŅŇĩ Ļl'ÁÚŘŠĎÉ Pomme-d' Or ĽÒÓĢÛŨ\n                                                ",
+        lastName=lastna,
         birthDate=Dbd("2010-01-01"),
         infix=None,
     )

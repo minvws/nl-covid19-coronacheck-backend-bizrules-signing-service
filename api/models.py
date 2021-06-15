@@ -796,6 +796,7 @@ class RichOrigin(BaseModel):
     eventTime: datetime
     validFrom: datetime
     expirationTime: datetime
+    isSpecimen: bool
 
 
 class ContiguousOriginsBlock(BaseModel):
