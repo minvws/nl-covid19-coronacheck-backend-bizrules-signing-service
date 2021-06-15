@@ -123,7 +123,7 @@ class LuhnModN:
     @classmethod
     def _luhn_mod_n(cls, factor, txt):
         total = 0
-        n = cls._number_of_valid_input_characters()
+        n = cls._number_of_valid_input_characters()  # pylint: disable=invalid-name
         # Starting from the right, work leftwards
         # Now, the initial "factor" will always be "1"
         # since the last character is the check character.
@@ -144,7 +144,7 @@ class LuhnModN:
     def generate_check_character(cls, txt: str) -> str:
         factor = 2
         remainder = cls._luhn_mod_n(factor, txt)
-        n = cls._number_of_valid_input_characters()
+        n = cls._number_of_valid_input_characters()  # pylint: disable=invalid-name
         check_code_point = (n - remainder) % n
         return cls._character_from_code_point(check_code_point)
 
