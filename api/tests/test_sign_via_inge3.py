@@ -34,6 +34,43 @@ def get_testevents(current_path) -> List[CMSSignedDataBlob]:
 
 
 @freeze_time("2021-05-20")
+def test_eu_is_specimen():
+
+    # Todo: why is the first origin 2x mentioned? And is that by design or an issue? It might be used
+    #  to determine the first block.
+
+    rich_origins = [
+        RichOrigin(
+            holder=Holder(firstName="Top", lastName="Pertje", birthDate="1950-01-01", infix=""),
+            type="test",
+            eventTime=datetime(2021, 5, 27, 0, 0, tzinfo=pytz.utc),
+            validFrom=datetime(2021, 5, 27, 0, 0, tzinfo=pytz.utc),
+            expirationTime=datetime(2021, 5, 28, 16, 0, tzinfo=pytz.utc),
+            isSpecimen=True,
+        )
+    ]
+
+    expected_attributes = DomesticSignerAttributes(
+        isSpecimen="1",
+        stripType=StripType.APP_STRIP,
+        validFrom="1621468800",
+        validForHours="24",
+        firstNameInitial="T",
+        lastNameInitial="",
+        birthDay="1",
+        birthMonth="",
+    )
+
+    attributes: List[DomesticSignerAttributes] = create_attributes(rich_origins)
+    assert attributes == [expected_attributes, expected_attributes]
+
+    rich_origins[0].isSpecimen = False  # noqa
+    expected_attributes.isSpecimen = "0"
+    attributes: List[DomesticSignerAttributes] = create_attributes(rich_origins)
+    assert attributes == [expected_attributes, expected_attributes]
+
+
+@freeze_time("2021-05-20")
 def test_static_sign(current_path, requests_mock):
     signing_response_data = {
         "qr": {
@@ -70,6 +107,7 @@ def test_static_sign(current_path, requests_mock):
             eventTime=datetime(2021, 5, 27, 0, 0, tzinfo=pytz.utc),
             validFrom=datetime(2021, 5, 27, 0, 0, tzinfo=pytz.utc),
             expirationTime=datetime(2021, 5, 28, 16, 0, tzinfo=pytz.utc),
+            isSpecimen=True,
         ),
         RichOrigin(
             holder=Holder(firstName="Top", lastName="Pertje", birthDate="1950-01-01", infix=""),
@@ -77,6 +115,7 @@ def test_static_sign(current_path, requests_mock):
             eventTime=datetime(2021, 5, 27, 0, 0, tzinfo=pytz.utc),
             validFrom=datetime(2021, 5, 27, 0, 0, tzinfo=pytz.utc),
             expirationTime=datetime(2021, 5, 28, 16, 0, tzinfo=pytz.utc),
+            isSpecimen=True,
         ),
         RichOrigin(
             holder=Holder(firstName="B", lastName="B", birthDate="1883-06-09", infix=""),
@@ -84,13 +123,14 @@ def test_static_sign(current_path, requests_mock):
             eventTime=datetime(2021, 6, 1, 0, 0, tzinfo=pytz.utc),
             validFrom=datetime(2021, 6, 1, 0, 0, tzinfo=pytz.utc),
             expirationTime=datetime(2021, 6, 2, 16, 0, tzinfo=pytz.utc),
+            isSpecimen=True,
         ),
     ]
 
     attributes: List[DomesticSignerAttributes] = create_attributes(origins)
     assert attributes == [
         DomesticSignerAttributes(
-            isSpecimen="0",
+            isSpecimen="1",
             stripType=StripType.APP_STRIP,
             validFrom="1621468800",
             validForHours="24",
@@ -100,7 +140,7 @@ def test_static_sign(current_path, requests_mock):
             birthMonth="",
         ),
         DomesticSignerAttributes(
-            isSpecimen="0",
+            isSpecimen="1",
             stripType=StripType.APP_STRIP,
             validFrom="1621468800",
             validForHours="24",
@@ -110,7 +150,7 @@ def test_static_sign(current_path, requests_mock):
             birthMonth="",
         ),
         DomesticSignerAttributes(
-            isSpecimen="0",
+            isSpecimen="1",
             stripType=StripType.APP_STRIP,
             validFrom="1621468800",
             validForHours="24",
@@ -120,7 +160,7 @@ def test_static_sign(current_path, requests_mock):
             birthMonth="6",
         ),
         DomesticSignerAttributes(
-            isSpecimen="0",
+            isSpecimen="1",
             stripType=StripType.APP_STRIP,
             validFrom="1621468800",
             validForHours="24",

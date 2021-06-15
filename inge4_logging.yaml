@@ -33,6 +33,12 @@ handlers:
     facility: user
     address: /dev/log
 
+  uci_logfile:
+    formatter: standard
+    class: logging.FileHandler
+    filename: uci.log
+    mode: a
+
 loggers:
   # Default webserver class
   uvicorn:
@@ -51,6 +57,10 @@ loggers:
     level: DEBUG
   aiohttp:
     level: DEBUG
+  # UCI for EU signing
+  uci:
+    level: INFO
+    handlers: [console, uci_logfile]
 
 root:
   level: DEBUG
