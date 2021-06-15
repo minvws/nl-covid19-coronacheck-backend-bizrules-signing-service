@@ -19,7 +19,7 @@ door een nummer voor het gegeven binnen de groep.
 Nummers zijn uit gegevenwoordenboek pagina 240 (LO+GBA+3.13a.pdf)
 """
 RVIG_VOORNAAM = 10210
-RVIG_INFIX = 10230
+# RVIG_INFIX = 10230
 RVIG_GESLACHTSNAAM = 10240
 RVIG_GEBOORTEDATUM = 10310
 
@@ -156,7 +156,7 @@ def get_pii_from_rvig(bsn: str) -> Holder:
     try:
         zoekvraag = factory.Vraag(
             parameters=[{"item": [{"zoekwaarde": bsn, "rubrieknummer": 10120}]}],
-            masker=[{"item": [RVIG_VOORNAAM, RVIG_INFIX, RVIG_GESLACHTSNAAM, RVIG_GEBOORTEDATUM]}],
+            masker=[{"item": [RVIG_VOORNAAM, RVIG_GESLACHTSNAAM, RVIG_GEBOORTEDATUM]}],
         )
         antwoord = client.service.vraag(zoekvraag)
         vraag_response = client.get_element("ns0:vraagResponse")(antwoord)
@@ -196,7 +196,7 @@ def _to_holder(vraag_response) -> Holder:
     voornamen = ""
     geslachtsnaam = ""
     geboortedatum = ""
-    infix = ""
+    # infix = ""
 
     # Note: there is no "only first name" option.
     # This is by design.
@@ -208,8 +208,8 @@ def _to_holder(vraag_response) -> Holder:
                 for element in categorievoorkomen.elementen.item:
                     if element.nummer == 210:
                         voornamen = element.waarde or voornamen
-                    if element.nummer == 230:
-                        infix = element.waarde or infix
+                    # if element.nummer == 230:
+                    #     infix = element.waarde or infix
                     if element.nummer == 240:
                         geslachtsnaam = element.waarde or geslachtsnaam
                     if element.nummer == 310:
@@ -219,7 +219,7 @@ def _to_holder(vraag_response) -> Holder:
         firstName=voornamen,
         lastName=geslachtsnaam,
         birthDate=rvig_birtdate_to_dutch_birthdate(geboortedatum),
-        infix=infix,
+        infix=None,
     )
 
 

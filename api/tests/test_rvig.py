@@ -19,7 +19,7 @@ def test_get_pii_unhappy_flows(requests_mock, current_path, caplog):
     # PL met geboortedatum 19710000
     requests_mock.post(url=RVIG_URL, text=read_file(f"{current_path}/rvig/999995844.xml"))
     assert get_pii_from_rvig("999995844") == Holder(
-        firstName="Bernhard", lastName="Boer", birthDate=Dbd("1971-XX-XX"), infix=""
+        firstName="Bernhard", lastName="Boer", birthDate=Dbd("1971-XX-XX"), infix=None
     )
 
     # technical error
@@ -40,7 +40,7 @@ def test_get_pii_unhappy_flows(requests_mock, current_path, caplog):
 def test_get_pii_happy_flow(requests_mock, current_path):
     requests_mock.post(url=RVIG_URL, text=read_file(f"{current_path}/rvig/999995571.xml"))
     assert get_pii_from_rvig("999995571") == Holder(
-        firstName="Naomi", lastName="Goede", birthDate=Dbd("1987-04-01"), infix=""
+        firstName="Naomi", lastName="Goede", birthDate=Dbd("1987-04-01"), infix=None
     )
 
 
