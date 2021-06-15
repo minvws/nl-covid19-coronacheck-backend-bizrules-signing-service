@@ -132,7 +132,7 @@ def enrich_from_hpk(events: Events) -> Events:
         if not vacc.vaccination.hpkCode:
             continue
 
-        if vacc.vaccination not in ELIGIBLE_HPK_CODES:
+        if vacc.vaccination.hpkCode not in ELIGIBLE_HPK_CODES:
             logging.warning(f"received HPK code {vacc.vaccination.hpkCode} that is not in our list")
             continue
 

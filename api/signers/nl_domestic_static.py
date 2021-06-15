@@ -23,4 +23,4 @@ def sign(events: Events) -> Optional[DomesticGreenCard]:
         }
     )
 
-    return _sign(settings.DOMESTIC_NL_VWS_PAPER_SIGNING_URL, issue_message, origins)
+    return _sign(settings.DOMESTIC_NL_VWS_PAPER_SIGNING_URL, issue_message.dict(), origins)

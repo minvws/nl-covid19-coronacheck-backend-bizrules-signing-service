@@ -34,6 +34,8 @@ class Iso3166Dash1Alpha2CountryCode(str):
             examples=["NL", "BE", "NLD", "BEL"],
         )
 
+    # Todo: Issues here should return the known pydantic errors, not a 500 internal server error.
+    #  "country": "Netherlands", https://pydantic-docs.helpmanual.io/usage/types/#custom-data-types
     @classmethod
     def validate(cls, v: str):
         if not isinstance(v, str):
@@ -206,6 +208,8 @@ class Holder(BaseModel):
         example="1970-01-01",
     )
 
+    infix: Optional[str] = Field(description="Infix received via app", example="van den")
+
     @classmethod
     def _name_initial(cls, name, default=""):
         """
@@ -248,6 +252,9 @@ class Holder(BaseModel):
 
     @property
     def last_name_eu_normalized(self):
+        # Add the infix to EU messages, with a space in between.
+        if self.infix:
+            return Holder._eu_normalize(f"{self.infix} {self.lastName}")
         return Holder._eu_normalize(self.lastName)
 
     def equal_to(self, other):
@@ -277,7 +284,9 @@ class Vaccination(BaseModel):  # noqa
     )
     completedByPersonalStatement: Optional[bool] = Field(description="Individual self-declares fully vaccinated")
 
-    country: Iso3166Dash1Alpha2CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
+    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
+        description="Defaults to NLD", example="NLD", default="NLD"
+    )
     doseNumber: Optional[int] = Field(example=1, description="will be based on business rules / brand info if left out")
     totalDoses: Optional[int] = Field(example=2, description="will be based on business rules / brand info if left out")
 
@@ -306,7 +315,9 @@ class Positivetest(BaseModel):  # noqa
     type: str = Field(example="???")
     name: str = Field(example="???")
     manufacturer: str = Field(example="1232")
-    country: Iso3166Dash1Alpha2CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
+    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
+        description="Defaults to NLD", example="NLD", default="NLD"
+    )
 
     """
     Positive tests mean that there is a recovery. For the EU a positive test should be seen and
@@ -339,7 +350,9 @@ class Negativetest(BaseModel):  # noqa
     type: str = Field(example="A great one")
     name: str = Field(example="Bestest")
     manufacturer: str = Field(example="Acme Inc")
-    country: Iso3166Dash1Alpha2CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
+    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
+        description="Defaults to NLD", example="NLD", default="NLD"
+    )
 
     def toEuropeanTest(self):
         return EuropeanTest(
@@ -361,7 +374,9 @@ class Recovery(BaseModel):  # noqa
     sampleDate: date = Field(example="2021-01-01")
     validFrom: date = Field(example="2021-01-12")
     validUntil: date = Field(example="2021-06-30")
-    country: Iso3166Dash1Alpha2CountryCode = Field(description="Defaults to NLD", example="NLD", default="NLD")
+    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
+        description="Defaults to NLD", example="NLD", default="NLD"
+    )
 
     def toEuropeanRecovery(self):
         return EuropeanRecovery(
@@ -388,8 +403,9 @@ class EventType(str, Enum):
 
 class DataProviderEvent(BaseModel):
     type: EventType = Field(description="Type of event")
-    unique: str = Field(description="Some unique string")
-    isSpecimen: bool = Field(False, description="Boolean")
+    # RVIM does not have a unique
+    unique: Optional[str] = Field(description="Some unique string")
+    isSpecimen: Optional[bool] = Field(False, description="Boolean")
     negativetest: Optional[Negativetest] = Field(None, description="Negativetest")
     positivetest: Optional[Positivetest] = Field(None, description="Positivetest")
     vaccination: Optional[Vaccination] = Field(None, description="Vaccination")
@@ -525,8 +541,8 @@ class DomesticStaticQrResponse(BaseModel):
             birthDay: str = Field(example="27", description="Day (not date!) of birth.")
             birthMonth: str = Field(example="12", description="Month (not date!) of birth.")
             isPaperProof: str = Field(example="1", default="1")
-            # todo: enum, is this a boolean?
-            isSpecimen: str = Field(
+            # The crypto library only understands strings, there booleans are "0" or "1".
+            isSpecimen: Optional[bool] = Field(
                 example="0",
                 description="Boolean cast as string, if this is a testcase. " "To facilitate testing in production.",
             )
@@ -555,6 +571,8 @@ class SharedEuropeanFields(BaseModel):
         description="Certificate Identifier, format as per UVCI (*), "
         "Yes (conversion of unique to V-XXX-YYYYYYYY-Z, provider only needs to provide unique"
     )
+    # Todo: has to be moved to all four types, because we have to follow what is sent, if nothing is sent
+    #  then NLD is the fallback.
     co: str = Field(description="Member State, ISO 3166", default="NLD", regex=r"[A-Z]{1,10}")
     is_: str = Field(description="certificate issuer", default="Ministry of Health Welfare and Sport", alias="is")
 
@@ -734,6 +752,7 @@ class StripType(str, Enum):
 
 
 class DomesticSignerAttributes(BaseModel):
+    # this is a string because the crypto library only supports strings
     isSpecimen: str = Field(
         example="0",
         description="Boolean cast as string, if this is a testcase. " "To facilitate testing in production.",
@@ -801,11 +820,12 @@ class V2Holder(BaseModel):
 
 
 class V2DataProviderEvent(BaseModel):  # noqa
+    # V2 messages always have a unique, all test providers have one, in contrast of v3
     unique: str
     sampleDate: datetime
     testType: str
     negativeResult: bool
-    isSpecimen: bool
+    isSpecimen: Optional[bool]
     holder: V2Holder
 
 
@@ -866,6 +886,8 @@ class V2Event(BaseModel):
             birthDate=datetime(
                 INVALID_YEAR_FOR_EU_SIGNING, int(self.result.holder.birthMonth), int(self.result.holder.birthDay)
             ),
+            # protocol v2 has no infix
+            infix="",
         )
 
         return DataProviderEventsResult(

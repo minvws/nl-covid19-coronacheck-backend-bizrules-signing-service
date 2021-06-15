@@ -230,3 +230,8 @@ async def docs_dper(_more_docs: DataProviderEventsResult):  # pylint: disable=un
 @app.post("/documentation/V2Event/", response_model=V2Event)
 async def docs_v2e(_more_docs: V2Event):  # pylint: disable=unused-argument
     ...
+
+
+# Add some indication that inge4 is starting.
+log.info("Starting Inge4.")
+print("Starting Inge4.")

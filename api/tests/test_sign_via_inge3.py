@@ -65,21 +65,21 @@ def test_static_sign(current_path, requests_mock):
     origins = create_origins(events)
     assert origins == [
         RichOrigin(
-            holder=Holder(firstName="Top", lastName="Pertje", birthDate="1950-01-01"),
+            holder=Holder(firstName="Top", lastName="Pertje", birthDate="1950-01-01", infix=""),
             type="test",
             eventTime=datetime(2021, 5, 27, 0, 0, tzinfo=pytz.utc),
             validFrom=datetime(2021, 5, 27, 0, 0, tzinfo=pytz.utc),
             expirationTime=datetime(2021, 5, 28, 16, 0, tzinfo=pytz.utc),
         ),
         RichOrigin(
-            holder=Holder(firstName="Top", lastName="Pertje", birthDate="1950-01-01"),
+            holder=Holder(firstName="Top", lastName="Pertje", birthDate="1950-01-01", infix=""),
             type="test",
             eventTime=datetime(2021, 5, 27, 0, 0, tzinfo=pytz.utc),
             validFrom=datetime(2021, 5, 27, 0, 0, tzinfo=pytz.utc),
             expirationTime=datetime(2021, 5, 28, 16, 0, tzinfo=pytz.utc),
         ),
         RichOrigin(
-            holder=Holder(firstName="B", lastName="B", birthDate="1883-06-09"),
+            holder=Holder(firstName="B", lastName="B", birthDate="1883-06-09", infix=""),
             type="test",
             eventTime=datetime(2021, 6, 1, 0, 0, tzinfo=pytz.utc),
             validFrom=datetime(2021, 6, 1, 0, 0, tzinfo=pytz.utc),
@@ -172,7 +172,7 @@ def test_decode_and_normalize_events(current_path):
                 vaccination=None,
                 recovery=None,
                 source_provider_identifier="ZZZ",
-                holder=Holder(firstName="Top", lastName="Pertje", birthDate="1950-01-01"),
+                holder=Holder(firstName="Top", lastName="Pertje", birthDate="1950-01-01", infix=""),
             ),
             Event(
                 type=EventType.negativetest,
@@ -192,7 +192,7 @@ def test_decode_and_normalize_events(current_path):
                 vaccination=None,
                 recovery=None,
                 source_provider_identifier="ZZZ",
-                holder=Holder(firstName="Top", lastName="Pertje", birthDate="1950-01-01"),
+                holder=Holder(firstName="Top", lastName="Pertje", birthDate="1950-01-01", infix=""),
             ),
             Event(
                 type=EventType.negativetest,
@@ -212,7 +212,7 @@ def test_decode_and_normalize_events(current_path):
                 vaccination=None,
                 recovery=None,
                 source_provider_identifier="ZZZ",
-                holder=Holder(firstName="B", lastName="B", birthDate="1883-06-09"),
+                holder=Holder(firstName="B", lastName="B", birthDate="1883-06-09", infix=""),
             ),
         ]
     )

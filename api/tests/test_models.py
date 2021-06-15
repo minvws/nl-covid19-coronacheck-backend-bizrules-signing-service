@@ -54,7 +54,7 @@ def test_upgrade_to_v3_with_negative_test():
                 "vaccination": None,
             }
         ],
-        "holder": {"birthDate": "1883-06-09", "firstName": "B", "lastName": "B"},
+        "holder": {"birthDate": "1883-06-09", "firstName": "B", "lastName": "B", "infix": ""},
         "protocolVersion": "2.0",
         "providerIdentifier": "ZZZ",
         "status": "complete",
@@ -160,12 +160,12 @@ def test_dutchbirthdate():
     assert example_signing_request.dob.year == 2020
     assert example_signing_request.dob.day is None
 
-    example_holder = Holder(firstName="A", lastName="B", birthDate="2020-XX-XX")
+    example_holder = Holder(firstName="A", lastName="B", birthDate="2020-XX-XX", infix="")
     assert example_holder.birthDate.day is None
     assert example_holder.birthDate.month is None
     assert example_holder.birthDate.date == 2020
 
-    example_holder = Holder(firstName="A", lastName="B", birthDate=date(2020, 2, 1))
+    example_holder = Holder(firstName="A", lastName="B", birthDate=date(2020, 2, 1), infix="")
     assert example_holder.birthDate.day == 1
     assert example_holder.birthDate.month == 2
     assert example_holder.birthDate.date == date(2020, 2, 1)
