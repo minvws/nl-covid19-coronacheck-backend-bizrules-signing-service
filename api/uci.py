@@ -79,12 +79,11 @@ def generate_uci_01():
 
 def verify_uci_01(uci: str):
 
-    split = uci.split("#")
-
     if not re.fullmatch(REGEX, uci):
         log.error(f"UCI {uci} is not valid.")
         return False
 
+    split = uci.split("#")
     if len(split) < 1:
         log.error(f"UCI {uci} is not valid.")
         return False
