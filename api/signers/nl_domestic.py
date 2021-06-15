@@ -263,7 +263,7 @@ def create_origins_and_attributes(
     # todo: add error structure...
 
     # Continue with at least one origin
-    origins: List[RichOrigin] = create_origins(events)
+    origins = create_origins(events)
     if not origins:
         log.warning("No relevant origins, so cannot sign.")
         return False, None, None
