@@ -21,7 +21,7 @@ from api.models import (
 from api.settings import settings
 from api.signers import hpkcodes
 
-ALLOWED_POSITIVE_TEST_TYPES = ["LP217198-3", "LP6464-4"]
+ALLOWED_POSITIVE_TEST_TYPES = settings.DOMESTIC_NL_ALLOWED_POSITIVE_TEST_TYPES
 TZ = pytz.timezone("UTC")
 
 
@@ -69,7 +69,7 @@ def eligible_vaccination(events: Events) -> List[RichOrigin]:
                 type=EventType.vaccination,
                 eventTime=event_time,
                 validFrom=event_time,
-                expirationTime=(event_time + timedelta(days=365 * 4)),
+                expirationTime=(event_time + timedelta(days=settings.DOMESTIC_NL_EXPIRY_DAYS_VACCINATION)),
             )
         ]
 
@@ -104,8 +104,12 @@ def eligible_positive_tests(events) -> List[RichOrigin]:
                 holder=positive_test.holder,
                 type=EventType.recovery,
                 eventTime=event_time,
-                validFrom=event_time + timedelta(days=11),
-                expirationTime=event_time + timedelta(days=11 + 180),
+                validFrom=event_time + timedelta(days=settings.DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS),
+                expirationTime=event_time
+                + timedelta(
+                    days=settings.DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS
+                    + settings.DOMESTIC_NL_EXPIRY_DAYS_POSITIVE_TEST
+                ),
             )
         )
 
@@ -127,7 +131,7 @@ def eligible_negative_tests(events) -> List[RichOrigin]:
                 type=EventType.test,
                 eventTime=event_time,
                 validFrom=event_time,
-                expirationTime=event_time + timedelta(hours=40),
+                expirationTime=event_time + timedelta(hours=settings.DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST),
             )
         )
 
@@ -209,7 +213,6 @@ def create_origins(events) -> Optional[List[RichOrigin]]:
 
 
 def create_attributes(origins: List[RichOrigin]) -> List[DomesticSignerAttributes]:
-
     # # Calculate blocks of contiguous origins
     contiguous_blocks: List[ContiguousOriginsBlock] = [
         ContiguousOriginsBlock.from_origin(origins[0]),
