@@ -15,7 +15,7 @@ def test_generate_uvci_01():
         # verify that we can check this.
         assert verify_uci_01(data) is True
 
-        print(data)
+        # print(data)
 
     assert verify_uci_01("URN:UCI:01:NL:B7L6YIZIZFD3BMTEFA4CVUI6ZM#0") is True
     # invalid checksum
