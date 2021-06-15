@@ -1,43 +1,67 @@
 # Inge-4
-This service signs "Statement of Vaccination" documents, converting them to a "Proof of Vaccination".
-Contains several supporting methods for the 'unomi' protocol, data enrichment via SBV-Z and BSN retrieval.
 
-## Requirements
-- Respond within 2 seconds
+Inge4 receives (vaccination,recovery,test)Events and based on business rules sends them to the NL and EU signer.
+Unomi and enrichment via rvig are added for the Coronacheck app.
 
-## Signing architecture:
-There are various requesters which are all supported: mobile app, inge3 and printportaal.
-There are various signers: eu, domestic static and domestic dynamic.
+There are various requesters which are all supported: mobile app (coronacheck), inge3 (hkvi) and printportaal.
+There are various signers: eu, domestic static (paper) and domestic dynamic (app).
 
-These are mapped in app.py.
 
 ## Installation
 Create the required secrets that are used in settings.py. Usually these are stored in 
-`SECRETS_FOLDER`, defaulting to "./secrets".
+`SECRETS_FOLDER`, defaulting to "./secrets". Example secrets are in api/tests/secrets. Do NOT use examples in production.
 
-The secrets needed are:
+This application uses the following secrets / secret keys.
 
-- vaccinationproviders.json5 - a database of vaccination providers, used for the mobile app
-- jwt_private.key - For jwt sigingin in the mobile app
-- tvs-connect.test.coronacheck.nl.key.nopass - For data enrichment in the mobile app
+* `inge4_NaCl`: Communication with Inge6.
+* `inge6_NaCl.pub`: Communication with Inge6.
+  
+* `inge4_test.env`: Contains redis secrets. The Env config file contains secrets.
+* `inge4_test_fail.env`: Key used for testing
+* `inge6_jwt_public.pem`: Cert file for verifying jwts from inge6
 
-Some examples are stored in 'tests/secrets'. Do NOT use these examples in production!
+* `jwt_private.key`: For jwt signing jwt in the mobile app
+* `jwt_public.crt`: For jwt signing jwt in the mobile app
+* `redis_hmac_key`: For data stored in redis
+* `tvs-connect.test.coronacheck.nl.key.nopass`: Communication to RVIG (enrichment for mobile app)
+* `vws_identity_hash_key.key`: Secret key for creating identity hashes
+
+Additionally checking requests from inge4 against a custom set of CA's: SIGNER_CA_CERT_FILE
+
+Not required:
+* `inge6_jwt_private.key`: ...
+* `inge6_jwt_public.crt`: ...
+* `inge4_NaCl.pub`: Derivative from inge4_NaCl for convenience checking if the inge6 data is correct.
+
+
+### Vaccination providers:
+
+The database of vaccination event providers used for data from the mobile app is stored in `vaccinationproviders.json5`.
+This file contains keys per vaccination provider. The example in api/tests/secrets contains examples.
 
 
 ## Operations
+Changes in configuration and secret/resource files require app restart.
 
 ### Deployment
 Inge 4 is a python ASGI app written in FastAPI. Runs on python 3.8.
 Run this with NGINX Unit or Uvicorn. Example: https://unit.nginx.org/howto/fastapi/
 
-### Configuration:
+### Configuration
 Configuration is read from two files:
 
 - /etc/inge4/inge4.conf, fallback to inge4_development.conf
 - /etc/inge4/logging.yaml, fallback to inge4_logging.yaml
 
-### Updating vaccinationproviders:
-Adding vaccination providers to vaccinationproviders.json requires an app restart.
+### Resource files
+This app uses various resource files, these are their origins:
+
+* `partial_issuence_allowlist.csv`: strikelist, removes fields from domestic signing.
+* `hpk-codes.json`: maps hpkcodes to vaccines and manufacturers. Content from https://hpkcode.nl/
+* `required-doses-per-brand.json`: List of how many doses are needed per brand. Created by...
+* `test-type.json`: https://github.com/eu-digital-green-certificates/ehn-dgc-schema/tree/main/valuesets
+* `vaccine-mah-manf.json`: https://github.com/eu-digital-green-certificates/ehn-dgc-schema/tree/main/valuesets
+* `vaccine-medicinal-product.json`: https://github.com/eu-digital-green-certificates/ehn-dgc-schema/tree/main/valuesets
 
 ### Logging
 Edit the inge4_logging.yaml to acceptable settings. The shipped file logs everything including
@@ -47,8 +71,7 @@ all calls to all services.
 ## Development
 The inge4_development.env is used when running this in development and testing.
 
-Requirements:
-Linux/Mac system with python3.8 and redis.
+Requirements: Linux/Mac system with python3.8 and redis.
 Make sure a redis-server is in your path. For mac users `brew install redis` should suffice.
 
 For development run:
@@ -171,5 +194,5 @@ Higher level view of step 2:
 
 ## Authors
 
-- Implementation / Docs: Elger Jonker
+- Implementation / Docs: Elger Jonker, Maarten Derickx, Tomas Herreveld, Willem van Asperen
 - Process: Nick ten Cate, Anne Jan Brouwer, Mendel Mobach, Ivo Jansch
