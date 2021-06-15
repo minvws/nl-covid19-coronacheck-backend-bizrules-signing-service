@@ -434,6 +434,8 @@ class Event(DataProviderEvent):
         These codes are logged using the UCI_LOGGER, this can be configured to anything, but samples are given
         to syslog, console and file.
 
+        01 is the version of uci.
+
         Todo:
         The Unique is not yet in the RIVM data, but has to be in order to be compliant with the
         EU vaccin proof interoperability guidelines.
