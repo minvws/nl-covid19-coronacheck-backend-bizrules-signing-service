@@ -443,6 +443,8 @@ class Event(DataProviderEvent):
         :return:
         """
 
+        # Todo: why not use the unique from the UCI instead? Why use a guid. Could it be provider+xyz.
+        # todo: remove this workaround. We should error.
         if not self.unique:
             log.error("Event has no unique, currently we'll let this pass but a unique is mandatory for the EU!")
 
@@ -508,17 +510,26 @@ class Events(BaseModel):
         # See: https://github.com/91divoc-ln/inge-4/issues/84
         _v, _t, _r = None, None, None
 
+        # A list of 0 or 1.
         if self.vaccinations:
             # Type ignore: error: Item "None" of "Optional[Vaccination]" has no attribute "toEuropeanVaccination"
             _v = [event.vaccination.toEuropeanVaccination() for event in self.vaccinations]  # type: ignore
+            _v[0].ci = self.vaccinations[0].to_uci_01()
 
         if self.negativetests:
             _t = [event.negativetest.toEuropeanTest() for event in self.negativetests]  # type: ignore
+            _t[0].ci = self.negativetests[0].to_uci_01()
 
+        # todo: should be only one!
         if any([self.positivetests, self.recoveries]):
             _r = [event.recovery.toEuropeanRecovery() for event in self.recoveries] + [  # type: ignore
                 event.positivetest.toEuropeanRecovery() for event in self.positivetests  # type: ignore
             ]
+            if self.recoveries:
+                _r[0].ci = self.recoveries[0].to_uci_01()
+            # todo: remove the absolutely unacceptable hack :) There should be only one recovery
+            for __r in _r:
+                __r.ci = _r[0].ci
 
         return EuropeanOnlineSigningRequest(
             **{

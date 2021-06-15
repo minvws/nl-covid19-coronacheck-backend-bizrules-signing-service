@@ -13,7 +13,7 @@ def random_unique_identifier() -> str:
     This is a GUID that is base32 encoded.
     Example output: H5EBSWN2UI6XJREDYAOEOVHQU
     """
-    return base64.b32encode(uuid.uuid4().bytes).decode("ascii").replace("=", "")
+    return base64.b32encode(uuid.uuid4().bytes).decode("UTF-8").replace("=", "")
 
 
 def generate_uci_01():

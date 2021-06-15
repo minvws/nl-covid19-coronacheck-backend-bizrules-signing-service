@@ -117,7 +117,7 @@ testcase_events = {
 
 
 def test_statement_of_vaccionation_to_eu_signing_request(mocker):
-    mocker.patch("uuid.UUID", return_value="d540cb87-7774-4c40-bcef-d46a933da826")
+    mocker.patch("api.uci.random_unique_identifier", return_value="B7L6YIZIZFD3BMTEFA4CVUI6ZM")
 
     # schema: https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/DGC.combined-schema.json
     # example:
@@ -130,7 +130,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
         "nam": {"fn": "Akkersloot", "fnt": "AKKERSLOOT", "gn": "Herman", "gnt": "HERMAN"},
         "r": [
             {
-                "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
+                "ci": "URN:UCI:01:NL:B7L6YIZIZFD3BMTEFA4CVUI6ZM#0",
                 "co": "NLD",
                 "du": datetime(2021, 2, 1).date(),
                 "fr": datetime(2021, 4, 1).date(),
@@ -138,7 +138,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "tg": "840539006",
             },
             {
-                "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
+                "ci": "URN:UCI:01:NL:B7L6YIZIZFD3BMTEFA4CVUI6ZM#0",
                 "co": "NLD",
                 "du": datetime(2045, 10, 21).date(),
                 "fr": datetime(2021, 3, 1).date(),
@@ -148,7 +148,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
         ],
         "t": [
             {
-                "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
+                "ci": "URN:UCI:01:NL:B7L6YIZIZFD3BMTEFA4CVUI6ZM#0",
                 "co": "NLD",
                 "is": "Ministry of Health Welfare and Sport",
                 "ma": "???",
@@ -162,7 +162,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
         ],
         "v": [
             {
-                "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
+                "ci": "URN:UCI:01:NL:B7L6YIZIZFD3BMTEFA4CVUI6ZM#0",
                 "co": "NLD",
                 "dn": 1,
                 "dt": datetime(2021, 2, 1).date(),
@@ -183,7 +183,7 @@ def test_eusign_with_empty_fields(mocker):
     # https://github.com/91divoc-ln/inge-4/issues/84
 
     # Send one vaccination event, the other keys have to be empty.
-    mocker.patch("uuid.UUID", return_value="d540cb87-7774-4c40-bcef-d46a933da826")
+    mocker.patch("api.uci.random_unique_identifier", return_value="B7L6YIZIZFD3BMTEFA4CVUI6ZM")
     eu_request = Events(**{"events": [testcase_event_vaccination_empty]}).toEuropeanOnlineSigningRequest()
 
     assert eu_request.dict(by_alias=True, exclude_none=True) == {
@@ -191,7 +191,7 @@ def test_eusign_with_empty_fields(mocker):
         "nam": {"fn": "Akkersloot", "fnt": "AKKERSLOOT", "gn": "Herman", "gnt": "HERMAN"},
         "v": [
             {
-                "ci": "d540cb87-7774-4c40-bcef-d46a933da826",
+                "ci": "URN:UCI:01:NL:B7L6YIZIZFD3BMTEFA4CVUI6ZM#0",
                 "co": "NLD",
                 "dn": 1,
                 "dt": date(2021, 2, 1),
