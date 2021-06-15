@@ -69,7 +69,7 @@ def eligible_vaccination(events: Events) -> List[RichOrigin]:
                 type=EventType.vaccination,
                 eventTime=event_time,
                 validFrom=event_time,
-                expirationTime=(event_time + timedelta(days=365)),
+                expirationTime=(event_time + timedelta(days=365 * 4)),
             )
         ]
 
