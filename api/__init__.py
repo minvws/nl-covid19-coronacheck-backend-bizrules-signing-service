@@ -17,4 +17,5 @@ with open(
 log = logging.getLogger(__package__)
 
 # The UCI logger is used to trace outgoing EU certificates
+# This logger is defined separately in the logging config. We use this for EU compliance reasons.
 uci_log = logging.getLogger("uci")
