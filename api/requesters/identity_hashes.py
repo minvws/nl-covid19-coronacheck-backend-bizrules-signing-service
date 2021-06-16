@@ -33,17 +33,8 @@ async def retrieve_bsn_from_inge6(jwt_token: str):
         _payload = jwt.decode(
             jwt_token, key=settings.INGE6_JWT_PUBLIC_CRT, algorithms=["RS256"], audience=[settings.INGE4_JWT_AUDIENCE]
         )
-    except jwt.DecodeError as err:
-        log.warning(f"invalid jwt entered: {repr(err)}")
-        raise HTTPInvalidRetrievalTokenException from err
-    except jwt.InvalidSignatureError as err:
-        log.warning(f"invalid signature error: {repr(err)}")
-        raise HTTPInvalidRetrievalTokenException from err
-    except jwt.InvalidAlgorithmError as err:
-        log.warning(f"invalid algorithm error: {repr(err)}")
-        raise HTTPInvalidRetrievalTokenException from err
-    except jwt.ExpiredSignatureError as err:
-        log.warning(f"expired signature error: {repr(err)}")
+    except jwt.InvalidTokenError as err:
+        log.warning(f"invalid token error {repr(err)}")
         raise HTTPInvalidRetrievalTokenException from err
 
     headers = {"Authorization": f"Bearer {jwt_token}"}
