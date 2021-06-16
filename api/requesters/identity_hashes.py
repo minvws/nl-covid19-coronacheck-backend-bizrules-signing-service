@@ -29,7 +29,7 @@ async def retrieve_bsn_from_inge6(jwt_token: str):
     # If mock mode and INGE6_MOCK_MODE_BSN is set; dont actually go and get the BSN
     if settings.INGE6_MOCK_MODE and settings.INGE6_MOCK_MODE_BSN:
         return settings.INGE6_MOCK_MODE_BSN
-    
+
     try:
         _payload = jwt.decode(
             jwt_token, key=settings.INGE6_JWT_PUBLIC_CRT, algorithms=["RS256"], audience=[settings.INGE4_JWT_AUDIENCE]
