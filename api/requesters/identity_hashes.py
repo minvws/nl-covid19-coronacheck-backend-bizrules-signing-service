@@ -3,10 +3,8 @@ __author__ = "Elger Jonker, Nick ten Cate for minvws"
 
 import base64
 import logging
-
 from datetime import datetime, timedelta
 from typing import Any, Dict, List
-from requests import HTTPError
 
 import jwt
 import pytz
@@ -14,6 +12,7 @@ from fastapi import HTTPException
 from nacl.encoding import Base64Encoder
 from nacl.public import Box, PrivateKey, PublicKey
 from nacl.utils import random
+from requests import HTTPError
 
 from api.enrichment.rvig.rvig import get_pii_from_rvig
 from api.http_utils import hmac256, request_post_with_retries, reraise_http_exception
