@@ -1,6 +1,6 @@
 # pylint: disable=invalid-name
 
-from api.app import filter_specimen_events
+from api.app_support import filter_specimen_events
 from api.models import Events, Event
 from api.tests.test_eu_signer import testcase_event_vaccination
 

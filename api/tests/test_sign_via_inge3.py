@@ -6,7 +6,7 @@ import json5
 import pytz
 from freezegun import freeze_time
 
-from api.app import decode_and_normalize_events
+from api.app_support import decode_and_normalize_events
 from api.models import (
     CMSSignedDataBlob,
     DomesticSignerAttributes,
