@@ -3,8 +3,10 @@ __author__ = "Elger Jonker, Nick ten Cate for minvws"
 
 import base64
 import logging
+import json
 from datetime import datetime, timedelta
 from typing import Any, Dict, List
+from requests import HTTPError
 
 import jwt
 import pytz
@@ -27,7 +29,7 @@ async def retrieve_bsn_from_inge6(jwt_token: str):
     # If mock mode and INGE6_MOCK_MODE_BSN is set; dont actually go and get the BSN
     if settings.INGE6_MOCK_MODE and settings.INGE6_MOCK_MODE_BSN:
         return settings.INGE6_MOCK_MODE_BSN
-
+    
     try:
         _payload = jwt.decode(
             jwt_token, key=settings.INGE6_JWT_PUBLIC_CRT, algorithms=["RS256"], audience=[settings.INGE4_JWT_AUDIENCE]
@@ -39,7 +41,15 @@ async def retrieve_bsn_from_inge6(jwt_token: str):
     headers = {"Authorization": f"Bearer {jwt_token}"}
 
     response = request_post_with_retries(settings.INGE6_BSN_RETRIEVAL_URL, data="", headers=headers)
-    response.raise_for_status()
+    try:
+        response.raise_for_status()
+    except HTTPError as inge6_error:
+        error_status_code = inge6_error.response.status_code
+        error_content = json.loads(inge6_error.response.content)
+        error_details = error_content['detail']
+        log.error(f"Attempted bsn retrieval from inge-6 but failed. {error_status_code}: {error_details}")
+        raise HTTPInvalidRetrievalTokenException from inge6_error
+
     encrypted_bsn = response.content
 
     bsn = inge6_box.decrypt(encrypted_bsn, encoder=Base64Encoder)
