@@ -35,3 +35,6 @@ pycountry
 
 # Name Normalization
 mrz
+
+# UVCI GUID shortener
+python-stdnum
