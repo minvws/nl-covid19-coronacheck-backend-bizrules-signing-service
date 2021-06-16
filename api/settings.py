@@ -68,6 +68,7 @@ class AppSettings(BaseSettings):
     DOMESTIC_NL_ALLOWED_POSITIVE_TEST_TYPES: List[str] = ["LP217198-3", "LP6464-4"]
     EU_INTERNATIONAL_SIGNING_URL: AnyHttpUrl = Field()
     EU_INTERNATIONAL_GREENCARD_EXPIRATION_TIME_DAYS: int = 28
+    EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS: int = 180
 
     # The requests library has a feature that:
     # - False ignores any certificate, True uses system CA and file = against the bundle supplied.

@@ -1151,9 +1151,9 @@ def test_p010():
                 r=[
                     EuropeanRecovery(
                         fr=datetime.datetime(2021, 5, 1, 21, 26, 52, 0, tzinfo=pytz.utc),
-                        df=datetime.datetime(2021, 5, 1, 21, 26, 52, 0, tzinfo=pytz.utc),
+                        # df=datetime.datetime(2021, 5, 1, 21, 26, 52, 0, tzinfo=pytz.utc),
                         du=datetime.datetime(2021, 5, 1, 21, 26, 52, 0, tzinfo=pytz.utc)
-                        + datetime.timedelta(days=9000),
+                        + datetime.timedelta(days=settings.EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS),
                         ci=ci,
                     )
                 ],

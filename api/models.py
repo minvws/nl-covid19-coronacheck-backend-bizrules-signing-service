@@ -322,23 +322,20 @@ class Positivetest(BaseModel):  # noqa
         description="Defaults to NLD", example="NLD", default="NLD"
     )
 
-    """
-    Positive tests mean that there is a recovery. For the EU a positive test should be seen and
-    called a recovery.
-
-    For a recovery we're missing a validUntil in the test data.
-    # todo: thus this will be assumed?
-    """
-
     def toEuropeanRecovery(self):
+        """
+        Positive tests mean that there is a recovery in the EU. They only know t, r and v. So this is casted
+        to a recovery in the process.
+        """
         return EuropeanRecovery(
             **{
                 **{
+                    # date until, in contrast to recoveries, a positive test does not have
+                    # a moment until when it's valid. So in this case we're using a configuration
+                    # parameter that can be set based on the latest insights.
+                    "du": self.sampleDate + timedelta(days=settings.EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS),
                     # sampletime
                     "fr": self.sampleDate,
-                    # date until
-                    # tod
-                    "du": self.sampleDate + timedelta(days=9000),
                 },
                 **SharedEuropeanFields.as_dict(),
             }
@@ -386,7 +383,6 @@ class Recovery(BaseModel):  # noqa
             **{
                 **{
                     "fr": self.sampleDate,
-                    "df": self.validFrom,
                     "du": self.validUntil,
                 },
                 **SharedEuropeanFields.as_dict(),

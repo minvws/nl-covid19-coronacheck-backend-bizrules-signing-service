@@ -140,7 +140,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
             {
                 "ci": "URN:UCI:01:NL:B7L6YIZIZFD3BMTEFA4CVUI6ZM#0",
                 "co": "NLD",
-                "du": datetime(2045, 10, 21).date(),
+                "du": datetime(2021, 8, 28).date(),
                 "fr": datetime(2021, 3, 1).date(),
                 "is": "Ministry of Health Welfare and Sport",
                 "tg": "840539006",
