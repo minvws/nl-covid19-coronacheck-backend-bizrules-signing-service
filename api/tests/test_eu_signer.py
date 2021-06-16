@@ -13,6 +13,7 @@ testcase_event_vaccination = {
     "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01", "infix": ""},
     "type": "vaccination",
     "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
+    "isSpecimen": False,
     "negativetest": None,
     "positivetest": None,
     "recovery": None,
@@ -140,7 +141,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
             {
                 "ci": "URN:UCI:01:NL:B7L6YIZIZFD3BMTEFA4CVUI6ZM#0",
                 "co": "NLD",
-                "du": datetime(2045, 9, 23).date(),
+                "du": datetime(2021, 7, 31).date(),
                 "fr": datetime(2021, 2, 1).date(),
                 "is": "Ministry of Health Welfare and Sport",
                 "tg": "840539006",

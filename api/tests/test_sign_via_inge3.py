@@ -6,9 +6,10 @@ import json5
 import pytz
 from freezegun import freeze_time
 
-from api.app import decode_and_normalize_events
+from api.app_support import decode_and_normalize_events
 from api.models import (
     CMSSignedDataBlob,
+    DomesticGreenCard,
     DomesticSignerAttributes,
     EUGreenCard,
     Event,
@@ -21,7 +22,7 @@ from api.models import (
     StripType,
 )
 from api.settings import settings
-from api.signers import eu_international
+from api.signers import eu_international, nl_domestic_static
 from api.signers.nl_domestic import create_attributes, create_origins
 from api.utils import read_file
 
@@ -35,7 +36,6 @@ def get_testevents(current_path) -> List[CMSSignedDataBlob]:
 
 @freeze_time("2021-05-20")
 def test_eu_is_specimen():
-
     # Todo: why is the first origin 2x mentioned? And is that by design or an issue? It might be used
     #  to determine the first block.
 
@@ -161,9 +161,9 @@ def test_static_sign(current_path, requests_mock):
         ),
     ]
 
-    signed = eu_international.sign(events)
+    eu_signed = eu_international.sign(events)
 
-    assert signed == [
+    assert eu_signed == [
         EUGreenCard(
             origins=[
                 GreenCardOrigin(
@@ -176,6 +176,39 @@ def test_static_sign(current_path, requests_mock):
             credential="HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%I0/IVB58WA",
         )
     ]
+
+    nl_signed = nl_domestic_static.sign(events)
+    assert nl_signed == DomesticGreenCard(
+        origins=[
+            # todo: multiple tests? Should there be just one?
+            GreenCardOrigin(
+                type="test",
+                eventTime="2021-05-27T00:00:00+00:00",
+                expirationTime="2021-05-28T16:00:00+00:00",
+                validFrom="2021-05-27T00:00:00+00:00",
+            ),
+            GreenCardOrigin(
+                type="test",
+                eventTime="2021-05-27T00:00:00+00:00",
+                expirationTime="2021-05-28T16:00:00+00:00",
+                validFrom="2021-05-27T00:00:00+00:00",
+            ),
+            GreenCardOrigin(
+                type="test",
+                eventTime="2021-06-01T00:00:00+00:00",
+                expirationTime="2021-06-02T16:00:00+00:00",
+                validFrom="2021-06-01T00:00:00+00:00",
+            ),
+        ],
+        createCredentialMessages="IntcInFyXCI6IHtcImRhdGFcIjogXCJURisqSlkrMjE6NiBUJU5DUSsgUFZIR"
+        "ERQK1otV1E4LVRHL08zTkxGTEgzOkZIUy1SSUZWUTpVVjU3Sy8uOlI2Ky5NWD"
+        "pVJEhJUUczRlZZJTZOSU4wOk8uS0NHOUY5OVwiLCBcImF0dHJpYnV0ZXNJc3N"
+        "1ZWRcIjoge1wic2FtcGxlVGltZVwiOiBcIjE2MTkwOTI4MDBcIiwgXCJmaXJz"
+        "dE5hbWVJbml0aWFsXCI6IFwiVFwiLCBcImxhc3ROYW1lSW5pdGlhbFwiOiBcI"
+        "lBcIiwgXCJiaXJ0aERheVwiOiBcIjFcIiwgXCJiaXJ0aE1vbnRoXCI6IFwiMV"
+        "wiLCBcImlzU3BlY2ltZW5cIjogXCIxXCIsIFwiaXNQYXBlclByb29mXCI6IFw"
+        "iMVwifX0sIFwic3RhdHVzXCI6IFwib2tcIiwgXCJlcnJvclwiOiAwfSI=",
+    )
 
 
 @freeze_time("2020-02-02")

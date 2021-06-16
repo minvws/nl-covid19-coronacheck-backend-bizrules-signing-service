@@ -1,9 +1,9 @@
 import pytest
 from fastapi import HTTPException
 
-from api.enrichment.rvig.rvig import get_pii_from_rvig, rvig_birtdate_to_dutch_birthdate
+from api.enrichment.rvig.rvig import get_pii_from_rvig, health, rvig_birtdate_to_dutch_birthdate
 from api.models import DutchBirthDate as Dbd
-from api.models import Holder
+from api.models import Holder, ServiceHealth
 from api.settings import settings
 from api.tests.conftest import require_rvig_mock
 from api.utils import read_file
@@ -82,3 +82,23 @@ def test_rvig_birtdate_to_dutch_birthdate():
     assert rvig_birtdate_to_dutch_birthdate("19830028") == "1983-XX-28"
     assert rvig_birtdate_to_dutch_birthdate("19830000") == "1983-XX-XX"
     assert rvig_birtdate_to_dutch_birthdate("00000000") == "1900-XX-XX"
+
+
+def test_health_not_healthy():
+    # health without config results in errors:
+    ret = health()
+    assert ret == [ServiceHealth(service="rvig", is_healthy=False, message="Could not perform test call.")]
+
+
+def test_health_healthy(requests_mock, current_path):
+    # health without config results in errors:
+    requests_mock.post(url=RVIG_URL, text=read_file(f"{current_path}/rvig/999995844.xml"))
+    ret = health()
+    assert ret == [ServiceHealth(service="rvig", is_healthy=True, message="Data request successful")]
+
+
+def test_missing_data_wrong_category(requests_mock, current_path):
+    requests_mock.post(url=RVIG_URL, text=read_file(f"{current_path}/rvig/wrong_category.xml"))
+    assert get_pii_from_rvig("999995571") == Holder(
+        firstName="Naomi", lastName="Goede", birthDate=Dbd("1987-04-01"), infix=None
+    )

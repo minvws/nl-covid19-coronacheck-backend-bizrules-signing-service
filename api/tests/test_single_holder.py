@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from api.app import has_unique_holder
+from api.app_support import has_unique_holder
 from api.models import DataProviderEventsResult, DutchBirthDate, Holder
 
 holder1 = Holder(
