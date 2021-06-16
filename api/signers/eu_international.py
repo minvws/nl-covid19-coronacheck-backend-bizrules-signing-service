@@ -335,12 +335,14 @@ def _not_from_future(events: List[Event]) -> List[Event]:
 
     result = []
     for event in events:
-        if any([
+        if any(
+            [
                 event.vaccination and event.vaccination.date > today,
                 event.positivetest and event.positivetest.sampleDate > today,
                 event.negativetest and event.negativetest.sampleDate > today,
                 event.recovery and event.recovery.sampleDate > today,
-        ]):
+            ]
+        ):
             logging.warning(f"removing event with date in the future; {event.unique}")
             continue
         result.append(event)

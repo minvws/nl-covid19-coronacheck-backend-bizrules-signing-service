@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from api.models import CMSSignedDataBlob, DataProviderEventsResult, DutchBirthDate, Holder
+from api.models import DataProviderEventsResult, DutchBirthDate, Holder
 from api.app import has_unique_holder
 
 holder1 = Holder(
@@ -16,18 +16,10 @@ holder2 = Holder(
     birthDate=DutchBirthDate("2020-07-17"),
 )
 with_holder_1 = DataProviderEventsResult(
-    protocolVersion="3.0",
-    providerIdentifier="XXX",
-    status="a status",
-    holder=holder1,
-    events=[]
+    protocolVersion="3.0", providerIdentifier="XXX", status="a status", holder=holder1, events=[]
 )
 with_holder_2 = DataProviderEventsResult(
-    protocolVersion="3.0",
-    providerIdentifier="XXX",
-    status="a status",
-    holder=holder2,
-    events=[]
+    protocolVersion="3.0", providerIdentifier="XXX", status="a status", holder=holder2, events=[]
 )
 
 

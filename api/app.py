@@ -118,12 +118,14 @@ def has_unique_holder(events_results: List[DataProviderEventsResult]) -> bool:
         if not holder:
             holder = dp_event_result.holder
         else:
-            if any([
-                holder.birthDate != dp_event_result.holder.birthDate,
-                holder.firstName != dp_event_result.holder.firstName,
-                holder.lastName != dp_event_result.holder.lastName,
-                holder.infix != dp_event_result.holder.infix
-            ]):
+            if any(
+                [
+                    holder.birthDate != dp_event_result.holder.birthDate,
+                    holder.firstName != dp_event_result.holder.firstName,
+                    holder.lastName != dp_event_result.holder.lastName,
+                    holder.infix != dp_event_result.holder.infix,
+                ]
+            ):
                 return False
 
     return True
