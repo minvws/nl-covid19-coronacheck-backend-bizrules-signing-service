@@ -3,7 +3,7 @@ __author__ = "Elger Jonker, Nick ten Cate for minvws"
 
 import base64
 import logging
-import json
+
 from datetime import datetime, timedelta
 from typing import Any, Dict, List
 from requests import HTTPError
@@ -16,7 +16,7 @@ from nacl.public import Box, PrivateKey, PublicKey
 from nacl.utils import random
 
 from api.enrichment.rvig.rvig import get_pii_from_rvig
-from api.http_utils import hmac256, request_post_with_retries
+from api.http_utils import hmac256, request_post_with_retries, reraise_http_exception
 from api.models import EventDataProviderJWT, Holder
 from api.settings import settings
 
@@ -44,11 +44,7 @@ async def retrieve_bsn_from_inge6(jwt_token: str):
     try:
         response.raise_for_status()
     except HTTPError as inge6_error:
-        error_status_code = inge6_error.response.status_code
-        error_content = json.loads(inge6_error.response.content)
-        error_details = error_content['detail']
-        log.error(f"Attempted bsn retrieval from inge-6 but failed. {error_status_code}: {error_details}")
-        raise HTTPInvalidRetrievalTokenException from inge6_error
+        reraise_http_exception(inge6_error)
 
     encrypted_bsn = response.content
 
