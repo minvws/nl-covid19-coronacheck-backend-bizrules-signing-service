@@ -33,7 +33,7 @@ def reraise_http_exception(http_error):
     except ValueError:
         error_details = inge6_error.response.content
 
-    log.error(f"Attempted bsn retrieval from inge-6 but failed. {error_status_code}: {error_details}")
+    log.error(f"Attempted http request but failed. {error_status_code}: {error_details}")
     raise HTTPInvalidRetrievalTokenException from inge6_error
 
 def request_post_with_retries(
