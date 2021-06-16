@@ -80,14 +80,19 @@ def generate_uci_01():
 def verify_uci_01(uci: str):
 
     if not re.fullmatch(REGEX, uci):
-        log.error(f"UCI {uci} is not valid.")
+        log.error(f"UCI {uci} is not valid following regex {REGEX}.")
+        return False
+
+    if not uci.startswith("URN:UCI:"):
+        log.error(f"UCI {uci} does not start with URN:UCI:.")
+        return False
+
+    # must contain a checksum.
+    if "#" not in uci:
+        log.error(f"UCI {uci} does not contain checksum.")
         return False
 
     split = uci.split("#")
-    if len(split) < 1:
-        log.error(f"UCI {uci} is not valid.")
-        return False
-
     checksum = split[-1]
     uvci_data = split[0]
 

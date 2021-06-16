@@ -24,7 +24,11 @@ from api.models import (
     MessageToEUSigner,
 )
 from api.settings import settings
-from api.signers.eu_international import create_signing_messages_based_on_events, sign
+from api.signers.eu_international import (
+    create_signing_messages_based_on_events,
+    sign,
+    EU_INTERNATIONAL_SPECIMEN_EXPIRATION_TIME,
+)
 
 
 def _create_events(incoming_events: List[Dict[str, Any]]) -> Events:
@@ -63,7 +67,7 @@ def test_n010(requests_mock):
             {
               "type": "negativetest",
               "unique": "175ff72aadef0723f83fb65758d3f3132d608b47",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "negativetest": {
                 "negativeResult": true,
                 "country": "NLD",
@@ -155,7 +159,7 @@ def test_n030(requests_mock):
             {
               "type": "negativetest",
               "unique": "5a2a7f336c194fce59bee3b55b8623be545ee459",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "negativetest": {
                 "negativeResult": true,
                 "country": "NLD",
@@ -208,7 +212,7 @@ def test_v010():
             {
               "type": "vaccination",
               "unique": "611028cfcb8dca6d22e11dec006705f702e41e32",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "vaccination": {
                 "hpkCode": "2924528",
                 "type": "",
@@ -225,7 +229,7 @@ def test_v010():
             {
               "type": "vaccination",
               "unique": "64d022be49fafa3c9c72018aa1d468ca63494174",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "vaccination": {
                 "hpkCode": "2924528",
                 "type": "",
@@ -294,7 +298,7 @@ def test_v020():
             {
               "type": "vaccination",
               "unique": "611028cfcb8dca6d22e11dec006705f702e41e32",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "vaccination": {
                 "hpkCode": "2924528",
                 "type": "",
@@ -311,7 +315,7 @@ def test_v020():
             {
               "type": "vaccination",
               "unique": "64d022be49fafa3c9c72018aa1d468ca63494174",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "vaccination": {
                 "hpkCode": "2924528",
                 "type": "",
@@ -380,7 +384,7 @@ def test_v030():
             {
               "type": "vaccination",
               "unique": "611028cfcb8dca6d22e11dec006705f702e41e32",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "vaccination": {
                 "hpkCode": "2924528",
                 "type": "",
@@ -397,7 +401,7 @@ def test_v030():
             {
               "type": "vaccination",
               "unique": "24de2acebd288ce74a24e77d42b849ef33d6638f",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "vaccination": {
                 "hpkCode": "2924536",
                 "type": "",
@@ -466,7 +470,7 @@ def test_v040():
             {
               "type": "vaccination",
               "unique": "4f2bfb1812c72c55bdab137a3e3b1f4b4f776619",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "vaccination": {
                 "hpkCode": "2934701",
                 "type": "",
@@ -535,7 +539,7 @@ def test_v050():
             {
               "type": "vaccination",
               "unique": "611028cfcb8dca6d22e11dec006705f702e41e32",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "vaccination": {
                 "hpkCode": "2924528",
                 "type": "",
@@ -604,7 +608,7 @@ def test_v060():
             {
               "type": "vaccination",
               "unique": "a9608a95c957b10d2354e532728f6daa93f4fad1",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "vaccination": {
                 "hpkCode": "2924528",
                 "type": "",
@@ -673,7 +677,7 @@ def test_v070():
             {
               "type": "vaccination",
               "unique": "eb2a9cab88bf55169a6273634dcbe8cdc2fd65c4",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "vaccination": {
                 "hpkCode": "",
                 "type": "1119349007",
@@ -742,7 +746,7 @@ def test_v080():
             {
               "type": "vaccination",
               "unique": "eca587cbb8db116b47fb15e256c09dfa28a84cb0",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "vaccination": {
                 "hpkCode": "9999999",
                 "type": "",
@@ -789,7 +793,7 @@ def test_v100():
             {
               "type": "vaccination",
               "unique": "c288abfe6f69311ff1a39a57347db52062e967ac",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "vaccination": {
                 "hpkCode": "2924528",
                 "type": "",
@@ -859,7 +863,7 @@ def test_v110():
             {
               "type": "vaccination",
               "unique": "03febb645bd462c0d0e4ae77ecaa0cbd676652b2",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "vaccination": {
                 "hpkCode": "2924528",
                 "type": "",
@@ -928,7 +932,7 @@ def test_v120():
             {
               "type": "vaccination",
               "unique": "611028cfcb8dca6d22e11dec006705f702e41e32",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "vaccination": {
                 "hpkCode": "2924528",
                 "type": "",
@@ -945,7 +949,7 @@ def test_v120():
             {
               "type": "positivetest",
               "unique": "da8a837eb261e947457c689b1f5e71f674434a58",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "positivetest": {
                 "positiveResult": true,
                 "country": "NLD",
@@ -996,9 +1000,9 @@ def test_v120():
                 r=[
                     EuropeanRecovery(
                         fr=datetime.datetime(2021, 6, 12, 21, 26, 52, 0, tzinfo=pytz.utc),
-                        df=datetime.datetime(2021, 6, 12, 21, 26, 52, 0, tzinfo=pytz.utc),
+                        # df=datetime.datetime(2021, 6, 12, 21, 26, 52, 0, tzinfo=pytz.utc),
                         du=datetime.datetime(2021, 6, 12, 21, 26, 52, 0, tzinfo=pytz.utc)
-                        + datetime.timedelta(days=9000),
+                        + datetime.timedelta(days=settings.EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS),
                         ci=cis[1],
                     )
                 ],
@@ -1032,7 +1036,7 @@ def test_v130():
             {
               "type": "positivetest",
               "unique": "42c0d5236cfd8424919b86e82b6f3c3d7b619c01",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "positivetest": {
                 "positiveResult": true,
                 "country": "NLD",
@@ -1047,7 +1051,7 @@ def test_v130():
             {
               "type": "vaccination",
               "unique": "611028cfcb8dca6d22e11dec006705f702e41e32",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "vaccination": {
                 "hpkCode": "2924528",
                 "type": "",
@@ -1116,7 +1120,7 @@ def test_p010():
             {
               "type": "positivetest",
               "unique": "8e5501cfa662599d7f8a0cf02d55f2e9fb5bafa6",
-              "isSpecimen": true,
+              "isSpecimen": false,
               "positivetest": {
                 "positiveResult": true,
                 "country": "NLD",
@@ -1151,9 +1155,80 @@ def test_p010():
                 r=[
                     EuropeanRecovery(
                         fr=datetime.datetime(2021, 5, 1, 21, 26, 52, 0, tzinfo=pytz.utc),
-                        df=datetime.datetime(2021, 5, 1, 21, 26, 52, 0, tzinfo=pytz.utc),
+                        # df=datetime.datetime(2021, 5, 1, 21, 26, 52, 0, tzinfo=pytz.utc),
                         du=datetime.datetime(2021, 5, 1, 21, 26, 52, 0, tzinfo=pytz.utc)
-                        + datetime.timedelta(days=9000),
+                        + datetime.timedelta(days=settings.EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS),
+                        ci=ci,
+                    )
+                ],
+            ),
+        )
+    ]
+
+    assert signing_messages == expected_signing_messages
+
+
+@freeze_time("2021-06-13T19:20:21+00:00")
+def test_specimen_event():
+    """
+    Specifies an event as being a specimen
+
+    Expected: Expirationtime of the signing message has the year 42. See issue 116.
+    """
+    positive_test = json.loads(
+        """
+        {
+          "protocolVersion": "3.0",
+          "providerIdentifier": "ZZZ",
+          "status": "complete",
+          "holder": {
+            "firstName": "One",
+            "infix": "",
+            "lastName": "Positive Test",
+            "birthDate": "1950-03-01"
+          },
+          "events": [
+            {
+              "type": "positivetest",
+              "unique": "8e5501cfa662599d7f8a0cf02d55f2e9fb5bafa6",
+              "isSpecimen": true,
+              "positivetest": {
+                "positiveResult": true,
+                "country": "NLD",
+                "facility": "GGD XL Amsterdam",
+                "type": "LP217198-3",
+                "name": "",
+                "manufacturer": "1232",
+                "sampleDate": "2021-05-01T21:26:52+00:00",
+                "resultDate": "2021-05-01T21:26:52+00:00"
+              }
+            }
+          ]
+        }
+    """
+    )
+    events = _create_events([positive_test])
+
+    signing_messages = create_signing_messages_based_on_events(events)
+    assert len(signing_messages) == 1
+
+    ci = signing_messages[0].dgc.r[0].ci
+    expected_signing_messages = [
+        MessageToEUSigner(
+            keyUsage=EventType.recovery,
+            expirationTime=EU_INTERNATIONAL_SPECIMEN_EXPIRATION_TIME,
+            dgc=EuropeanOnlineSigningRequest(
+                ver="1.3.0",
+                nam=EuropeanOnlineSigningRequestNamingSection(
+                    fn="Positive Test", fnt="POSITIVE<TEST", gn="One", gnt="ONE"
+                ),
+                dob=DutchBirthDate("1950-03-01"),
+                r=[
+                    EuropeanRecovery(
+                        fr=datetime.datetime(2021, 5, 1, 21, 26, 52, 0, tzinfo=pytz.utc),
+                        # df=datetime.datetime(2021, 5, 1, 21, 26, 52, 0, tzinfo=pytz.utc),
+                        du=datetime.datetime(2021, 5, 1, 21, 26, 52, 0, tzinfo=pytz.utc)
+                        + datetime.timedelta(days=settings.EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS),
                         ci=ci,
                     )
                 ],
