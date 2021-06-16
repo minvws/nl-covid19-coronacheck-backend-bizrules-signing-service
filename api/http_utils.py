@@ -8,6 +8,8 @@ from cryptography.hazmat.primitives import hashes, hmac
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 
+from fastapi import HTTPException
+
 from api import log
 from api.settings import settings
 
@@ -25,16 +27,16 @@ def defaultconverter(something):
     # Use json fallback method
     raise TypeError(f"Object of type {something.__class__.__name__} is not JSON serializable")
 
-def reraise_http_exception(http_error):
-    error_status_code = inge6_error.response.status_code
+def reraise_http_exception(new_exception: HTTPException, http_error: requests.HTTPError):
+    error_status_code = http_error.response.status_code
     try:
-        error_content = json.loads(inge6_error.response.content)
+        error_content = json.loads(http_error.response.content)
         error_details = error_content['detail']
     except ValueError:
-        error_details = inge6_error.response.content
+        error_details = http_error.response.content
 
     log.error(f"Attempted http request but failed. {error_status_code}: {error_details}")
-    raise HTTPInvalidRetrievalTokenException from inge6_error
+    raise new_exception from http_error
 
 def request_post_with_retries(
     url, data, exponential_retries: int = 5, timeout: int = 300, retry_on_these_status_codes: List = None, **kwargs

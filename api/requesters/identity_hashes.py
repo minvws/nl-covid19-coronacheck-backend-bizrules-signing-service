@@ -44,7 +44,7 @@ async def retrieve_bsn_from_inge6(jwt_token: str):
     try:
         response.raise_for_status()
     except HTTPError as inge6_error:
-        reraise_http_exception(inge6_error)
+        reraise_http_exception(HTTPInvalidRetrievalTokenException, inge6_error)
 
     encrypted_bsn = response.content
 
