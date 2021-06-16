@@ -172,7 +172,35 @@ def decode_and_normalize_events(request_data_events: List[CMSSignedDataBlob]) ->
                 )
             )
 
+    events = filter_specimen_events(events)
+
     return events
+
+
+def filter_specimen_events(events: Events) -> Events:
+    """
+    When all events are isSpecimen, all events are accepted and will be handled. This way it possible
+    to test the entire flow in production.
+
+    If some are set as isSpecimen, those specimen events are removed from the set as it's probably
+    a mistake somewhere in the call. All other events are then signed.
+
+    :param events:
+    :return: events:
+    """
+
+    # All events are specimen? Great, you can continue.
+    amount_of_events = len(events.events)
+    amount_of_specimen_events = sum([event.isSpecimen for event in events.events])
+    if amount_of_specimen_events == amount_of_events:
+        log.debug("All events are specimen events, they are accepted for further testing.")
+        return events
+
+    dropped_events = [event for event in events.events if event.isSpecimen]
+    for event in dropped_events:
+        log.debug(f"Dropping event {event.unique} because it is a specimen amongst non-specimen events.")
+
+    return Events(events=[event for event in events.events if not event.isSpecimen])
 
 
 @app.post("/app/credentials/", response_model=MobileAppProofOfVaccination)

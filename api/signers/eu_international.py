@@ -63,6 +63,8 @@ Instead:
 
 When the events that are provided don't all have the same value of isSpecimen (i.e. half of them is specimen, and half
 of them is non-specimen), all specimen events should be discarded before continuing to issue credentials.
+
+Not using datetime.datetime.utcfromtimestamp(42) as that seems to return a timezone naive datetime.
 """
 EU_INTERNATIONAL_SPECIMEN_EXPIRATION_TIME = datetime(1970, 1, 1, 0, 0, 42, 0, tzinfo=pytz.utc)
 
