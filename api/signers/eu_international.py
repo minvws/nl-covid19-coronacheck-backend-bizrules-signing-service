@@ -1,7 +1,7 @@
 import json
 import logging
 import os.path
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from typing import Any, Dict, List
 
 import pytz
@@ -344,13 +344,40 @@ def _only_most_recent(events: List[Event]) -> List[Event]:
     return [events[-1]]
 
 
+def _not_from_future(events: List[Event]) -> List[Event]:
+    if not events:
+        return events
+
+    today = date.today()
+
+    result = []
+    for event in events:
+        if any(
+            [
+                event.vaccination and event.vaccination.date > today,
+                event.positivetest and event.positivetest.sampleDate.date() > today,
+                event.negativetest and event.negativetest.sampleDate.date() > today,
+                event.recovery and event.recovery.sampleDate > today,
+            ]
+        ):
+            logging.warning(f"removing event with date in the future; {event.unique}")
+            continue
+        result.append(event)
+    return result
+
+
 def filter_redundant_events(events: Events) -> Events:
     """
     Return the events that are relevant, filtering out obsolete events
     """
-    vaccinations = _relevant_vaccinations(events.vaccinations)
+    vaccinations = _not_from_future(events.vaccinations)
+    vaccinations = _relevant_vaccinations(vaccinations)
+
+    negative_tests = _not_from_future(events.negativetests)
+    negative_tests = _only_most_recent(negative_tests)
+
+    # positive tests and recoveries are allowed to be from the future
     positive_tests = _only_most_recent(events.positivetests)  # TODO do we want to create recoveries for these?
-    negative_tests = _only_most_recent(events.negativetests)
     recoveries = _only_most_recent(events.recoveries)
 
     relevant_events = Events()

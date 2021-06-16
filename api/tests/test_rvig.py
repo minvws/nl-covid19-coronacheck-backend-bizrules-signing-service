@@ -1,9 +1,9 @@
 import pytest
 from fastapi import HTTPException
 
-from api.enrichment.rvig.rvig import get_pii_from_rvig, rvig_birtdate_to_dutch_birthdate, health
-from api.models import DutchBirthDate as Dbd, ServiceHealth
-from api.models import Holder
+from api.enrichment.rvig.rvig import get_pii_from_rvig, health, rvig_birtdate_to_dutch_birthdate
+from api.models import DutchBirthDate as Dbd
+from api.models import Holder, ServiceHealth
 from api.settings import settings
 from api.tests.conftest import require_rvig_mock
 from api.utils import read_file

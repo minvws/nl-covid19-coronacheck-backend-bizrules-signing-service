@@ -25,9 +25,9 @@ from api.models import (
 )
 from api.settings import settings
 from api.signers.eu_international import (
+    EU_INTERNATIONAL_SPECIMEN_EXPIRATION_TIME,
     create_signing_messages_based_on_events,
     sign,
-    EU_INTERNATIONAL_SPECIMEN_EXPIRATION_TIME,
 )
 
 

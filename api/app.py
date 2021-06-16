@@ -9,8 +9,8 @@ from fastapi.responses import JSONResponse
 
 from api import log
 from api.app_support import (
-    get_jwt_from_authorization_header,
     decode_and_normalize_events,
+    get_jwt_from_authorization_header,
     retrieve_prepare_issue_message_from_redis,
 )
 from api.enrichment.rvig import rvig
