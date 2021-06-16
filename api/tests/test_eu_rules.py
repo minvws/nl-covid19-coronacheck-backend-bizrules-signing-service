@@ -7,6 +7,8 @@ https://docs.google.com/spreadsheets/d/1d66HXvh9bxZTwlTqaxxqE-IKmv22MkB8isZj87a-
 # 2 vaccinaties van een merk dat er 2 vereist
 # Kopieer e.e.a. dus.
 # from api.models import Event
+import datetime
+
 from api.models import Event, Events
 from api.signers.eu_international import deduplicate_events, enrich_from_hpk
 
@@ -48,13 +50,35 @@ def test_2_vaccinaties_van_een_merk_dat_er_2_vereist():
 def test_deduplicate_events():
     vac_1 = Event(**DEFAULT_PFIZER_VACCINATION)
     vac_2 = Event(**DEFAULT_PFIZER_VACCINATION)
-    vac_2.source_provider_identifier = "YYY"
+    vac_2.vaccination.type = "123"
     vac_3 = Event(**DEFAULT_PFIZER_VACCINATION)
-    vac_3.unique = "ef958a52-5717-44f1-bf63-f803c9ef5c46"
+    vac_3.vaccination.manufacturer = "AAAA"
     events = Events()
     events.events = [vac_1, vac_2, vac_3, vac_1]
     deduplicated = deduplicate_events(events)
+    assert deduplicated.events == [vac_1, vac_2, vac_3]
+
+
+def test_deduplicate_events_within_margin():
+    vac_1 = Event(**DEFAULT_PFIZER_VACCINATION)
+    vac_2 = Event(**DEFAULT_PFIZER_VACCINATION)
+    vac_2.vaccination.date = vac_2.vaccination.date + datetime.timedelta(days=1)
+    events = Events()
+    events.events = [vac_1, vac_2]
+    deduplicated = deduplicate_events(events)
     assert deduplicated.events == [vac_1]
+
+
+def test_deduplicate_merging():
+    vac_1 = Event(**DEFAULT_PFIZER_VACCINATION)
+    vac_1.vaccination.type = None
+    vac_1.vaccination.brand = None
+    vac_1.vaccination.doseNumber = None
+    vac_2 = Event(**DEFAULT_PFIZER_VACCINATION)
+    events = Events()
+    events.events = [vac_1, vac_2]
+    deduplicated = deduplicate_events(events)
+    assert deduplicated.events == [vac_2]
 
 
 def test_enrich_from_hpk():
