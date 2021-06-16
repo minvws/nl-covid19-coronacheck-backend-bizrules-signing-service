@@ -211,11 +211,11 @@ def test_static_sign(current_path, requests_mock):
             ),
         ],
         createCredentialMessages="IntcInFyXCI6IHtcImRhdGFcIjogXCJURisqSlkrMjE6NiBUJU5DUSsgUFZIRERQK1otV1E4LVRHL08zTkxGT"
-                                 "EgzOkZIUy1SSUZWUTpVVjU3Sy8uOlI2Ky5NWDpVJEhJUUczRlZZJTZOSU4wOk8uS0NHOUY5OVwiLCBcImF0dH"
-                                 "JpYnV0ZXNJc3N1ZWRcIjoge1wic2FtcGxlVGltZVwiOiBcIjE2MTkwOTI4MDBcIiwgXCJmaXJzdE5hbWVJbml"
-                                 "0aWFsXCI6IFwiQlwiLCBcImxhc3ROYW1lSW5pdGlhbFwiOiBcIkJcIiwgXCJiaXJ0aERheVwiOiBcIjI3XCIs"
-                                 "IFwiYmlydGhNb250aFwiOiBcIjRcIiwgXCJpc1NwZWNpbWVuXCI6IFwiMVwiLCBcImlzUGFwZXJQcm9vZlwiO"
-                                 "iBcIjFcIn19LCBcInN0YXR1c1wiOiBcIm9rXCIsIFwiZXJyb3JcIjogMH0i",
+        "EgzOkZIUy1SSUZWUTpVVjU3Sy8uOlI2Ky5NWDpVJEhJUUczRlZZJTZOSU4wOk8uS0NHOUY5OVwiLCBcImF0dH"
+        "JpYnV0ZXNJc3N1ZWRcIjoge1wic2FtcGxlVGltZVwiOiBcIjE2MTkwOTI4MDBcIiwgXCJmaXJzdE5hbWVJbml"
+        "0aWFsXCI6IFwiQlwiLCBcImxhc3ROYW1lSW5pdGlhbFwiOiBcIkJcIiwgXCJiaXJ0aERheVwiOiBcIjI3XCIs"
+        "IFwiYmlydGhNb250aFwiOiBcIjRcIiwgXCJpc1NwZWNpbWVuXCI6IFwiMVwiLCBcImlzUGFwZXJQcm9vZlwiO"
+        "iBcIjFcIn19LCBcInN0YXR1c1wiOiBcIm9rXCIsIFwiZXJyb3JcIjogMH0i",
     )
 
 

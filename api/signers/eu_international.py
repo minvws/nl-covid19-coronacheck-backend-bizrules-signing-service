@@ -51,6 +51,21 @@ ELIGIBLE_TT = TT["valueSetValues"].keys()
 
 REQUIRED_DOSES = read_resource_file("required-doses-per-brand.json")
 
+"""
+Currently, if events are provided with isSpecimen: true, you get back completely valid non-specimen domestic and
+European credentials – for the acceptance environment anyway. This is not desirable, as specimen events are for
+testing purposes, and should not lead to usable credentials.
+
+Instead:
+    For domestic credentials the isSpecimen attribute should be set to "1"
+    For European credentials the expirationTime should be set to the magic value 42. In this way, other countries
+    will see the credential as expired, and the Dutch app can add logic so it is treated as specimen.
+
+When the events that are provided don't all have the same value of isSpecimen (i.e. half of them is specimen, and half
+of them is non-specimen), all specimen events should be discarded before continuing to issue credentials.
+"""
+EU_INTERNATIONAL_SPECIMEN_EXPIRATION_TIME = datetime(1970, 1, 1, 0, 0, 42, 0, tzinfo=pytz.utc)
+
 
 def get_eu_expirationtime() -> datetime:
     expiration_time = datetime.now(pytz.utc) + timedelta(days=settings.EU_INTERNATIONAL_GREENCARD_EXPIRATION_TIME_DAYS)
@@ -70,7 +85,7 @@ def create_eu_signer_message(event: Event) -> MessageToEUSigner:
 
     return MessageToEUSigner(
         keyUsage=event_type,
-        expirationTime=get_eu_expirationtime(),
+        expirationTime=get_eu_expirationtime() if not event.isSpecimen else EU_INTERNATIONAL_SPECIMEN_EXPIRATION_TIME,
         # Use a clean events object that only has a single event so there are no interfering other events
         dgc=Events(events=[event]).toEuropeanOnlineSigningRequest(),
     )
