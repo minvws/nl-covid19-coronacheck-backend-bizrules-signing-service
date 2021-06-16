@@ -1,5 +1,5 @@
-from api.models import Event, Holder, DutchBirthDate, EventType
-from api.uci import random_unique_identifier, generate_uci_01, verify_uci_01
+from api.models import DutchBirthDate, Event, EventType, Holder
+from api.uci import generate_uci_01, random_unique_identifier, verify_uci_01
 
 
 def test_random_unique_identifier():

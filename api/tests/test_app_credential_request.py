@@ -11,7 +11,7 @@ from api.settings import settings
 from api.utils import read_file
 
 
-@freeze_time("2021-05-20")
+@freeze_time("2021-05-28")
 def test_app_credential_request(requests_mock, current_path, redis_db):
     # mock redis, disableW0212 since we should be able to access private members for mocking
     session_store._redis = redis_db  # pylint: disable=W0212
@@ -95,7 +95,7 @@ def test_app_credential_request(requests_mock, current_path, redis_db):
                 "origins": [
                     {
                         "eventTime": "2021-05-27T19:23:00+00:00",
-                        "expirationTime": "2021-11-16T00:00:00+00:00",
+                        "expirationTime": "2021-11-24T00:00:00+00:00",
                         "type": "test",
                         "validFrom": "2021-05-27T19:23:00+00:00",
                     }

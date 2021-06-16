@@ -70,17 +70,17 @@ def test_eu_is_specimen():
     assert attributes == [expected_attributes, expected_attributes]
 
 
-@freeze_time("2021-05-20")
+@freeze_time("2021-05-28")
 def test_static_sign(current_path, requests_mock):
     signing_response_data = {
         "qr": {
             "data": "TF+*JY+21:6 T%NCQ+ PVHDDP+Z-WQ8-TG/O3NLFLH3:FHS-RIFVQ:UV57K/.:R6+.MX:U$HIQG3FVY%6NIN0:O.KCG9F99",
             "attributesIssued": {
                 "sampleTime": "1619092800",
-                "firstNameInitial": "B",
-                "lastNameInitial": "B",
-                "birthDay": "27",
-                "birthMonth": "4",
+                "firstNameInitial": "T",
+                "lastNameInitial": "P",
+                "birthDay": "1",
+                "birthMonth": "1",
                 "isSpecimen": "1",
                 "isPaperProof": "1",
             },
@@ -118,7 +118,7 @@ def test_static_sign(current_path, requests_mock):
             isSpecimen=True,
         ),
         RichOrigin(
-            holder=Holder(firstName="B", lastName="B", birthDate="1883-06-09", infix=""),
+            holder=Holder(firstName="T", lastName="P", birthDate="1883-01-01", infix=""),  # 1883 is a special flag
             type="test",
             eventTime=datetime(2021, 6, 1, 0, 0, tzinfo=pytz.utc),
             validFrom=datetime(2021, 6, 1, 0, 0, tzinfo=pytz.utc),
@@ -132,7 +132,7 @@ def test_static_sign(current_path, requests_mock):
         DomesticSignerAttributes(
             isSpecimen="1",
             stripType=StripType.APP_STRIP,
-            validFrom="1621468800",
+            validFrom="1622160000",
             validForHours="24",
             firstNameInitial="T",
             lastNameInitial="",
@@ -142,7 +142,7 @@ def test_static_sign(current_path, requests_mock):
         DomesticSignerAttributes(
             isSpecimen="1",
             stripType=StripType.APP_STRIP,
-            validFrom="1621468800",
+            validFrom="1622160000",
             validForHours="24",
             firstNameInitial="T",
             lastNameInitial="",
@@ -152,22 +152,12 @@ def test_static_sign(current_path, requests_mock):
         DomesticSignerAttributes(
             isSpecimen="1",
             stripType=StripType.APP_STRIP,
-            validFrom="1621468800",
+            validFrom="1622160000",
             validForHours="24",
-            firstNameInitial="B",
+            firstNameInitial="T",
             lastNameInitial="",
-            birthDay="",
-            birthMonth="6",
-        ),
-        DomesticSignerAttributes(
-            isSpecimen="1",
-            stripType=StripType.APP_STRIP,
-            validFrom="1621468800",
-            validForHours="24",
-            firstNameInitial="B",
-            lastNameInitial="",
-            birthDay="",
-            birthMonth="6",
+            birthDay="1",
+            birthMonth="",
         ),
     ]
 
@@ -179,7 +169,7 @@ def test_static_sign(current_path, requests_mock):
                 GreenCardOrigin(
                     type="test",
                     eventTime="2021-05-27T19:23:00+00:00",
-                    expirationTime="2021-11-16T00:00:00+00:00",
+                    expirationTime="2021-11-24T00:00:00+00:00",
                     validFrom="2021-05-27T19:23:00+00:00",
                 )
             ],
@@ -252,7 +242,7 @@ def test_decode_and_normalize_events(current_path):
                 vaccination=None,
                 recovery=None,
                 source_provider_identifier="ZZZ",
-                holder=Holder(firstName="B", lastName="B", birthDate="1883-06-09", infix=""),
+                holder=Holder(firstName="T", lastName="P", birthDate="1883-01-01", infix=""),
             ),
         ]
     )

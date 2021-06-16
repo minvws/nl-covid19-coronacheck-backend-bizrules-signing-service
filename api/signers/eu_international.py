@@ -338,8 +338,8 @@ def _not_from_future(events: List[Event]) -> List[Event]:
         if any(
             [
                 event.vaccination and event.vaccination.date > today,
-                event.positivetest and event.positivetest.sampleDate > today,
-                event.negativetest and event.negativetest.sampleDate > today,
+                event.positivetest and event.positivetest.sampleDate.date() > today,
+                event.negativetest and event.negativetest.sampleDate.date() > today,
                 event.recovery and event.recovery.sampleDate > today,
             ]
         ):
@@ -359,6 +359,7 @@ def filter_redundant_events(events: Events) -> Events:
     negative_tests = _not_from_future(events.negativetests)
     negative_tests = _only_most_recent(negative_tests)
 
+    # positive tests and recoveries are allowed to be from the future
     positive_tests = _only_most_recent(events.positivetests)  # TODO do we want to create recoveries for these?
     recoveries = _only_most_recent(events.recoveries)
 

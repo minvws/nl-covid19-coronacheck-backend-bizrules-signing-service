@@ -120,10 +120,10 @@ def has_unique_holder(events_results: List[DataProviderEventsResult]) -> bool:
         else:
             if any(
                 [
-                    holder.birthDate != dp_event_result.holder.birthDate,
-                    holder.firstName != dp_event_result.holder.firstName,
-                    holder.lastName != dp_event_result.holder.lastName,
-                    holder.infix != dp_event_result.holder.infix,
+                    holder.birthDate.month != dp_event_result.holder.birthDate.month,
+                    holder.birthDate.day != dp_event_result.holder.birthDate.day,
+                    holder.first_name_initial != dp_event_result.holder.first_name_initial,
+                    holder.last_name_initial != dp_event_result.holder.last_name_initial,
                 ]
             ):
                 return False
@@ -187,6 +187,7 @@ def decode_and_normalize_events(request_data_events: List[CMSSignedDataBlob]) ->
     events: Events = Events()
     events_result = extract_results(request_data_events)
 
+    # should not accept data provider results for more than one holder, so raise an exception if that happens
     if not has_unique_holder(events_result):
         # we have a request with different holders, raise an error
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=["error code 99966"])

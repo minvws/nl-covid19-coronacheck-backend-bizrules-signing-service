@@ -1,7 +1,7 @@
 from copy import deepcopy
 
-from api.models import DataProviderEventsResult, DutchBirthDate, Holder
 from api.app import has_unique_holder
+from api.models import DataProviderEventsResult, DutchBirthDate, Holder
 
 holder1 = Holder(
     firstName="Bob",
@@ -29,5 +29,4 @@ def test_multiple_holders():
 
 def test_has_single_holder():
     with_holder_1_copy = deepcopy(with_holder_1)
-    # with_holder_2_copy = deepcopy(with_holder_2)
     assert has_unique_holder([with_holder_1_copy, with_holder_1_copy])
