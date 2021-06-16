@@ -42,6 +42,9 @@ async def retrieve_bsn_from_inge6(jwt_token: str):
     except jwt.InvalidAlgorithmError as err:
         log.warning(f"invalid algorithm error: {repr(err)}")
         raise HTTPInvalidRetrievalTokenException from err
+    except jwt.ExpiredSignatureError as err:
+        log.warning(f"expired signature error: {repr(err)}")
+        raise HTTPInvalidRetrievalTokenException from err
 
     headers = {"Authorization": f"Bearer {jwt_token}"}
 
