@@ -2,7 +2,7 @@ import json
 import logging
 import os.path
 from datetime import date, datetime, timedelta
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Callable
 
 import pytz
 
@@ -105,7 +105,7 @@ def same_type_and_same_day(event1, event2, data_type, date_field) -> bool:
     return False
 
 
-def _compare_vaccinations(vacc1: Event, vacc2: Event) -> bool:
+def _identical_vaccinations(vacc1: Event, vacc2: Event) -> bool:
     if not vacc1.vaccination or not vacc2.vaccination:
         raise ValueError("can only compare vaccinations")
 
@@ -153,7 +153,7 @@ def _merge_vaccinations(base: Event, other: Event) -> Event:
 _TEST_ATTRIBUTES = ["facility", "type", "name", "manufacturer", "country"]
 
 
-def _compare_negative_tests(test1: Event, test2: Event) -> bool:
+def _identical_negative_tests(test1: Event, test2: Event) -> bool:
     if not test1.negativetest or not test2.negativetest:
         raise ValueError("can only compare negative tests")
 
@@ -175,7 +175,7 @@ def _merge_negative_tests(base: Event, other: Event) -> Event:
     return base
 
 
-def _compare_positive_tests(test1: Event, test2: Event) -> bool:
+def _identical_positive_tests(test1: Event, test2: Event) -> bool:
     if not test1.positivetest or not test2.positivetest:
         raise ValueError("can only compare positive tests")
 
@@ -197,7 +197,7 @@ def _merge_positive_tests(base: Event, other: Event) -> Event:
     return base
 
 
-def _compare_recoveries(reco1: Event, reco2: Event) -> bool:
+def _identical_recoveries(reco1: Event, reco2: Event) -> bool:
     if not reco1.recovery or not reco2.recovery:
         raise ValueError("can only compare recoveries")
 
@@ -219,7 +219,7 @@ def _merge_recoveries(base: Event, other: Event) -> Event:
     return base
 
 
-def _deduplicate(events: List[Event], compare_func, merge_func) -> List[Event]:
+def _deduplicate(events: List[Event], events_are_identical_func: Callable, merge_func: Callable) -> List[Event]:
     log.debug(f"Deduplication {len(events)} events.")
     retained: List[Event] = []
     for event in events:
@@ -232,7 +232,7 @@ def _deduplicate(events: List[Event], compare_func, merge_func) -> List[Event]:
 
         merged = False
         for ret in retained:
-            if compare_func(ret, event):
+            if events_are_identical_func(ret, event):
                 log.debug(f"Merging {event.unique}.")
                 merge_func(ret, event)
                 merged = True
@@ -244,10 +244,10 @@ def _deduplicate(events: List[Event], compare_func, merge_func) -> List[Event]:
 
 
 def deduplicate_events(events: Events) -> Events:
-    deduped_vaccinations = _deduplicate(events.vaccinations, _compare_vaccinations, _merge_vaccinations)
-    deduped_negative_tests = _deduplicate(events.negativetests, _compare_negative_tests, _merge_negative_tests)
-    deduped_positive_tests = _deduplicate(events.positivetests, _compare_positive_tests, _merge_positive_tests)
-    deduped_recoveries = _deduplicate(events.recoveries, _compare_recoveries, _merge_recoveries)
+    deduped_vaccinations = _deduplicate(events.vaccinations, _identical_vaccinations, _merge_vaccinations)
+    deduped_negative_tests = _deduplicate(events.negativetests, _identical_negative_tests, _merge_negative_tests)
+    deduped_positive_tests = _deduplicate(events.positivetests, _identical_positive_tests, _merge_positive_tests)
+    deduped_recoveries = _deduplicate(events.recoveries, _identical_recoveries, _merge_recoveries)
 
     result = Events()
     result.events = [
