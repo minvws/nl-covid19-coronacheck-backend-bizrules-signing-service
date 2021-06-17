@@ -6,6 +6,7 @@ from typing import List, Optional
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import JSONResponse
+from requests.exceptions import HTTPError
 
 from api import log
 from api.app_support import (
@@ -42,6 +43,27 @@ async def fallback_exception_handler(request: Request, exc: Exception) -> JSONRe
         status_code=500,
         content={"message": base_error_message},
     )
+
+
+@app.exception_handler(HTTPError)
+async def fallback_httperror_handler(http_error: HTTPError) -> JSONResponse:
+    """
+    When making requests to a server, we want the default behavior to be a handled http error rather than an internal
+    error which is perceived as a internal server error by the calling service.
+    This function transforms an http error thrown by the requests library, and passes it back to the user.
+
+    :param http_error: the error thrown by the requests library
+    :returns: JSONResponse containing the details as described in the detail section of the error response.
+    """
+    error_status_code = http_error.response.status_code
+    try:
+        error_content = json.loads(http_error.response.content)
+        error_detail = error_content["detail"]
+    except ValueError:
+        error_detail = http_error.response.content
+
+    log.error(f"Attempted http request but failed. {error_status_code}: {error_detail}")
+    return JSONResponse(status_code=error_status_code, content={"detail": error_detail})
 
 
 @app.get("/", response_model=ApplicationHealth)

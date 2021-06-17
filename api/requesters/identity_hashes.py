@@ -12,10 +12,9 @@ from fastapi import HTTPException
 from nacl.encoding import Base64Encoder
 from nacl.public import Box, PrivateKey, PublicKey
 from nacl.utils import random
-from requests import HTTPError
 
 from api.enrichment.rvig.rvig import get_pii_from_rvig
-from api.http_utils import hmac256, request_post_with_retries, reraise_http_exception
+from api.http_utils import hmac256, request_post_with_retries
 from api.models import EventDataProviderJWT, Holder
 from api.settings import settings
 
@@ -34,16 +33,13 @@ async def retrieve_bsn_from_inge6(jwt_token: str):
             jwt_token, key=settings.INGE6_JWT_PUBLIC_CRT, algorithms=["RS256"], audience=[settings.INGE4_JWT_AUDIENCE]
         )
     except jwt.InvalidTokenError as err:
-        log.warning(f"invalid token error {repr(err)}")
+        log.error(f"invalid token error {repr(err)}")
         raise HTTPInvalidRetrievalTokenException from err
 
     headers = {"Authorization": f"Bearer {jwt_token}"}
 
     response = request_post_with_retries(settings.INGE6_BSN_RETRIEVAL_URL, data="", headers=headers)
-    try:
-        response.raise_for_status()
-    except HTTPError as inge6_error:
-        reraise_http_exception(HTTPInvalidRetrievalTokenException, inge6_error)
+    response.raise_for_status()
 
     encrypted_bsn = response.content
 
