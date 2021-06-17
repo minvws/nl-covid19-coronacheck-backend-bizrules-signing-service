@@ -46,7 +46,7 @@ async def fallback_exception_handler(request: Request, exc: Exception) -> JSONRe
 
 
 @app.exception_handler(HTTPError)
-async def fallback_httperror_handler(request: Request, http_error: HTTPError) -> JSONResponse:
+async def fallback_httperror_handler(_request: Request, http_error: HTTPError) -> JSONResponse:
     """
     When making requests to a server, we want the default behavior to be a handled http error rather than an internal
     error which is not very helpful for the calling service.
@@ -60,7 +60,7 @@ async def fallback_httperror_handler(request: Request, http_error: HTTPError) ->
     try:
         error_content = json.loads(http_error.response.content)
         error_detail = error_content["detail"]
-    except ValueError as err:
+    except ValueError:
         error_detail = http_error.response.content.decode()
 
     log.error(f"Attempted http request but failed. {error_status_code}: {error_detail}")

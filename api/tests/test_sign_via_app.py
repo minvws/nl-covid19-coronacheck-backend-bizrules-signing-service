@@ -31,15 +31,15 @@ def test_validate_bearer():
     )
     assert json_content == {"detail": ["Invalid Authorization Token type"]}
 
+
 @freeze_time("2020-02-02")
-def test_sign_via_app_step_http_error(requests_mock, current_path, mocker):
+def test_sign_via_app_step_http_error(requests_mock):
     requests_mock.post(
         url=f"{settings.INGE6_BSN_RETRIEVAL_URL}",
         text='{"detail":"not found", "some_nonsense":"found"}',
-        status_code=404
+        status_code=404,
     )
     requests_mock.post(url="http://testserver/app/access_tokens/", real_http=True)
-
 
     client = TestClient(app)
     response = client.post(
