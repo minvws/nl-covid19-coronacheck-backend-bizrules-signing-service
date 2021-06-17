@@ -974,5 +974,5 @@ class ApplicationHealth(BaseModel):  # noqa
 
 
 class UciTestInfo(BaseModel):
-    written_to_logfile: str = Field(description="UCI written to logfile")
+    uci_written_to_logfile: str = Field(description="UCI written to logfile")
     event: Event
