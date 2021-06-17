@@ -49,8 +49,9 @@ async def fallback_exception_handler(request: Request, exc: Exception) -> JSONRe
 async def fallback_httperror_handler(http_error: HTTPError) -> JSONResponse:
     """
     When making requests to a server, we want the default behavior to be a handled http error rather than an internal
-    error which is perceived as a internal server error by the calling service.
-    This function transforms an http error thrown by the requests library, and passes it back to the user.
+    error which is not very helpful for the calling service.
+
+    This function parses an http error thrown by the requests library, and passes it back to the user.
 
     :param http_error: the error thrown by the requests library
     :returns: JSONResponse containing the details as described in the detail section of the error response.
