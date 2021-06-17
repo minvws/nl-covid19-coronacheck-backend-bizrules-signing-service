@@ -66,6 +66,19 @@ This app uses various resource files, these are their origins:
 Edit the inge4_logging.yaml to acceptable settings. The shipped file logs everything including
 all calls to all services.
 
+### UCI / UVCI logging
+A call to '/uci_test' on this application creates a sample UCI event from a test provider.
+Use this call to validate that the 'written_to_logfile' is actually written. Since UCI
+probably cannot read the file there is no test for that. This requires manual inspection. The file should
+also grow over time, as a UCI is logged every time a EU certificate is made.
+
+Logs can be formatted using the inge4_logging.yaml file, which contains a special section
+for UCI. By default it ships with a uci_logfile with append rights.
+
+An example log line is:
+```
+[INFO] [17/Jun/2021 09:41:35] [uci:447] {"uci": "URN:UCI:01:NL:Z6OXXDG33VFRLL4K7KB52JTN4E#O", "provider": "ZZZ", "unique": "UCI_TEST_EVENT"}
+```
 
 ## Development
 The inge4_development.env is used when running this in development and testing.

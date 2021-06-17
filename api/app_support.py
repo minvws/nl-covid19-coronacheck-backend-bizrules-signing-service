@@ -8,7 +8,17 @@ from uuid import UUID
 from fastapi import HTTPException
 
 from api import log
-from api.models import CMSSignedDataBlob, DataProviderEventsResult, Event, Events, V2Event
+from api.models import (
+    CMSSignedDataBlob,
+    DataProviderEventsResult,
+    Event,
+    Events,
+    V2Event,
+    UciTestInfo,
+    EventType,
+    DutchBirthDate,
+    Holder,
+)
 from api.session_store import session_store
 from api.settings import settings
 
@@ -180,3 +190,15 @@ def retrieve_prepare_issue_message_from_redis(stoken: UUID) -> Optional[str]:
 
     prepare_issue_message = session_store.get_message(str(stoken))
     return prepare_issue_message.decode("UTF-8") if prepare_issue_message else None
+
+
+def perform_uci_test() -> UciTestInfo:
+    # This is needed to verify logging works correctly. This calls the code on the model exactly as in production.
+    #  This is needed because we want to be sure the production code works. So no mocks and such.
+    # Note: During development the app restarts after this call as it restarts on changes in files(!)
+    fake_holder = Holder(firstName="Test", lastName="Test", infix="Test", birthDate=DutchBirthDate("1970-01-01"))
+    test_event = Event(
+        source_provider_identifier="ZZZ", unique="UCI_TEST_EVENT", holder=fake_holder, type=EventType.test
+    )
+    uci = test_event.to_uci_01()
+    return UciTestInfo(uci_written_to_logfile=uci, event=test_event)

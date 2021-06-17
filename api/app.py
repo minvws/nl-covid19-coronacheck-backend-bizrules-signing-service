@@ -12,6 +12,7 @@ from api.app_support import (
     decode_and_normalize_events,
     get_jwt_from_authorization_header,
     retrieve_prepare_issue_message_from_redis,
+    perform_uci_test,
 )
 from api.enrichment.rvig import rvig
 from api.models import (
@@ -25,6 +26,7 @@ from api.models import (
     MobileAppProofOfVaccination,
     PrepareIssueResponse,
     V2Event,
+    UciTestInfo,
 )
 from api.requesters import identity_hashes
 from api.requesters.prepare_issue import get_prepare_issue
@@ -54,6 +56,11 @@ async def health_request() -> ApplicationHealth:
 async def unhealth_request() -> ApplicationHealth:
     # This is needed to verify logging works correctly.
     raise RuntimeError("Don't worry this endpoint is supposed to produce an internal server error")
+
+
+@app.get("/uci_test", response_model=UciTestInfo)
+async def uci_test() -> UciTestInfo:
+    return perform_uci_test()
 
 
 @app.post("/app/access_tokens/", response_model=List[EventDataProviderJWT])
