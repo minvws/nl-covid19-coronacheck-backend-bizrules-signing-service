@@ -2,7 +2,7 @@ import json
 import logging
 import os.path
 from datetime import date, datetime, timedelta
-from typing import Any, Dict, List, Callable
+from typing import Any, Callable, Dict, List
 
 import pytz
 
@@ -190,7 +190,7 @@ def _identical_positive_tests(test1: Event, test2: Event) -> bool:
     if not test1.positivetest or not test2.positivetest:
         raise ValueError("can only compare positive tests")
 
-    if not same_type_and_same_day(test1.positivetest, test2.positivetest, Positivetest, "sampleData"):
+    if not same_type_and_same_day(test1.positivetest, test2.positivetest, Positivetest, "sampleDate"):
         return False
 
     return _has_identical_attributes(test1.positivetest, test2.positivetest, _TEST_ATTRIBUTES)
