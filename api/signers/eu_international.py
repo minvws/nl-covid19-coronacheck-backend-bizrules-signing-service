@@ -150,6 +150,20 @@ def _merge_vaccinations(base: Event, other: Event) -> Event:
     return base
 
 
+def _has_identical_attributes(object_1: object, object_2: object, attributes: List[str]) -> bool:
+    """
+    True if all attributes of objects are the same. Otherwise false. All attributes have to be present on the objects.
+    :param object_1:
+    :param object_2:
+    :param attributes:
+    :return:
+    """
+    for attr in attributes:
+        if getattr(object_1, attr) != getattr(object_2, attr):
+            return False
+    return True
+
+
 _TEST_ATTRIBUTES = ["facility", "type", "name", "manufacturer", "country"]
 
 
@@ -160,10 +174,7 @@ def _identical_negative_tests(test1: Event, test2: Event) -> bool:
     if not same_type_and_same_day(test1.negativetest, test2.negativetest, Negativetest, "sampleDate"):
         return False
 
-    for attr in _TEST_ATTRIBUTES:
-        if getattr(test1.negativetest, attr) != getattr(test2.negativetest, attr):
-            return False
-    return True
+    return _has_identical_attributes(test1.negativetest, test2.negativetest, _TEST_ATTRIBUTES)
 
 
 def _merge_negative_tests(base: Event, other: Event) -> Event:
@@ -182,10 +193,7 @@ def _identical_positive_tests(test1: Event, test2: Event) -> bool:
     if not same_type_and_same_day(test1.positivetest, test2.positivetest, Positivetest, "sampleData"):
         return False
 
-    for attr in _TEST_ATTRIBUTES:
-        if getattr(test1.positivetest, attr) != getattr(test2.positivetest, attr):
-            return False
-    return True
+    return _has_identical_attributes(test1.positivetest, test2.positivetest, _TEST_ATTRIBUTES)
 
 
 def _merge_positive_tests(base: Event, other: Event) -> Event:
@@ -204,10 +212,7 @@ def _identical_recoveries(reco1: Event, reco2: Event) -> bool:
     if not same_type_and_same_day(reco1.recovery, reco2.recovery, Recovery, "sampleDate"):
         return False
 
-    for attr in ["validFrom", "validUntil", "country"]:
-        if getattr(reco1.recovery, attr) != getattr(reco2.recovery, attr):
-            return False
-    return True
+    return _has_identical_attributes(reco1.recovery, reco2.recovery, ["validFrom", "validUntil", "country"])
 
 
 def _merge_recoveries(base: Event, other: Event) -> Event:
