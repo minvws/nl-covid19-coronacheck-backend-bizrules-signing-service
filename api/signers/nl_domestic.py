@@ -20,8 +20,8 @@ from api.models import (
 )
 from api.settings import settings
 from api.signers import hpkcodes
+from api.signers.eu_international import ELIGIBLE_TT
 
-ALLOWED_POSITIVE_TEST_TYPES = settings.DOMESTIC_NL_ALLOWED_POSITIVE_TEST_TYPES
 TZ = pytz.timezone("UTC")
 
 
@@ -94,7 +94,7 @@ def eligible_recovery(events) -> List[RichOrigin]:
 
 
 def eligible_positive_tests(events) -> List[RichOrigin]:
-    eligible_pts = list(filter(lambda pt: pt.positivetest.type in ALLOWED_POSITIVE_TEST_TYPES, events.positivetests))
+    eligible_pts = list(filter(lambda pt: pt.positivetest.type in ELIGIBLE_TT, events.positivetests))
 
     origins = []
 

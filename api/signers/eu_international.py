@@ -1,7 +1,7 @@
 import json
 import logging
 import os.path
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from typing import Any, Dict, List
 
 import pytz
@@ -51,6 +51,23 @@ ELIGIBLE_TT = TT["valueSetValues"].keys()
 
 REQUIRED_DOSES = read_resource_file("required-doses-per-brand.json")
 
+"""
+Currently, if events are provided with isSpecimen: true, you get back completely valid non-specimen domestic and
+European credentials – for the acceptance environment anyway. This is not desirable, as specimen events are for
+testing purposes, and should not lead to usable credentials.
+
+Instead:
+    For domestic credentials the isSpecimen attribute should be set to "1"
+    For European credentials the expirationTime should be set to the magic value 42. In this way, other countries
+    will see the credential as expired, and the Dutch app can add logic so it is treated as specimen.
+
+When the events that are provided don't all have the same value of isSpecimen (i.e. half of them is specimen, and half
+of them is non-specimen), all specimen events should be discarded before continuing to issue credentials.
+
+Not using datetime.datetime.utcfromtimestamp(42) as that seems to return a timezone naive datetime.
+"""
+EU_INTERNATIONAL_SPECIMEN_EXPIRATION_TIME = datetime(1970, 1, 1, 0, 0, 42, 0, tzinfo=pytz.utc)
+
 
 def get_eu_expirationtime() -> datetime:
     expiration_time = datetime.now(pytz.utc) + timedelta(days=settings.EU_INTERNATIONAL_GREENCARD_EXPIRATION_TIME_DAYS)
@@ -70,7 +87,7 @@ def create_eu_signer_message(event: Event) -> MessageToEUSigner:
 
     return MessageToEUSigner(
         keyUsage=event_type,
-        expirationTime=get_eu_expirationtime(),
+        expirationTime=get_eu_expirationtime() if not event.isSpecimen else EU_INTERNATIONAL_SPECIMEN_EXPIRATION_TIME,
         # Use a clean events object that only has a single event so there are no interfering other events
         dgc=Events(events=[event]).toEuropeanOnlineSigningRequest(),
     )
@@ -327,13 +344,40 @@ def _only_most_recent(events: List[Event]) -> List[Event]:
     return [events[-1]]
 
 
+def _not_from_future(events: List[Event]) -> List[Event]:
+    if not events:
+        return events
+
+    today = date.today()
+
+    result = []
+    for event in events:
+        if any(
+            [
+                event.vaccination and event.vaccination.date > today,
+                event.positivetest and event.positivetest.sampleDate.date() > today,
+                event.negativetest and event.negativetest.sampleDate.date() > today,
+                event.recovery and event.recovery.sampleDate > today,
+            ]
+        ):
+            logging.warning(f"removing event with date in the future; {event.unique}")
+            continue
+        result.append(event)
+    return result
+
+
 def filter_redundant_events(events: Events) -> Events:
     """
     Return the events that are relevant, filtering out obsolete events
     """
-    vaccinations = _relevant_vaccinations(events.vaccinations)
+    vaccinations = _not_from_future(events.vaccinations)
+    vaccinations = _relevant_vaccinations(vaccinations)
+
+    negative_tests = _not_from_future(events.negativetests)
+    negative_tests = _only_most_recent(negative_tests)
+
+    # positive tests and recoveries are allowed to be from the future
     positive_tests = _only_most_recent(events.positivetests)  # TODO do we want to create recoveries for these?
-    negative_tests = _only_most_recent(events.negativetests)
     recoveries = _only_most_recent(events.recoveries)
 
     relevant_events = Events()

@@ -3,7 +3,6 @@
 # Automatic documentation: http://localhost:8000/redoc or http://localhost:8000/docs
 import json
 import re
-import uuid
 from datetime import date, datetime, timedelta
 from enum import Enum
 from typing import List, Optional, Union
@@ -12,7 +11,7 @@ from uuid import UUID
 import pycountry
 from pydantic import BaseModel, Field
 
-from api import uci_log, log
+from api import log, uci_log
 from api.attribute_allowlist import domestic_signer_attribute_allow_list
 from api.enrichment.name_normalizer import normalize_name
 from api.settings import settings
@@ -322,23 +321,20 @@ class Positivetest(BaseModel):  # noqa
         description="Defaults to NLD", example="NLD", default="NLD"
     )
 
-    """
-    Positive tests mean that there is a recovery. For the EU a positive test should be seen and
-    called a recovery.
-
-    For a recovery we're missing a validUntil in the test data.
-    # todo: thus this will be assumed?
-    """
-
     def toEuropeanRecovery(self):
+        """
+        Positive tests mean that there is a recovery in the EU. They only know t, r and v. So this is casted
+        to a recovery in the process.
+        """
         return EuropeanRecovery(
             **{
                 **{
+                    # date until, in contrast to recoveries, a positive test does not have
+                    # a moment until when it's valid. So in this case we're using a configuration
+                    # parameter that can be set based on the latest insights.
+                    "du": self.sampleDate + timedelta(days=settings.EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS),
                     # sampletime
                     "fr": self.sampleDate,
-                    # date until
-                    # tod
-                    "du": self.sampleDate + timedelta(days=9000),
                 },
                 **SharedEuropeanFields.as_dict(),
             }
@@ -386,7 +382,6 @@ class Recovery(BaseModel):  # noqa
             **{
                 **{
                     "fr": self.sampleDate,
-                    "df": self.validFrom,
                     "du": self.validUntil,
                 },
                 **SharedEuropeanFields.as_dict(),
@@ -610,10 +605,11 @@ class SharedEuropeanFields(BaseModel):
 
     @staticmethod
     def as_dict():
-        # These are fully random or fully static.
+        # The CI will be overwritten for EU when creating the signing event.
+        # This value needs data from the entire set of events.
         return {
             "tg": "840539006",
-            "ci": str(uuid.uuid4()),
+            "ci": "",
             # "ci": "urn:uvci:01:NL:33385024475e4c56a17b749f92404039",
             "co": "NLD",
             "is": "Ministry of Health Welfare and Sport",

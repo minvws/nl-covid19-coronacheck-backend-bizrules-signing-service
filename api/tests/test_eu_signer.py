@@ -13,6 +13,7 @@ testcase_event_vaccination = {
     "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01", "infix": ""},
     "type": "vaccination",
     "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
+    "isSpecimen": False,
     "negativetest": None,
     "positivetest": None,
     "recovery": None,
@@ -56,7 +57,7 @@ testcase_event_negativetest = {
     "type": "negativetest",
     "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
     "negativetest": {
-        "sampleDate": "2021-03-01T19:38:00+00:00",
+        "sampleDate": "2021-02-01T19:38:00+00:00",
         "resultDate": "2021-02-01T19:38:00+00:00",
         "negativeResult": True,
         "facility": "GGD XL Amsterdam",
@@ -77,7 +78,7 @@ testcase_event_positivetest = {
     "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
     "negativetest": None,
     "positivetest": {
-        "sampleDate": "2021-03-01T19:38:00+00:00",
+        "sampleDate": "2021-02-01T19:38:00+00:00",
         "resultDate": "2021-02-01T19:38:00+00:00",
         "positiveResult": True,
         "facility": "GGD XL Amsterdam",
@@ -98,7 +99,7 @@ testcase_event_recovery = {
     "negativetest": None,
     "positivetest": None,
     "recovery": {
-        "sampleDate": "2021-04-01",
+        "sampleDate": "2021-02-01",
         "validFrom": "2021-02-01",
         "validUntil": "2021-02-01",
         "country": "NLD",
@@ -133,15 +134,15 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "ci": "URN:UCI:01:NL:B7L6YIZIZFD3BMTEFA4CVUI6ZM#0",
                 "co": "NLD",
                 "du": datetime(2021, 2, 1).date(),
-                "fr": datetime(2021, 4, 1).date(),
+                "fr": datetime(2021, 2, 1).date(),
                 "is": "Ministry of Health Welfare and Sport",
                 "tg": "840539006",
             },
             {
                 "ci": "URN:UCI:01:NL:B7L6YIZIZFD3BMTEFA4CVUI6ZM#0",
                 "co": "NLD",
-                "du": datetime(2045, 10, 21).date(),
-                "fr": datetime(2021, 3, 1).date(),
+                "du": datetime(2021, 7, 31).date(),
+                "fr": datetime(2021, 2, 1).date(),
                 "is": "Ministry of Health Welfare and Sport",
                 "tg": "840539006",
             },
@@ -153,7 +154,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "is": "Ministry of Health Welfare and Sport",
                 "ma": "???",
                 "nm": "???",
-                "sc": datetime(2021, 3, 1, 19, 38, tzinfo=timezone.utc),
+                "sc": datetime(2021, 2, 1, 19, 38, tzinfo=timezone.utc),
                 "tc": "GGD XL Amsterdam",
                 "tg": "840539006",
                 "tr": "True",
@@ -213,7 +214,7 @@ vaccinationGreenCard = EUGreenCard(
             {
                 "type": "vaccination",
                 "eventTime": "2021-02-01T00:00:00+00:00",
-                "expirationTime": "2020-07-31T00:00:00+00:00",
+                "expirationTime": "2021-08-01T00:00:00+00:00",
                 "validFrom": "2021-02-01T00:00:00+00:00",
             }
         ],
@@ -226,9 +227,9 @@ recoveryGreenCard = EUGreenCard(
         "origins": [
             {
                 "type": "recovery",
-                "eventTime": "2021-04-01T00:00:00+00:00",
-                "expirationTime": "2020-07-31T00:00:00+00:00",
-                "validFrom": "2021-04-01T00:00:00+00:00",
+                "eventTime": "2021-02-01T00:00:00+00:00",
+                "expirationTime": "2021-08-01T00:00:00+00:00",
+                "validFrom": "2021-02-01T00:00:00+00:00",
             }
         ],
         "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
@@ -241,9 +242,9 @@ convertedPositiveTestToRecoveryGreencard = EUGreenCard(
         "origins": [
             {
                 "type": "recovery",
-                "eventTime": "2021-03-01T00:00:00+00:00",
-                "expirationTime": "2020-07-31T00:00:00+00:00",
-                "validFrom": "2021-03-01T00:00:00+00:00",
+                "eventTime": "2021-02-01T00:00:00+00:00",
+                "expirationTime": "2021-08-01T00:00:00+00:00",
+                "validFrom": "2021-02-01T00:00:00+00:00",
             }
         ],
         "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
@@ -255,9 +256,9 @@ testGreenCard = EUGreenCard(
         "origins": [
             {
                 "type": "test",
-                "eventTime": "2021-03-01T19:38:00+00:00",
-                "expirationTime": "2020-07-31T00:00:00+00:00",
-                "validFrom": "2021-03-01T19:38:00+00:00",
+                "eventTime": "2021-02-01T19:38:00+00:00",
+                "expirationTime": "2021-08-01T00:00:00+00:00",
+                "validFrom": "2021-02-01T19:38:00+00:00",
             }
         ],
         "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
@@ -265,7 +266,7 @@ testGreenCard = EUGreenCard(
 )
 
 
-@freeze_time("2020-02-02")
+@freeze_time("2021-02-02")
 def test_eusign_separate(requests_mock):
     example_answer = {"credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G"}
     requests_mock.post(settings.EU_INTERNATIONAL_SIGNING_URL, json=example_answer)
@@ -282,7 +283,7 @@ def test_eusign_separate(requests_mock):
     assert answer == [convertedPositiveTestToRecoveryGreencard]
 
 
-@freeze_time("2020-02-02")
+@freeze_time("2021-02-02")
 def test_eusign_all_events(requests_mock):
     example_answer = {"credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G"}
     requests_mock.post(settings.EU_INTERNATIONAL_SIGNING_URL, json=example_answer)
