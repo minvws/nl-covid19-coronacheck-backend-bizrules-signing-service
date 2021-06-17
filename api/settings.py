@@ -69,6 +69,8 @@ class AppSettings(BaseSettings):
     EU_INTERNATIONAL_GREENCARD_EXPIRATION_TIME_DAYS: int = 28
     EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS: int = 180
 
+    DEDUPLICATION_MARGIN: int = 2
+
     # The requests library has a feature that:
     # - False ignores any certificate, True uses system CA and file = against the bundle supplied.
     SIGNER_CA_CERT_FILE: Union[bool, str] = ""

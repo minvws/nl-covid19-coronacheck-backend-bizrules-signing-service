@@ -2,7 +2,7 @@ import json
 import logging
 import os.path
 from datetime import date, datetime, timedelta
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List
 
 import pytz
 
@@ -94,47 +94,174 @@ def create_eu_signer_message(event: Event) -> MessageToEUSigner:
 
 
 def same_type_and_same_day(event1, event2, data_type, date_field) -> bool:
-    # the same test type on the same at the same date are duplicates
+    # the same test type on roughly (within margin) the same at the same date are duplicates
     if isinstance(event1, data_type) and isinstance(event2, data_type):
-        if getattr(event1, date_field) == getattr(event2, date_field):
+        event1_date = getattr(event1, date_field)
+        event2_date = getattr(event2, date_field)
+        if abs((event2_date - event1_date).days) <= settings.DEDUPLICATION_MARGIN:
             log.debug(f"{data_type} at the same date are duplicates.")
             return True
+
     return False
 
 
-def deduplicate_events(events: Events) -> Events:
-    # TODO retain the most complete event rather than just this first one
-    log.debug(f"Deduplicating {len(events.events)} events.")
+def _identical_vaccinations(vacc1: Event, vacc2: Event) -> bool:
+    if not vacc1.vaccination or not vacc2.vaccination:
+        raise ValueError("can only compare vaccinations")
+
+    if not same_type_and_same_day(vacc1.vaccination, vacc2.vaccination, Vaccination, "date"):
+        return False
+
+    if vacc1.vaccination.hpkCode and vacc2.vaccination.hpkCode:
+        if vacc1.vaccination.hpkCode != vacc2.vaccination.hpkCode:
+            return False
+
+    # check all attributes in attrs: if both have them, they should be identical
+    for attr in ["hpkCode", "type", "manufacturer", "brand"]:
+        if getattr(vacc1.vaccination, attr) and getattr(vacc2.vaccination, attr):
+            if getattr(vacc1.vaccination, attr) != getattr(vacc2.vaccination, attr):
+                return False
+    return True
+
+
+def _merge_vaccinations(base: Event, other: Event) -> Event:
+    if not base.vaccination or not other.vaccination:
+        raise ValueError("can only merge vaccinations")
+
+    # the oldest of the two is the first instance of the event
+    base.vaccination.date = min(base.vaccination.date, other.vaccination.date)
+
+    # if the other one has additional information, merge it into base
+    for attr in [
+        "hpkCode",
+        "type",
+        "manufacturer",
+        "brand",
+        "completedByMedicalStatement",
+        "completedByMedicalStatement",
+        "country",
+    ]:
+        setattr(base.vaccination, attr, getattr(base.vaccination, attr) or getattr(other.vaccination, attr))
+
+    # the highest dose number is correct, but at least 1
+    base.vaccination.doseNumber = max(base.vaccination.doseNumber or 1, other.vaccination.doseNumber or 1)
+    # the lowest total doses is correct, but at most 2
+    base.vaccination.totalDoses = min(base.vaccination.totalDoses or 2, other.vaccination.totalDoses or 2)
+    return base
+
+
+def _has_identical_attributes(object_1: object, object_2: object, attributes: List[str]) -> bool:
+    """
+    True if all attributes of objects are the same. Otherwise false. All attributes have to be present on the objects.
+    :param object_1:
+    :param object_2:
+    :param attributes:
+    :return:
+    """
+    for attr in attributes:
+        if getattr(object_1, attr) != getattr(object_2, attr):
+            return False
+    return True
+
+
+_TEST_ATTRIBUTES = ["facility", "type", "name", "manufacturer", "country"]
+
+
+def _identical_negative_tests(test1: Event, test2: Event) -> bool:
+    if not test1.negativetest or not test2.negativetest:
+        raise ValueError("can only compare negative tests")
+
+    if not same_type_and_same_day(test1.negativetest, test2.negativetest, Negativetest, "sampleDate"):
+        return False
+
+    return _has_identical_attributes(test1.negativetest, test2.negativetest, _TEST_ATTRIBUTES)
+
+
+def _merge_negative_tests(base: Event, other: Event) -> Event:
+    if not base.negativetest or not other.negativetest:
+        raise ValueError("can only merge negative tests")
+
+    base.negativetest.sampleDate = min(base.negativetest.sampleDate, other.negativetest.sampleDate)
+    base.negativetest.country = base.negativetest.country or other.negativetest.country
+    return base
+
+
+def _identical_positive_tests(test1: Event, test2: Event) -> bool:
+    if not test1.positivetest or not test2.positivetest:
+        raise ValueError("can only compare positive tests")
+
+    if not same_type_and_same_day(test1.positivetest, test2.positivetest, Positivetest, "sampleDate"):
+        return False
+
+    return _has_identical_attributes(test1.positivetest, test2.positivetest, _TEST_ATTRIBUTES)
+
+
+def _merge_positive_tests(base: Event, other: Event) -> Event:
+    if not base.positivetest or not other.positivetest:
+        raise ValueError("can only merge positive tests")
+
+    base.positivetest.sampleDate = min(base.positivetest.sampleDate, other.positivetest.sampleDate)
+    base.positivetest.country = base.positivetest.country or other.positivetest.country
+    return base
+
+
+def _identical_recoveries(reco1: Event, reco2: Event) -> bool:
+    if not reco1.recovery or not reco2.recovery:
+        raise ValueError("can only compare recoveries")
+
+    if not same_type_and_same_day(reco1.recovery, reco2.recovery, Recovery, "sampleDate"):
+        return False
+
+    return _has_identical_attributes(reco1.recovery, reco2.recovery, ["validFrom", "validUntil", "country"])
+
+
+def _merge_recoveries(base: Event, other: Event) -> Event:
+    if not base.recovery or not other.recovery:
+        raise ValueError("can only merge recoveries")
+
+    base.recovery.sampleDate = min(base.recovery.sampleDate, other.recovery.sampleDate)
+    base.recovery.country = base.recovery.country or other.recovery.country
+    return base
+
+
+def _deduplicate(events: List[Event], events_are_identical_func: Callable, merge_func: Callable) -> List[Event]:
+    log.debug(f"Deduplication {len(events)} events.")
     retained: List[Event] = []
-    for event in events.events:
+    for event in events:
         if event in retained:
             log.debug("Event already in retained, continuing...")
             continue
-
-        duplicate = False
-        for ret in retained:
-            if any(
-                [
-                    same_type_and_same_day(event.vaccination, ret.vaccination, Vaccination, "date"),
-                    same_type_and_same_day(event.negativetest, ret.negativetest, Negativetest, "sampleDate"),
-                    same_type_and_same_day(event.positivetest, ret.positivetest, Positivetest, "sampleDate"),
-                    same_type_and_same_day(event.recovery, ret.recovery, Recovery, "sampleDate"),
-                ]
-            ):
-                duplicate = True
-
-        # event is not a duplicate, retain it
-        if not duplicate:
-            log.debug(f"Retaining {event.unique}.")
+        if len(retained) == 0:
             retained.append(event)
-        else:
-            log.debug(f"Not retaining {event.unique}.")
+            continue
 
-    log.debug(f"Retaining {len(retained)} event(s).")
+        merged = False
+        for ret in retained:
+            if events_are_identical_func(ret, event):
+                log.debug(f"Merging {event.unique}.")
+                merge_func(ret, event)
+                merged = True
+        if not merged:
+            log.debug(f"Adding {event.unique}")
+            retained.append(event)
 
-    retained_events = Events()
-    retained_events.events = retained
-    return retained_events
+    return retained
+
+
+def deduplicate_events(events: Events) -> Events:
+    deduped_vaccinations = _deduplicate(events.vaccinations, _identical_vaccinations, _merge_vaccinations)
+    deduped_negative_tests = _deduplicate(events.negativetests, _identical_negative_tests, _merge_negative_tests)
+    deduped_positive_tests = _deduplicate(events.positivetests, _identical_positive_tests, _merge_positive_tests)
+    deduped_recoveries = _deduplicate(events.recoveries, _identical_recoveries, _merge_recoveries)
+
+    result = Events()
+    result.events = [
+        *deduped_vaccinations,
+        *deduped_negative_tests,
+        *deduped_positive_tests,
+        *deduped_recoveries,
+    ]
+    return result
 
 
 # todo: test, this is already done in the models?
