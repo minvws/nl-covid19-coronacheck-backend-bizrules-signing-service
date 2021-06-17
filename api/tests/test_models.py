@@ -15,7 +15,7 @@ from api.models import (
 
 
 @freeze_time("2021-06-01T01:23:45")
-def test_upgrade_to_v3_with_negative_test(requests_mock):
+def test_upgrade_to_v3_with_negative_test():
     event = V2Event(
         **{
             "protocolVersion": "2.0",
