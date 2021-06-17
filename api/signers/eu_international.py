@@ -224,6 +224,7 @@ def is_eligible(event: Event) -> bool:
     # Some negative tests are not eligible for signing, they are upgrade v2 events that
     # have incomplete holder information: the year is wrong, the first and last name are one letter.
     if isinstance(event.negativetest, Negativetest) and event.holder.birthDate.year == INVALID_YEAR_FOR_EU_SIGNING:
+        log.debug("Event is not eligible for eu signing because the event it is an upgrade v2 event.")
         return False
 
     if isinstance(event.vaccination, Vaccination):

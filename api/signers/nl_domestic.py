@@ -26,14 +26,18 @@ TZ = pytz.timezone("UTC")
 
 
 def floor_hours(my_date: Union[datetime, date]) -> datetime:
-    # Datetimes are automatically marshalled to ISO in json.
-    # cast dates to datetimes:
-    # https://stackoverflow.com/questions/1937622/convert-date-to-datetime-in-python/1937636
-    if isinstance(my_date, date):
+    # if isinstance(my_date, date):  <- does not work as date is also a datetime instance(!)
+    if not hasattr(my_date, "date"):
+        # https://stackoverflow.com/questions/1937622/convert-date-to-datetime-in-python/1937636
         my_date = datetime.combine(my_date, datetime.min.time())
+        my_datetime = TZ.localize(my_date)
+    else:
+        if isinstance(my_date, datetime):
+            my_datetime = my_date
+        else:
+            raise ValueError(f"my_date is not a date or datetime. {my_date}.")
 
-    combined_date = my_date.replace(microsecond=0, second=0, minute=0)
-    return TZ.localize(combined_date)
+    return my_datetime.replace(microsecond=0, second=0, minute=0)
 
 
 def eligible_vaccination(events: Events) -> List[RichOrigin]:
@@ -145,7 +149,7 @@ def eligible_negative_tests(events) -> List[RichOrigin]:
 def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBlock]) -> List[DomesticSignerAttributes]:
     # # Calculate sets of credentials for every block
     # todo: visualize what is meant with blocks. Add examples.
-    rounded_now = floor_hours(datetime.now())
+    rounded_now = floor_hours(datetime.now(tz=pytz.utc))
 
     attributes = []
 
@@ -212,7 +216,7 @@ def create_origins(events: Events) -> Optional[List[RichOrigin]]:
     # # Calculate final origins and attributes
     # # --------------------------------------
     # Filter out origins that aren't valid any more, and sort on validFrom
-    rounded_now = floor_hours(datetime.now())
+    rounded_now = floor_hours(datetime.now(tz=pytz.utc))
     return sorted(filter(lambda o: o.expirationTime > rounded_now, origins), key=lambda o: o.validFrom)
 
 

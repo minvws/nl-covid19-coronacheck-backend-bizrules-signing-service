@@ -69,22 +69,22 @@ def test_app_credential_request(requests_mock, current_path, redis_db):
                 # From the v2 event
                 # todo: negative test is temporary replaces to test to make integration for app devs easier
                 {
-                    "eventTime": "2021-05-27T00:00:00+00:00",
-                    "expirationTime": "2021-05-28T16:00:00+00:00",
+                    "eventTime": "2021-05-27T19:00:00+00:00",
+                    "expirationTime": "2021-05-29T11:00:00+00:00",
                     "type": "test",
-                    "validFrom": "2021-05-27T00:00:00+00:00",
+                    "validFrom": "2021-05-27T19:00:00+00:00",
                 },
                 {
-                    "eventTime": "2021-05-27T00:00:00+00:00",
-                    "expirationTime": "2021-05-28T16:00:00+00:00",
+                    "eventTime": "2021-05-27T19:00:00+00:00",
+                    "expirationTime": "2021-05-29T11:00:00+00:00",
                     "type": "test",
-                    "validFrom": "2021-05-27T00:00:00+00:00",
+                    "validFrom": "2021-05-27T19:00:00+00:00",
                 },
                 {
-                    "eventTime": "2021-06-01T00:00:00+00:00",
-                    "expirationTime": "2021-06-02T16:00:00+00:00",
+                    "eventTime": "2021-06-01T05:00:00+00:00",
+                    "expirationTime": "2021-06-02T21:00:00+00:00",
                     "type": "test",
-                    "validFrom": "2021-06-01T00:00:00+00:00",
+                    "validFrom": "2021-06-01T05:00:00+00:00",
                 },
             ],
         },

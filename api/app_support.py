@@ -11,13 +11,13 @@ from api import log
 from api.models import (
     CMSSignedDataBlob,
     DataProviderEventsResult,
+    DutchBirthDate,
     Event,
     Events,
-    V2Event,
-    UciTestInfo,
     EventType,
-    DutchBirthDate,
     Holder,
+    UciTestInfo,
+    V2Event,
 )
 from api.session_store import session_store
 from api.settings import settings
@@ -131,15 +131,20 @@ def decode_and_normalize_events(request_data_events: List[CMSSignedDataBlob]) ->
     ]
     """
     # Merge the events from multiple providers into one list
-    events: Events = Events()
-    events_result = extract_results(request_data_events)
+
+    data_provider_events_results = extract_results(request_data_events)
 
     # should not accept data provider results for more than one holder, so raise an exception if that happens
-    if not has_unique_holder(events_result):
+    if not has_unique_holder(data_provider_events_results):
         # we have a request with different holders, raise an error
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=["error code 99966"])
 
-    for dp_event_result in events_result:
+    return data_provider_events_results_to_events(data_provider_events_results)
+
+
+def data_provider_events_results_to_events(data_provider_events_results: List[DataProviderEventsResult]) -> Events:
+    events: Events = Events()
+    for dp_event_result in data_provider_events_results:
         holder = dp_event_result.holder
 
         for dp_event in dp_event_result.events:
