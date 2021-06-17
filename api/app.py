@@ -11,8 +11,8 @@ from api import log
 from api.app_support import (
     decode_and_normalize_events,
     get_jwt_from_authorization_header,
-    retrieve_prepare_issue_message_from_redis,
     perform_uci_test,
+    retrieve_prepare_issue_message_from_redis,
 )
 from api.enrichment.rvig import rvig
 from api.models import (
@@ -25,8 +25,8 @@ from api.models import (
     EventDataProviderJWT,
     MobileAppProofOfVaccination,
     PrepareIssueResponse,
-    V2Event,
     UciTestInfo,
+    V2Event,
 )
 from api.requesters import identity_hashes
 from api.requesters.prepare_issue import get_prepare_issue

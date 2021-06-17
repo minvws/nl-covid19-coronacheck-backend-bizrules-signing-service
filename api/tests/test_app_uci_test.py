@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 
 from api import log
 from api.app import app
-from api.models import UciTestInfo, Holder, EventType, Event
+from api.models import Event, EventType, Holder, UciTestInfo
 
 
 def test_app_uci_test():

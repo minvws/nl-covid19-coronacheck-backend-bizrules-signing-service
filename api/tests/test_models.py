@@ -1,6 +1,7 @@
 from datetime import date, datetime, timezone
 
 import pytest
+from freezegun import freeze_time
 
 from api.models import (
     DutchBirthDate,
@@ -13,6 +14,7 @@ from api.models import (
 )
 
 
+@freeze_time("2021-06-01T01:23:45")
 def test_upgrade_to_v3_with_negative_test():
     event = V2Event(
         **{

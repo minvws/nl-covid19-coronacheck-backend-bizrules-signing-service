@@ -104,31 +104,42 @@ def test_static_sign(current_path, requests_mock):
         RichOrigin(
             holder=Holder(firstName="Top", lastName="Pertje", birthDate="1950-01-01", infix=""),
             type="test",
-            eventTime=datetime(2021, 5, 27, 0, 0, tzinfo=pytz.utc),
-            validFrom=datetime(2021, 5, 27, 0, 0, tzinfo=pytz.utc),
-            expirationTime=datetime(2021, 5, 28, 16, 0, tzinfo=pytz.utc),
+            eventTime=datetime(2021, 5, 27, 19, 0, tzinfo=timezone.utc),
+            validFrom=datetime(2021, 5, 27, 19, 0, tzinfo=timezone.utc),
+            expirationTime=datetime(2021, 5, 29, 11, 0, tzinfo=timezone.utc),
             isSpecimen=True,
         ),
         RichOrigin(
             holder=Holder(firstName="Top", lastName="Pertje", birthDate="1950-01-01", infix=""),
             type="test",
-            eventTime=datetime(2021, 5, 27, 0, 0, tzinfo=pytz.utc),
-            validFrom=datetime(2021, 5, 27, 0, 0, tzinfo=pytz.utc),
-            expirationTime=datetime(2021, 5, 28, 16, 0, tzinfo=pytz.utc),
+            eventTime=datetime(2021, 5, 27, 19, 0, tzinfo=timezone.utc),
+            validFrom=datetime(2021, 5, 27, 19, 0, tzinfo=timezone.utc),
+            expirationTime=datetime(2021, 5, 29, 11, 0, tzinfo=timezone.utc),
             isSpecimen=True,
         ),
         RichOrigin(
             holder=Holder(firstName="T", lastName="P", birthDate="1883-01-01", infix=""),  # 1883 is a special flag
             type="test",
-            eventTime=datetime(2021, 6, 1, 0, 0, tzinfo=pytz.utc),
-            validFrom=datetime(2021, 6, 1, 0, 0, tzinfo=pytz.utc),
-            expirationTime=datetime(2021, 6, 2, 16, 0, tzinfo=pytz.utc),
+            eventTime=datetime(2021, 6, 1, 5, 0, tzinfo=timezone.utc),
+            validFrom=datetime(2021, 6, 1, 5, 0, tzinfo=timezone.utc),
+            expirationTime=datetime(2021, 6, 2, 21, 0, tzinfo=timezone.utc),
             isSpecimen=True,
         ),
     ]
 
     attributes: List[DomesticSignerAttributes] = create_attributes(origins)
+    # todo: why four attributes?
     assert attributes == [
+        DomesticSignerAttributes(
+            isSpecimen="1",
+            stripType=StripType.APP_STRIP,
+            validFrom="1622160000",
+            validForHours="24",
+            firstNameInitial="T",
+            lastNameInitial="",
+            birthDay="1",
+            birthMonth="",
+        ),
         DomesticSignerAttributes(
             isSpecimen="1",
             stripType=StripType.APP_STRIP,
@@ -183,21 +194,21 @@ def test_static_sign(current_path, requests_mock):
             # todo: multiple tests? Should there be just one?
             GreenCardOrigin(
                 type="test",
-                eventTime="2021-05-27T00:00:00+00:00",
-                expirationTime="2021-05-28T16:00:00+00:00",
-                validFrom="2021-05-27T00:00:00+00:00",
+                eventTime="2021-05-27T19:00:00+00:00",
+                expirationTime="2021-05-29T11:00:00+00:00",
+                validFrom="2021-05-27T19:00:00+00:00",
             ),
             GreenCardOrigin(
                 type="test",
-                eventTime="2021-05-27T00:00:00+00:00",
-                expirationTime="2021-05-28T16:00:00+00:00",
-                validFrom="2021-05-27T00:00:00+00:00",
+                eventTime="2021-05-27T19:00:00+00:00",
+                expirationTime="2021-05-29T11:00:00+00:00",
+                validFrom="2021-05-27T19:00:00+00:00",
             ),
             GreenCardOrigin(
                 type="test",
-                eventTime="2021-06-01T00:00:00+00:00",
-                expirationTime="2021-06-02T16:00:00+00:00",
-                validFrom="2021-06-01T00:00:00+00:00",
+                eventTime="2021-06-01T05:00:00+00:00",
+                expirationTime="2021-06-02T21:00:00+00:00",
+                validFrom="2021-06-01T05:00:00+00:00",
             ),
         ],
         createCredentialMessages="IntcInFyXCI6IHtcImRhdGFcIjogXCJURisqSlkrMjE6NiBUJU5DUSsgUFZIR"

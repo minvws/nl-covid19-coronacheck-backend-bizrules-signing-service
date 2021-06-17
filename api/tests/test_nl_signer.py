@@ -1,11 +1,14 @@
 import json
 from base64 import b64encode
+from datetime import date, datetime
 
+import pytz
 from freezegun import freeze_time
 
 from api.app_support import decode_and_normalize_events
 from api.models import CMSSignedDataBlob, DomesticGreenCard, GreenCardOrigin
 from api.settings import settings
+from api.signers.nl_domestic import floor_hours
 from api.signers.nl_domestic_static import sign
 
 
@@ -72,3 +75,12 @@ def test_nl_testcases(requests_mock):
         "IFwiYmlydGhNb250aFwiOiBcIjRcIiwgXCJpc1NwZWNpbWVuXCI6IFwiMVwiLCBcImlzUGFwZXJQcm9vZlwiO"
         "iBcIjFcIn19LCBcInN0YXR1c1wiOiBcIm9rXCIsIFwiZXJyb3JcIjogMH0i",
     )
+
+
+def test_floor_hours():
+    test_date = date(2021, 12, 31)
+    assert floor_hours(test_date) == datetime(2021, 12, 31, 0, 0, tzinfo=pytz.utc)
+
+    # checking for date and datetime is hard in python.
+    test_date = datetime(2021, 12, 31, 3, 4, tzinfo=pytz.utc)
+    assert floor_hours(test_date) == datetime(2021, 12, 31, 3, 0, tzinfo=pytz.utc)
