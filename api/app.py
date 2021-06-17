@@ -25,6 +25,11 @@ from api.models import (
     MobileAppProofOfVaccination,
     PrepareIssueResponse,
     V2Event,
+    Event,
+    UciTestInfo,
+    Holder,
+    DutchBirthDate,
+    EventType,
 )
 from api.requesters import identity_hashes
 from api.requesters.prepare_issue import get_prepare_issue
@@ -54,6 +59,18 @@ async def health_request() -> ApplicationHealth:
 async def unhealth_request() -> ApplicationHealth:
     # This is needed to verify logging works correctly.
     raise RuntimeError("Don't worry this endpoint is supposed to produce an internal server error")
+
+
+@app.get("/uci_test")
+async def uci_test() -> UciTestInfo:
+    # This is needed to verify logging works correctly.
+    # During development the app restarts after this call as it restarts on changes in files(!)
+    fake_holder = Holder(firstName="Test", lastName="Test", infix="Test", birthDate=DutchBirthDate("1970-01-01"))
+    test_event = Event(
+        source_provider_identifier="ZZZ", unique="UCI_TEST_EVENT", holder=fake_holder, type=EventType.test
+    )
+    uci = test_event.to_uci_01()
+    return UciTestInfo(written_to_logfile=uci, event=test_event)
 
 
 @app.post("/app/access_tokens/", response_model=List[EventDataProviderJWT])

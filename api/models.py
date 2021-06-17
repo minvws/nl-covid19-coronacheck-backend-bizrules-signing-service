@@ -971,3 +971,8 @@ class ApplicationHealth(BaseModel):  # noqa
     # Todo: Checks should preferably happen in parallel, as a multitude of checks could take longer than the
     #  webserver timeout. Currently not an issue.
     service_status: List[ServiceHealth]
+
+
+class UciTestInfo(BaseModel):
+    written_to_logfile: str = Field(description="UCI written to logfile")
+    event: Event
