@@ -17,6 +17,8 @@ from api.models import (
     GreenCardOrigin,
     RichOrigin,
     StripType,
+    IssueMessage,
+    StaticIssueMessage,
 )
 from api.settings import settings
 from api.signers import hpkcodes
@@ -147,6 +149,8 @@ def eligible_negative_tests(events) -> List[RichOrigin]:
 
 
 def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBlock]) -> List[DomesticSignerAttributes]:
+    log.debug(f"Creating attributes from {len(contiguous_blocks)} ContiguousOriginsBlock.")
+
     # # Calculate sets of credentials for every block
     # todo: visualize what is meant with blocks. Add examples.
     rounded_now = floor_hours(datetime.now(tz=pytz.utc))
@@ -205,6 +209,8 @@ def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBl
 
 
 def create_origins(events: Events) -> Optional[List[RichOrigin]]:
+    log.debug(f"Creating origins for {len(events.events)} events.")
+
     origins: List[RichOrigin] = (
         eligible_vaccination(events)
         + eligible_recovery(events)
@@ -221,6 +227,8 @@ def create_origins(events: Events) -> Optional[List[RichOrigin]]:
 
 
 def create_attributes(origins: List[RichOrigin]) -> List[DomesticSignerAttributes]:
+    log.debug(f"Creating attributes for {len(origins)} origins.")
+
     # # Calculate blocks of contiguous origins
     contiguous_blocks: List[ContiguousOriginsBlock] = [
         ContiguousOriginsBlock.from_origin(origins[0]),
@@ -239,10 +247,12 @@ def create_attributes(origins: List[RichOrigin]) -> List[DomesticSignerAttribute
     return calculate_attributes_from_blocks(contiguous_blocks)
 
 
-def _sign(url, data, origins) -> DomesticGreenCard:
+def _sign(url, data: Union[IssueMessage, StaticIssueMessage], origins) -> DomesticGreenCard:
+    log.debug(f"Signing domestic greencard for {len(origins)}.")
+
     response = request_post_with_retries(
         url,
-        data=data,
+        data=data.dict(),
         headers={"accept": "application/json", "Content-Type": "application/json"},
     )
     response.raise_for_status()

@@ -46,12 +46,18 @@ def extract_results(blobs: List[CMSSignedDataBlob]) -> List[DataProviderEventsRe
         if dp_event_json["protocolVersion"] == "3.0":
             dp_event_result: DataProviderEventsResult = DataProviderEventsResult(**dp_event_json)
         elif dp_event_json["protocolVersion"] == "2.0":
+            log.debug("Receiving V2 event, upgrading to V3. This event cannot be EU signed.")
             # V2 is contains only one single negative test
             # V2 messages are not eligible for EU signing because it contains no full name and a wrong year(!)
             dp_event_result = V2Event(**dp_event_json).upgrade_to_v3()
         else:
             raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=["Unsupported protocolVersion"])
         results.append(dp_event_result)
+
+    # add some logging about what events are received:
+    for result in results:
+        for event in result.events:
+            log.debug(f"Received event {event.unique} from {result.providerIdentifier}.")
 
     return results
 
@@ -79,6 +85,7 @@ def has_unique_holder(events_results: List[DataProviderEventsResult]) -> bool:
 
 
 def decode_and_normalize_events(request_data_events: List[CMSSignedDataBlob]) -> Events:
+    log.debug(f"Received {len(request_data_events)} CMSSignedDataBlobs.")
     # TODO: CMS signature checks
     # for loop over events -> cms sig check
     # signature should be a pkcs7 over payload with a cert.
@@ -136,6 +143,7 @@ def decode_and_normalize_events(request_data_events: List[CMSSignedDataBlob]) ->
 
     # should not accept data provider results for more than one holder, so raise an exception if that happens
     if not has_unique_holder(data_provider_events_results):
+        log.debug("Series of event does not have a unique holder. It's not clear for who is signed for.")
         # we have a request with different holders, raise an error
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=["error code 99966"])
 
@@ -143,6 +151,7 @@ def decode_and_normalize_events(request_data_events: List[CMSSignedDataBlob]) ->
 
 
 def data_provider_events_results_to_events(data_provider_events_results: List[DataProviderEventsResult]) -> Events:
+    log.debug(f"Received {len(data_provider_events_results)} DataProviderEventsResult.")
     events: Events = Events()
     for dp_event_result in data_provider_events_results:
         holder = dp_event_result.holder
@@ -156,6 +165,7 @@ def data_provider_events_results_to_events(data_provider_events_results: List[Da
                 )
             )
 
+    log.debug(f"Created {len(events.events)} events.")
     return events
 
 

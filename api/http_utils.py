@@ -60,7 +60,7 @@ def request_request_with_retries(
 
     session = requests.Session()
     # https://docs.python-requests.org/en/master/user/advanced/#ssl-cert-verification
-    log.debug(f"Requesting {url} with verification: {settings.SIGNER_CA_CERT_FILE}")
+    log.debug(f"Requesting {method} to {url} with verification: {settings.SIGNER_CA_CERT_FILE}")
     session.verify = settings.SIGNER_CA_CERT_FILE
     retries = Retry(total=exponential_retries, backoff_factor=1, status_forcelist=retry_on_these_status_codes)
 

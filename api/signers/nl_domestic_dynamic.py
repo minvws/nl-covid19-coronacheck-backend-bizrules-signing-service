@@ -22,4 +22,4 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
         }
     )
 
-    return _sign(settings.DOMESTIC_NL_VWS_ONLINE_SIGNING_URL, data=issue_message.dict(), origins=origins)
+    return _sign(settings.DOMESTIC_NL_VWS_ONLINE_SIGNING_URL, data=issue_message, origins=origins)
