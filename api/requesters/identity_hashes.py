@@ -32,14 +32,15 @@ async def retrieve_bsn_from_inge6(jwt_token: str):
         _payload = jwt.decode(
             jwt_token, key=settings.INGE6_JWT_PUBLIC_CRT, algorithms=["RS256"], audience=settings.INGE4_JWT_AUDIENCE
         )
-    except jwt.DecodeError as err:
-        log.warning(f"invalid jwt entered: {repr(err)}")
+    except jwt.InvalidTokenError as err:
+        log.error(f"invalid token error {repr(err)}")
         raise HTTPInvalidRetrievalTokenException from err
 
     headers = {"Authorization": f"Bearer {jwt_token}"}
 
     response = request_post_with_retries(settings.INGE6_BSN_RETRIEVAL_URL, data="", headers=headers)
     response.raise_for_status()
+
     encrypted_bsn = response.content
 
     bsn = inge6_box.decrypt(encrypted_bsn, encoder=Base64Encoder)
