@@ -79,10 +79,12 @@ def create_eu_signer_message(event: Event) -> MessageToEUSigner:
 
     # The EU signer does not know positive tests only recovery:
     if event_type == EventType.positivetest:
+        log.debug(f"Changing event_type for event {event.unique} from positivetest to recovery.")
         event_type = EventType.recovery
 
     # The EU signer does not know negative tests, only tests.
     if event_type == EventType.negativetest:
+        log.debug(f"Changing event_type for event {event.unique} from negativetest to test.")
         event_type = EventType.test
 
     return MessageToEUSigner(
@@ -327,7 +329,7 @@ def _is_eligible_vaccination(event: Event) -> bool:
         or event.vaccination.brand in ELIGIBLE_MP
     ):
         return True
-    logging.debug(f"Ineligible vaccine; {event.vaccination}")
+    logging.debug(f"Ineligible vaccination {event.vaccination}")
     return False
 
 
@@ -340,7 +342,7 @@ def _is_eligible_test(event: Event) -> bool:
     if isinstance(event.positivetest, Positivetest) and event.positivetest.type in ELIGIBLE_TT:
         return True
 
-    logging.debug(f"Ineligible test; {event}")
+    logging.debug(f"Ineligible test: {event}")
     return False
 
 

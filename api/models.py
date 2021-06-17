@@ -496,6 +496,8 @@ class Events(BaseModel):
         if not self.events:
             return None
 
+        log.debug("Creating european signing request for event.")
+
         # choose any holder for now, for any event.
         any_holder = self.events[0].holder
 
