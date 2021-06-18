@@ -11,6 +11,7 @@ from requests.exceptions import HTTPError
 from api import log
 from api.app_support import (
     decode_and_normalize_events,
+    filter_specimen_events,
     get_jwt_from_authorization_header,
     perform_uci_test,
     retrieve_prepare_issue_message_from_redis,
@@ -112,6 +113,7 @@ async def app_credential_request(request_data: CredentialsRequestData):
         raise HTTPException(status_code=401, detail=["Session expired or is invalid"])
 
     events = decode_and_normalize_events(request_data.events)
+    events = filter_specimen_events(events)
 
     domestic_response: Optional[DomesticGreenCard] = nl_domestic_dynamic.sign(
         events, prepare_issue_message, request_data.issueCommitmentMessage
