@@ -15,10 +15,10 @@ from api.models import (
     Events,
     EventType,
     GreenCardOrigin,
-    RichOrigin,
-    StripType,
     IssueMessage,
+    RichOrigin,
     StaticIssueMessage,
+    StripType,
 )
 from api.settings import settings
 from api.signers import hpkcodes
