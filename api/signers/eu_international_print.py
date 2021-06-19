@@ -27,6 +27,6 @@ def sign(events: Events) -> Optional[EuropeanPrintProof]:
     origin = eu_greencards[0].origins[0]
     return EuropeanPrintProof(
         expirationTime=origin.expirationTime,
-        dcc=dcc,
+        dcc=dcc.dgc,
         qr=eu_greencards[0].credential,
     )

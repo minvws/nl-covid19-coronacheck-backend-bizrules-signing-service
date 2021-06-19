@@ -852,7 +852,7 @@ class IssueMessage(BaseModel):
 
 
 class StaticIssueMessage(BaseModel):
-    credentialsAttributes: List[DomesticSignerAttributes]
+    credentialAttributes: DomesticSignerAttributes
 
 
 class DomesticPrintProof(BaseModel):
