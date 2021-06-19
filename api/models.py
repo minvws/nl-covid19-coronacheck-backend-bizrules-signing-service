@@ -5,9 +5,10 @@ import json
 import re
 from datetime import date, datetime, timedelta
 from enum import Enum
-from typing import List, Optional, Union
+from typing import List, Optional, Set, Union
 from uuid import UUID
 
+import pytz
 import pycountry
 from pydantic import BaseModel, Field
 
@@ -17,6 +18,7 @@ from api.enrichment.name_normalizer import normalize_name
 from api.settings import settings
 from api.uci import generate_uci_01
 
+TZ = pytz.timezone("UTC")
 
 class Iso3166Dash1Alpha2CountryCode(str):
     """
@@ -447,6 +449,36 @@ class Event(DataProviderEvent):
         uci_log.info(json.dumps({"uci": uci, "provider": self.source_provider_identifier, "unique": self.unique}))
         return uci
 
+    def _get_date_attribute(self,
+                            vaccination_attr: str = "date",
+                            negativetest_attr: str = "sampleDate",
+                            positivetest_attr: str = "sampleDate",
+                            recovery_attr: str = "sampleDate") -> datetime:
+        """
+        Return relevant date attributes from an event. Defaults to getting the dates at which the event occurred,
+        but other attributes may be extracted. For instance: the validFrom date when this is a Recovery event.
+        """
+        if isinstance(self.vaccination, Vaccination):
+            event_time = getattr(self.vaccination, vaccination_attr)
+        elif isinstance(self.negativetest, Negativetest):
+            event_time = getattr(self.negativetest, negativetest_attr)
+        elif isinstance(self.positivetest, Positivetest):
+            event_time = getattr(self.positivetest, positivetest_attr)
+        elif isinstance(self.recovery, Recovery):
+            event_time = getattr(self.recovery, recovery_attr)
+        else:
+            raise ValueError("trying to retrieve event time from an event with no type")
+
+        if not isinstance(event_time, datetime):
+            event_time = datetime.combine(event_time, datetime.min.time())
+        return TZ.localize(event_time) if event_time.tzinfo is None else event_time
+
+    def get_event_time(self) -> datetime:
+        return self._get_date_attribute()
+
+    def get_valid_from_time(self) -> datetime:
+        return self._get_date_attribute(recovery_attr="validFrom")
+
 
 class Events(BaseModel):
     events: List[Event] = Field(default=[])
@@ -490,6 +522,10 @@ class Events(BaseModel):
         events = [event for event in self.events if isinstance(event.recovery, Recovery)]
         events = sorted(events, key=lambda e: e.recovery.sampleDate)  # type: ignore
         return events
+
+    @property
+    def type_set(self) -> Set[EventType]:
+        return set([event.type for event in self.events])
 
     # todo: move code down so EuropeanOnlineSigningRequest is known and method can be typed.
     def toEuropeanOnlineSigningRequest(self):
@@ -777,8 +813,7 @@ class CredentialsRequestData(BaseModel):
 
 class StripType(str, Enum):
     APP_STRIP = "0"
-    PAPER_STRIP_SHORT = "1"
-    PAPER_STRIP_LONG = "2"
+    PAPER_STRIP = "1"
 
 
 class DomesticSignerAttributes(BaseModel):
@@ -787,7 +822,7 @@ class DomesticSignerAttributes(BaseModel):
         example="0",
         description="Boolean cast as string, if this is a testcase. " "To facilitate testing in production.",
     )
-    stripType: StripType = Field(example="0")
+    isPaperProof: StripType = Field(example="0")
     validFrom: str = Field(example="1622563151", description="String cast of a unix timestamp.")
     validForHours: str = Field(example="24")
     firstNameInitial: str = Field(example="E", description="First letter of the first name of this person")
@@ -818,6 +853,22 @@ class IssueMessage(BaseModel):
 
 class StaticIssueMessage(BaseModel):
     credentialsAttributes: List[DomesticSignerAttributes]
+
+
+class DomesticPrintProof(BaseModel):
+    attributes: DomesticSignerAttributes = Field(description="attributes coded into the QR")
+    qr: str = Field(description="the encoded data that goes onto the QR")
+
+
+class EuropeanPrintProof(BaseModel):
+    expirationTime: str = Field(description="iso time stamp for when this proof expires at")
+    dcc: EuropeanOnlineSigningRequest = Field(description="the data that is encoded into the QR")
+    qr: str = Field(description="the encoded data that goes onto the QR")
+
+
+class PrintProof(BaseModel):
+    domestic: Optional[DomesticPrintProof] = Field(description="the domestic QR print information")
+    european: Optional[EuropeanPrintProof] = Field(description="the european QR print information")
 
 
 class RichOrigin(BaseModel):

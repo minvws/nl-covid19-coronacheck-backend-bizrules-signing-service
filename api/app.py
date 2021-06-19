@@ -33,7 +33,7 @@ from api.models import (
 from api.requesters import identity_hashes
 from api.requesters.prepare_issue import get_prepare_issue
 from api.session_store import session_store
-from api.signers import eu_international, nl_domestic_dynamic, nl_domestic_static
+from api.signers import eu_international, nl_domestic_dynamic, nl_domestic_static, nl_domestic_print
 
 app = FastAPI()
 
@@ -130,6 +130,19 @@ async def inge3_credential_request(request_data: List[CMSSignedDataBlob]):
     eu_response = eu_international.sign(events)
 
     return MobileAppProofOfVaccination(**{"domesticGreencard": domestic_response, "euGreencards": eu_response})
+
+
+@app.post("/app/print/", response_model=PrintProof)
+async def print_proof_request(request_data: List[CMSSignedDataBlob]):
+    events = decode_and_normalize_events(request_data)
+
+    domestic = nl_domestic_print.sign(events)
+    european = eu_international.sign(events)
+
+    return PrintProof(
+        domestic=domestic,
+        european=european,
+    )
 
 
 # Some documentation endpoints, as the protocol versions 2 and 3 and messages to signer are not transparent enough

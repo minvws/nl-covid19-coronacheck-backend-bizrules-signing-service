@@ -2,7 +2,7 @@ from typing import Optional
 
 from api.models import DomesticGreenCard, Events, StaticIssueMessage
 from api.settings import settings
-from api.signers.nl_domestic import create_origins_and_attributes
+from api.signers.logic_domestic import create_origins_and_attributes
 from api.signers.nl_domestic_dynamic import _sign
 
 
