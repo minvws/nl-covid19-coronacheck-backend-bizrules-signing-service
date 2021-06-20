@@ -2,8 +2,8 @@ import json
 from datetime import datetime, timezone
 from typing import Dict, List
 
-import pytest
 import json5
+import pytest
 import pytz
 from freezegun import freeze_time
 

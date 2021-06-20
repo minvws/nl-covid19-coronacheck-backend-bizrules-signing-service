@@ -1,17 +1,10 @@
 from typing import Optional
 
 from api import log
-from api.models import (
-    Event,
-    Events,
-    DomesticPrintProof,
-    DomesticSignerAttributes,
-    StaticIssueMessage,
-    StripType,
-)
+from api.models import DomesticPrintProof, DomesticSignerAttributes, Event, Events, StaticIssueMessage, StripType
 from api.settings import settings
 from api.signers.logic import distill_relevant_events
-from api.signers.logic_domestic import remove_domestic_ineligible_events, derive_print_validity_hours
+from api.signers.logic_domestic import derive_print_validity_hours, remove_domestic_ineligible_events
 from api.signers.nl_domestic import _sign_attributes
 
 

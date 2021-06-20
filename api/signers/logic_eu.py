@@ -2,17 +2,10 @@ from datetime import datetime, timedelta
 
 import pytz
 
-from api import log
-from api.models import (
-    Event,
-    Events,
-    EventType,
-    MessageToEUSigner,
-    Negativetest,
-    INVALID_YEAR_FOR_EU_SIGNING,
-)
-from api.settings import settings
 import api.signers.logic as logic
+from api import log
+from api.models import INVALID_YEAR_FOR_EU_SIGNING, Event, Events, EventType, MessageToEUSigner, Negativetest
+from api.settings import settings
 
 """
 Currently, if events are provided with isSpecimen: true, you get back completely valid non-specimen domestic and
@@ -89,5 +82,5 @@ def is_eligible_for_special_year(event: Event) -> bool:
 
 def remove_eu_ineligible_events(events: Events) -> Events:
     result = Events()
-    result.events = [event for event in events.events if  is_eligible_for_special_year(event)]
+    result.events = [event for event in events.events if is_eligible_for_special_year(event)]
     return result

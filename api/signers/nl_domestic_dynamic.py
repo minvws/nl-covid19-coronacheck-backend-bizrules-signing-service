@@ -4,9 +4,9 @@ from typing import Optional
 
 from api.models import DomesticGreenCard, Events, IssueMessage
 from api.settings import settings
-from api.signers.nl_domestic import _sign
 from api.signers.logic import distill_relevant_events
 from api.signers.logic_domestic import create_origins_and_attributes, remove_domestic_ineligible_events
+from api.signers.nl_domestic import _sign
 
 
 def sign(events: Events, prepare_issue_message: str, issue_commitment_message: str) -> Optional[DomesticGreenCard]:

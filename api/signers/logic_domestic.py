@@ -1,9 +1,10 @@
 import secrets
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
 
 import pytz
 
+import api.signers.logic as logic
 from api import log
 from api.models import (
     ContiguousOriginsBlock,
@@ -11,30 +12,30 @@ from api.models import (
     Event,
     Events,
     EventType,
-    RichOrigin,
-    StripType,
-    Vaccination,
     Negativetest,
     Positivetest,
     Recovery,
+    RichOrigin,
+    StripType,
+    Vaccination,
 )
 from api.settings import settings
-import api.signers.logic as logic
+from api.signers.logic import floor_hours
 
 
 def create_vaccination_rich_origin(event: Event) -> RichOrigin:
     if not isinstance(event.vaccination, Vaccination):
         raise ValueError("trying to turn a non-vaccination event into a vaccination rich origin")
 
-    event_time = floor_hours(best_vacc.vaccination.date)  # type: ignore
+    event_time = floor_hours(event.vaccination.date)  # type: ignore
 
     return RichOrigin(
-            holder=event.holder,
-            type=EventType.vaccination,
-            eventTime=event_time,
-            validFrom=event_time,
-            expirationTime=(event_time + timedelta(days=settings.DOMESTIC_NL_EXPIRY_DAYS_VACCINATION)),
-            isSpecimen=event.isSpecimen,
+        holder=event.holder,
+        type=EventType.vaccination,
+        eventTime=event_time,
+        validFrom=event_time,
+        expirationTime=(event_time + timedelta(days=settings.DOMESTIC_NL_EXPIRY_DAYS_VACCINATION)),
+        isSpecimen=event.isSpecimen,
     )
 
 
@@ -62,7 +63,8 @@ def create_positive_test_rich_origin(event: Event) -> RichOrigin:
         type=EventType.recovery,
         eventTime=event_time,
         validFrom=event_time + timedelta(days=settings.DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS),
-        expirationTime=event_time + timedelta(
+        expirationTime=event_time
+        + timedelta(
             days=settings.DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS + settings.DOMESTIC_NL_EXPIRY_DAYS_POSITIVE_TEST
         ),
         isSpecimen=event.isSpecimen,
@@ -148,10 +150,10 @@ def create_origins(events: Events) -> Optional[List[RichOrigin]]:
     log.debug(f"Creating origins for {len(events.events)} events.")
 
     origins: List[RichOrigin] = (
-        [create_vaccination_rich_origin(event) for event in events.vaccinations] +
-        [create_recovery_rich_origin(event) for event in events.recoveries] +
-        [create_negative_test_rich_origin(event) for event in events.negativetests] +
-        [create_positive_test_rich_origin(event) for event in events.positivetests]
+        [create_vaccination_rich_origin(event) for event in events.vaccinations]
+        + [create_recovery_rich_origin(event) for event in events.recoveries]
+        + [create_negative_test_rich_origin(event) for event in events.negativetests]
+        + [create_positive_test_rich_origin(event) for event in events.positivetests]
     )
 
     return sorted(origins, key=lambda o: o.validFrom)

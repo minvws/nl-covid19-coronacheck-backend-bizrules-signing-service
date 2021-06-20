@@ -1,5 +1,6 @@
 # Pydantic models have no methods in many cases.
-# pylint: disable=too-few-public-methods,invalid-name
+# TODO: need to split this into multipile modules
+# pylint: disable=too-few-public-methods,invalid-name,too-many-lines
 # Automatic documentation: http://localhost:8000/redoc or http://localhost:8000/docs
 import json
 import re
@@ -8,8 +9,8 @@ from enum import Enum
 from typing import List, Optional, Set, Union
 from uuid import UUID
 
-import pytz
 import pycountry
+import pytz
 from pydantic import BaseModel, Field
 
 from api import log, uci_log
@@ -454,11 +455,13 @@ class Event(DataProviderEvent):
         uci_log.info(json.dumps({"uci": uci, "provider": self.source_provider_identifier, "unique": self.unique}))
         return uci
 
-    def _get_date_attribute(self,
-                            vaccination_attr: str = "date",
-                            negativetest_attr: str = "sampleDate",
-                            positivetest_attr: str = "sampleDate",
-                            recovery_attr: str = "sampleDate") -> datetime:
+    def _get_date_attribute(
+        self,
+        vaccination_attr: str = "date",
+        negativetest_attr: str = "sampleDate",
+        positivetest_attr: str = "sampleDate",
+        recovery_attr: str = "sampleDate",
+    ) -> datetime:
         """
         Return relevant date attributes from an event. Defaults to getting the dates at which the event occurred,
         but other attributes may be extracted. For instance: the validFrom date when this is a Recovery event.
@@ -476,7 +479,7 @@ class Event(DataProviderEvent):
 
         if not isinstance(event_time, datetime):
             event_time = datetime.combine(event_time, datetime.min.time())
-        return TZ.localize(event_time) if event_time.tzinfo is None else event_time
+        return TZ.localize(event_time) if event_time.tzinfo is None else event_time  # type: ignore
 
     def get_event_time(self) -> datetime:
         return self._get_date_attribute()
@@ -530,7 +533,7 @@ class Events(BaseModel):
 
     @property
     def type_set(self) -> Set[EventType]:
-        return set([event.type for event in self.events])
+        return {event.type for event in self.events}
 
     # todo: move code down so EuropeanOnlineSigningRequest is known and method can be typed.
     def toEuropeanOnlineSigningRequest(self):
@@ -643,10 +646,7 @@ class SharedEuropeanFields(BaseModel):
     ci: str = Field(description="Certificate Identifier, format as per UCI (*)")
     # Todo: has to be moved to all four types, because we have to follow what is sent, if nothing is sent
     #  then NLD is the fallback.
-    co: Iso3166Dash1Alpha2CountryCode = Field(
-        description="Member State, ISO 3166",
-        default="NL",
-        regex=r"[A-Z]{1,10}")
+    co: Iso3166Dash1Alpha2CountryCode = Field(description="Member State, ISO 3166", default="NL", regex=r"[A-Z]{1,10}")
     is_: str = Field(description="certificate issuer", default="Ministry of Health Welfare and Sport", alias="is")
 
     @staticmethod

@@ -39,7 +39,6 @@ def event_loop():
     loop.close()
 
 
-
 if settings.RVIG_ENVIRONMENT == "mock":
     require_rvig_mock = lambda f: f  # decorator that does nothing
 else:

@@ -24,12 +24,8 @@ from api.models import (
     MessageToEUSigner,
 )
 from api.settings import settings
+from api.signers.eu_international import create_eu_signer_message, distill_relevant_events, sign
 from api.signers.logic_eu import EU_INTERNATIONAL_SPECIMEN_EXPIRATION_TIME
-from api.signers.eu_international import (
-    create_eu_signer_message,
-    distill_relevant_events,
-    sign,
-)
 
 
 def _create_events(incoming_events: List[Dict[str, Any]]) -> Events:

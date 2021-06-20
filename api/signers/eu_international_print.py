@@ -1,10 +1,10 @@
 from typing import Optional
 
+import api.signers.eu_international
 from api import log
-from api.models import EuropeanPrintProof, Events, EventType
+from api.models import EuropeanPrintProof, Events
 from api.signers.logic import distill_relevant_events
 from api.signers.logic_eu import create_eu_signer_message, remove_eu_ineligible_events
-import api.signers.eu_international
 
 
 def sign(events: Events) -> Optional[EuropeanPrintProof]:

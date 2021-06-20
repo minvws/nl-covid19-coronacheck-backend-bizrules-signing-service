@@ -2,16 +2,12 @@ from typing import List
 
 from api import log
 from api.http_utils import request_post_with_retries
-from api.models import (
-    EUGreenCard,
-    Events,
-    MessageToEUSigner,
-)
+from api.models import EUGreenCard, Events, MessageToEUSigner
 from api.settings import settings
 from api.signers.logic import distill_relevant_events
 from api.signers.logic_eu import (
-    get_eu_expirationtime,
     create_eu_signer_message,
+    get_eu_expirationtime,
     get_event_time,
     remove_eu_ineligible_events,
 )

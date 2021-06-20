@@ -1,19 +1,14 @@
-import json
 import base64
-from typing import List, Optional, Tuple, Union
+import json
+from typing import Union
 
 from api import log
 from api.http_utils import request_post_with_retries
-from api.models import (
-    DomesticGreenCard,
-    GreenCardOrigin,
-    IssueMessage,
-    StaticIssueMessage,
-)
+from api.models import DomesticGreenCard, GreenCardOrigin, IssueMessage, StaticIssueMessage
 
 
 def _sign_attributes(url, issue_message: StaticIssueMessage) -> str:
-    log.debug(f"Signing domestic attributes.")
+    log.debug("Signing domestic attributes.")
     response = request_post_with_retries(
         url,
         issue_message.dict(),
@@ -22,13 +17,13 @@ def _sign_attributes(url, issue_message: StaticIssueMessage) -> str:
     response.raise_for_status()
     try:
         qr_response = response.json()
-    except json.JSONDecodeError:
-        raise ValueError(f"did not receive parsable response from signer")
+    except json.JSONDecodeError as decode_exception:
+        raise ValueError("did not receive parsable response from signer") from decode_exception
 
     try:
-        return qr_response['qr']
-    except KeyError as e:
-        raise ValueError(f"could not sign attributes; error {qr_response.content}")
+        return str(qr_response["qr"])
+    except KeyError as no_qr:
+        raise ValueError(f"could not sign attributes; error {qr_response.content}") from no_qr
 
 
 def _sign(url, data: Union[IssueMessage, StaticIssueMessage], origins) -> DomesticGreenCard:

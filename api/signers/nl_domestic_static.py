@@ -1,7 +1,5 @@
 from typing import Optional
 
-import pytest
-
 from api.models import DomesticGreenCard, Events, StaticIssueMessage
 from api.settings import settings
 from api.signers.logic_domestic import create_origins_and_attributes

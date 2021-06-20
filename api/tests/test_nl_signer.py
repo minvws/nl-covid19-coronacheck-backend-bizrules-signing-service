@@ -60,8 +60,8 @@ def test_nl_testcases(requests_mock, current_path):
         {"issuerPkId":"TST-KEY-01","issuerNonce":"UslfUmTWQUkcLPJy+9V8JA==","credentialAmount":28}
     """
 
-    with open(current_path.joinpath("test_data/issue-commitment-message")) as f:
-        icm = f.read()
+    with open(current_path.joinpath("test_data/issue-commitment-message")) as file:
+        icm = file.read()
 
     blob = CMSSignedDataBlob(signature="", payload=b64encode(json.dumps(event).encode()).decode("UTF-8"))
 

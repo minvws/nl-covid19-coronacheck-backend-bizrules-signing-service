@@ -1,14 +1,13 @@
 import json
 import logging
 import os.path
-from typing import Any, Union, List, Callable, Dict
 from datetime import date, datetime
+from typing import Any, Callable, Dict, List, Union
 
 import pytz
 
 from api import log
-from api.models import Events, Event, Vaccination, Negativetest, Positivetest, Recovery
-
+from api.models import Event, Events, Negativetest, Positivetest, Recovery, Vaccination
 from api.settings import settings
 
 
@@ -65,11 +64,13 @@ def _is_eligible_vaccination(event: Event) -> bool:
     if not event.vaccination:
         return False
 
-    if any([
-        event.vaccination.hpkCode in ELIGIBLE_HPK_CODES,
-        event.vaccination.manufacturer in ELIGIBLE_MA,
-        event.vaccination.brand in ELIGIBLE_MP,
-    ]):
+    if any(
+        [
+            event.vaccination.hpkCode in ELIGIBLE_HPK_CODES,
+            event.vaccination.manufacturer in ELIGIBLE_MA,
+            event.vaccination.brand in ELIGIBLE_MP,
+        ]
+    ):
         return True
     log.debug(f"Ineligible vaccination {event.vaccination}")
     return False
@@ -392,11 +393,13 @@ def _completed_by_doses(vaccs: List[Event]) -> List[Event]:
         if not vacc.vaccination:
             continue
 
-        if all([
-            vacc.vaccination.doseNumber,
-            vacc.vaccination.totalDoses,
-            vacc.vaccination.doseNumber >= vacc.vaccination.totalDoses,
-        ]):
+        if not vacc.vaccination.doseNumber:
+            continue
+
+        if not vacc.vaccination.totalDoses:
+            continue
+
+        if vacc.vaccination.doseNumber >= vacc.vaccination.totalDoses:
             completions.append(vacc)
 
     if completions:

@@ -37,8 +37,8 @@ from api.signers import (
     eu_international,
     eu_international_print,
     nl_domestic_dynamic,
-    nl_domestic_static,
     nl_domestic_print,
+    nl_domestic_static,
 )
 
 app = FastAPI()
