@@ -103,4 +103,4 @@ def test_print_eu():
         )
     ]
     signed_result = eu.sign(Events(events=event_list))
-    print(json.dumps(signed_result.dict()))
+    print(signed_result.dict())

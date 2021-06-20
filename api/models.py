@@ -297,6 +297,7 @@ class Vaccination(BaseModel):  # noqa
     def toEuropeanVaccination(self):
         return EuropeanVaccination(
             **{
+                **SharedEuropeanFields.as_dict(),
                 **settings.HPK_MAPPING.get(self.hpkCode, {}),  # this mapping contains the vp, mp and ma
                 **({"vp": self.type} if self.type else {}),
                 **({"mp": self.brand} if self.brand else {}),
@@ -306,7 +307,9 @@ class Vaccination(BaseModel):  # noqa
                     "sd": self.totalDoses,
                     "dt": self.date,
                 },
-                **SharedEuropeanFields.as_dict(),
+                **{
+                    "co": self.country,
+                  },
             }
         )
 
@@ -330,6 +333,7 @@ class Positivetest(BaseModel):  # noqa
         """
         return EuropeanRecovery(
             **{
+                **SharedEuropeanFields.as_dict(),
                 **{
                     # date until, in contrast to recoveries, a positive test does not have
                     # a moment until when it's valid. So in this case we're using a configuration
@@ -337,8 +341,8 @@ class Positivetest(BaseModel):  # noqa
                     "du": self.sampleDate + timedelta(days=settings.EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS),
                     # sampletime
                     "fr": self.sampleDate,
+                    "co": self.country,
                 },
-                **SharedEuropeanFields.as_dict(),
             }
         )
 
@@ -358,6 +362,7 @@ class Negativetest(BaseModel):  # noqa
     def toEuropeanTest(self):
         return EuropeanTest(
             **{
+                **SharedEuropeanFields.as_dict(),
                 **{
                     "tt": self.type,
                     "nm": self.name,
@@ -365,8 +370,8 @@ class Negativetest(BaseModel):  # noqa
                     "sc": self.sampleDate,
                     "tr": self.negativeResult,
                     "tc": self.facility,
+                    "co": self.country,
                 },
-                **SharedEuropeanFields.as_dict(),
             }
         )
 
@@ -382,11 +387,12 @@ class Recovery(BaseModel):  # noqa
     def toEuropeanRecovery(self):
         return EuropeanRecovery(
             **{
+                **SharedEuropeanFields.as_dict(),
                 **{
                     "fr": self.sampleDate,
                     "du": self.validUntil,
+                    "co": self.country,
                 },
-                **SharedEuropeanFields.as_dict(),
             }
         )
 
@@ -638,7 +644,7 @@ class SharedEuropeanFields(BaseModel):
     ci: str = Field(description="Certificate Identifier, format as per UCI (*)")
     # Todo: has to be moved to all four types, because we have to follow what is sent, if nothing is sent
     #  then NLD is the fallback.
-    co: str = Field(description="Member State, ISO 3166", default="NLD", regex=r"[A-Z]{1,10}")
+    co: Iso3166Dash1Alpha2CountryCode = Field(description="Member State, ISO 3166", default="NL", regex=r"[A-Z]{1,10}")
     is_: str = Field(description="certificate issuer", default="Ministry of Health Welfare and Sport", alias="is")
 
     @staticmethod
@@ -649,7 +655,7 @@ class SharedEuropeanFields(BaseModel):
             "tg": "840539006",
             "ci": "",
             # "ci": "urn:uvci:01:NL:33385024475e4c56a17b749f92404039",
-            "co": "NLD",
+            "co": "NL",
             "is": "Ministry of Health Welfare and Sport",
         }
 
