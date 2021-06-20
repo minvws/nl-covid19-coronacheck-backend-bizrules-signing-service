@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from typing import List
 
 import pytz
 
@@ -16,15 +15,7 @@ from api.models import (
     Vaccination,
 )
 from api.settings import settings
-from api.signers.logic import (
-    ELIGIBLE_HPK_CODES,
-    ELIGIBLE_MA,
-    ELIGIBLE_MP,
-    ELIGIBLE_TT,
-    set_missing_total_doses,
-    deduplicate_events, enrich_from_hpk, relevant_vaccinations, not_from_future, only_most_recent,
-)
-from api.signers.logic import TZ
+import api.signers.logic as logic
 
 """
 Currently, if events are provided with isSpecimen: true, you get back completely valid non-specimen domestic and
@@ -78,9 +69,9 @@ def _is_eligible_vaccination(event: Event) -> bool:
         return False
 
     if any([
-        event.vaccination.hpkCode in ELIGIBLE_HPK_CODES,
-        event.vaccination.manufacturer in ELIGIBLE_MA,
-        event.vaccination.brand in ELIGIBLE_MP,
+        event.vaccination.hpkCode in logic.ELIGIBLE_HPK_CODES,
+        event.vaccination.manufacturer in logic.ELIGIBLE_MA,
+        event.vaccination.brand in logic.ELIGIBLE_MP,
     ]):
         return True
     log.debug(f"Ineligible vaccination {event.vaccination}")
@@ -89,11 +80,11 @@ def _is_eligible_vaccination(event: Event) -> bool:
 
 def _is_eligible_test(event: Event) -> bool:
     # rules N030, N040, N050
-    if isinstance(event.negativetest, Negativetest) and event.negativetest.type in ELIGIBLE_TT:
+    if isinstance(event.negativetest, Negativetest) and event.negativetest.type in logic.ELIGIBLE_TT:
         return True
 
     # rules P020, P030, P040
-    if isinstance(event.positivetest, Positivetest) and event.positivetest.type in ELIGIBLE_TT:
+    if isinstance(event.positivetest, Positivetest) and event.positivetest.type in logic.ELIGIBLE_TT:
         return True
 
     log.debug(f"Ineligible test: {event}")
@@ -122,32 +113,6 @@ def is_eligible(event: Event) -> bool:
 
     log.warning(f"Received unknown event type; marking ineligible; {event}")
     return False
-
-
-def filter_redundant_events(events: Events) -> Events:
-    """
-    Return the events that are relevant, filtering out obsolete events
-    """
-    log.debug(f"filter_redundant_events: {len(events.events)}")
-
-    vaccinations = not_from_future(events.vaccinations)
-    vaccinations = relevant_vaccinations(vaccinations)
-
-    negative_tests = not_from_future(events.negativetests)
-    negative_tests = only_most_recent(negative_tests)
-
-    # positive tests and recoveries are allowed to be from the future
-    positive_tests = only_most_recent(events.positivetests)
-    recoveries = only_most_recent(events.recoveries)
-
-    relevant_events = Events()
-    relevant_events.events = [
-        *(vaccinations or []),
-        *(positive_tests or []),
-        *(negative_tests or []),
-        *(recoveries or []),
-    ]
-    return relevant_events
 
 
 def evaluate_cross_type_events(events: Events) -> Events:
@@ -198,34 +163,22 @@ def distill_relevant_events(events: Events) -> Events:
     )
 
     # enrich vaccinations, based on HPK code
-    eligible_events = enrich_from_hpk(eligible_events)
+    eligible_events = logic.enrich_from_hpk(eligible_events)
 
     # set required doses, if not given
-    eligible_events = set_missing_total_doses(eligible_events)
+    eligible_events = logic.set_missing_total_doses(eligible_events)
 
     # remove duplications
-    eligible_events = deduplicate_events(eligible_events)
+    eligible_events = logic.deduplicate_events(eligible_events)
 
     # filter out redundant events
-    eligible_events = filter_redundant_events(eligible_events)
+    eligible_events = logic.filter_redundant_events(eligible_events)
 
     # deal with cross-type events
     eligible_events = evaluate_cross_type_events(eligible_events)
     log.debug(f"evaluate_cross_type_events: {len(eligible_events.events)}")
 
     return eligible_events
-
-
-def create_signing_messages_based_on_events(events: Events) -> List[MessageToEUSigner]:
-    """
-    Based on events this creates messages sent to the EU signer. Each message is a digital
-    green certificates. It's only allowed to have one message of each type.
-
-    :param events:
-    :return:
-    """
-    eligible_events = distill_relevant_events(events)
-    return [create_eu_signer_message(e) for e in eligible_events.events]
 
 
 def get_event_time(statement_to_eu_signer: MessageToEUSigner):
@@ -244,4 +197,4 @@ def get_event_time(statement_to_eu_signer: MessageToEUSigner):
 
     if not isinstance(event_time, datetime):
         event_time = datetime.combine(event_time, datetime.min.time())
-    return TZ.localize(event_time) if event_time.tzinfo is None else event_time
+    return logic.TZ.localize(event_time) if event_time.tzinfo is None else event_time

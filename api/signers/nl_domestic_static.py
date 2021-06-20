@@ -19,7 +19,7 @@ def sign(events: Events) -> Optional[DomesticGreenCard]:
 
     issue_message = StaticIssueMessage(
         **{
-            "credentialsAttributes": attributes,
+            "credentialAttributes": attributes,
         }
     )
 

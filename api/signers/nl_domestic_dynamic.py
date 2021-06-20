@@ -5,13 +5,14 @@ from typing import Optional
 from api.models import DomesticGreenCard, Events, IssueMessage
 from api.settings import settings
 from api.signers.nl_domestic import _sign
-from api.signers.logic_domestic import create_origins_and_attributes
+from api.signers.logic_domestic import create_origins_and_attributes, distill_relevant_events
 
 
 def sign(events: Events, prepare_issue_message: str, issue_commitment_message: str) -> Optional[DomesticGreenCard]:
     # This signer talks to: https://github.com/minvws/nl-covid19-coronacheck-idemix-private/
 
-    can_continue, origins, attributes = create_origins_and_attributes(events)
+    eligible_events = distill_relevant_events(events)
+    can_continue, origins, attributes = create_origins_and_attributes(eligible_events)
     if not can_continue:
         return None
 

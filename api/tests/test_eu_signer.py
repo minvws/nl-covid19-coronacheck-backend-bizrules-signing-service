@@ -2,11 +2,13 @@ from datetime import date, datetime, timezone
 
 from freezegun import freeze_time
 
-from api.models import DutchBirthDate, EUGreenCard, Events
+from api.models import DutchBirthDate, EUGreenCard, Events, Iso3166Dash1Alpha2CountryCode
 from api.settings import settings
 from api.signers.eu_international import sign
 
 # todo: why do we remove "status": "complete"?
+
+# NL = Iso3166Dash1Alpha2CountryCode("NL"),
 
 testcase_event_vaccination = {
     "source_provider_identifier": "XXX",
@@ -132,7 +134,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
         "r": [
             {
                 "ci": "URN:UCI:01:NL:B7L6YIZIZFD3BMTEFA4CVUI6ZM#0",
-                "co": "NLD",
+                "co": "NL",
                 "du": datetime(2021, 2, 1).date(),
                 "fr": datetime(2021, 2, 1).date(),
                 "is": "Ministry of Health Welfare and Sport",
@@ -140,7 +142,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
             },
             {
                 "ci": "URN:UCI:01:NL:B7L6YIZIZFD3BMTEFA4CVUI6ZM#0",
-                "co": "NLD",
+                "co": "NL",
                 "du": datetime(2021, 7, 31).date(),
                 "fr": datetime(2021, 2, 1).date(),
                 "is": "Ministry of Health Welfare and Sport",
@@ -150,7 +152,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
         "t": [
             {
                 "ci": "URN:UCI:01:NL:B7L6YIZIZFD3BMTEFA4CVUI6ZM#0",
-                "co": "NLD",
+                "co": "NL",
                 "is": "Ministry of Health Welfare and Sport",
                 "ma": "???",
                 "nm": "???",
@@ -164,7 +166,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
         "v": [
             {
                 "ci": "URN:UCI:01:NL:B7L6YIZIZFD3BMTEFA4CVUI6ZM#0",
-                "co": "NLD",
+                "co": "NL",
                 "dn": 1,
                 "dt": datetime(2021, 2, 1).date(),
                 "is": "Ministry of Health Welfare and Sport",
@@ -193,7 +195,7 @@ def test_eusign_with_empty_fields(mocker):
         "v": [
             {
                 "ci": "URN:UCI:01:NL:B7L6YIZIZFD3BMTEFA4CVUI6ZM#0",
-                "co": "NLD",
+                "co": "NL",
                 "dn": 1,
                 "dt": date(2021, 2, 1),
                 "is": "Ministry of Health Welfare and Sport",

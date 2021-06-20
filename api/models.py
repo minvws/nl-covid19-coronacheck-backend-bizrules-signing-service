@@ -20,6 +20,7 @@ from api.uci import generate_uci_01
 
 TZ = pytz.timezone("UTC")
 
+
 class Iso3166Dash1Alpha2CountryCode(str):
     """
     This class can accept 2 or 3 letter alpha codes and will always return the 2 letter variant downstream.
@@ -289,7 +290,7 @@ class Vaccination(BaseModel):  # noqa
     completedByPersonalStatement: Optional[bool] = Field(description="Individual self-declares fully vaccinated")
 
     country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
-        description="Defaults to NLD", example="NLD", default="NLD"
+        description="Defaults to NLD", example="NLD", default=Iso3166Dash1Alpha2CountryCode("NL")
     )
     doseNumber: Optional[int] = Field(example=1, description="will be based on business rules / brand info if left out")
     totalDoses: Optional[int] = Field(example=2, description="will be based on business rules / brand info if left out")
@@ -306,10 +307,8 @@ class Vaccination(BaseModel):  # noqa
                     "dn": self.doseNumber,
                     "sd": self.totalDoses,
                     "dt": self.date,
+                    "co": str(self.country),
                 },
-                **{
-                    "co": self.country,
-                  },
             }
         )
 
@@ -341,7 +340,7 @@ class Positivetest(BaseModel):  # noqa
                     "du": self.sampleDate + timedelta(days=settings.EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS),
                     # sampletime
                     "fr": self.sampleDate,
-                    "co": self.country,
+                    "co": str(self.country),
                 },
             }
         )
@@ -370,7 +369,7 @@ class Negativetest(BaseModel):  # noqa
                     "sc": self.sampleDate,
                     "tr": self.negativeResult,
                     "tc": self.facility,
-                    "co": self.country,
+                    "co": str(self.country),
                 },
             }
         )
@@ -391,7 +390,7 @@ class Recovery(BaseModel):  # noqa
                 **{
                     "fr": self.sampleDate,
                     "du": self.validUntil,
-                    "co": self.country,
+                    "co": str(self.country),
                 },
             }
         )
@@ -644,7 +643,10 @@ class SharedEuropeanFields(BaseModel):
     ci: str = Field(description="Certificate Identifier, format as per UCI (*)")
     # Todo: has to be moved to all four types, because we have to follow what is sent, if nothing is sent
     #  then NLD is the fallback.
-    co: Iso3166Dash1Alpha2CountryCode = Field(description="Member State, ISO 3166", default="NL", regex=r"[A-Z]{1,10}")
+    co: Iso3166Dash1Alpha2CountryCode = Field(
+        description="Member State, ISO 3166",
+        default=Iso3166Dash1Alpha2CountryCode("NL"),
+        regex=r"[A-Z]{1,10}")
     is_: str = Field(description="certificate issuer", default="Ministry of Health Welfare and Sport", alias="is")
 
     @staticmethod
@@ -655,7 +657,7 @@ class SharedEuropeanFields(BaseModel):
             "tg": "840539006",
             "ci": "",
             # "ci": "urn:uvci:01:NL:33385024475e4c56a17b749f92404039",
-            "co": "NL",
+            "co": Iso3166Dash1Alpha2CountryCode("NL"),
             "is": "Ministry of Health Welfare and Sport",
         }
 

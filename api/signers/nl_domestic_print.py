@@ -1,4 +1,3 @@
-import json
 from typing import Optional
 
 from api import log
@@ -11,18 +10,19 @@ from api.models import (
     StripType,
 )
 from api.settings import settings
-from api.signers.logic_domestic import distill_relevant_events
+from api.signers.logic_domestic import distill_relevant_events, derive_print_validity_hours
 from api.signers.nl_domestic import _sign_attributes
 
 
 def create_attributes(event: Event) -> DomesticSignerAttributes:
     valid_from = event.get_valid_from_time()
+    validity_hours = derive_print_validity_hours(event)
     return DomesticSignerAttributes(
         # this is safe because we can only have all specimen or a list of events with specimens removed
         isSpecimen="1" if event.isSpecimen else "0",
         isPaperProof=StripType.PAPER_STRIP,
         validFrom=str(int(valid_from.timestamp())),
-        validForHours=str(settings.DOMESTIC_PRINT_PROOF_VALIDITY_HOURS),  # TODO based on events' validity
+        validForHours=str(validity_hours),
         firstNameInitial=event.holder.first_name_initial,
         lastNameInitial=event.holder.last_name_initial,
         birthDay=event.holder.birthDate.day,

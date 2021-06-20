@@ -2,8 +2,8 @@ from typing import Optional
 
 from api import log
 from api.models import EuropeanPrintProof, Events, EventType
-from api.signers.logic_eu import create_signing_messages_based_on_events
-from api.signers.eu_international import sign_messages
+from api.signers.logic_eu import create_eu_signer_message, distill_relevant_events
+import api.signers.eu_international
 
 
 def sign(events: Events) -> Optional[EuropeanPrintProof]:
@@ -15,16 +15,26 @@ def sign(events: Events) -> Optional[EuropeanPrintProof]:
         log.error(f"received mixed types event list: {','.join(event_types)}")
         return None
 
-    signing_messages = create_signing_messages_based_on_events(events)
+    eligible_events = distill_relevant_events(events)
+    signing_messages = [create_eu_signer_message(event) for event in eligible_events.events]
     if not signing_messages:
         return None
 
-    eu_greencards = sign_messages(signing_messages)
+    if len(signing_messages) > 1:
+        log.error("compiled eligible events into more than one signing messages")
+        raise ValueError("multiple signing messages compiled")
+
+    eu_greencards = api.signers.eu_international.sign_messages(signing_messages)
     if not eu_greencards:
         return None
 
+    if len(eu_greencards) > 1:
+        log.error("received multiple eu greencards from a single signing message")
+        raise ValueError("multiple eu greencards received")
+
     dcc = signing_messages[0]
     origin = eu_greencards[0].origins[0]
+
     return EuropeanPrintProof(
         expirationTime=origin.expirationTime,
         dcc=dcc.dgc,

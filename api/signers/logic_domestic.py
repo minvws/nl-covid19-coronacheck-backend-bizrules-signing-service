@@ -84,33 +84,11 @@ def create_negative_test_rich_origin(event: Event) -> RichOrigin:
     )
 
 
-def filter_redundant_events(events: Events) -> Events:
-    vaccinations = logic.not_from_future(events.vaccinations)
-    vaccinations = logic.relevant_vaccinations(vaccinations)
-
-    negative_tests = logic.not_from_future(events.negativetests)
-    # SOME DIFFENT VALIDATION FOR DOMESTIC
-    negative_tests = logic.only_most_recent(negative_tests)
-
-    # positive tests and recoveries are allowed to be from the future
-    positive_tests = logic.only_most_recent(events.positivetests)
-    recoveries = logic.only_most_recent(events.recoveries)
-
-    relevant_events = Events()
-    relevant_events.events = [
-        *(vaccinations or []),
-        *(positive_tests or []),
-        *(negative_tests or []),
-        *(recoveries or []),
-    ]
-    return relevant_events
-
-
 def distill_relevant_events(events: Events) -> Events:
     eligible_events = logic.enrich_from_hpk(events)
     eligible_events = logic.set_missing_total_doses(eligible_events)
     eligible_events = logic.deduplicate_events(eligible_events)
-    eligible_events = filter_redundant_events(eligible_events)
+    eligible_events = logic.filter_redundant_events(eligible_events)
     return eligible_events
 
 
@@ -154,7 +132,7 @@ def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBl
             domestic_signer_attributes = DomesticSignerAttributes(
                 # mixing specimen with non-specimen requests is weird. We'll use what's in the first origin
                 isSpecimen="1" if overlapping_block.origins[0].isSpecimen else "0",
-                stripType=StripType.APP_STRIP,
+                isPaperProof=StripType.APP_STRIP,
                 validFrom=str(int(valid_from.now().timestamp())),
                 validForHours=settings.DOMESTIC_STRIP_VALIDITY_HOURS,
                 firstNameInitial=holder.first_name_initial,
@@ -177,13 +155,11 @@ def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBl
 def create_origins(events: Events) -> Optional[List[RichOrigin]]:
     log.debug(f"Creating origins for {len(events.events)} events.")
 
-    eligible_events = distill_relevant_events(events)
-
     origins: List[RichOrigin] = (
-        [create_vaccination_rich_origin(event) for event in eligible_events.vaccinations] +
-        [create_recovery_rich_origin(event) for event in eligible_events.recoveries] +
-        [create_negative_test_rich_origin(event) for event in eligible_events.negativetests] +
-        [create_positive_test_rich_origin(event) for event in eligible_events.positivetests]
+        [create_vaccination_rich_origin(event) for event in events.vaccinations] +
+        [create_recovery_rich_origin(event) for event in events.recoveries] +
+        [create_negative_test_rich_origin(event) for event in events.negativetests] +
+        [create_positive_test_rich_origin(event) for event in events.positivetests]
     )
 
     return sorted(origins, key=lambda o: o.validFrom)
@@ -227,3 +203,19 @@ def create_origins_and_attributes(
         return False, None, None
 
     return True, origins, attributes
+
+
+def derive_print_validity_hours(event: Event) -> int:
+    """
+    Based on the event type, derive the number of hours a printed certificate should be valid
+    """
+    if isinstance(event, Vaccination):
+        return settings.DOMESTIC_PRINT_PROOF_VALIDITY_HOURS_VACCINATION
+    if isinstance(event, Negativetest):
+        return settings.DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST
+    if isinstance(event, Positivetest):
+        return 24 * settings.DOMESTIC_NL_EXPIRY_DAYS_POSITIVE_TEST
+    if isinstance(event, Recovery):
+        return settings.DOMESTIC_PRINT_PROOF_VALIDITY_HOURS_RECOVERY
+    log.warning("calculating print validity hours of an unspecified event type; default to zero")
+    return 0

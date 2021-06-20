@@ -12,7 +12,7 @@ def test_strikelist():
     striked = DomesticSignerAttributes(
         **{
             "isSpecimen": "0",
-            "stripType": StripType.APP_STRIP,
+            "isPaperProof": StripType.APP_STRIP,
             "validFrom": str(int(datetime.now().timestamp())),
             "validForHours": "2",
             "firstNameInitial": "E",
@@ -28,7 +28,7 @@ def test_strikelist():
         "firstNameInitial": "E",
         "isSpecimen": "0",
         "lastNameInitial": "",
-        "stripType": StripType.APP_STRIP,
+        "isPaperProof": StripType.APP_STRIP,
         "validForHours": "2",
         "validFrom": "1580601600",
     }
@@ -38,7 +38,7 @@ def test_strikelist():
     striked = DomesticSignerAttributes(
         **{
             "isSpecimen": "0",
-            "stripType": StripType.APP_STRIP,
+            "isPaperProof": StripType.APP_STRIP,
             "validFrom": str(int(datetime.now().timestamp())),
             "validForHours": "2",
             "firstNameInitial": "U",
@@ -54,7 +54,7 @@ def test_strikelist():
         "firstNameInitial": "",
         "isSpecimen": "0",
         "lastNameInitial": "",
-        "stripType": StripType.APP_STRIP,
+        "isPaperProof": StripType.APP_STRIP,
         "validForHours": "2",
         "validFrom": str(int(datetime(2020, 2, 2).timestamp())),
     }

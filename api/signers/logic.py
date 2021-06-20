@@ -274,7 +274,6 @@ def deduplicate_events(events: Events) -> Events:
     return result
 
 
-# todo: we need the mapping before this becomes a EU thing, so we need this as soon as something reaches inge4.
 def enrich_from_hpk(events: Events) -> Events:
     log.debug(f"enrich_from_hpk: {len(events.events)}")
 
@@ -418,15 +417,8 @@ def not_from_future(events: List[Event]) -> List[Event]:
 
     result = []
     for event in events:
-        if any(
-            [
-                event.vaccination and event.vaccination.date > today,
-                event.positivetest and event.positivetest.sampleDate.date() > today,
-                event.negativetest and event.negativetest.sampleDate.date() > today,
-                event.recovery and event.recovery.sampleDate > today,
-            ]
-        ):
-            log.warning(f"removing event with date in the future; {event.unique}")
+        if event.get_event_time().date() > today:
+            log.warning(f"removing event with event date in the future; {event.unique}")
             continue
         result.append(event)
     return result
@@ -444,23 +436,28 @@ def only_most_recent(events: List[Event]) -> List[Event]:
     return [events[-1]]
 
 
-def equal_brand_vaccines(this_vacc: Vaccination, other_vacc: Vaccination) -> bool:
+def filter_redundant_events(events: Events) -> Events:
     """
-    Determine if two vaccinations are of the same brand
+    Return the events that are relevant, filtering out obsolete events
     """
-    if this_vacc.hpkCode and other_vacc.hpkCode and this_vacc.hpkCode == other_vacc.hpkCode:
-        return True
-    if this_vacc.brand and other_vacc.brand and this_vacc.brand == other_vacc.brand:
-        return True
+    log.debug(f"filter_redundant_events: {len(events.events)}")
 
-    if this_vacc.brand is None and this_vacc.hpkCode is None:
-        log.warning(f"Cannot determine brand of vaccination; {this_vacc}")
-        return False
-    if other_vacc.brand is None and other_vacc.hpkCode is None:
-        log.warning(f"Cannot determine brand of vaccination; {other_vacc}")
-        return False
+    vaccinations = not_from_future(events.vaccinations)
+    vaccinations = relevant_vaccinations(vaccinations)
 
-    this_brand = this_vacc.brand if this_vacc.brand else HPK_CODES[this_vacc.hpkCode]
-    other_brand = other_vacc.brand if other_vacc.brand else HPK_CODES[other_vacc.hpkCode]
+    negative_tests = not_from_future(events.negativetests)
+    # SOME DIFFERENT VALIDATION FOR DOMESTIC???
+    negative_tests = only_most_recent(negative_tests)
 
-    return all([this_brand, other_brand, this_brand == other_brand])
+    # positive tests and recoveries are allowed to be from the future
+    positive_tests = only_most_recent(events.positivetests)
+    recoveries = only_most_recent(events.recoveries)
+
+    relevant_events = Events()
+    relevant_events.events = [
+        *(vaccinations or []),
+        *(positive_tests or []),
+        *(negative_tests or []),
+        *(recoveries or []),
+    ]
+    return relevant_events
