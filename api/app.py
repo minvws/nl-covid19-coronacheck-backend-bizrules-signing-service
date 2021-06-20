@@ -33,7 +33,13 @@ from api.models import (
 from api.requesters import identity_hashes
 from api.requesters.prepare_issue import get_prepare_issue
 from api.session_store import session_store
-from api.signers import eu_international, nl_domestic_dynamic, nl_domestic_static, nl_domestic_print
+from api.signers import (
+    eu_international,
+    eu_international_print,
+    nl_domestic_dynamic,
+    nl_domestic_static,
+    nl_domestic_print,
+)
 
 app = FastAPI()
 
@@ -137,7 +143,7 @@ async def print_proof_request(request_data: List[CMSSignedDataBlob]):
     events = decode_and_normalize_events(request_data)
 
     domestic = nl_domestic_print.sign(events)
-    european = eu_international.sign(events)
+    european = eu_international_print.sign(events)
 
     return PrintProof(
         domestic=domestic,

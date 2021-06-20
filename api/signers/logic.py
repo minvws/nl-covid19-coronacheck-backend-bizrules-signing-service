@@ -1,4 +1,5 @@
 import json
+import logging
 import os.path
 from typing import Any, Union, List, Callable, Dict
 from datetime import date, datetime
@@ -63,7 +64,8 @@ def set_missing_total_doses(events: Events) -> Events:
     """
     Update the `totalDoses` field on vaccination events that do not have it. Set to the default per mp.
     """
-    log.debug(f"set_missing_total_doses: {len(events.events)}")
+    if log.isEnabledFor(logging.DEBUG):
+        log.debug(f"set_missing_total_doses: {len(events.events)}; types {events.type_set}")
 
     for vacc in events.vaccinations:
         # make mypy happy
@@ -120,6 +122,8 @@ def _merge_vaccinations(base: Event, other: Event) -> Event:
     if not base.vaccination or not other.vaccination:
         raise ValueError("can only merge vaccinations")
 
+    log.debug(f"merging vaccinations {base} and {other}")
+
     # the oldest of the two is the first instance of the event
     base.vaccination.date = min(base.vaccination.date, other.vaccination.date)
 
@@ -139,6 +143,8 @@ def _merge_vaccinations(base: Event, other: Event) -> Event:
     base.vaccination.doseNumber = max(base.vaccination.doseNumber or 1, other.vaccination.doseNumber or 1)
     # the lowest total doses is correct, but at most 2
     base.vaccination.totalDoses = min(base.vaccination.totalDoses or 2, other.vaccination.totalDoses or 2)
+
+    log.debug(f"merged result: {base}")
     return base
 
 
@@ -170,8 +176,12 @@ def _merge_negative_tests(base: Event, other: Event) -> Event:
     if not base.negativetest or not other.negativetest:
         raise ValueError("can only merge negative tests")
 
+    log.debug(f"merging negative test {base} with {other}")
+
     base.negativetest.sampleDate = min(base.negativetest.sampleDate, other.negativetest.sampleDate)
     base.negativetest.country = base.negativetest.country or other.negativetest.country
+
+    log.debug(f"merged negative test: {base}")
     return base
 
 
@@ -189,8 +199,12 @@ def _merge_positive_tests(base: Event, other: Event) -> Event:
     if not base.positivetest or not other.positivetest:
         raise ValueError("can only merge positive tests")
 
+    log.debug(f"merging positive test {base} with {other}")
+
     base.positivetest.sampleDate = min(base.positivetest.sampleDate, other.positivetest.sampleDate)
     base.positivetest.country = base.positivetest.country or other.positivetest.country
+
+    log.debug(f"merged positive test: {base}")
     return base
 
 
@@ -208,17 +222,21 @@ def _merge_recoveries(base: Event, other: Event) -> Event:
     if not base.recovery or not other.recovery:
         raise ValueError("can only merge recoveries")
 
+    log.debug(f"merging recoveries {base} with {other}")
+
     base.recovery.sampleDate = min(base.recovery.sampleDate, other.recovery.sampleDate)
     base.recovery.country = base.recovery.country or other.recovery.country
+
+    log.debug(f"merged recovery: {base}")
     return base
 
 
 def _deduplicate(events: List[Event], events_are_identical_func: Callable, merge_func: Callable) -> List[Event]:
-    log.debug(f"Deduplication {len(events)} events.")
+    log.debug(f"deduplication starting with {len(events)} events.")
     retained: List[Event] = []
     for event in events:
         if event in retained:
-            log.debug("Event already in retained, continuing...")
+            log.debug("Event already in retained, dropping...")
             continue
         if len(retained) == 0:
             retained.append(event)
@@ -234,6 +252,7 @@ def _deduplicate(events: List[Event], events_are_identical_func: Callable, merge
             log.debug(f"Adding {event.unique}")
             retained.append(event)
 
+    log.debug(f"deduplication finished with {len(retained)} events.")
     return retained
 
 
@@ -255,7 +274,6 @@ def deduplicate_events(events: Events) -> Events:
     return result
 
 
-# todo: test, this is already done in the models?
 # todo: we need the mapping before this becomes a EU thing, so we need this as soon as something reaches inge4.
 def enrich_from_hpk(events: Events) -> Events:
     log.debug(f"enrich_from_hpk: {len(events.events)}")
@@ -283,8 +301,24 @@ def enrich_from_hpk(events: Events) -> Events:
 
 
 def _completed_vaccinations(vaccs: List[Event]) -> List[Event]:
+    """
+    If there are any vaccinations that
+    - have their `doseNumber` and `totalDoses` set, and the `doseNumber` is greater than or equal to their `totalDoses`,
+    - or have a mark `completedByMedicalStatement` or `completedByPersonalStatement`
+    then these are the so-called 'completing' vaccinations.
+
+    If these completing vaccinations are completed because of the `completedByMedicalStatement` or
+    `completedByPersonalStatement` marks, the `doseNumber` and `totalDoses` are both set to 1.
+
+    If we have one or more of these completed vaccinations, we pick the most recent one as the single
+    completing vaccination.
+
+    If there are none, we return the original list of vaccinations
+    """
     # do we have a full qualification, pick the most recent one
     # rules V010, V040, V100, V110
+    log.debug(f"completed: {len(vaccs)}")
+
     completions: List[Event] = []
     for vacc in vaccs:
         # make mypy happy, this state will never happen.
@@ -302,14 +336,24 @@ def _completed_vaccinations(vaccs: List[Event]) -> List[Event]:
             vacc.vaccination.totalDoses = 1
             completions.append(vacc)
     if completions:
+        log.debug(f"found {len(completions)} completing vaccinations, selecting the most recent one")
         # we have one or more completing vaccinations, use the most recent one
         best_vacc = completions[-1]
         return [best_vacc]
 
+    log.debug("did not find any completed vaccinations")
+    return vaccs
+
 
 def _completed_because_fulfilling_doses(vaccs: List[Event]) -> List[Event]:
+    """
+    If there are multiple vaccinations with the same `totalDoses` set, and the count of these vaccinations is greater
+    than or equal to their `totalDoses`, then these are marked as 'completed'.
+    """
     # return the most recent one of a total-dose fulfilling vaccination (irrespective of brand)
     # rules V020, V030
+    log.debug(f"completed because of fulfilling doses: {len(vaccs)}")
+
     by_total_dose: Dict[int, List[Event]] = {}
     for vacc in vaccs:
         # make mypy happy, this state will never happen.
@@ -330,10 +374,12 @@ def _completed_because_fulfilling_doses(vaccs: List[Event]) -> List[Event]:
             best_vacc.vaccination.doseNumber = dose  # type: ignore
             completions.append(best_vacc)
     if completions:
+        log.debug(f"found {len(completions)} vaccinations, completed by doses; selecting most recent one")
         # if we have one or more completed vaccinations, by default, return the most recent one
         return [max(completions, key=lambda e: e.vaccination.date)]  # type: ignore
-    else:
-        return []
+
+    log.debug("did not find any vaccinations completed by doses")
+    return vaccs
 
 
 def relevant_vaccinations(vaccs: List[Event]) -> List[Event]:
@@ -343,15 +389,21 @@ def relevant_vaccinations(vaccs: List[Event]) -> List[Event]:
     """
     # if we have none or only one, that is the relevant one
     # rules V050, V060, V070
+
+    log.debug(f"relevant_vaccinations: {len(vaccs)}")
+
     if not vaccs or len(vaccs) == 1:
+        log.debug("no or only one vaccination, that is the relevant set of vaccinations")
         return vaccs
 
     completed = _completed_vaccinations(vaccs)
     if len(completed) == 1:
+        log.debug("found a single completed vaccination, that is the relevant one")
         return completed
 
     completed = _completed_because_fulfilling_doses(vaccs)
     if len(completed) == 1:
+        log.debug("found a single completed vaccination by fulfilling doses, that is the relevant one")
         return completed
 
     log.warning("multiple vaccinations are relevant; selecting the most recent one")

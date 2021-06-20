@@ -1,4 +1,4 @@
-from typing import Optional, Set
+from typing import Optional
 
 from api import log
 from api.models import EuropeanPrintProof, Events, EventType

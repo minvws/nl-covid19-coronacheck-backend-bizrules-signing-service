@@ -1,16 +1,18 @@
+from typing import List, Dict
 import json
 from base64 import b64encode
 from datetime import date, datetime
 
-import pytz
+import json5
 from freezegun import freeze_time
 
 from api.app_support import decode_and_normalize_events
-from api.models import Event, Events
+from api.models import CMSSignedDataBlob, Event, Events
 from api.settings import settings
 import api.signers.nl_domestic_print as domestic
 import api.signers.eu_international_print as eu
-
+from api.utils import read_file
+from api.app import print_proof_request
 
 @freeze_time("2021-06-14T16:24:06")
 def test_print_domestic():
@@ -104,3 +106,13 @@ def test_print_eu():
     ]
     signed_result = eu.sign(Events(events=event_list))
     print(signed_result.dict())
+
+
+@freeze_time("2021-06-14T16:24:06")
+def test_print_both(current_path, event_loop):
+    raw_events: List[Dict[str, str]] = json5.loads(read_file(current_path.joinpath("test_data/events1.json5")))
+    event_blobs = [CMSSignedDataBlob(**event) for event in raw_events]
+
+    signed_result = event_loop.run_until_complete(print_proof_request(event_blobs))
+    import pprint
+    pprint.PrettyPrinter(indent=4).pprint(signed_result.dict())

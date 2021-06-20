@@ -23,7 +23,7 @@ from api.models import (
 )
 from api.settings import settings
 from api.signers import eu_international, nl_domestic_static
-from api.signers.nl_domestic import create_attributes, create_origins
+from api.signers.logic_domestic import create_attributes, create_origins
 from api.utils import read_file
 
 
