@@ -84,14 +84,6 @@ def create_negative_test_rich_origin(event: Event) -> RichOrigin:
     )
 
 
-def distill_relevant_events(events: Events) -> Events:
-    eligible_events = logic.enrich_from_hpk(events)
-    eligible_events = logic.set_missing_total_doses(eligible_events)
-    eligible_events = logic.deduplicate_events(eligible_events)
-    eligible_events = logic.filter_redundant_events(eligible_events)
-    return eligible_events
-
-
 def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBlock]) -> List[DomesticSignerAttributes]:
     log.debug(f"Creating attributes from {len(contiguous_blocks)} ContiguousOriginsBlock.")
 
@@ -219,3 +211,7 @@ def derive_print_validity_hours(event: Event) -> int:
         return settings.DOMESTIC_PRINT_PROOF_VALIDITY_HOURS_RECOVERY
     log.warning("calculating print validity hours of an unspecified event type; default to zero")
     return 0
+
+
+def remove_domestic_ineligible_events(events: Events) -> Events:
+    return events

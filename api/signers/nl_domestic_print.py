@@ -10,7 +10,8 @@ from api.models import (
     StripType,
 )
 from api.settings import settings
-from api.signers.logic_domestic import distill_relevant_events, derive_print_validity_hours
+from api.signers.logic import distill_relevant_events
+from api.signers.logic_domestic import remove_domestic_ineligible_events, derive_print_validity_hours
 from api.signers.nl_domestic import _sign_attributes
 
 
@@ -34,14 +35,15 @@ def sign(events: Events) -> Optional[DomesticPrintProof]:
     if not events or not events.events:
         return None
 
-    relevant_events = distill_relevant_events(events)
-    if not relevant_events:
+    eligible_events = remove_domestic_ineligible_events(events)
+    eligible_events = distill_relevant_events(eligible_events)
+    if not eligible_events:
         return None
 
-    if len(relevant_events.events) > 1:
-        log.warning(f"received {len(relevant_events.events)} relevant events for domestic paper signing")
+    if len(eligible_events.events) > 1:
+        log.warning(f"received {len(eligible_events.events)} relevant events for domestic paper signing")
 
-    best_event = relevant_events.events[-1]
+    best_event = eligible_events.events[-1]
 
     attributes = create_attributes(best_event)
     issue_message = StaticIssueMessage(credentialAttributes=attributes)

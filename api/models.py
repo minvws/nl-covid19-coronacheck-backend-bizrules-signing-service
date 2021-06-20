@@ -645,7 +645,7 @@ class SharedEuropeanFields(BaseModel):
     #  then NLD is the fallback.
     co: Iso3166Dash1Alpha2CountryCode = Field(
         description="Member State, ISO 3166",
-        default=Iso3166Dash1Alpha2CountryCode("NL"),
+        default="NL",
         regex=r"[A-Z]{1,10}")
     is_: str = Field(description="certificate issuer", default="Ministry of Health Welfare and Sport", alias="is")
 
@@ -657,7 +657,7 @@ class SharedEuropeanFields(BaseModel):
             "tg": "840539006",
             "ci": "",
             # "ci": "urn:uvci:01:NL:33385024475e4c56a17b749f92404039",
-            "co": Iso3166Dash1Alpha2CountryCode("NL"),
+            "co": "NL",  # Iso3166Dash1Alpha2CountryCode("NL"),
             "is": "Ministry of Health Welfare and Sport",
         }
 

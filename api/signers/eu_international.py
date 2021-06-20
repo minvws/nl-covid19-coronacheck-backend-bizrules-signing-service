@@ -8,11 +8,12 @@ from api.models import (
     MessageToEUSigner,
 )
 from api.settings import settings
+from api.signers.logic import distill_relevant_events
 from api.signers.logic_eu import (
     get_eu_expirationtime,
-    distill_relevant_events,
     create_eu_signer_message,
     get_event_time,
+    remove_eu_ineligible_events,
 )
 
 
@@ -48,7 +49,8 @@ def sign(events: Events) -> List[EUGreenCard]:
     https://github.com/ehn-dcc-development/ehn-dcc-schema/blob/release/1.0.1/DGC.combined-schema.json
     """
 
-    eligible_events = distill_relevant_events(events)
+    eligible_events = remove_eu_ineligible_events(events)
+    eligible_events = distill_relevant_events(eligible_events)
     messages_to_eu_signer = [create_eu_signer_message(event) for event in eligible_events.events]
     log.debug(f"Messages to EU signer: {len(messages_to_eu_signer)}")
     return sign_messages(messages_to_eu_signer)

@@ -2,7 +2,8 @@ from typing import Optional
 
 from api import log
 from api.models import EuropeanPrintProof, Events, EventType
-from api.signers.logic_eu import create_eu_signer_message, distill_relevant_events
+from api.signers.logic import distill_relevant_events
+from api.signers.logic_eu import create_eu_signer_message, remove_eu_ineligible_events
 import api.signers.eu_international
 
 
@@ -15,7 +16,8 @@ def sign(events: Events) -> Optional[EuropeanPrintProof]:
         log.error(f"received mixed types event list: {','.join(event_types)}")
         return None
 
-    eligible_events = distill_relevant_events(events)
+    eligible_events = remove_eu_ineligible_events(events)
+    eligible_events = distill_relevant_events(eligible_events)
     signing_messages = [create_eu_signer_message(event) for event in eligible_events.events]
     if not signing_messages:
         return None

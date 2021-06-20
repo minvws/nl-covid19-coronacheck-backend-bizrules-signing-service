@@ -22,7 +22,6 @@ TZ = pytz.timezone("UTC")
 
 _TEST_ATTRIBUTES = ["facility", "type", "name", "manufacturer", "country"]
 
-
 HPK_CODES = read_resource_file("hpk-codes.json")
 ELIGIBLE_HPK_CODES = [c["hpk_code"] for c in HPK_CODES["hpk_codes"]]
 
@@ -58,6 +57,62 @@ def floor_hours(my_date: Union[datetime, date]) -> datetime:
             raise ValueError(f"my_date is not a date or datetime. {my_date}.")
 
     return my_datetime.replace(microsecond=0, second=0, minute=0)
+
+
+def _is_eligible_vaccination(event: Event) -> bool:
+    # rules V080, V090, V130
+
+    # make mypy happy
+    if not event.vaccination:
+        return False
+
+    if any([
+        event.vaccination.hpkCode in ELIGIBLE_HPK_CODES,
+        event.vaccination.manufacturer in ELIGIBLE_MA,
+        event.vaccination.brand in ELIGIBLE_MP,
+    ]):
+        return True
+    log.debug(f"Ineligible vaccination {event.vaccination}")
+    return False
+
+
+def _is_eligible_test(event: Event) -> bool:
+    # rules N030, N040, N050
+    if isinstance(event.negativetest, Negativetest) and event.negativetest.type in ELIGIBLE_TT:
+        return True
+
+    # rules P020, P030, P040
+    if isinstance(event.positivetest, Positivetest) and event.positivetest.type in ELIGIBLE_TT:
+        return True
+
+    log.debug(f"Ineligible test: {event}")
+    return False
+
+
+def is_eligible(event: Event) -> bool:
+    """
+    Return whether a given event is eligible under the business rules.
+    """
+    if isinstance(event.vaccination, Vaccination):
+        return _is_eligible_vaccination(event)
+
+    if isinstance(event.negativetest, Negativetest) or isinstance(event.positivetest, Positivetest):
+        return _is_eligible_test(event)
+
+    # no rules
+    if isinstance(event.recovery, Recovery):
+        return True
+
+    log.warning(f"Received unknown event type; marking ineligible; {event}")
+    return False
+
+
+def remove_ineligible_events(events: Events) -> Events:
+    log.debug(f"remove_ineligible_events: {len(events.events)}: {events.type_set}")
+
+    eligible_events = Events()
+    eligible_events.events = [e for e in events.events if is_eligible(e)]
+    return eligible_events
 
 
 def set_missing_total_doses(events: Events) -> Events:
@@ -299,15 +354,29 @@ def enrich_from_hpk(events: Events) -> Events:
     return events
 
 
-def _completed_vaccinations(vaccs: List[Event]) -> List[Event]:
+def set_completed_by_statement(events: Events) -> Events:
     """
-    If there are any vaccinations that
-    - have their `doseNumber` and `totalDoses` set, and the `doseNumber` is greater than or equal to their `totalDoses`,
-    - or have a mark `completedByMedicalStatement` or `completedByPersonalStatement`
+    If there are any vaccinations that have a mark `completedByMedicalStatement` or `completedByPersonalStatement`
     then these are the so-called 'completing' vaccinations.
 
-    If these completing vaccinations are completed because of the `completedByMedicalStatement` or
-    `completedByPersonalStatement` marks, the `doseNumber` and `totalDoses` are both set to 1.
+    For these completing vaccinations the `doseNumber` and `totalDoses` are both set to 1.
+    """
+    for vacc in events.vaccinations:
+        # make mypy happy, this state will never happen.
+        if not vacc.vaccination:
+            continue
+
+        if vacc.vaccination.completedByMedicalStatement or vacc.vaccination.completedByPersonalStatement:
+            vacc.vaccination.doseNumber = 1
+            vacc.vaccination.totalDoses = 1
+
+    return events
+
+
+def _completed_by_doses(vaccs: List[Event]) -> List[Event]:
+    """
+    If there are any vaccinations that have their `doseNumber` and `totalDoses` set, and the `doseNumber` is greater
+    than or equal to their `totalDoses`, then these are the so-called 'completing' vaccinations.
 
     If we have one or more of these completed vaccinations, we pick the most recent one as the single
     completing vaccination.
@@ -324,16 +393,13 @@ def _completed_vaccinations(vaccs: List[Event]) -> List[Event]:
         if not vacc.vaccination:
             continue
 
-        if (
-            vacc.vaccination.doseNumber
-            and vacc.vaccination.totalDoses
-            and vacc.vaccination.doseNumber >= vacc.vaccination.totalDoses
-        ):
+        if all([
+            vacc.vaccination.doseNumber,
+            vacc.vaccination.totalDoses,
+            vacc.vaccination.doseNumber >= vacc.vaccination.totalDoses,
+        ]):
             completions.append(vacc)
-        elif vacc.vaccination.completedByMedicalStatement or vacc.vaccination.completedByPersonalStatement:
-            vacc.vaccination.doseNumber = 1
-            vacc.vaccination.totalDoses = 1
-            completions.append(vacc)
+
     if completions:
         log.debug(f"found {len(completions)} completing vaccinations, selecting the most recent one")
         # we have one or more completing vaccinations, use the most recent one
@@ -344,10 +410,11 @@ def _completed_vaccinations(vaccs: List[Event]) -> List[Event]:
     return vaccs
 
 
-def _completed_because_fulfilling_doses(vaccs: List[Event]) -> List[Event]:
+def _completed_by_doses_across_brands(vaccs: List[Event]) -> List[Event]:
     """
-    If there are multiple vaccinations with the same `totalDoses` set, and the count of these vaccinations is greater
-    than or equal to their `totalDoses`, then these are marked as 'completed'.
+    If there are multiple vaccinations with the same `totalDoses` set, irrespective of what brand these vaccinations
+    are done with, and the count of these vaccinations is greater than or equal to their `totalDoses`,
+     then these are marked as 'completed'.
     """
     # return the most recent one of a total-dose fulfilling vaccination (irrespective of brand)
     # rules V020, V030
@@ -395,15 +462,11 @@ def relevant_vaccinations(vaccs: List[Event]) -> List[Event]:
         log.debug("no or only one vaccination, that is the relevant set of vaccinations")
         return vaccs
 
-    completed = _completed_vaccinations(vaccs)
-    if len(completed) == 1:
-        log.debug("found a single completed vaccination, that is the relevant one")
-        return completed
-
-    completed = _completed_because_fulfilling_doses(vaccs)
-    if len(completed) == 1:
-        log.debug("found a single completed vaccination by fulfilling doses, that is the relevant one")
-        return completed
+    for completed_check in [_completed_by_doses, _completed_by_doses_across_brands]:
+        completed = completed_check(vaccs)
+        if len(completed) == 1:
+            log.debug(f"selected a single completed vaccination, according to {completed_check.__name__}")
+            return completed
 
     log.warning("multiple vaccinations are relevant; selecting the most recent one")
     return [vaccs[-1]]
@@ -436,22 +499,54 @@ def only_most_recent(events: List[Event]) -> List[Event]:
     return [events[-1]]
 
 
+def evaluate_cross_type_events(events: Events) -> Events:
+    """
+    Logic to deal with cross-type influences
+    """
+
+    # if we have at least one vaccination and a positive test,
+    # we declare the vaccination complete
+    # rule V120
+    if not events.vaccinations or not events.positivetests:
+        return events
+
+    if len(events.vaccinations) > 1:
+        log.warning(
+            "We have at least one positive test and multiple vaccinations, " "using the most recent vaccination"
+        )
+        vacc = events.vaccinations[-1]
+    else:
+        vacc = events.vaccinations[0]
+
+    # fix optional vacc
+    if not vacc.vaccination:
+        return events
+
+    vacc.vaccination.totalDoses = 1
+    vacc.vaccination.doseNumber = 1
+
+    retained_events = [e for e in events.events if e.type != "vaccination" or e == vacc]
+    events.events = retained_events
+    return events
+
+
 def filter_redundant_events(events: Events) -> Events:
     """
     Return the events that are relevant, filtering out obsolete events
     """
     log.debug(f"filter_redundant_events: {len(events.events)}")
 
-    vaccinations = not_from_future(events.vaccinations)
+    eligible_events = remove_ineligible_events(events)
+
+    vaccinations = not_from_future(eligible_events.vaccinations)
     vaccinations = relevant_vaccinations(vaccinations)
 
-    negative_tests = not_from_future(events.negativetests)
-    # SOME DIFFERENT VALIDATION FOR DOMESTIC???
+    negative_tests = not_from_future(eligible_events.negativetests)
     negative_tests = only_most_recent(negative_tests)
 
     # positive tests and recoveries are allowed to be from the future
-    positive_tests = only_most_recent(events.positivetests)
-    recoveries = only_most_recent(events.recoveries)
+    positive_tests = only_most_recent(eligible_events.positivetests)
+    recoveries = only_most_recent(eligible_events.recoveries)
 
     relevant_events = Events()
     relevant_events.events = [
@@ -461,3 +556,15 @@ def filter_redundant_events(events: Events) -> Events:
         *(recoveries or []),
     ]
     return relevant_events
+
+
+def distill_relevant_events(events: Events) -> Events:
+    log.debug(f"Filtering, reducing and preparing events, starting with N events: {len(events.events)}")
+
+    eligible_events = remove_ineligible_events(events)
+    eligible_events = enrich_from_hpk(eligible_events)
+    eligible_events = set_missing_total_doses(eligible_events)
+    eligible_events = set_completed_by_statement(eligible_events)
+    eligible_events = deduplicate_events(eligible_events)
+    eligible_events = filter_redundant_events(eligible_events)
+    return eligible_events
