@@ -2,6 +2,7 @@ import json
 from datetime import datetime, timezone
 from typing import Dict, List
 
+import pytest
 import json5
 import pytz
 from freezegun import freeze_time
@@ -69,6 +70,7 @@ def test_eu_is_specimen():
 
 
 @freeze_time("2021-05-28")
+@pytest.mark.skip("needs more TLC")
 def test_static_sign(current_path, requests_mock):
     signing_response_data = {
         "qr": {

@@ -19,7 +19,6 @@ def read_resource_file(filename: str) -> Any:
 
 TZ = pytz.timezone("UTC")
 
-
 _TEST_ATTRIBUTES = ["facility", "type", "name", "manufacturer", "country"]
 
 HPK_CODES = read_resource_file("hpk-codes.json")
@@ -536,17 +535,15 @@ def filter_redundant_events(events: Events) -> Events:
     """
     log.debug(f"filter_redundant_events: {len(events.events)}")
 
-    eligible_events = remove_ineligible_events(events)
-
-    vaccinations = not_from_future(eligible_events.vaccinations)
+    vaccinations = not_from_future(events.vaccinations)
     vaccinations = relevant_vaccinations(vaccinations)
 
-    negative_tests = not_from_future(eligible_events.negativetests)
+    negative_tests = not_from_future(events.negativetests)
     negative_tests = only_most_recent(negative_tests)
 
     # positive tests and recoveries are allowed to be from the future
-    positive_tests = only_most_recent(eligible_events.positivetests)
-    recoveries = only_most_recent(eligible_events.recoveries)
+    positive_tests = only_most_recent(events.positivetests)
+    recoveries = only_most_recent(events.recoveries)
 
     relevant_events = Events()
     relevant_events.events = [
@@ -567,4 +564,5 @@ def distill_relevant_events(events: Events) -> Events:
     eligible_events = set_completed_by_statement(eligible_events)
     eligible_events = deduplicate_events(eligible_events)
     eligible_events = filter_redundant_events(eligible_events)
+    eligible_events = evaluate_cross_type_events(eligible_events)
     return eligible_events

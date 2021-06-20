@@ -77,7 +77,7 @@ def get_event_time(statement_to_eu_signer: MessageToEUSigner):
     return logic.TZ.localize(event_time) if event_time.tzinfo is None else event_time
 
 
-def _is_special_year(event: Event) -> bool:
+def is_eligible_for_special_year(event: Event) -> bool:
     # Some negative tests are not eligible for signing, they are upgrade v2 events that
     # have incomplete holder information: the year is wrong, the first and last name are one letter.
     if isinstance(event.negativetest, Negativetest) and event.holder.birthDate.year == INVALID_YEAR_FOR_EU_SIGNING:
@@ -89,5 +89,5 @@ def _is_special_year(event: Event) -> bool:
 
 def remove_eu_ineligible_events(events: Events) -> Events:
     result = Events()
-    result.events = [event for event in events.events if not _is_special_year(event)]
+    result.events = [event for event in events.events if  is_eligible_for_special_year(event)]
     return result
