@@ -3,6 +3,7 @@ from typing import Dict, List
 
 import json5
 from freezegun import freeze_time
+import pytest
 
 import api.signers.eu_international_print as eu
 import api.signers.nl_domestic_print as domestic
@@ -12,6 +13,7 @@ from api.utils import read_file
 
 
 @freeze_time("2021-06-14T16:24:06")
+@pytest.mark.skip("not yet finished")
 def test_print_domestic():
 
     event_list = [
@@ -59,6 +61,7 @@ def test_print_domestic():
 
 
 @freeze_time("2021-06-14T16:24:06")
+@pytest.mark.skip("not yet finished")
 def test_print_eu():
 
     event_list = [
@@ -106,6 +109,7 @@ def test_print_eu():
 
 
 @freeze_time("2021-06-14T16:24:06")
+@pytest.mark.skip("not yet finished")
 def test_print_both(current_path, event_loop):
     raw_events: List[Dict[str, str]] = json5.loads(read_file(current_path.joinpath("test_data/events1.json5")))
     event_blobs = [CMSSignedDataBlob(**event) for event in raw_events]
