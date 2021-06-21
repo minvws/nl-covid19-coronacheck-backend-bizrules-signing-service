@@ -107,7 +107,7 @@ def test_n010(requests_mock):
                         sc=datetime.datetime(2021, 6, 12, 19, 26, 52, 0, tzinfo=pytz.utc),
                         dr=datetime.datetime(2021, 6, 12, 21, 2, 52, 0, tzinfo=pytz.utc),
                         tr=True,
-                        tc="Some RAT Test Place",
+                        tc="Facility approved by the State of the Netherlands",
                         ci=ci,
                     )
                 ],

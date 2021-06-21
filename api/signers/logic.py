@@ -1,5 +1,4 @@
 import json
-import logging
 import os.path
 from datetime import date, datetime
 from typing import Any, Callable, Dict, List, Union
@@ -119,8 +118,7 @@ def set_missing_total_doses(events: Events) -> Events:
     """
     Update the `totalDoses` field on vaccination events that do not have it. Set to the default per mp.
     """
-    if log.isEnabledFor(logging.DEBUG):
-        log.debug(f"set_missing_total_doses: {len(events.events)}; types {events.type_set}")
+    log.debug(f"set_missing_total_doses: {len(events.events)}; types {events.type_set}")
 
     for vacc in events.vaccinations:
         # make mypy happy

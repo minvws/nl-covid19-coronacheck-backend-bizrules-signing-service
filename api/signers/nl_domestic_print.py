@@ -31,7 +31,7 @@ def sign(events: Events) -> Optional[DomesticPrintProof]:
 
     eligible_events = remove_domestic_ineligible_events(events)
     eligible_events = distill_relevant_events(eligible_events)
-    if not eligible_events:
+    if not eligible_events.events:
         return None
 
     if len(eligible_events.events) > 1:
