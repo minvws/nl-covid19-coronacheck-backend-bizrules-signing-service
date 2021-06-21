@@ -73,7 +73,7 @@ def test_nl_testcases(requests_mock, current_path):
     assert answer == DomesticGreenCard(
         origins=[
             GreenCardOrigin(
-                type="recovery",
+                type="positivetest",
                 eventTime="2021-06-02T00:00:00+00:00",
                 expirationTime="2021-12-10T00:00:00+00:00",
                 validFrom="2021-06-13T00:00:00+00:00",

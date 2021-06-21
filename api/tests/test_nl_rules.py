@@ -19,6 +19,8 @@ from api.signers.logic import distill_relevant_events
 from api.tests.test_eu_issuing_rules import _create_events
 
 # To allow copy pasting tests from
+# Rules: https://docs.google.com/spreadsheets/d/1WkShVLnwZjMZO3kj_RR-ccOTzBTivEmOaIGS53vUlVo/edit#gid=0
+# Tests:
 # https://github.com/minvws/nl-covid19-coronacheck-test-utilities-private/blob/update-0621/e2e-test-cases/jsons/2.0.0-test-cases-mock.csv.json
 
 false = False
@@ -192,17 +194,18 @@ def test_777771994(mock_signers):
     }
 
     # domestic: origins now and one valid from in 11 days.
+    # eu does not know negativetest or postitivetest:
     signed = nl_domestic_dynamic.sign(events, base64_json_dump({}), base64_json_dump({}))
     assert signed == DomesticGreenCard(
         origins=[
             GreenCardOrigin(
-                type="test",
+                type="negativetest",
                 eventTime="2021-06-21T06:00:00+00:00",
                 expirationTime="2021-06-22T22:00:00+00:00",
                 validFrom="2021-06-21T06:00:00+00:00",
             ),
             GreenCardOrigin(
-                type="recovery",
+                type="positivetest",
                 eventTime="2021-06-20T06:00:00+00:00",
                 expirationTime="2021-12-28T06:00:00+00:00",
                 validFrom="2021-07-01T06:00:00+00:00",
@@ -211,18 +214,15 @@ def test_777771994(mock_signers):
         createCredentialMessages="eyJjcmVkZW50aWFsIjogIkFfUVJfQ09ERSJ9",
     )
 
-    # Todo: de greencard origin moet wel volgens NL zijn, dat is dus een negativetest hier en ptt voor andere.
-    # -> create_negative_test_rich_origin
     # Eventtime should be: 2021, 6, 21, 6, 58, 47 -> hours and and minutes are removed.
     # Then the expiration should be that event time + DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST hours.
-    test_origins = [o for o in signed.origins if o.type == "test"]
+    test_origins = [o for o in signed.origins if o.type == "negativetest"]
     test = test_origins[0]
     assert dti(test.expirationTime) == dti(test.eventTime) + timedelta(
         hours=settings.DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST)
 
-    # todo: this should be a positivetest for domestic, seems a little too much code has been borrowed
     # -> create_positive_test_rich_origin
-    recoveries = [o for o in signed.origins if o.type == "recovery"]
+    recoveries = [o for o in signed.origins if o.type == "positivetest"]
     recovery = recoveries[0]
     # Valid 11 days from now for 180 days:
     assert dti(recovery.validFrom) == dti(recovery.eventTime) + timedelta(

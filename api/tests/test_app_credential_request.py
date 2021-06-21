@@ -71,7 +71,7 @@ def test_app_credential_request(requests_mock, current_path, redis_db):
                 {
                     "eventTime": "2021-05-27T19:00:00+00:00",
                     "expirationTime": "2021-05-29T11:00:00+00:00",
-                    "type": "test",
+                    "type": "negativetest",
                     "validFrom": "2021-05-27T19:00:00+00:00",
                 },
                 # the following one is removed by de-duplication
