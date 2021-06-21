@@ -2,8 +2,8 @@ import json
 from typing import Dict, List
 
 import json5
-from freezegun import freeze_time
 import pytest
+from freezegun import freeze_time
 
 import api.signers.eu_international_print as eu
 import api.signers.nl_domestic_print as domestic
