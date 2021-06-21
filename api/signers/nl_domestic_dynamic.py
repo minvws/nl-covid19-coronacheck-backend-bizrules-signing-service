@@ -11,7 +11,6 @@ from api.signers.nl_domestic import _sign
 
 def sign(events: Events, prepare_issue_message: str, issue_commitment_message: str) -> Optional[DomesticGreenCard]:
     # This signer talks to: https://github.com/minvws/nl-covid19-coronacheck-idemix-private/
-    # todo: is the strikelist still used?
 
     eligible_events = remove_domestic_ineligible_events(events)
     eligible_events = distill_relevant_events(eligible_events)
