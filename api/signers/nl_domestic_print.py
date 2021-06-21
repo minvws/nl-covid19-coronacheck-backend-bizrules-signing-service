@@ -11,9 +11,8 @@ from api.signers.nl_domestic import _sign_attributes
 def create_attributes(event: Event) -> DomesticSignerAttributes:
     valid_from = event.get_valid_from_time()
     validity_hours = derive_print_validity_hours(event)
-    return DomesticSignerAttributes(
+    attributes = DomesticSignerAttributes(
         # this is safe because we can only have all specimen or a list of events with specimens removed
-        # todo: is deze gestriked
         isSpecimen="1" if event.isSpecimen else "0",
         isPaperProof=StripType.PAPER_STRIP,
         validFrom=str(int(valid_from.timestamp())),
@@ -23,11 +22,10 @@ def create_attributes(event: Event) -> DomesticSignerAttributes:
         birthDay=str(event.holder.birthDate.day) if event.holder.birthDate.day else "",
         birthMonth=str(event.holder.birthDate.month) if event.holder.birthDate.month else "",
     )
+    return attributes.strike()
 
 
 def sign(events: Events) -> Optional[DomesticPrintProof]:
-    # todo: is the strikelist still used?
-
     if not events or not events.events:
         return None
 
