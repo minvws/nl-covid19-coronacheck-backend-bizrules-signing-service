@@ -78,12 +78,20 @@ def _is_eligible_vaccination(event: Event) -> bool:
 
 def _is_eligible_test(event: Event) -> bool:
     # rules N030, N040, N050
-    if isinstance(event.negativetest, Negativetest) and event.negativetest.type in ELIGIBLE_TT:
-        return True
+    if isinstance(event.negativetest, Negativetest):
+        if not event.negativetest.negativeResult:
+            log.warning("received a negative test with negativeResult False")
+            return False
+        if event.negativetest.type in ELIGIBLE_TT:
+            return True
 
     # rules P020, P030, P040
-    if isinstance(event.positivetest, Positivetest) and event.positivetest.type in ELIGIBLE_TT:
-        return True
+    if isinstance(event.positivetest, Positivetest):
+        if not event.positivetest.positiveResult:
+            log.warning("received a positive test with positiveResult False")
+            return False
+        if event.positivetest.type in ELIGIBLE_TT:
+            return True
 
     log.debug(f"Ineligible test: {event}")
     return False
