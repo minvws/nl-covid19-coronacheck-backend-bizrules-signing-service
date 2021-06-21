@@ -1,6 +1,6 @@
 import json
 from datetime import date, datetime
-from typing import List
+from typing import Tuple
 from uuid import UUID
 
 import requests
@@ -27,7 +27,12 @@ def defaultconverter(something):
 
 
 def request_post_with_retries(
-    url, data, exponential_retries: int = 5, timeout: int = 300, retry_on_these_status_codes: List = None, **kwargs
+    url,
+    data,
+    exponential_retries: int = settings.HTTP_EXPONENTIAL_RETRIES,
+    timeout: float = settings.HTTP_TIMEOUT,
+    retry_on_these_status_codes: Tuple[int, ...] = settings.HTTP_RETRY_STATUS_CODES,
+    **kwargs,
 ) -> requests.Response:
     return request_request_with_retries(
         "POST", url, data, exponential_retries, timeout, retry_on_these_status_codes, **kwargs
@@ -35,7 +40,12 @@ def request_post_with_retries(
 
 
 def request_get_with_retries(
-    url, data, exponential_retries: int = 5, timeout: int = 300, retry_on_these_status_codes: List = None, **kwargs
+    url,
+    data,
+    exponential_retries: int = settings.HTTP_EXPONENTIAL_RETRIES,
+    timeout: float = settings.HTTP_TIMEOUT,
+    retry_on_these_status_codes: Tuple[int, ...] = settings.HTTP_RETRY_STATUS_CODES,
+    **kwargs,
 ) -> requests.Response:
     return request_request_with_retries(
         "GET", url, data, exponential_retries, timeout, retry_on_these_status_codes, **kwargs
@@ -47,22 +57,27 @@ def request_request_with_retries(
     method: str,
     url,
     data=None,
-    exponential_retries: int = 5,
-    timeout: int = 300,
-    retry_on_these_status_codes: List = None,
+    exponential_retries: int = settings.HTTP_EXPONENTIAL_RETRIES,
+    timeout: float = settings.HTTP_TIMEOUT,
+    retry_on_these_status_codes: Tuple[int, ...] = settings.HTTP_RETRY_STATUS_CODES,
+    backoff_factor: float = settings.HTTP_RETRY_BACKOFF_TIME,
     **kwargs,
 ) -> requests.Response:
     # better to many arguments then code duplication
 
     # because default argument should not be mutable, these are the defaults:
     if retry_on_these_status_codes is None:
-        retry_on_these_status_codes = [429, 500, 502, 503, 504]
+        retry_on_these_status_codes = (429, 500, 502, 503, 504)
 
     session = requests.Session()
     # https://docs.python-requests.org/en/master/user/advanced/#ssl-cert-verification
-    log.debug(f"Requesting {method} to {url} with verification: {settings.SIGNER_CA_CERT_FILE}")
+    log.debug(
+        f"Requesting {method} to {url} with verification: {settings.SIGNER_CA_CERT_FILE} and backoff {backoff_factor}"
+    )
     session.verify = settings.SIGNER_CA_CERT_FILE
-    retries = Retry(total=exponential_retries, backoff_factor=1, status_forcelist=retry_on_these_status_codes)
+    retries = Retry(
+        total=exponential_retries, backoff_factor=backoff_factor, status_forcelist=retry_on_these_status_codes
+    )
 
     # Possibly needed: check client side certs
     # https://docs.python-requests.org/en/master/user/advanced/#client-side-certificates
