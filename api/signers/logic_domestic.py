@@ -60,7 +60,8 @@ def create_positive_test_rich_origin(event: Event) -> RichOrigin:
     event_time = logic.floor_hours(event.positivetest.sampleDate)
     return RichOrigin(
         holder=event.holder,
-        type=EventType.positivetest,
+        # app only knows recovery, test and vaccination.
+        type=EventType.recovery,
         eventTime=event_time,
         validFrom=event_time + timedelta(days=settings.DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS),
         expirationTime=event_time
@@ -78,7 +79,8 @@ def create_negative_test_rich_origin(event: Event) -> RichOrigin:
     event_time = logic.floor_hours(event.negativetest.sampleDate)
     return RichOrigin(
         holder=event.holder,
-        type=EventType.negativetest,
+        # app only knows recovery, test and vaccination.
+        type=EventType.test,
         eventTime=event_time,
         validFrom=event_time,
         expirationTime=event_time + timedelta(hours=settings.DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST),
@@ -87,6 +89,7 @@ def create_negative_test_rich_origin(event: Event) -> RichOrigin:
 
 
 def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBlock]) -> List[DomesticSignerAttributes]:
+    # contiguous_blocks -> tijden dat je sowieso een credential krijgt.
     log.debug(f"Creating attributes from {len(contiguous_blocks)} ContiguousOriginsBlock.")
 
     # # Calculate sets of credentials for every block
@@ -95,15 +98,22 @@ def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBl
 
     attributes = []
 
-    # Calculate the maximum expiration time we're going to issue credentials for
+    # Calculate the maximum expiration time we're going to issue credentials for. Not going to give a credential
+    # after this amount of days.
     maximum_expiration_time = rounded_now + timedelta(days=settings.DOMESTIC_MAXIMUM_ISSUANCE_DAYS)
 
+    """
+    Scrubber:              |
+    Events  : [ event 1 + 2 ]       [ event 3     ]   [ event 4 ]
+    Timeline:  Mar 2                                             Mar 30
+    """
     for overlapping_block in contiguous_blocks:
-        # Initialize the scrubber with time that is valid and not in the past
+        # Initialize the scrubber with time that is valid and not in the past. A scrubber is analogous to AV products.
         expiration_time_scrubber = max(rounded_now, overlapping_block.validFrom)
 
+        # Give an attribute ('strip') until the time of the block is passed.
         while True:
-            # Decide on a random number of hours that the current credential will overlap
+            # Decide on a random number of hours that the current credential will overlap. Eg: Between 24 and 20 hours.
             rand_overlap_hours = secrets.randbelow(settings.DOMESTIC_MAXIMUM_RANDOMIZED_OVERLAP_HOURS + 1)
 
             # Calculate the expiry time for this credential, considering the validity and random overlap,
@@ -127,7 +137,7 @@ def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBl
                 # mixing specimen with non-specimen requests is weird. We'll use what's in the first origin
                 isSpecimen="1" if overlapping_block.origins[0].isSpecimen else "0",
                 isPaperProof=StripType.APP_STRIP,
-                validFrom=str(int(valid_from.now().timestamp())),
+                validFrom=str(int(valid_from.timestamp())),
                 validForHours=settings.DOMESTIC_STRIP_VALIDITY_HOURS,
                 firstNameInitial=holder.first_name_initial,
                 lastNameInitial=holder.last_name_initial,
@@ -156,6 +166,7 @@ def create_origins(events: Events) -> Optional[List[RichOrigin]]:
         + [create_positive_test_rich_origin(event) for event in events.positivetests]
     )
 
+    # next steps expect the validfrom ordering is applied
     return sorted(origins, key=lambda o: o.validFrom)
 
 
@@ -163,6 +174,14 @@ def create_attributes(origins: List[RichOrigin]) -> List[DomesticSignerAttribute
     log.debug(f"Creating attributes for {len(origins)} origins.")
 
     # # Calculate blocks of contiguous origins
+    """
+    Het doel is om de gaten te vinden in tijden waarop je geen credentials krijgt.
+    Je wil alleen maar credentials uitgeven voor tijdsblokken. Alles dat tussen de blokken valt krijg je geen kaartjes
+    voor.
+    
+    Welke origins sluiten op elkaar aan. Deze probeert iedere origin erin, hij gaat kijken of de volgende origin
+    nog in dat blok past (of die aansluitend is). Utieindelijk hou je alle blokken over die aansluitende origins hebben.
+    """
     contiguous_blocks: List[ContiguousOriginsBlock] = [
         ContiguousOriginsBlock.from_origin(origins[0]),
     ]
@@ -173,6 +192,7 @@ def create_attributes(origins: List[RichOrigin]) -> List[DomesticSignerAttribute
             last_block.origins.append(origin)
             last_block.expirationTime = max(last_block.expirationTime, origin.expirationTime)
         else:
+            # er zit een gat tussen twee origins. Dus er komt een nieuw block.
             contiguous_blocks.append(ContiguousOriginsBlock.from_origin(origin))
 
     log.debug(f"Found {len(contiguous_blocks)} contiguous_blocks.")

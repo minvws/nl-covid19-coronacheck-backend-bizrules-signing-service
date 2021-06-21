@@ -3,27 +3,22 @@ from datetime import datetime, timezone
 from typing import Dict, List
 
 import json5
-import pytest
 import pytz
 from freezegun import freeze_time
 
 from api.app_support import decode_and_normalize_events
 from api.models import (
     CMSSignedDataBlob,
-    DomesticGreenCard,
     DomesticSignerAttributes,
-    EUGreenCard,
     Event,
     Events,
     EventType,
-    GreenCardOrigin,
     Holder,
     Negativetest,
     RichOrigin,
     StripType,
 )
 from api.settings import settings
-from api.signers import eu_international, nl_domestic_static
 from api.signers.logic_domestic import create_attributes, create_origins
 from api.utils import read_file
 
@@ -36,7 +31,8 @@ def get_testevents(current_path) -> List[CMSSignedDataBlob]:
 
 
 @freeze_time("2021-05-20")
-def test_eu_is_specimen():
+def test_eu_is_specimen(mocker):
+    mocker.patch("secrets.randbelow", return_value=0)
 
     rich_origins = [
         RichOrigin(
@@ -61,17 +57,61 @@ def test_eu_is_specimen():
     )
 
     attributes: List[DomesticSignerAttributes] = create_attributes(rich_origins)
-    assert attributes == [expected_attributes, expected_attributes]
+    assert attributes == [
+        DomesticSignerAttributes(
+            isSpecimen="1",
+            isPaperProof=StripType.APP_STRIP,
+            validFrom="1622073600",
+            validForHours="24",
+            firstNameInitial="T",
+            lastNameInitial="",
+            birthDay="1",
+            birthMonth="",
+        ),
+        DomesticSignerAttributes(
+            isSpecimen="1",
+            isPaperProof=StripType.APP_STRIP,
+            validFrom="1622131200",
+            validForHours="24",
+            firstNameInitial="T",
+            lastNameInitial="",
+            birthDay="1",
+            birthMonth="",
+        ),
+    ]
 
     rich_origins[0].isSpecimen = False  # noqa
     expected_attributes.isSpecimen = "0"
     attributes: List[DomesticSignerAttributes] = create_attributes(rich_origins)
-    assert attributes == [expected_attributes, expected_attributes]
+    assert attributes == [
+        DomesticSignerAttributes(
+            isSpecimen="0",
+            isPaperProof=StripType.APP_STRIP,
+            validFrom="1622073600",
+            validForHours="24",
+            firstNameInitial="T",
+            lastNameInitial="",
+            birthDay="1",
+            birthMonth="",
+        ),
+        DomesticSignerAttributes(
+            isSpecimen="0",
+            isPaperProof=StripType.APP_STRIP,
+            validFrom="1622131200",
+            validForHours="24",
+            firstNameInitial="T",
+            lastNameInitial="",
+            birthDay="1",
+            birthMonth="",
+        ),
+    ]
 
 
 @freeze_time("2021-05-28")
-@pytest.mark.skip("needs more TLC")
-def test_static_sign(current_path, requests_mock):
+# @pytest.mark.skip("needs more TLC")
+def test_attributes_and_origins(current_path, requests_mock, mocker):
+    mocker.patch("api.uci.random_unique_identifier", return_value="B7L6YIZIZFD3BMTEFA4CVUI6ZM")
+
     signing_response_data = {
         "qr": {
             "data": "TF+*JY+21:6 T%NCQ+ PVHDDP+Z-WQ8-TG/O3NLFLH3:FHS-RIFVQ:UV57K/.:R6+.MX:U$HIQG3FVY%6NIN0:O.KCG9F99",
@@ -93,7 +133,7 @@ def test_static_sign(current_path, requests_mock):
         "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%I0/IVB58WA",
     }
 
-    requests_mock.post(settings.DOMESTIC_NL_VWS_PAPER_SIGNING_URL, json=json.dumps(signing_response_data))
+    requests_mock.post(settings.DOMESTIC_NL_VWS_ONLINE_SIGNING_URL, json=json.dumps(signing_response_data))
     requests_mock.post(settings.EU_INTERNATIONAL_SIGNING_URL, json=eu_example_answer)
     requests_mock.post("http://testserver/app/paper/", real_http=True)
 
@@ -127,8 +167,12 @@ def test_static_sign(current_path, requests_mock):
         ),
     ]
 
+    # Fix the randomizer:
+    mocker.patch("secrets.randbelow", return_value=0)
+
     attributes: List[DomesticSignerAttributes] = create_attributes(origins)
-    # todo: why four attributes?
+    # Blocks span four days: 27th to the 1st of the 6th.
+
     assert attributes == [
         DomesticSignerAttributes(
             isSpecimen="1",
@@ -143,7 +187,7 @@ def test_static_sign(current_path, requests_mock):
         DomesticSignerAttributes(
             isSpecimen="1",
             isPaperProof=StripType.APP_STRIP,
-            validFrom="1622160000",
+            validFrom="1622199600",
             validForHours="24",
             firstNameInitial="T",
             lastNameInitial="",
@@ -153,7 +197,7 @@ def test_static_sign(current_path, requests_mock):
         DomesticSignerAttributes(
             isSpecimen="1",
             isPaperProof=StripType.APP_STRIP,
-            validFrom="1622160000",
+            validFrom="1622523600",
             validForHours="24",
             firstNameInitial="T",
             lastNameInitial="",
@@ -163,7 +207,7 @@ def test_static_sign(current_path, requests_mock):
         DomesticSignerAttributes(
             isSpecimen="1",
             isPaperProof=StripType.APP_STRIP,
-            validFrom="1622160000",
+            validFrom="1622581200",
             validForHours="24",
             firstNameInitial="T",
             lastNameInitial="",
@@ -171,55 +215,6 @@ def test_static_sign(current_path, requests_mock):
             birthMonth="",
         ),
     ]
-
-    eu_signed = eu_international.sign(events)
-
-    assert eu_signed == [
-        EUGreenCard(
-            origins=[
-                GreenCardOrigin(
-                    type="test",
-                    eventTime="2021-05-27T19:23:00+00:00",
-                    expirationTime="2021-11-24T00:00:00+00:00",
-                    validFrom="2021-05-27T19:23:00+00:00",
-                )
-            ],
-            credential="HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%I0/IVB58WA",
-        )
-    ]
-
-    nl_signed = nl_domestic_static.sign(events)
-    assert nl_signed == DomesticGreenCard(
-        origins=[
-            # todo: multiple tests? Should there be just one?
-            GreenCardOrigin(
-                type="test",
-                eventTime="2021-05-27T19:00:00+00:00",
-                expirationTime="2021-05-29T11:00:00+00:00",
-                validFrom="2021-05-27T19:00:00+00:00",
-            ),
-            GreenCardOrigin(
-                type="test",
-                eventTime="2021-05-27T19:00:00+00:00",
-                expirationTime="2021-05-29T11:00:00+00:00",
-                validFrom="2021-05-27T19:00:00+00:00",
-            ),
-            GreenCardOrigin(
-                type="test",
-                eventTime="2021-06-01T05:00:00+00:00",
-                expirationTime="2021-06-02T21:00:00+00:00",
-                validFrom="2021-06-01T05:00:00+00:00",
-            ),
-        ],
-        createCredentialMessages="IntcInFyXCI6IHtcImRhdGFcIjogXCJURisqSlkrMjE6NiBUJU5DUSsgUFZIR"
-        "ERQK1otV1E4LVRHL08zTkxGTEgzOkZIUy1SSUZWUTpVVjU3Sy8uOlI2Ky5NWD"
-        "pVJEhJUUczRlZZJTZOSU4wOk8uS0NHOUY5OVwiLCBcImF0dHJpYnV0ZXNJc3N"
-        "1ZWRcIjoge1wic2FtcGxlVGltZVwiOiBcIjE2MTkwOTI4MDBcIiwgXCJmaXJz"
-        "dE5hbWVJbml0aWFsXCI6IFwiVFwiLCBcImxhc3ROYW1lSW5pdGlhbFwiOiBcI"
-        "lBcIiwgXCJiaXJ0aERheVwiOiBcIjFcIiwgXCJiaXJ0aE1vbnRoXCI6IFwiMV"
-        "wiLCBcImlzU3BlY2ltZW5cIjogXCIxXCIsIFwiaXNQYXBlclByb29mXCI6IFw"
-        "iMVwifX0sIFwic3RhdHVzXCI6IFwib2tcIiwgXCJlcnJvclwiOiAwfSI=",
-    )
 
 
 @freeze_time("2020-02-02")

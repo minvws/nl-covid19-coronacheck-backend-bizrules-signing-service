@@ -196,13 +196,13 @@ def test_777771994(mock_signers):  # noqa
     assert signed == DomesticGreenCard(
         origins=[
             GreenCardOrigin(
-                type="negativetest",
+                type="test",
                 eventTime="2021-06-21T06:00:00+00:00",
                 expirationTime="2021-06-22T22:00:00+00:00",
                 validFrom="2021-06-21T06:00:00+00:00",
             ),
             GreenCardOrigin(
-                type="positivetest",
+                type="recovery",
                 eventTime="2021-06-20T06:00:00+00:00",
                 expirationTime="2021-12-28T06:00:00+00:00",
                 validFrom="2021-07-01T06:00:00+00:00",
@@ -213,14 +213,14 @@ def test_777771994(mock_signers):  # noqa
 
     # Eventtime should be: 2021, 6, 21, 6, 58, 47 -> hours and and minutes are removed.
     # Then the expiration should be that event time + DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST hours.
-    test_origins = [o for o in signed.origins if o.type == "negativetest"]
+    test_origins = [o for o in signed.origins if o.type == "test"]
     test = test_origins[0]
     assert dti(test.expirationTime) == dti(test.eventTime) + timedelta(
         hours=settings.DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST
     )
 
     # -> create_positive_test_rich_origin
-    recoveries = [o for o in signed.origins if o.type == "positivetest"]
+    recoveries = [o for o in signed.origins if o.type == "recovery"]
     recovery = recoveries[0]
     # Valid 11 days from now for 180 days:
     assert dti(recovery.validFrom) == dti(recovery.eventTime) + timedelta(
