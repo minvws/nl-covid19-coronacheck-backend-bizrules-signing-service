@@ -366,7 +366,7 @@ class Negativetest(BaseModel):  # noqa
                     "ma": self.manufacturer,
                     "sc": self.sampleDate,
                     "tr": "260415000" if self.negativeResult else "260373001",  # 260415000 = not detected
-                    "tc": settings.EU_INTERNATIONAL_OVERRIDE_TC,
+                    "tc": self.facility,
                     "co": str(self.country),
                 },
             }
