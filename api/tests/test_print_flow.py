@@ -61,6 +61,54 @@ def test_print_domestic():
 
 
 @freeze_time("2021-06-14T16:24:06")
+def test_print_eu_2():
+
+    event_list = [
+        Event(
+            **{
+                "source_provider_identifier": "ZZZ",
+                "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01", "infix": ""},
+                "type": "vaccination",
+                "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
+                "negativetest": None,
+                "positivetest": None,
+                "recovery": None,
+                "vaccination": {
+                    "completedByMedicalStatement": False,
+                    "date": "2021-02-01",
+                    "hpkCode": "2934701",
+                    "country": "NLD",
+                    "doseNumber": 1,
+                    "totalDoses": 2,
+                },
+            }
+        ),
+        Event(
+            **{
+                "source_provider_identifier": "ZZZ",
+                "holder": {"firstName": "Herman", "lastName": "Akkersloot", "birthDate": "1970-01-01", "infix": ""},
+                "type": "vaccination",
+                "unique": "165dd2a9-74e5-4afc-8983-53a753554142",
+                "negativetest": None,
+                "positivetest": None,
+                "recovery": None,
+                "vaccination": {
+                    "completedByMedicalStatement": False,
+                    "date": "2021-03-01",
+                    "hpkCode": "2934701",
+                    "country": "NLD",
+                    "doseNumber": 2,
+                    "totalDoses": 2,
+                },
+            }
+        ),
+    ]
+    signed_result = eu.sign(Events(events=event_list))
+    print(signed_result.dict())
+
+
+
+@freeze_time("2021-06-14T16:24:06")
 @pytest.mark.skip("not yet finished")
 def test_print_eu():
 
