@@ -291,7 +291,7 @@ class Vaccination(BaseModel):  # noqa
     completedByPersonalStatement: Optional[bool] = Field(description="Individual self-declares fully vaccinated")
 
     country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
-        description="Defaults to NLD", example="NLD", default=Iso3166Dash1Alpha2CountryCode("NL")
+        description="Defaults to NL", example="NL", default=Iso3166Dash1Alpha2CountryCode("NL")
     )
     doseNumber: Optional[int] = Field(example=1, description="will be based on business rules / brand info if left out")
     totalDoses: Optional[int] = Field(example=2, description="will be based on business rules / brand info if left out")
@@ -323,7 +323,7 @@ class Positivetest(BaseModel):  # noqa
     name: str = Field(example="???")
     manufacturer: str = Field(example="1232")
     country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
-        description="Defaults to NLD", example="NLD", default="NLD"
+        description="Defaults to NL", example="NL", default="NL"
     )
 
     def toEuropeanRecovery(self):
@@ -356,7 +356,7 @@ class Negativetest(BaseModel):  # noqa
     name: str = Field(example="Bestest")
     manufacturer: str = Field(example="Acme Inc")
     country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
-        description="Defaults to NLD", example="NLD", default="NLD"
+        description="Defaults to NL", example="NL", default="NL"
     )
 
     def toEuropeanTest(self):
@@ -381,7 +381,7 @@ class Recovery(BaseModel):  # noqa
     validFrom: date = Field(example="2021-01-12")
     validUntil: date = Field(example="2021-06-30")
     country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
-        description="Defaults to NLD", example="NLD", default="NLD"
+        description="Defaults to NL", example="NL", default="NL"
     )
 
     def toEuropeanRecovery(self):
@@ -645,7 +645,7 @@ class SharedEuropeanFields(BaseModel):
     tg: str = Field(description="disease or agent targeted", example="840539006", default="840539006")
     ci: str = Field(description="Certificate Identifier, format as per UCI (*)")
     # Todo: has to be moved to all four types, because we have to follow what is sent, if nothing is sent
-    #  then NLD is the fallback.
+    #  then NL is the fallback.
     co: Iso3166Dash1Alpha2CountryCode = Field(description="Member State, ISO 3166", default="NL", regex=r"[A-Z]{1,10}")
     is_: str = Field(description="certificate issuer", default="Ministry of Health Welfare and Sport", alias="is")
 
@@ -996,7 +996,7 @@ class V2Event(BaseModel):
                         type=testtypes_to_code.get(self.result.testType, "unknown"),
                         name="not available",
                         manufacturer="not available",
-                        country="NLD",
+                        country="NL",
                         negativeResult=self.result.negativeResult,
                     ),
                 )
