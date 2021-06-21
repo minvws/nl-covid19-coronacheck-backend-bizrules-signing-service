@@ -203,13 +203,13 @@ def derive_print_validity_hours(event: Event) -> int:
     """
     Based on the event type, derive the number of hours a printed certificate should be valid
     """
-    if isinstance(event, Vaccination):
+    if isinstance(event.vaccination, Vaccination):
         return settings.DOMESTIC_PRINT_PROOF_VALIDITY_HOURS_VACCINATION
-    if isinstance(event, Negativetest):
+    if isinstance(event.negativetest, Negativetest):
         return settings.DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST
-    if isinstance(event, Positivetest):
+    if isinstance(event.positivetest, Positivetest):
         return 24 * settings.DOMESTIC_NL_EXPIRY_DAYS_POSITIVE_TEST
-    if isinstance(event, Recovery):
+    if isinstance(event.recovery, Recovery):
         return settings.DOMESTIC_PRINT_PROOF_VALIDITY_HOURS_RECOVERY
     log.warning("calculating print validity hours of an unspecified event type; default to zero")
     return 0
