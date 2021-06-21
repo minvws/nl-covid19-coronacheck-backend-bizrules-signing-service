@@ -2,9 +2,9 @@ import json
 from base64 import b64encode
 from datetime import date, datetime
 
-from fastapi import HTTPException
 import pytest
 import pytz
+from fastapi import HTTPException
 from freezegun import freeze_time
 
 from api.app_support import decode_and_normalize_events, extract_results
@@ -15,16 +15,17 @@ from api.signers.nl_domestic_static import sign
 
 invalid_events = [
     {},
-    {"protocolVersion":"xxx"},
-    {"protocolVersion":"3.0"},
+    {"protocolVersion": "xxx"},
+    {"protocolVersion": "3.0"},
     {
-        "protocolVersion":"3.0",
+        "protocolVersion": "3.0",
         "providerIdentifier": "GGD",
         "status": "complete",
         "holder": {"firstName": "Bertje", "lastName": "Fruitplukker", "infix": "", "birthDate": "1972-06-23"},
         "events": [{}],
-    }
+    },
 ]
+
 
 @pytest.mark.parametrize("event", invalid_events)
 def test_nl_testcases_invalid(event):
@@ -37,6 +38,7 @@ def test_nl_testcases_invalid(event):
     assert "loc" in detail
     assert "msg" in detail
     assert "type" in detail
+
 
 @freeze_time("2021-06-14T16:24:06")
 def test_nl_testcases(requests_mock):
