@@ -52,7 +52,7 @@ def dti(data: str) -> datetime:
 
 
 @freeze_time("2021-06-21T01:23:45")
-def test_777771994(mock_signers):  # noqa
+def test_777771994(mock_signers):  # pylint: disable=unused-argument
     """
     Positive followed by negative test on same day.
 

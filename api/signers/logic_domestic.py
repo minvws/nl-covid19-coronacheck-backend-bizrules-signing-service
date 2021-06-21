@@ -89,6 +89,8 @@ def create_negative_test_rich_origin(event: Event) -> RichOrigin:
 
 
 def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBlock]) -> List[DomesticSignerAttributes]:
+    # docs: https://github.com/minvws/nl-covid19-coronacheck-app-coordination-private/blob/feature/
+    # stripcard/architecture/Privacy%20Preserving%20Green%20Card.md
     # contiguous_blocks -> tijden dat je sowieso een credential krijgt.
     log.debug(f"Creating attributes from {len(contiguous_blocks)} ContiguousOriginsBlock.")
 
@@ -178,7 +180,7 @@ def create_attributes(origins: List[RichOrigin]) -> List[DomesticSignerAttribute
     Het doel is om de gaten te vinden in tijden waarop je geen credentials krijgt.
     Je wil alleen maar credentials uitgeven voor tijdsblokken. Alles dat tussen de blokken valt krijg je geen kaartjes
     voor.
-    
+
     Welke origins sluiten op elkaar aan. Deze probeert iedere origin erin, hij gaat kijken of de volgende origin
     nog in dat blok past (of die aansluitend is). Utieindelijk hou je alle blokken over die aansluitende origins hebben.
     """
