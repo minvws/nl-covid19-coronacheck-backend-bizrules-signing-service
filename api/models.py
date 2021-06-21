@@ -808,8 +808,11 @@ class CMSSignedDataBlob(BaseModel):
     payload: str = Field(description="CMS payload in base64")
 
 
-class CredentialsRequestData(BaseModel):
+class CredentialsRequestEvents(BaseModel):
     events: List[CMSSignedDataBlob]
+
+
+class CredentialsRequestData(CredentialsRequestEvents):
     stoken: UUID = Field(description="", example="a019e902-86a0-4b1d-bff0-5c89f3cfc4d9")
     issueCommitmentMessage: str
 
