@@ -1,17 +1,17 @@
 import base64
 import json
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict
 
 from freezegun import freeze_time
-from datetime import timezone, datetime, timedelta
 
 from api.models import (
-    EventType,
-    Iso3166Dash1Alpha2CountryCode,
+    DomesticGreenCard,
     DutchBirthDate,
     EUGreenCard,
+    EventType,
     GreenCardOrigin,
-    DomesticGreenCard,
+    Iso3166Dash1Alpha2CountryCode,
 )
 from api.settings import settings
 from api.signers import eu_international, nl_domestic_dynamic
@@ -22,9 +22,6 @@ from api.tests.test_eu_issuing_rules import _create_events
 # Rules: https://docs.google.com/spreadsheets/d/1WkShVLnwZjMZO3kj_RR-ccOTzBTivEmOaIGS53vUlVo/edit#gid=0
 # Tests:
 # https://github.com/minvws/nl-covid19-coronacheck-test-utilities-private/blob/update-0621/e2e-test-cases/jsons/2.0.0-test-cases-mock.csv.json
-
-false = False
-true = True
 
 
 def test_777771991():
@@ -55,7 +52,7 @@ def dti(data: str) -> datetime:
 
 
 @freeze_time("2021-06-21T01:23:45")
-def test_777771994(mock_signers):
+def test_777771994(mock_signers):  # noqa
     """
     Positive followed by negative test on same day.
 
@@ -77,9 +74,9 @@ def test_777771994(mock_signers):
             {
                 "type": "positivetest",
                 "unique": "b187ddf919643e29a409041fd45112ab8e42d552",
-                "isSpecimen": true,
+                "isSpecimen": True,
                 "positivetest": {
-                    "positiveResult": true,
+                    "positiveResult": True,
                     "country": "NLD",
                     "facility": "GGD XL Amsterdam",
                     "type": "LP6464-4",
@@ -92,9 +89,9 @@ def test_777771994(mock_signers):
             {
                 "type": "negativetest",
                 "unique": "7cabb871839e1a7e2beef1e392e11a2ef8755845",
-                "isSpecimen": true,
+                "isSpecimen": True,
                 "negativetest": {
-                    "negativeResult": true,
+                    "negativeResult": True,
                     "country": "NLD",
                     "facility": "GGD XL Amsterdam",
                     "type": "LP6464-4",
@@ -107,9 +104,9 @@ def test_777771994(mock_signers):
             {
                 "type": "positivetest",
                 "unique": "3a083514a4a5a4ada7e8c8d0f09cdba5c92bc0f1",
-                "isSpecimen": true,
+                "isSpecimen": True,
                 "positivetest": {
-                    "positiveResult": true,
+                    "positiveResult": True,
                     "country": "NLD",
                     "facility": "GGD XL Amsterdam",
                     "type": "LP6464-4",
@@ -122,9 +119,9 @@ def test_777771994(mock_signers):
             {
                 "type": "negativetest",
                 "unique": "b24764d9c90f90052753f1e199fe85950c819880",
-                "isSpecimen": true,
+                "isSpecimen": True,
                 "negativetest": {
-                    "negativeResult": true,
+                    "negativeResult": True,
                     "country": "NLD",
                     "facility": "GGD XL Amsterdam",
                     "type": "LP6464-4",
