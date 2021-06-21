@@ -833,7 +833,7 @@ class DomesticSignerAttributes(BaseModel):
     birthDay: str = Field(example="27", description="Day (not date!) of birth.")
     birthMonth: str = Field(example="12", description="Month (not date!) of birth.")
 
-    def strike(self):
+    def strike(self) -> "DomesticSignerAttributes":
         # VFMD = Voornaam, Familienaam, Maand, Dag
         combo = domestic_signer_attribute_allow_list.get(f"{self.firstNameInitial}{self.lastNameInitial}", "")
         if "V" not in combo:
