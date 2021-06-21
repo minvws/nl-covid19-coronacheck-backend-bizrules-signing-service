@@ -32,8 +32,11 @@ def test_nl_testcases_invalid(event):
 
     with pytest.raises(HTTPException) as excinfo:
         _answer = extract_results([blob])
-        
     assert excinfo.value.status_code == 422
+    detail = excinfo.value.detail[0]
+    assert "loc" in detail
+    assert "msg" in detail
+    assert "type" in detail
 
 @freeze_time("2021-06-14T16:24:06")
 def test_nl_testcases(requests_mock):
