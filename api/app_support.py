@@ -6,6 +6,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from fastapi import HTTPException
+from pydantic import ValidationError
 
 from api import log
 from api.models import (
@@ -41,17 +42,30 @@ def get_jwt_from_authorization_header(header_data: str) -> str:
 
 def extract_results(blobs: List[CMSSignedDataBlob]) -> List[DataProviderEventsResult]:
     results = []
-    for cms_signed_blob in blobs:
+    for i, cms_signed_blob in enumerate(blobs):
         dp_event_json = json.loads(base64.b64decode(cms_signed_blob.payload))
-        if dp_event_json["protocolVersion"] == "3.0":
-            dp_event_result: DataProviderEventsResult = DataProviderEventsResult(**dp_event_json)
-        elif dp_event_json["protocolVersion"] == "2.0":
-            log.debug("Receiving V2 event, upgrading to V3. This event cannot be EU signed.")
-            # V2 is contains only one single negative test
-            # V2 messages are not eligible for EU signing because it contains no full name and a wrong year(!)
-            dp_event_result = V2Event(**dp_event_json).upgrade_to_v3()
-        else:
-            raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=["Unsupported protocolVersion"])
+        protocol_loc = ["body", i, "payload", "protocolVersion"]
+        if not "protocolVersion" in dp_event_json:
+            raise HTTPException(
+                status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+                detail=[{"loc": protocol_loc, "msg": "field required", "type": "value_error.missing"}],
+            )
+        try:
+            if dp_event_json["protocolVersion"] == "3.0":
+                dp_event_result: DataProviderEventsResult = DataProviderEventsResult(**dp_event_json)
+            elif dp_event_json["protocolVersion"] == "2.0":
+                log.debug("Receiving V2 event, upgrading to V3. This event cannot be EU signed.")
+                # V2 is contains only one single negative test
+                # V2 messages are not eligible for EU signing because it contains no full name and a wrong year(!)
+                dp_event_result = V2Event(**dp_event_json).upgrade_to_v3()
+            else:
+                raise HTTPException(
+                    status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+                    detail=[{"loc": protocol_loc, "msg": "value should be 2.0 or 3.0", "type": "value_error.invalid"}],
+                )
+        except ValidationError as err:
+            raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail=err.errors()) from err
+
         results.append(dp_event_result)
 
     # add some logging about what events are received:

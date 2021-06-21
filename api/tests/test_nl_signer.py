@@ -2,15 +2,38 @@ import json
 from base64 import b64encode
 from datetime import date, datetime
 
+from fastapi import HTTPException
+import pytest
 import pytz
 from freezegun import freeze_time
 
-from api.app_support import decode_and_normalize_events
+from api.app_support import decode_and_normalize_events, extract_results
 from api.models import CMSSignedDataBlob, DomesticGreenCard, GreenCardOrigin
 from api.settings import settings
 from api.signers.nl_domestic import floor_hours
 from api.signers.nl_domestic_static import sign
 
+invalid_events = [
+    {},
+    {"protocolVersion":"xxx"},
+    {"protocolVersion":"3.0"},
+    {
+        "protocolVersion":"3.0",
+        "providerIdentifier": "GGD",
+        "status": "complete",
+        "holder": {"firstName": "Bertje", "lastName": "Fruitplukker", "infix": "", "birthDate": "1972-06-23"},
+        "events": [{}],
+    }
+]
+
+@pytest.mark.parametrize("event", invalid_events)
+def test_nl_testcases_invalid(event):
+    blob = CMSSignedDataBlob(signature="", payload=b64encode(json.dumps(event).encode()).decode("UTF-8"))
+
+    with pytest.raises(HTTPException) as excinfo:
+        _answer = extract_results([blob])
+        
+    assert excinfo.value.status_code == 422
 
 @freeze_time("2021-06-14T16:24:06")
 def test_nl_testcases(requests_mock):
