@@ -20,6 +20,7 @@ from api.models import (
     ApplicationHealth,
     CMSSignedDataBlob,
     CredentialsRequestData,
+    CredentialsRequestEvents,
     DataProviderEventsResult,
     DomesticGreenCard,
     EUGreenCard,
@@ -140,8 +141,8 @@ async def inge3_credential_request(request_data: List[CMSSignedDataBlob]):
 
 
 @app.post("/app/print/", response_model=PrintProof)
-async def print_proof_request(request_data: List[CMSSignedDataBlob]):
-    events = decode_and_normalize_events(request_data)
+async def print_proof_request(request_data: CredentialsRequestEvents):
+    events = decode_and_normalize_events(request_data.events)
 
     domestic = nl_domestic_print.sign(events)
     european = eu_international_print.sign(events)
