@@ -159,7 +159,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "sc": datetime(2021, 2, 1, 19, 38, tzinfo=timezone.utc),
                 "tc": "GGD XL Amsterdam",
                 "tg": "840539006",
-                "tr": "True",
+                "tr": "260415000",
                 "tt": "LP217198-3",
             }
         ],
