@@ -43,3 +43,15 @@ if settings.RVIG_ENVIRONMENT == "mock":
     require_rvig_mock = lambda f: f  # decorator that does nothing
 else:
     require_rvig_mock = pytest.mark.skip(reason="Skipping since settings.RVIG_ENVIRONMENT != mock")
+
+
+@pytest.fixture
+def mock_signers(requests_mock):
+    """
+    The structure retuned from these methods are _NOT_ close to the real answers. This mock is used
+    to check internal rules, not signing itself and this mock should not be used in end to end / integration tests.
+    :param requests_mock:
+    :return:
+    """
+    requests_mock.post(settings.EU_INTERNATIONAL_SIGNING_URL, json={"credential": "A_QR_CODE"})
+    requests_mock.post(settings.DOMESTIC_NL_VWS_ONLINE_SIGNING_URL, json={"credential": "A_QR_CODE"})

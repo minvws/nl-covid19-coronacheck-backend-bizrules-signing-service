@@ -57,6 +57,8 @@ loggers:
     level: DEBUG
   aiohttp:
     level: DEBUG
+  fastapi:
+    level: DEBUG
   # UCI for EU signing
   uci:
     level: INFO
