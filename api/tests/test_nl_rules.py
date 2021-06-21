@@ -219,17 +219,19 @@ def test_777771994(mock_signers):
     test_origins = [o for o in signed.origins if o.type == "negativetest"]
     test = test_origins[0]
     assert dti(test.expirationTime) == dti(test.eventTime) + timedelta(
-        hours=settings.DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST)
+        hours=settings.DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST
+    )
 
     # -> create_positive_test_rich_origin
     recoveries = [o for o in signed.origins if o.type == "positivetest"]
     recovery = recoveries[0]
     # Valid 11 days from now for 180 days:
     assert dti(recovery.validFrom) == dti(recovery.eventTime) + timedelta(
-        days=settings.DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS)
+        days=settings.DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS
+    )
     assert dti(recovery.expirationTime) == dti(recovery.eventTime) + timedelta(
-        days=settings.DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS) + timedelta(
-        days=settings.DOMESTIC_NL_EXPIRY_DAYS_POSITIVE_TEST)
+        days=settings.DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS
+    ) + timedelta(days=settings.DOMESTIC_NL_EXPIRY_DAYS_POSITIVE_TEST)
 
     # Expected: a negative test for now, so something valid 40 hours. And a recovery in 11 days.
     signed = eu_international.sign(events)
