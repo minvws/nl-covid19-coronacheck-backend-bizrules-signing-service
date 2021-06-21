@@ -13,6 +13,7 @@ def create_attributes(event: Event) -> DomesticSignerAttributes:
     validity_hours = derive_print_validity_hours(event)
     return DomesticSignerAttributes(
         # this is safe because we can only have all specimen or a list of events with specimens removed
+        # todo: is deze gestriked
         isSpecimen="1" if event.isSpecimen else "0",
         isPaperProof=StripType.PAPER_STRIP,
         validFrom=str(int(valid_from.timestamp())),

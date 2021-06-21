@@ -130,6 +130,7 @@ async def app_credential_request(request_data: CredentialsRequestData):
 
 @app.post("/app/paper/", response_model=MobileAppProofOfVaccination)
 async def inge3_credential_request(request_data: List[CMSSignedDataBlob]):
+    # todo: this is deprecated, move the tests on app/paper to app/print
     events = decode_and_normalize_events(request_data)
 
     domestic_response = nl_domestic_static.sign(events)
