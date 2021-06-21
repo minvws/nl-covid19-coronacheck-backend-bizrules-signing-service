@@ -299,6 +299,7 @@ class Vaccination(BaseModel):  # noqa
     def toEuropeanVaccination(self):
         return EuropeanVaccination(
             **{
+                # First run the default sharedEuropeanFields, then all fields below overwrite anything in that dict.
                 **SharedEuropeanFields.as_dict(),
                 **settings.HPK_MAPPING.get(self.hpkCode, {}),  # this mapping contains the vp, mp and ma
                 **({"vp": self.type} if self.type else {}),
