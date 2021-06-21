@@ -147,7 +147,12 @@ def decode_and_normalize_events(request_data_events: List[CMSSignedDataBlob]) ->
         # we have a request with different holders, raise an error
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=["error code 99966"])
 
-    return data_provider_events_results_to_events(data_provider_events_results)
+    events = data_provider_events_results_to_events(data_provider_events_results)
+
+    # make sure we deal with specimen events correctly
+    events = filter_specimen_events(events)
+
+    return events
 
 
 def data_provider_events_results_to_events(data_provider_events_results: List[DataProviderEventsResult]) -> Events:

@@ -8,12 +8,12 @@ from freezegun import freeze_time
 from api.app_support import decode_and_normalize_events
 from api.models import CMSSignedDataBlob, DomesticGreenCard, GreenCardOrigin
 from api.settings import settings
-from api.signers.nl_domestic import floor_hours
-from api.signers.nl_domestic_static import sign
+from api.signers.logic import floor_hours
+from api.signers.nl_domestic_dynamic import sign
 
 
 @freeze_time("2021-06-14T16:24:06")
-def test_nl_testcases(requests_mock):
+def test_nl_testcases(requests_mock, current_path):
     # country is empty.
     signing_response_data = {
         "qr": {
@@ -32,7 +32,7 @@ def test_nl_testcases(requests_mock):
         "error": 0,
     }
 
-    requests_mock.post(settings.DOMESTIC_NL_VWS_PAPER_SIGNING_URL, json=json.dumps(signing_response_data))
+    requests_mock.post(settings.DOMESTIC_NL_VWS_ONLINE_SIGNING_URL, json=json.dumps(signing_response_data))
 
     event = {
         "protocolVersion": "3.0",
@@ -56,9 +56,20 @@ def test_nl_testcases(requests_mock):
         ],
     }
 
+    prepare_issue_message = """
+        {"issuerPkId":"TST-KEY-01","issuerNonce":"UslfUmTWQUkcLPJy+9V8JA==","credentialAmount":28}
+    """
+
+    with open(current_path.joinpath("test_data/issue-commitment-message")) as file:
+        icm = file.read()
+
     blob = CMSSignedDataBlob(signature="", payload=b64encode(json.dumps(event).encode()).decode("UTF-8"))
 
-    answer = sign(decode_and_normalize_events([blob]))
+    answer = sign(
+        decode_and_normalize_events([blob]),
+        b64encode(prepare_issue_message.encode()).decode(),
+        icm,
+    )
     assert answer == DomesticGreenCard(
         origins=[
             GreenCardOrigin(

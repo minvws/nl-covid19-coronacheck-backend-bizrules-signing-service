@@ -11,7 +11,6 @@ from requests.exceptions import HTTPError
 from api import log
 from api.app_support import (
     decode_and_normalize_events,
-    filter_specimen_events,
     get_jwt_from_authorization_header,
     perform_uci_test,
     retrieve_prepare_issue_message_from_redis,
@@ -27,13 +26,20 @@ from api.models import (
     EventDataProviderJWT,
     MobileAppProofOfVaccination,
     PrepareIssueResponse,
+    PrintProof,
     UciTestInfo,
     V2Event,
 )
 from api.requesters import identity_hashes
 from api.requesters.prepare_issue import get_prepare_issue
 from api.session_store import session_store
-from api.signers import eu_international, nl_domestic_dynamic, nl_domestic_static
+from api.signers import (
+    eu_international,
+    eu_international_print,
+    nl_domestic_dynamic,
+    nl_domestic_print,
+    nl_domestic_static,
+)
 
 app = FastAPI()
 
@@ -113,7 +119,6 @@ async def app_credential_request(request_data: CredentialsRequestData):
         raise HTTPException(status_code=401, detail=["Session expired or is invalid"])
 
     events = decode_and_normalize_events(request_data.events)
-    events = filter_specimen_events(events)
 
     domestic_response: Optional[DomesticGreenCard] = nl_domestic_dynamic.sign(
         events, prepare_issue_message, request_data.issueCommitmentMessage
@@ -125,12 +130,26 @@ async def app_credential_request(request_data: CredentialsRequestData):
 
 @app.post("/app/paper/", response_model=MobileAppProofOfVaccination)
 async def inge3_credential_request(request_data: List[CMSSignedDataBlob]):
+    # todo: this is deprecated, move the tests on app/paper to app/print
     events = decode_and_normalize_events(request_data)
 
     domestic_response = nl_domestic_static.sign(events)
     eu_response = eu_international.sign(events)
 
     return MobileAppProofOfVaccination(**{"domesticGreencard": domestic_response, "euGreencards": eu_response})
+
+
+@app.post("/app/print/", response_model=PrintProof)
+async def print_proof_request(request_data: List[CMSSignedDataBlob]):
+    events = decode_and_normalize_events(request_data)
+
+    domestic = nl_domestic_print.sign(events)
+    european = eu_international_print.sign(events)
+
+    return PrintProof(
+        domestic=domestic,
+        european=european,
+    )
 
 
 # Some documentation endpoints, as the protocol versions 2 and 3 and messages to signer are not transparent enough

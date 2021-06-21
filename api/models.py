@@ -1,14 +1,16 @@
 # Pydantic models have no methods in many cases.
-# pylint: disable=too-few-public-methods,invalid-name
+# TODO: need to split this into multipile modules
+# pylint: disable=too-few-public-methods,invalid-name,too-many-lines
 # Automatic documentation: http://localhost:8000/redoc or http://localhost:8000/docs
 import json
 import re
 from datetime import date, datetime, timedelta
 from enum import Enum
-from typing import List, Optional, Union
+from typing import List, Optional, Set, Union
 from uuid import UUID
 
 import pycountry
+import pytz
 from pydantic import BaseModel, Field
 
 from api import log, uci_log
@@ -16,6 +18,8 @@ from api.attribute_allowlist import domestic_signer_attribute_allow_list
 from api.enrichment.name_normalizer import normalize_name
 from api.settings import settings
 from api.uci import generate_uci_01
+
+TZ = pytz.timezone("UTC")
 
 
 class Iso3166Dash1Alpha2CountryCode(str):
@@ -287,7 +291,7 @@ class Vaccination(BaseModel):  # noqa
     completedByPersonalStatement: Optional[bool] = Field(description="Individual self-declares fully vaccinated")
 
     country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
-        description="Defaults to NLD", example="NLD", default="NLD"
+        description="Defaults to NL", example="NL", default=Iso3166Dash1Alpha2CountryCode("NL")
     )
     doseNumber: Optional[int] = Field(example=1, description="will be based on business rules / brand info if left out")
     totalDoses: Optional[int] = Field(example=2, description="will be based on business rules / brand info if left out")
@@ -295,6 +299,8 @@ class Vaccination(BaseModel):  # noqa
     def toEuropeanVaccination(self):
         return EuropeanVaccination(
             **{
+                # First run the default sharedEuropeanFields, then all fields below overwrite anything in that dict.
+                **SharedEuropeanFields.as_dict(),
                 **settings.HPK_MAPPING.get(self.hpkCode, {}),  # this mapping contains the vp, mp and ma
                 **({"vp": self.type} if self.type else {}),
                 **({"mp": self.brand} if self.brand else {}),
@@ -303,8 +309,8 @@ class Vaccination(BaseModel):  # noqa
                     "dn": self.doseNumber,
                     "sd": self.totalDoses,
                     "dt": self.date,
+                    "co": str(self.country),
                 },
-                **SharedEuropeanFields.as_dict(),
             }
         )
 
@@ -317,9 +323,7 @@ class Positivetest(BaseModel):  # noqa
     type: str = Field(example="???")
     name: str = Field(example="???")
     manufacturer: str = Field(example="1232")
-    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
-        description="Defaults to NLD", example="NLD", default="NLD"
-    )
+    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(description="Defaults to NL", example="NL", default="NL")
 
     def toEuropeanRecovery(self):
         """
@@ -328,6 +332,7 @@ class Positivetest(BaseModel):  # noqa
         """
         return EuropeanRecovery(
             **{
+                **SharedEuropeanFields.as_dict(),
                 **{
                     # date until, in contrast to recoveries, a positive test does not have
                     # a moment until when it's valid. So in this case we're using a configuration
@@ -335,8 +340,8 @@ class Positivetest(BaseModel):  # noqa
                     "du": self.sampleDate + timedelta(days=settings.EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS),
                     # sampletime
                     "fr": self.sampleDate,
+                    "co": str(self.country),
                 },
-                **SharedEuropeanFields.as_dict(),
             }
         )
 
@@ -349,13 +354,12 @@ class Negativetest(BaseModel):  # noqa
     type: str = Field(example="A great one")
     name: str = Field(example="Bestest")
     manufacturer: str = Field(example="Acme Inc")
-    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
-        description="Defaults to NLD", example="NLD", default="NLD"
-    )
+    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(description="Defaults to NL", example="NL", default="NL")
 
     def toEuropeanTest(self):
         return EuropeanTest(
             **{
+                **SharedEuropeanFields.as_dict(),
                 **{
                     "tt": self.type,
                     "nm": self.name,
@@ -363,8 +367,8 @@ class Negativetest(BaseModel):  # noqa
                     "sc": self.sampleDate,
                     "tr": self.negativeResult,
                     "tc": self.facility,
+                    "co": str(self.country),
                 },
-                **SharedEuropeanFields.as_dict(),
             }
         )
 
@@ -373,18 +377,17 @@ class Recovery(BaseModel):  # noqa
     sampleDate: date = Field(example="2021-01-01")
     validFrom: date = Field(example="2021-01-12")
     validUntil: date = Field(example="2021-06-30")
-    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
-        description="Defaults to NLD", example="NLD", default="NLD"
-    )
+    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(description="Defaults to NL", example="NL", default="NL")
 
     def toEuropeanRecovery(self):
         return EuropeanRecovery(
             **{
+                **SharedEuropeanFields.as_dict(),
                 **{
                     "fr": self.sampleDate,
                     "du": self.validUntil,
+                    "co": str(self.country),
                 },
-                **SharedEuropeanFields.as_dict(),
             }
         )
 
@@ -447,6 +450,38 @@ class Event(DataProviderEvent):
         uci_log.info(json.dumps({"uci": uci, "provider": self.source_provider_identifier, "unique": self.unique}))
         return uci
 
+    def _get_date_attribute(
+        self,
+        vaccination_attr: str = "date",
+        negativetest_attr: str = "sampleDate",
+        positivetest_attr: str = "sampleDate",
+        recovery_attr: str = "sampleDate",
+    ) -> datetime:
+        """
+        Return relevant date attributes from an event. Defaults to getting the dates at which the event occurred,
+        but other attributes may be extracted. For instance: the validFrom date when this is a Recovery event.
+        """
+        if isinstance(self.vaccination, Vaccination):
+            event_time = getattr(self.vaccination, vaccination_attr)
+        elif isinstance(self.negativetest, Negativetest):
+            event_time = getattr(self.negativetest, negativetest_attr)
+        elif isinstance(self.positivetest, Positivetest):
+            event_time = getattr(self.positivetest, positivetest_attr)
+        elif isinstance(self.recovery, Recovery):
+            event_time = getattr(self.recovery, recovery_attr)
+        else:
+            raise ValueError("trying to retrieve event time from an event with no type")
+
+        if not isinstance(event_time, datetime):
+            event_time = datetime.combine(event_time, datetime.min.time())
+        return TZ.localize(event_time) if event_time.tzinfo is None else event_time  # type: ignore
+
+    def get_event_time(self) -> datetime:
+        return self._get_date_attribute()
+
+    def get_valid_from_time(self) -> datetime:
+        return self._get_date_attribute(recovery_attr="validFrom")
+
 
 class Events(BaseModel):
     events: List[Event] = Field(default=[])
@@ -490,6 +525,10 @@ class Events(BaseModel):
         events = [event for event in self.events if isinstance(event.recovery, Recovery)]
         events = sorted(events, key=lambda e: e.recovery.sampleDate)  # type: ignore
         return events
+
+    @property
+    def type_set(self) -> Set[EventType]:
+        return {event.type for event in self.events}
 
     # todo: move code down so EuropeanOnlineSigningRequest is known and method can be typed.
     def toEuropeanOnlineSigningRequest(self):
@@ -601,8 +640,8 @@ class SharedEuropeanFields(BaseModel):
     tg: str = Field(description="disease or agent targeted", example="840539006", default="840539006")
     ci: str = Field(description="Certificate Identifier, format as per UCI (*)")
     # Todo: has to be moved to all four types, because we have to follow what is sent, if nothing is sent
-    #  then NLD is the fallback.
-    co: str = Field(description="Member State, ISO 3166", default="NLD", regex=r"[A-Z]{1,10}")
+    #  then NL is the fallback.
+    co: Iso3166Dash1Alpha2CountryCode = Field(description="Member State, ISO 3166", default="NL", regex=r"[A-Z]{1,10}")
     is_: str = Field(description="certificate issuer", default="Ministry of Health Welfare and Sport", alias="is")
 
     @staticmethod
@@ -613,7 +652,7 @@ class SharedEuropeanFields(BaseModel):
             "tg": "840539006",
             "ci": "",
             # "ci": "urn:uvci:01:NL:33385024475e4c56a17b749f92404039",
-            "co": "NLD",
+            "co": "NL",  # Iso3166Dash1Alpha2CountryCode("NL"),
             "is": "Ministry of Health Welfare and Sport",
         }
 
@@ -777,8 +816,7 @@ class CredentialsRequestData(BaseModel):
 
 class StripType(str, Enum):
     APP_STRIP = "0"
-    PAPER_STRIP_SHORT = "1"
-    PAPER_STRIP_LONG = "2"
+    PAPER_STRIP = "1"
 
 
 class DomesticSignerAttributes(BaseModel):
@@ -787,7 +825,7 @@ class DomesticSignerAttributes(BaseModel):
         example="0",
         description="Boolean cast as string, if this is a testcase. " "To facilitate testing in production.",
     )
-    stripType: StripType = Field(example="0")
+    isPaperProof: StripType = Field(example="0")
     validFrom: str = Field(example="1622563151", description="String cast of a unix timestamp.")
     validForHours: str = Field(example="24")
     firstNameInitial: str = Field(example="E", description="First letter of the first name of this person")
@@ -795,7 +833,7 @@ class DomesticSignerAttributes(BaseModel):
     birthDay: str = Field(example="27", description="Day (not date!) of birth.")
     birthMonth: str = Field(example="12", description="Month (not date!) of birth.")
 
-    def strike(self):
+    def strike(self) -> "DomesticSignerAttributes":
         # VFMD = Voornaam, Familienaam, Maand, Dag
         combo = domestic_signer_attribute_allow_list.get(f"{self.firstNameInitial}{self.lastNameInitial}", "")
         if "V" not in combo:
@@ -817,7 +855,23 @@ class IssueMessage(BaseModel):
 
 
 class StaticIssueMessage(BaseModel):
-    credentialsAttributes: List[DomesticSignerAttributes]
+    credentialAttributes: DomesticSignerAttributes
+
+
+class DomesticPrintProof(BaseModel):
+    attributes: DomesticSignerAttributes = Field(description="attributes coded into the QR")
+    qr: str = Field(description="the encoded data that goes onto the QR")
+
+
+class EuropeanPrintProof(BaseModel):
+    expirationTime: str = Field(description="iso time stamp for when this proof expires at")
+    dcc: EuropeanOnlineSigningRequest = Field(description="the data that is encoded into the QR")
+    qr: str = Field(description="the encoded data that goes onto the QR")
+
+
+class PrintProof(BaseModel):
+    domestic: Optional[DomesticPrintProof] = Field(description="the domestic QR print information")
+    european: Optional[EuropeanPrintProof] = Field(description="the european QR print information")
 
 
 class RichOrigin(BaseModel):
@@ -937,7 +991,7 @@ class V2Event(BaseModel):
                         type=testtypes_to_code.get(self.result.testType, "unknown"),
                         name="not available",
                         manufacturer="not available",
-                        country="NLD",
+                        country="NL",
                         negativeResult=self.result.negativeResult,
                     ),
                 )

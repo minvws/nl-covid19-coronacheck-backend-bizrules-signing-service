@@ -2,7 +2,7 @@ from typing import Optional
 
 from api.models import DomesticGreenCard, Events, StaticIssueMessage
 from api.settings import settings
-from api.signers.nl_domestic import create_origins_and_attributes
+from api.signers.logic_domestic import create_origins_and_attributes
 from api.signers.nl_domestic_dynamic import _sign
 
 
@@ -17,10 +17,6 @@ def sign(events: Events) -> Optional[DomesticGreenCard]:
     if not can_continue:
         return None
 
-    issue_message = StaticIssueMessage(
-        **{
-            "credentialsAttributes": attributes,
-        }
-    )
+    issue_message = StaticIssueMessage(credentialAttributes=attributes)
 
     return _sign(settings.DOMESTIC_NL_VWS_PAPER_SIGNING_URL, issue_message, origins)

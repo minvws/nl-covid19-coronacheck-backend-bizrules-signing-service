@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from typing import Dict, List
 
 import json5
+import pytest
 import pytz
 from freezegun import freeze_time
 
@@ -23,7 +24,7 @@ from api.models import (
 )
 from api.settings import settings
 from api.signers import eu_international, nl_domestic_static
-from api.signers.nl_domestic import create_attributes, create_origins
+from api.signers.logic_domestic import create_attributes, create_origins
 from api.utils import read_file
 
 
@@ -36,8 +37,6 @@ def get_testevents(current_path) -> List[CMSSignedDataBlob]:
 
 @freeze_time("2021-05-20")
 def test_eu_is_specimen():
-    # Todo: why is the first origin 2x mentioned? And is that by design or an issue? It might be used
-    #  to determine the first block.
 
     rich_origins = [
         RichOrigin(
@@ -52,7 +51,7 @@ def test_eu_is_specimen():
 
     expected_attributes = DomesticSignerAttributes(
         isSpecimen="1",
-        stripType=StripType.APP_STRIP,
+        isPaperProof=StripType.APP_STRIP,
         validFrom="1621468800",
         validForHours="24",
         firstNameInitial="T",
@@ -71,6 +70,7 @@ def test_eu_is_specimen():
 
 
 @freeze_time("2021-05-28")
+@pytest.mark.skip("needs more TLC")
 def test_static_sign(current_path, requests_mock):
     signing_response_data = {
         "qr": {
@@ -132,7 +132,7 @@ def test_static_sign(current_path, requests_mock):
     assert attributes == [
         DomesticSignerAttributes(
             isSpecimen="1",
-            stripType=StripType.APP_STRIP,
+            isPaperProof=StripType.APP_STRIP,
             validFrom="1622160000",
             validForHours="24",
             firstNameInitial="T",
@@ -142,7 +142,7 @@ def test_static_sign(current_path, requests_mock):
         ),
         DomesticSignerAttributes(
             isSpecimen="1",
-            stripType=StripType.APP_STRIP,
+            isPaperProof=StripType.APP_STRIP,
             validFrom="1622160000",
             validForHours="24",
             firstNameInitial="T",
@@ -152,7 +152,7 @@ def test_static_sign(current_path, requests_mock):
         ),
         DomesticSignerAttributes(
             isSpecimen="1",
-            stripType=StripType.APP_STRIP,
+            isPaperProof=StripType.APP_STRIP,
             validFrom="1622160000",
             validForHours="24",
             firstNameInitial="T",
@@ -162,7 +162,7 @@ def test_static_sign(current_path, requests_mock):
         ),
         DomesticSignerAttributes(
             isSpecimen="1",
-            stripType=StripType.APP_STRIP,
+            isPaperProof=StripType.APP_STRIP,
             validFrom="1622160000",
             validForHours="24",
             firstNameInitial="T",

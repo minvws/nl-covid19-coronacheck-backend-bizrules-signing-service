@@ -1,3 +1,5 @@
+import asyncio
+
 # allow access of private variables for mocking purposes
 # pylint: disable=W0212
 import pytest
@@ -28,6 +30,13 @@ def root_path():
 @pytest.fixture
 def current_path():
     yield TESTS_DIR
+
+
+@pytest.fixture
+def event_loop():
+    loop = asyncio.get_event_loop()
+    yield loop
+    loop.close()
 
 
 if settings.RVIG_ENVIRONMENT == "mock":

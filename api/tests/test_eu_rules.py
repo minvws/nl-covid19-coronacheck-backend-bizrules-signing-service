@@ -13,7 +13,7 @@ from copy import deepcopy
 import pytest
 
 from api.models import Event, Events
-from api.signers.eu_international import (
+from api.signers.logic import (
     _identical_negative_tests,
     _identical_positive_tests,
     _identical_recoveries,

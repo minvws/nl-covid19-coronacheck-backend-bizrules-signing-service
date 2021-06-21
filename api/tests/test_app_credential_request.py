@@ -57,7 +57,7 @@ def test_app_credential_request(requests_mock, current_path, redis_db):
 
     response_data = response.json()
 
-    assert response_data == {
+    expected_data = {
         "domesticGreencard": {
             "createCredentialMessages": "W3siaXNzdWVTaWduYXR1cmVNZXNzYWdlIjogeyJwcm9vZiI6IHsiYyI6ICJaQ2l0MUpKVUUvanVWT"
             "W53S3JSajM0VEhtQkdYTUZMQ212T3RZKyIsICJlX3Jlc3BvbnNlIjogIkNsOFp6anhUVjczZXZ0VktTSDgwRFVsUS9TbUJNUmRiaTdxIn"
@@ -74,18 +74,20 @@ def test_app_credential_request(requests_mock, current_path, redis_db):
                     "type": "test",
                     "validFrom": "2021-05-27T19:00:00+00:00",
                 },
-                {
-                    "eventTime": "2021-05-27T19:00:00+00:00",
-                    "expirationTime": "2021-05-29T11:00:00+00:00",
-                    "type": "test",
-                    "validFrom": "2021-05-27T19:00:00+00:00",
-                },
-                {
-                    "eventTime": "2021-06-01T05:00:00+00:00",
-                    "expirationTime": "2021-06-02T21:00:00+00:00",
-                    "type": "test",
-                    "validFrom": "2021-06-01T05:00:00+00:00",
-                },
+                # the following one is removed by de-duplication
+                # {
+                #     "eventTime": "2021-05-27T19:00:00+00:00",
+                #     "expirationTime": "2021-05-29T11:00:00+00:00",
+                #     "type": "test",
+                #     "validFrom": "2021-05-27T19:00:00+00:00",
+                # },
+                # the following one is removed because it has an event date in the future
+                # {
+                #     "eventTime": "2021-06-01T05:00:00+00:00",
+                #     "expirationTime": "2021-06-02T21:00:00+00:00",
+                #     "type": "test",
+                #     "validFrom": "2021-06-01T05:00:00+00:00",
+                # },
             ],
         },
         "euGreencards": [
@@ -103,6 +105,8 @@ def test_app_credential_request(requests_mock, current_path, redis_db):
             }
         ],
     }
+
+    assert response_data == expected_data
 
     # Todo: this should be tested in the domestic signer. Now it's a given.
     data = json.loads(
