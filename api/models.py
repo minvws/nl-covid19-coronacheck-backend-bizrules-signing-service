@@ -323,9 +323,7 @@ class Positivetest(BaseModel):  # noqa
     type: str = Field(example="???")
     name: str = Field(example="???")
     manufacturer: str = Field(example="1232")
-    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
-        description="Defaults to NL", example="NL", default="NL"
-    )
+    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(description="Defaults to NL", example="NL", default="NL")
 
     def toEuropeanRecovery(self):
         """
@@ -356,9 +354,7 @@ class Negativetest(BaseModel):  # noqa
     type: str = Field(example="A great one")
     name: str = Field(example="Bestest")
     manufacturer: str = Field(example="Acme Inc")
-    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
-        description="Defaults to NL", example="NL", default="NL"
-    )
+    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(description="Defaults to NL", example="NL", default="NL")
 
     def toEuropeanTest(self):
         return EuropeanTest(
@@ -381,9 +377,7 @@ class Recovery(BaseModel):  # noqa
     sampleDate: date = Field(example="2021-01-01")
     validFrom: date = Field(example="2021-01-12")
     validUntil: date = Field(example="2021-06-30")
-    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(
-        description="Defaults to NL", example="NL", default="NL"
-    )
+    country: Optional[Iso3166Dash1Alpha2CountryCode] = Field(description="Defaults to NL", example="NL", default="NL")
 
     def toEuropeanRecovery(self):
         return EuropeanRecovery(
