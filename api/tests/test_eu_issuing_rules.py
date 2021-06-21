@@ -24,7 +24,12 @@ from api.models import (
     MessageToEUSigner,
 )
 from api.settings import settings
-from api.signers.eu_international import create_eu_signer_message, distill_relevant_events, sign
+from api.signers.eu_international import (
+    create_eu_signer_message,
+    remove_eu_ineligible_events,
+    distill_relevant_events,
+    sign,
+)
 from api.signers.logic_eu import EU_INTERNATIONAL_SPECIMEN_EXPIRATION_TIME
 
 
@@ -82,7 +87,8 @@ def test_n010(requests_mock):
     )
     events = _create_events([negative_test])
 
-    signing_messages = [create_eu_signer_message(event) for event in distill_relevant_events(events).events]
+    signing_messages = [create_eu_signer_message(event)
+                        for event in distill_relevant_events(remove_eu_ineligible_events(events)).events]
     ci = signing_messages[0].dgc.t[0].ci
     expected_signing_messages = [
         MessageToEUSigner(
@@ -174,7 +180,9 @@ def test_n030(requests_mock):
     )
     events = _create_events([negative_test])
 
-    signing_messages = [create_eu_signer_message(event) for event in distill_relevant_events(events).events]
+    signing_messages = [create_eu_signer_message(event)
+                        for event in distill_relevant_events(remove_eu_ineligible_events(events)).events]
+
     expected_signing_messages = []
 
     assert signing_messages == expected_signing_messages
@@ -246,7 +254,8 @@ def test_v010():
     )
     events = _create_events([vaccination])
 
-    signing_messages = [create_eu_signer_message(event) for event in distill_relevant_events(events).events]
+    signing_messages = [create_eu_signer_message(event)
+                        for event in distill_relevant_events(remove_eu_ineligible_events(events)).events]
     assert len(signing_messages) == 1
 
     cis = [s.dgc.v[0].ci for s in signing_messages]
@@ -332,7 +341,8 @@ def test_v020():
     )
     events = _create_events([vaccination])
 
-    signing_messages = [create_eu_signer_message(event) for event in distill_relevant_events(events).events]
+    signing_messages = [create_eu_signer_message(event)
+                        for event in distill_relevant_events(remove_eu_ineligible_events(events)).events]
     assert len(signing_messages) == 1
 
     cis = [s.dgc.v[0].ci for s in signing_messages]
@@ -418,7 +428,8 @@ def test_v030():
     )
     events = _create_events([vaccination])
 
-    signing_messages = [create_eu_signer_message(event) for event in distill_relevant_events(events).events]
+    signing_messages = [create_eu_signer_message(event)
+                        for event in distill_relevant_events(remove_eu_ineligible_events(events)).events]
     assert len(signing_messages) == 1
 
     cis = [s.dgc.v[0].ci for s in signing_messages]
@@ -487,7 +498,8 @@ def test_v040():
     )
     events = _create_events([vaccination])
 
-    signing_messages = [create_eu_signer_message(event) for event in distill_relevant_events(events).events]
+    signing_messages = [create_eu_signer_message(event)
+                        for event in distill_relevant_events(remove_eu_ineligible_events(events)).events]
     assert len(signing_messages) == 1
 
     cis = [s.dgc.v[0].ci for s in signing_messages]
@@ -556,7 +568,8 @@ def test_v050():
     )
     events = _create_events([vaccination])
 
-    signing_messages = [create_eu_signer_message(event) for event in distill_relevant_events(events).events]
+    signing_messages = [create_eu_signer_message(event)
+                        for event in distill_relevant_events(remove_eu_ineligible_events(events)).events]
     assert len(signing_messages) == 1
 
     cis = [s.dgc.v[0].ci for s in signing_messages]
@@ -625,7 +638,8 @@ def test_v060():
     )
     events = _create_events([vaccination])
 
-    signing_messages = [create_eu_signer_message(event) for event in distill_relevant_events(events).events]
+    signing_messages = [create_eu_signer_message(event)
+                        for event in distill_relevant_events(remove_eu_ineligible_events(events)).events]
     assert len(signing_messages) == 1
 
     cis = [s.dgc.v[0].ci for s in signing_messages]
@@ -694,7 +708,8 @@ def test_v070():
     )
     events = _create_events([vaccination])
 
-    signing_messages = [create_eu_signer_message(event) for event in distill_relevant_events(events).events]
+    signing_messages = [create_eu_signer_message(event)
+                        for event in distill_relevant_events(remove_eu_ineligible_events(events)).events]
     assert len(signing_messages) == 1
 
     cis = [s.dgc.v[0].ci for s in signing_messages]
@@ -763,7 +778,8 @@ def test_v080():
     )
     events = _create_events([vaccination])
 
-    signing_messages = [create_eu_signer_message(event) for event in distill_relevant_events(events).events]
+    signing_messages = [create_eu_signer_message(event)
+                        for event in distill_relevant_events(remove_eu_ineligible_events(events)).events]
     assert len(signing_messages) == 0
 
 
@@ -810,7 +826,8 @@ def test_v100():
     )
     events = _create_events([vaccination])
 
-    signing_messages = [create_eu_signer_message(event) for event in distill_relevant_events(events).events]
+    signing_messages = [create_eu_signer_message(event)
+                        for event in distill_relevant_events(remove_eu_ineligible_events(events)).events]
     assert len(signing_messages) == 1
 
     cis = [s.dgc.v[0].ci for s in signing_messages]
@@ -880,7 +897,8 @@ def test_v110():
     )
     events = _create_events([vaccination])
 
-    signing_messages = [create_eu_signer_message(event) for event in distill_relevant_events(events).events]
+    signing_messages = [create_eu_signer_message(event)
+                        for event in distill_relevant_events(remove_eu_ineligible_events(events)).events]
     assert len(signing_messages) == 1
 
     cis = [s.dgc.v[0].ci for s in signing_messages]
@@ -964,7 +982,8 @@ def test_v120():
     )
     events = _create_events([vaccination])
 
-    signing_messages = [create_eu_signer_message(event) for event in distill_relevant_events(events).events]
+    signing_messages = [create_eu_signer_message(event)
+                        for event in distill_relevant_events(remove_eu_ineligible_events(events)).events]
     assert len(signing_messages) == 2
 
     cis = [signing_messages[0].dgc.v[0].ci, signing_messages[1].dgc.r[0].ci]
@@ -1068,7 +1087,8 @@ def test_v130():
     )
     events = _create_events([vaccination])
 
-    signing_messages = [create_eu_signer_message(event) for event in distill_relevant_events(events).events]
+    signing_messages = [create_eu_signer_message(event)
+                        for event in distill_relevant_events(remove_eu_ineligible_events(events)).events]
     assert len(signing_messages) == 1
 
     cis = [signing_messages[0].dgc.v[0].ci]
@@ -1135,7 +1155,8 @@ def test_p010():
     )
     events = _create_events([positive_test])
 
-    signing_messages = [create_eu_signer_message(event) for event in distill_relevant_events(events).events]
+    signing_messages = [create_eu_signer_message(event)
+                        for event in distill_relevant_events(remove_eu_ineligible_events(events)).events]
     assert len(signing_messages) == 1
 
     ci = signing_messages[0].dgc.r[0].ci
@@ -1206,7 +1227,8 @@ def test_specimen_event():
     )
     events = _create_events([positive_test])
 
-    signing_messages = [create_eu_signer_message(event) for event in distill_relevant_events(events).events]
+    signing_messages = [create_eu_signer_message(event)
+                        for event in distill_relevant_events(remove_eu_ineligible_events(events)).events]
     assert len(signing_messages) == 1
 
     ci = signing_messages[0].dgc.r[0].ci
