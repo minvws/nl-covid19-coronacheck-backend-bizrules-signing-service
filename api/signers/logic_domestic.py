@@ -60,7 +60,7 @@ def create_positive_test_rich_origin(event: Event) -> RichOrigin:
     event_time = logic.floor_hours(event.positivetest.sampleDate)
     return RichOrigin(
         holder=event.holder,
-        type=EventType.recovery,
+        type=EventType.positivetest,
         eventTime=event_time,
         validFrom=event_time + timedelta(days=settings.DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS),
         expirationTime=event_time
@@ -78,7 +78,7 @@ def create_negative_test_rich_origin(event: Event) -> RichOrigin:
     event_time = logic.floor_hours(event.negativetest.sampleDate)
     return RichOrigin(
         holder=event.holder,
-        type=EventType.test,
+        type=EventType.negativetest,
         eventTime=event_time,
         validFrom=event_time,
         expirationTime=event_time + timedelta(hours=settings.DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST),
