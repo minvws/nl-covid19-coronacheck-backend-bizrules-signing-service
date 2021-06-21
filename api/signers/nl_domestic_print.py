@@ -13,18 +13,21 @@ def create_attributes(event: Event) -> DomesticSignerAttributes:
     validity_hours = derive_print_validity_hours(event)
     return DomesticSignerAttributes(
         # this is safe because we can only have all specimen or a list of events with specimens removed
+        # todo: is deze gestriked
         isSpecimen="1" if event.isSpecimen else "0",
         isPaperProof=StripType.PAPER_STRIP,
         validFrom=str(int(valid_from.timestamp())),
         validForHours=str(validity_hours),
         firstNameInitial=event.holder.first_name_initial,
         lastNameInitial=event.holder.last_name_initial,
-        birthDay=event.holder.birthDate.day,
-        birthMonth=event.holder.birthDate.month,
+        birthDay=str(event.holder.birthDate.day) if event.holder.birthDate.day else "",
+        birthMonth=str(event.holder.birthDate.month) if event.holder.birthDate.month else "",
     )
 
 
 def sign(events: Events) -> Optional[DomesticPrintProof]:
+    # todo: is the strikelist still used?
+
     if not events or not events.events:
         return None
 
