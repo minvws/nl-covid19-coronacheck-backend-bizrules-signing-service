@@ -20,12 +20,14 @@ def create_attributes(event: Event) -> DomesticSignerAttributes:
         validForHours=str(validity_hours),
         firstNameInitial=event.holder.first_name_initial,
         lastNameInitial=event.holder.last_name_initial,
-        birthDay=event.holder.birthDate.day,
-        birthMonth=event.holder.birthDate.month,
+        birthDay=str(event.holder.birthDate.day) if event.holder.birthDate.day else "",
+        birthMonth=str(event.holder.birthDate.month) if event.holder.birthDate.month else "",
     )
 
 
 def sign(events: Events) -> Optional[DomesticPrintProof]:
+    # todo: is the strikelist still used?
+
     if not events or not events.events:
         return None
 
