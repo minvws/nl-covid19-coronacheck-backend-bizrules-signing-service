@@ -52,7 +52,7 @@ def dti(data: str) -> datetime:
 
 
 @freeze_time("2021-06-21T01:23:45")
-def test_777771994(mock_signers): # pylint: disable=unused-argument
+def test_777771994(mock_signers):  # pylint: disable=unused-argument
     """
     Positive followed by negative test on same day.
 
@@ -259,7 +259,7 @@ def test_777771994(mock_signers): # pylint: disable=unused-argument
 
 
 @freeze_time("2021-06-21T01:23:45")
-def test_777771998(mock_signers): # pylint: disable=unused-argument
+def test_777771998(mock_signers):  # pylint: disable=unused-argument
     """
     Jannsen vaccination followed by positive test 2 weeks later
 
@@ -280,46 +280,41 @@ def test_777771998(mock_signers): # pylint: disable=unused-argument
         "protocolVersion": "3.0",
         "providerIdentifier": "ZZZ",
         "status": "complete",
-        "holder": {
-        "firstName": "Test",
-        "infix": "",
-        "lastName": "Janssen and Positive",
-        "birthDate": "1999-01-01"
-        },
+        "holder": {"firstName": "Test", "infix": "", "lastName": "Janssen and Positive", "birthDate": "1999-01-01"},
         "events": [
-        {
-            "type": "vaccination",
-            "unique": "fcb4664a6b4c63b1fb19a2789dcc9ac70084289e",
-            "isSpecimen": True,
-            "vaccination": {
-            "hpkCode": "2934701",
-            "type": "1119349007",
-            "manufacturer": "ORG-100001417",
-            "brand": "EU/1/20/1525",
-            "completedByMedicalStatement": False,
-            "completedByPersonalStatement": False,
-            "country": "NLD",
-            "doseNumber": 1,
-            "totalDoses": 1,
-            "date": "2021-06-09"
-            }
-        },
-        {
-            "type": "positivetest",
-            "unique": "b187ddf919643e29a409041fd45112ab8e42d552",
-            "isSpecimen": True,
-            "positivetest": {
-            "positiveResult": True,
-            "country": "NLD",
-            "facility": "GGD XL Amsterdam",
-            "type": "LP6464-4",
-            "name": "",
-            "manufacturer": "1232",
-            "sampleDate": "2021-06-21T06:58:47+00:00",
-            "resultDate": "2021-06-21T06:58:47+00:00"
-            }
-        }
-        ]
+            {
+                "type": "vaccination",
+                "unique": "fcb4664a6b4c63b1fb19a2789dcc9ac70084289e",
+                "isSpecimen": True,
+                "vaccination": {
+                    "hpkCode": "2934701",
+                    "type": "1119349007",
+                    "manufacturer": "ORG-100001417",
+                    "brand": "EU/1/20/1525",
+                    "completedByMedicalStatement": False,
+                    "completedByPersonalStatement": False,
+                    "country": "NLD",
+                    "doseNumber": 1,
+                    "totalDoses": 1,
+                    "date": "2021-06-09",
+                },
+            },
+            {
+                "type": "positivetest",
+                "unique": "b187ddf919643e29a409041fd45112ab8e42d552",
+                "isSpecimen": True,
+                "positivetest": {
+                    "positiveResult": True,
+                    "country": "NLD",
+                    "facility": "GGD XL Amsterdam",
+                    "type": "LP6464-4",
+                    "name": "",
+                    "manufacturer": "1232",
+                    "sampleDate": "2021-06-21T06:58:47+00:00",
+                    "resultDate": "2021-06-21T06:58:47+00:00",
+                },
+            },
+        ],
     }
     events = _create_events([events])
     events = distill_relevant_events(events)
@@ -427,8 +422,9 @@ def test_777771998(mock_signers): # pylint: disable=unused-argument
         ),
     ]
 
+
 @freeze_time("2021-06-21T01:23:45")
-def test_777771999(mock_signers): # pylint: disable=unused-argument
+def test_777771999(mock_signers):  # pylint: disable=unused-argument
     """
     Jannsen vaccination followed by negative test 2 weeks later
 
@@ -449,46 +445,41 @@ def test_777771999(mock_signers): # pylint: disable=unused-argument
         "protocolVersion": "3.0",
         "providerIdentifier": "ZZZ",
         "status": "complete",
-        "holder": {
-            "firstName": "Test",
-            "infix": "",
-            "lastName": "Janssen and Negative",
-            "birthDate": "1999-01-01"
-        },
+        "holder": {"firstName": "Test", "infix": "", "lastName": "Janssen and Negative", "birthDate": "1999-01-01"},
         "events": [
             {
                 "type": "vaccination",
                 "unique": "fcb4664a6b4c63b1fb19a2789dcc9ac70084289e",
                 "isSpecimen": True,
                 "vaccination": {
-                "hpkCode": "2934701",
-                "type": "1119349007",
-                "manufacturer": "ORG-100001417",
-                "brand": "EU/1/20/1525",
-                "completedByMedicalStatement": False,
-                "completedByPersonalStatement": False,
-                "country": "NLD",
-                "doseNumber": 1,
-                "totalDoses": 1,
-                "date": "2021-06-09"
-                }
+                    "hpkCode": "2934701",
+                    "type": "1119349007",
+                    "manufacturer": "ORG-100001417",
+                    "brand": "EU/1/20/1525",
+                    "completedByMedicalStatement": False,
+                    "completedByPersonalStatement": False,
+                    "country": "NLD",
+                    "doseNumber": 1,
+                    "totalDoses": 1,
+                    "date": "2021-06-09",
+                },
             },
             {
                 "type": "negativetest",
                 "unique": "7cabb871839e1a7e2beef1e392e11a2ef8755845",
                 "isSpecimen": True,
                 "negativetest": {
-                "negativeResult": True,
-                "country": "NLD",
-                "facility": "GGD XL Amsterdam",
-                "type": "LP6464-4",
-                "name": "",
-                "manufacturer": "1232",
-                "sampleDate": "2021-06-21T06:58:47+00:00",
-                "resultDate": "2021-06-21T06:58:47+00:00"
-                }
-            }
-        ]
+                    "negativeResult": True,
+                    "country": "NLD",
+                    "facility": "GGD XL Amsterdam",
+                    "type": "LP6464-4",
+                    "name": "",
+                    "manufacturer": "1232",
+                    "sampleDate": "2021-06-21T06:58:47+00:00",
+                    "resultDate": "2021-06-21T06:58:47+00:00",
+                },
+            },
+        ],
     }
 
     events = _create_events([events])

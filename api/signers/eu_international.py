@@ -10,7 +10,7 @@ from api.signers.logic_eu import (
     get_eu_expirationtime,
     get_event_time,
     remove_eu_ineligible_events,
-    get_valid_from_time
+    get_valid_from_time,
 )
 
 
