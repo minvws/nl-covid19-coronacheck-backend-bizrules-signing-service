@@ -143,7 +143,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
             {
                 "ci": "URN:UCI:01:NL:B7L6YIZIZFD3BMTEFA4CVUI6ZM#0",
                 "co": "NL",
-                "du": datetime(2021, 7, 31).date(),
+                "du": datetime(2021, 8, 11).date(),
                 "fr": datetime(2021, 2, 1).date(),
                 "is": "Ministry of Health Welfare and Sport",
                 "tg": "840539006",
@@ -230,7 +230,7 @@ recoveryGreenCard = EUGreenCard(
             {
                 "type": "recovery",
                 "eventTime": "2021-02-01T00:00:00+00:00",
-                "expirationTime": "2021-08-01T00:00:00+00:00",
+                "expirationTime": "2021-08-12T00:00:00+00:00",
                 "validFrom": "2021-02-12T00:00:00+00:00",
             }
         ],
@@ -245,7 +245,7 @@ convertedPositiveTestToRecoveryGreencard = EUGreenCard(
             {
                 "type": "recovery",
                 "eventTime": "2021-02-01T00:00:00+00:00",
-                "expirationTime": "2021-08-01T00:00:00+00:00",
+                "expirationTime": "2021-08-12T00:00:00+00:00",
                 "validFrom": "2021-02-12T00:00:00+00:00",
             }
         ],
