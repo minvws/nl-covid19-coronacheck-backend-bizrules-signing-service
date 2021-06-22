@@ -55,8 +55,10 @@ class AppSettings(BaseSettings):
     HPK_MAPPING_FILE: str = ""
     HPK_MAPPING: Dict[Optional[str], Any] = {}
 
-    DOMESTIC_NL_SIGNER_ENABLED: bool = True
-    EU_INTERNATIONAL_SIGNER_ENABLED: bool = True
+    DOMESTIC_NL_DYNAMIC_SIGNER_ENABLED: bool = True
+    DOMESTIC_NL_PRINT_SIGNER_ENABLED: bool = True
+    EU_INTERNATIONAL_DYNAMIC_SIGNER_ENABLED: bool = True
+    EU_INTERNATIONAL_PRINT_SIGNER_ENABLED: bool = True
 
     DOMESTIC_NL_VWS_PREPARE_ISSUE_URL: AnyHttpUrl = Field()
     DOMESTIC_NL_VWS_PAPER_SIGNING_URL: AnyHttpUrl = Field()

@@ -26,12 +26,16 @@ def create_attributes(event: Event) -> DomesticSignerAttributes:
 
 
 def sign(events: Events) -> Optional[DomesticPrintProof]:
+
+    if not settings.DOMESTIC_NL_PRINT_SIGNER_ENABLED:
+        return None
+
     if not events or not events.events:
         return None
 
     eligible_events = remove_domestic_ineligible_events(events)
     eligible_events = distill_relevant_events(eligible_events)
-    if not eligible_events:
+    if not eligible_events.events:
         return None
 
     if len(eligible_events.events) > 1:

@@ -1,5 +1,4 @@
 import json
-import logging
 import os.path
 from datetime import date, datetime
 from typing import Any, Callable, Dict, List, Union
@@ -123,17 +122,20 @@ def remove_ineligible_events(events: Events) -> Events:
     return eligible_events
 
 
-def set_missing_total_doses(events: Events) -> Events:
+def set_missing_doses(events: Events) -> Events:
     """
     Update the `totalDoses` field on vaccination events that do not have it. Set to the default per mp.
     """
-    if log.isEnabledFor(logging.DEBUG):
-        log.debug(f"set_missing_total_doses: {len(events.events)}; types {events.type_set}")
+    log.debug(f"set_missing_total_doses: {len(events.events)}; types {events.type_set}")
 
     for vacc in events.vaccinations:
         # make mypy happy
         if not vacc.vaccination:
             continue
+
+        # this is at least a vaccination, if there are more eligible vaccinations, the total count will add up
+        # at a later stage to complete a set
+        vacc.vaccination.doseNumber = vacc.vaccination.doseNumber or 1
 
         if not vacc.vaccination.totalDoses:
             if vacc.vaccination.brand:
@@ -571,7 +573,7 @@ def distill_relevant_events(events: Events) -> Events:
 
     eligible_events = remove_ineligible_events(events)
     eligible_events = enrich_from_hpk(eligible_events)
-    eligible_events = set_missing_total_doses(eligible_events)
+    eligible_events = set_missing_doses(eligible_events)
     eligible_events = set_completed_by_statement(eligible_events)
     eligible_events = deduplicate_events(eligible_events)
     eligible_events = filter_redundant_events(eligible_events)
