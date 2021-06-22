@@ -354,12 +354,9 @@ def enrich_from_hpk(events: Events) -> Events:
             log.warning(f"received HPK code {vacc.vaccination.hpkCode} that is not in our list")
             continue
 
-        if not vacc.vaccination.type:
-            vacc.vaccination.type = HPK_TO_VP[vacc.vaccination.hpkCode]
-        if not vacc.vaccination.brand:
-            vacc.vaccination.brand = HPK_TO_MP[vacc.vaccination.hpkCode]
-        if not vacc.vaccination.manufacturer:
-            vacc.vaccination.manufacturer = HPK_TO_MA[vacc.vaccination.hpkCode]
+        vacc.vaccination.type = HPK_TO_VP[vacc.vaccination.hpkCode]
+        vacc.vaccination.brand = HPK_TO_MP[vacc.vaccination.hpkCode]
+        vacc.vaccination.manufacturer = HPK_TO_MA[vacc.vaccination.hpkCode]
 
     return events
 
