@@ -157,7 +157,7 @@ def test_statement_of_vaccionation_to_eu_signing_request(mocker):
                 "ma": "???",
                 "nm": "???",
                 "sc": datetime(2021, 2, 1, 19, 38, tzinfo=timezone.utc),
-                "tc": "Facility approved by the State of the Netherlands",
+                "tc": "GGD XL Amsterdam",
                 "tg": "840539006",
                 "tr": "260415000",
                 "tt": "LP217198-3",
