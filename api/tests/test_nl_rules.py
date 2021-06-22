@@ -198,13 +198,13 @@ def test_777771994(mock_signers):  # pylint: disable=unused-argument
             GreenCardOrigin(
                 type="test",
                 eventTime="2021-06-21T06:00:00+00:00",
-                expirationTime="2021-06-22T22:00:00+00:00",
+                expirationTime="2025-06-21T06:00:00+00:00",
                 validFrom="2021-06-21T06:00:00+00:00",
             ),
             GreenCardOrigin(
                 type="recovery",
                 eventTime="2021-06-20T06:00:00+00:00",
-                expirationTime="2021-12-28T06:00:00+00:00",
+                expirationTime="2025-06-20T06:00:00+00:00",
                 validFrom="2021-07-01T06:00:00+00:00",
             ),
         ],
@@ -215,9 +215,9 @@ def test_777771994(mock_signers):  # pylint: disable=unused-argument
     # Then the expiration should be that event time + DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST hours.
     test_origins = [o for o in signed.origins if o.type == "test"]
     test = test_origins[0]
-    assert dti(test.expirationTime) == dti(test.eventTime) + timedelta(
-        hours=settings.DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST
-    )
+    assert dti(test.expirationTime) == dti(test.eventTime) + timedelta(days=1461)
+    #     hours=settings.DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST
+    # )
 
     # -> create_positive_test_rich_origin
     recoveries = [o for o in signed.origins if o.type == "recovery"]
@@ -226,9 +226,9 @@ def test_777771994(mock_signers):  # pylint: disable=unused-argument
     assert dti(recovery.validFrom) == dti(recovery.eventTime) + timedelta(
         days=settings.DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS
     )
-    assert dti(recovery.expirationTime) == dti(recovery.eventTime) + timedelta(
-        days=settings.DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS
-    ) + timedelta(days=settings.DOMESTIC_NL_EXPIRY_DAYS_POSITIVE_TEST)
+    assert dti(recovery.expirationTime) == dti(recovery.eventTime) + timedelta(days=1461)
+    #     days=settings.DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS
+    # ) + timedelta(days=settings.DOMESTIC_NL_EXPIRY_DAYS_POSITIVE_TEST)
 
     # Expected: a negative test for now, so something valid 40 hours. And a recovery in 11 days.
     signed = eu_international.sign(events)

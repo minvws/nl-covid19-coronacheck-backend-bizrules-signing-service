@@ -38,7 +38,7 @@ def test_app_credential_request(mock_signers, requests_mock, current_path, redis
                 # From the v2 event
                 {
                     "eventTime": "2021-05-27T19:00:00+00:00",
-                    "expirationTime": "2021-05-29T11:00:00+00:00",
+                    "expirationTime": "2025-05-27T19:00:00+00:00",
                     "type": "test",
                     "validFrom": "2021-05-27T19:00:00+00:00",
                 },
@@ -137,7 +137,7 @@ def test_app_credential_request_alt(mock_signers, requests_mock, current_path, r
             "origins": [
                 {
                     "eventTime": "2021-06-08T00:00:00+00:00",
-                    "expirationTime": "2021-12-05T00:00:00+00:00",
+                    "expirationTime": "2025-06-08T00:00:00+00:00",
                     "type": "vaccination",
                     "validFrom": "2021-06-08T00:00:00+00:00",
                 }
