@@ -107,7 +107,8 @@ class AppSettings(BaseSettings):
     INGE6_JWT_PUBLIC_CRT: str = ""
 
     HTTP_EXPONENTIAL_RETRIES: int = 1
-    HTTP_TIMEOUT: float = 2
+    HTTP_CONNECT_TIMEOUT: float = 3.05
+    HTTP_READ_TIMEOUT: float = 2
     HTTP_RETRY_BACKOFF_TIME: float = 1
     HTTP_RETRY_STATUS_CODES: Tuple[int, ...] = (429, 500, 502, 503, 504)
 

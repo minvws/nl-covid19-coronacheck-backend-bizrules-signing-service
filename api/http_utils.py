@@ -1,6 +1,6 @@
 import json
 from datetime import date, datetime
-from typing import Tuple
+from typing import Tuple, Union
 from uuid import UUID
 
 import requests
@@ -30,7 +30,7 @@ def request_post_with_retries(
     url,
     data,
     exponential_retries: int = settings.HTTP_EXPONENTIAL_RETRIES,
-    timeout: float = settings.HTTP_TIMEOUT,
+    timeout: Union[float, Tuple[float, float]] = (settings.HTTP_CONNECT_TIMEOUT, settings.HTTP_READ_TIMEOUT),
     retry_on_these_status_codes: Tuple[int, ...] = settings.HTTP_RETRY_STATUS_CODES,
     **kwargs,
 ) -> requests.Response:
@@ -43,7 +43,7 @@ def request_get_with_retries(
     url,
     data,
     exponential_retries: int = settings.HTTP_EXPONENTIAL_RETRIES,
-    timeout: float = settings.HTTP_TIMEOUT,
+    timeout: Union[float, Tuple[float, float]] = (settings.HTTP_CONNECT_TIMEOUT, settings.HTTP_READ_TIMEOUT),
     retry_on_these_status_codes: Tuple[int, ...] = settings.HTTP_RETRY_STATUS_CODES,
     **kwargs,
 ) -> requests.Response:
@@ -58,7 +58,7 @@ def request_request_with_retries(
     url,
     data=None,
     exponential_retries: int = settings.HTTP_EXPONENTIAL_RETRIES,
-    timeout: float = settings.HTTP_TIMEOUT,
+    timeout: Union[float, Tuple[float, float]] = (settings.HTTP_CONNECT_TIMEOUT, settings.HTTP_READ_TIMEOUT),
     retry_on_these_status_codes: Tuple[int, ...] = settings.HTTP_RETRY_STATUS_CODES,
     backoff_factor: float = settings.HTTP_RETRY_BACKOFF_TIME,
     **kwargs,
