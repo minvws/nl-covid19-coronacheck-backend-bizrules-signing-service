@@ -827,7 +827,7 @@ class DomesticSignerAttributes(BaseModel):
     isSpecimen: Optional[str] = Field(
         example="0",
         description="Boolean cast as string, if this is a testcase. " "To facilitate testing in production.",
-        default="0"
+        default="0",
     )
     isPaperProof: StripType = Field(example="0")
     validFrom: str = Field(example="1622563151", description="String cast of a unix timestamp.")

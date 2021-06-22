@@ -7,7 +7,7 @@ from api.signers.logic import distill_relevant_events
 from api.signers.logic_domestic import (
     derive_print_validity_hours,
     remove_domestic_ineligible_events,
-    is_eligible_for_proof
+    is_eligible_for_proof,
 )
 from api.signers.nl_domestic import _sign_attributes
 

@@ -279,7 +279,7 @@ def test_ronnie(mock_signers):  # pylint: disable=unused-argument
                     "completedByMedicalStatement": None,
                     "country": "NLD",
                     "doseNumber": None,
-                    "totalDoses": None
+                    "totalDoses": None,
                 },
             },
             {
@@ -295,9 +295,9 @@ def test_ronnie(mock_signers):  # pylint: disable=unused-argument
                     "totalDoses": None,
                     "doseNumber": None,
                     "completedByMedicalStatement": None,
-                    "completedByPersonalStatement": None
-                }
-            }
+                    "completedByPersonalStatement": None,
+                },
+            },
         ],
     }
 
