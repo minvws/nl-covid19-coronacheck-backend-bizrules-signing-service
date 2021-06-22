@@ -260,9 +260,6 @@ def test_777771994(mock_signers):  # pylint: disable=unused-argument
 
 @freeze_time("2021-06-22T19:20:00")
 def test_ronnie(mock_signers):  # pylint: disable=unused-argument
-    """
-
-    """
     events = {
         "protocolVersion": "3.0",
         "providerIdentifier": "ZZZ",

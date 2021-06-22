@@ -242,7 +242,7 @@ def remove_domestic_ineligible_events(events: Events) -> Events:
 
 
 def is_eligible_for_proof(events: Events) -> bool:
-    if any([vacc.vaccination.doseNumber >= vacc.vaccination.totalDoses for vacc in events.vaccinations]):
+    if any(vacc.vaccination.doseNumber >= vacc.vaccination.totalDoses for vacc in events.vaccinations):
         return True
 
     if len(events.negativetests) > 0:
