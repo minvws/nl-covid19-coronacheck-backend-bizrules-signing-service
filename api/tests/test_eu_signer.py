@@ -231,7 +231,7 @@ recoveryGreenCard = EUGreenCard(
                 "type": "recovery",
                 "eventTime": "2021-02-01T00:00:00+00:00",
                 "expirationTime": "2021-08-01T00:00:00+00:00",
-                "validFrom": "2021-02-01T00:00:00+00:00",
+                "validFrom": "2021-02-12T00:00:00+00:00",
             }
         ],
         "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
@@ -246,7 +246,7 @@ convertedPositiveTestToRecoveryGreencard = EUGreenCard(
                 "type": "recovery",
                 "eventTime": "2021-02-01T00:00:00+00:00",
                 "expirationTime": "2021-08-01T00:00:00+00:00",
-                "validFrom": "2021-02-01T00:00:00+00:00",
+                "validFrom": "2021-02-12T00:00:00+00:00",
             }
         ],
         "credential": "HC1:NCF%RN%TSMAHN-HCPGHC1*960EM:RH+R61RO9.S4UO+%G",
