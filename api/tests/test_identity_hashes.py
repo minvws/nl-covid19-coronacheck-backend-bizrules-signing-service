@@ -6,14 +6,12 @@ from api.requesters.identity_hashes import (
     calculate_identity_hash,
     calculate_identity_hash_message,
     create_provider_jwt_tokens,
+    hmac256,
     retrieve_bsn_from_inge6,
 )
 from api.settings import settings
 from api.tests.conftest import require_rvig_mock
 from api.tests.test_utils import json_from_test_data_file
-import pytest
-
-from api.requesters.identity_hashes import hmac256
 
 bsn_test_data = json_from_test_data_file("bsn_jwts.json")
 

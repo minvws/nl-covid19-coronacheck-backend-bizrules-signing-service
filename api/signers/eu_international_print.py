@@ -2,8 +2,8 @@ from typing import Optional
 
 import api.signers.eu_international
 from api import log
-from api.settings import settings
 from api.models import EuropeanPrintProof, Events
+from api.settings import settings
 from api.signers.logic import distill_relevant_events
 from api.signers.logic_eu import create_eu_signer_message, remove_eu_ineligible_events
 
