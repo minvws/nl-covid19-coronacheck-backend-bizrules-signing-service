@@ -75,7 +75,6 @@ class AppSettings(BaseSettings):
     EU_INTERNATIONAL_SIGNING_URL: AnyHttpUrl = Field()
     EU_INTERNATIONAL_GREENCARD_EXPIRATION_TIME_DAYS: int = 28
     EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS: int = 180
-    EU_INTERNATIONAL_OVERRIDE_TC: str = "Facility approved by the State of the Netherlands"
 
     DEDUPLICATION_MARGIN: int = 2
 
