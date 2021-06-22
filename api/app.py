@@ -18,7 +18,6 @@ from api.app_support import (
 from api.enrichment.rvig import rvig
 from api.models import (
     ApplicationHealth,
-    CMSSignedDataBlob,
     CredentialsRequestData,
     CredentialsRequestEvents,
     DataProviderEventsResult,
@@ -39,7 +38,6 @@ from api.signers import (
     eu_international_print,
     nl_domestic_dynamic,
     nl_domestic_print,
-    nl_domestic_static,
 )
 
 app = FastAPI()
