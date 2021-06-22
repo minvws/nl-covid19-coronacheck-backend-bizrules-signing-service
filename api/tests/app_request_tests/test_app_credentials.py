@@ -1,5 +1,5 @@
 import json
-from base64 import b64decode, b64encode
+from base64 import b64encode
 
 import json5
 from fastapi.testclient import TestClient
@@ -7,7 +7,6 @@ from freezegun import freeze_time
 
 from api.app import app
 from api.session_store import session_store
-from api.settings import settings
 from api.utils import read_file
 
 
@@ -88,7 +87,8 @@ def test_app_credential_request_alt(mock_signers, requests_mock, current_path, r
 
     requests_mock.post("http://testserver/app/credentials/", real_http=True)
 
-    event = json5.loads("""
+    event = json5.loads(
+        """
     {
           "protocolVersion": "3.0",
           "providerIdentifier": "GGD",
@@ -117,12 +117,13 @@ def test_app_credential_request_alt(mock_signers, requests_mock, current_path, r
               }
             }
           ]
-    }""")
+    }"""
+    )
 
     credentials_request_data = {
         "stoken": session_token,
-        "issueCommitmentMessage": b64encode(b'{}').decode("UTF-8"),
-        "events": [{"signature": "", "payload": b64encode(json.dumps(event).encode()).decode("UTF-8")}]
+        "issueCommitmentMessage": b64encode(b"{}").decode("UTF-8"),
+        "events": [{"signature": "", "payload": b64encode(json.dumps(event).encode()).decode("UTF-8")}],
     }
 
     client = TestClient(app)
@@ -131,26 +132,28 @@ def test_app_credential_request_alt(mock_signers, requests_mock, current_path, r
     response_data = response.json()
 
     assert response_data == {
-        'domesticGreencard': {
-            'createCredentialMessages': 'eyJjcmVkZW50aWFsIjogIkFfUVJfQ09ERSJ9',
-            'origins': [
+        "domesticGreencard": {
+            "createCredentialMessages": "eyJjcmVkZW50aWFsIjogIkFfUVJfQ09ERSJ9",
+            "origins": [
                 {
-                    'eventTime': '2021-06-08T00:00:00+00:00',
-                    'expirationTime': '2021-12-05T00:00:00+00:00',
-                    'type': 'vaccination',
-                    'validFrom': '2021-06-08T00:00:00+00:00'
+                    "eventTime": "2021-06-08T00:00:00+00:00",
+                    "expirationTime": "2021-12-05T00:00:00+00:00",
+                    "type": "vaccination",
+                    "validFrom": "2021-06-08T00:00:00+00:00",
                 }
-            ]
+            ],
         },
-        'euGreencards': [
-            {'credential': 'A_QR_CODE',
-             'origins': [
-                 {
-                     'eventTime': '2021-06-08T00:00:00+00:00',
-                     'expirationTime': '2021-12-19T00:00:00+00:00',
-                     'type': 'vaccination',
-                     'validFrom': '2021-06-08T00:00:00+00:00'}
-             ]
-             }
-        ]
+        "euGreencards": [
+            {
+                "credential": "A_QR_CODE",
+                "origins": [
+                    {
+                        "eventTime": "2021-06-08T00:00:00+00:00",
+                        "expirationTime": "2021-12-19T00:00:00+00:00",
+                        "type": "vaccination",
+                        "validFrom": "2021-06-08T00:00:00+00:00",
+                    }
+                ],
+            }
+        ],
     }
