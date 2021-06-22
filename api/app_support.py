@@ -201,9 +201,7 @@ def filter_specimen_events(events: Events) -> Events:
     """
 
     # All events are specimen? Great, you can continue.
-    amount_of_events = len(events.events)
-    amount_of_specimen_events = sum([event.isSpecimen for event in events.events])
-    if amount_of_specimen_events == amount_of_events:
+    if all([event.isSpecimen for event in events.events]):
         log.debug("All events are specimen events, they are accepted for further testing.")
         return events
 
