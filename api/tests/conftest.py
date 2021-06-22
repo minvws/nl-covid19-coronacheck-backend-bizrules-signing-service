@@ -55,3 +55,4 @@ def mock_signers(requests_mock):
     """
     requests_mock.post(settings.EU_INTERNATIONAL_SIGNING_URL, json={"credential": "A_QR_CODE"})
     requests_mock.post(settings.DOMESTIC_NL_VWS_ONLINE_SIGNING_URL, json={"credential": "A_QR_CODE"})
+    requests_mock.post(settings.DOMESTIC_NL_VWS_PAPER_SIGNING_URL, json={"qr": "A_QR_CODE"})
