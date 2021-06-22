@@ -6,8 +6,8 @@ from freezegun import freeze_time
 
 from api.app import app
 from api.settings import settings
+from api.tests.test_enrichment_rvig import RVIG_URL
 from api.tests.test_identity_hashes import bsn_test_data
-from api.tests.test_rvig import RVIG_URL
 from api.tests.test_utils import json_from_test_data_file
 from api.utils import read_file
 

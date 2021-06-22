@@ -77,12 +77,20 @@ def _is_eligible_vaccination(event: Event) -> bool:
 
 def _is_eligible_test(event: Event) -> bool:
     # rules N030, N040, N050
-    if isinstance(event.negativetest, Negativetest) and event.negativetest.type in ELIGIBLE_TT:
-        return True
+    if isinstance(event.negativetest, Negativetest):
+        if not event.negativetest.negativeResult:
+            log.warning("received a negative test with negativeResult False")
+            return False
+        if event.negativetest.type in ELIGIBLE_TT:
+            return True
 
     # rules P020, P030, P040
-    if isinstance(event.positivetest, Positivetest) and event.positivetest.type in ELIGIBLE_TT:
-        return True
+    if isinstance(event.positivetest, Positivetest):
+        if not event.positivetest.positiveResult:
+            log.warning("received a positive test with positiveResult False")
+            return False
+        if event.positivetest.type in ELIGIBLE_TT:
+            return True
 
     log.debug(f"Ineligible test: {event}")
     return False
@@ -114,7 +122,7 @@ def remove_ineligible_events(events: Events) -> Events:
     return eligible_events
 
 
-def set_missing_total_doses(events: Events) -> Events:
+def set_missing_doses(events: Events) -> Events:
     """
     Update the `totalDoses` field on vaccination events that do not have it. Set to the default per mp.
     """
@@ -124,6 +132,10 @@ def set_missing_total_doses(events: Events) -> Events:
         # make mypy happy
         if not vacc.vaccination:
             continue
+
+        # this is at least a vaccination, if there are more eligible vaccinations, the total count will add up
+        # at a later stage to complete a set
+        vacc.vaccination.doseNumber = vacc.vaccination.doseNumber or 1
 
         if not vacc.vaccination.totalDoses:
             if vacc.vaccination.brand:
@@ -561,7 +573,7 @@ def distill_relevant_events(events: Events) -> Events:
 
     eligible_events = remove_ineligible_events(events)
     eligible_events = enrich_from_hpk(eligible_events)
-    eligible_events = set_missing_total_doses(eligible_events)
+    eligible_events = set_missing_doses(eligible_events)
     eligible_events = set_completed_by_statement(eligible_events)
     eligible_events = deduplicate_events(eligible_events)
     eligible_events = filter_redundant_events(eligible_events)

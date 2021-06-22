@@ -4,7 +4,7 @@ import logging
 import pathlib
 from base64 import b64decode
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import json5
 from nacl.encoding import Base64Encoder
@@ -44,6 +44,7 @@ class AppSettings(BaseSettings):
     IDENTITY_HASH_JWT_PRIVATE_KEY: str = ""
     IDENTITY_HASH_JWT_PUBLIC_KEY: str = ""
     IDENTITY_HASH_JWT_ISSUER_CLAIM: str = "jwt.test.coronacheck.nl"
+    IDENTITY_HASH_JWT_VALIDITY_DURATION_SECONDS: int = 86400
     RVIG_CERT_FILENAME: str = ""
     RVIG_CERT: str = ""
     RVIG_USERNAME: str = ""
@@ -55,8 +56,10 @@ class AppSettings(BaseSettings):
     HPK_MAPPING_FILE: str = ""
     HPK_MAPPING: Dict[Optional[str], Any] = {}
 
-    DOMESTIC_NL_SIGNER_ENABLED: bool = True
-    EU_INTERNATIONAL_SIGNER_ENABLED: bool = True
+    DOMESTIC_NL_DYNAMIC_SIGNER_ENABLED: bool = True
+    DOMESTIC_NL_PRINT_SIGNER_ENABLED: bool = True
+    EU_INTERNATIONAL_DYNAMIC_SIGNER_ENABLED: bool = True
+    EU_INTERNATIONAL_PRINT_SIGNER_ENABLED: bool = True
 
     DOMESTIC_NL_VWS_PREPARE_ISSUE_URL: AnyHttpUrl = Field()
     DOMESTIC_NL_VWS_PAPER_SIGNING_URL: AnyHttpUrl = Field()
@@ -112,6 +115,12 @@ class AppSettings(BaseSettings):
     INGE4_NACL_PUBLIC_KEY: PublicKey = INGE4_NACL_PRIVATE_KEY.public_key
     INGE6_NACL_PUBLIC_KEY: PublicKey = PrivateKey.generate().public_key
     INGE6_JWT_PUBLIC_CRT: str = ""
+
+    HTTP_EXPONENTIAL_RETRIES: int = 1
+    HTTP_CONNECT_TIMEOUT: float = 3.05
+    HTTP_READ_TIMEOUT: float = 2
+    HTTP_RETRY_BACKOFF_TIME: float = 1
+    HTTP_RETRY_STATUS_CODES: Tuple[int, ...] = (429, 500, 502, 503, 504)
 
 
 class RedisSettings(BaseSettings):

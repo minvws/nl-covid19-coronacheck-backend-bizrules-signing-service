@@ -18,7 +18,6 @@ from api.app_support import (
 from api.enrichment.rvig import rvig
 from api.models import (
     ApplicationHealth,
-    CMSSignedDataBlob,
     CredentialsRequestData,
     CredentialsRequestEvents,
     DataProviderEventsResult,
@@ -39,7 +38,6 @@ from api.signers import (
     eu_international_print,
     nl_domestic_dynamic,
     nl_domestic_print,
-    nl_domestic_static,
 )
 
 app = FastAPI()
@@ -125,17 +123,6 @@ async def app_credential_request(request_data: CredentialsRequestData):
         events, prepare_issue_message, request_data.issueCommitmentMessage
     )
     eu_response: Optional[List[EUGreenCard]] = eu_international.sign(events)
-
-    return MobileAppProofOfVaccination(**{"domesticGreencard": domestic_response, "euGreencards": eu_response})
-
-
-@app.post("/app/paper/", response_model=MobileAppProofOfVaccination)
-async def inge3_credential_request(request_data: List[CMSSignedDataBlob]):
-    # todo: this is deprecated, move the tests on app/paper to app/print
-    events = decode_and_normalize_events(request_data)
-
-    domestic_response = nl_domestic_static.sign(events)
-    eu_response = eu_international.sign(events)
 
     return MobileAppProofOfVaccination(**{"domesticGreencard": domestic_response, "euGreencards": eu_response})
 
