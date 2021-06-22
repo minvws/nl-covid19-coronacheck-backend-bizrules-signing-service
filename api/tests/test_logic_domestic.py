@@ -7,13 +7,7 @@ import pytz
 from freezegun import freeze_time
 
 from api.app_support import decode_and_normalize_events
-from api.models import (
-    CMSSignedDataBlob,
-    DomesticSignerAttributes,
-    Holder,
-    RichOrigin,
-    StripType,
-)
+from api.models import CMSSignedDataBlob, DomesticSignerAttributes, Holder, RichOrigin, StripType
 from api.settings import settings
 from api.signers.logic_domestic import create_attributes, create_origins
 from api.utils import read_file
@@ -211,5 +205,3 @@ def test_attributes_and_origins(current_path, requests_mock, mocker):
             birthMonth="",
         ),
     ]
-
-

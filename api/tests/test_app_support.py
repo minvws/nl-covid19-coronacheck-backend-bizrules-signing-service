@@ -1,22 +1,11 @@
 from copy import deepcopy
-
-from api.app_support import has_unique_holder
-from api.models import DataProviderEventsResult, DutchBirthDate
-from api.app_support import filter_specimen_events
-from api.tests.test_eu_signer import testcase_event_vaccination
-
 from datetime import datetime, timezone
 
 from freezegun import freeze_time
 
-from api.app_support import decode_and_normalize_events
-from api.models import (
-    Event,
-    Events,
-    EventType,
-    Holder,
-    Negativetest,
-)
+from api.app_support import decode_and_normalize_events, filter_specimen_events, has_unique_holder
+from api.models import DataProviderEventsResult, DutchBirthDate, Event, Events, EventType, Holder, Negativetest
+from api.tests.test_eu_signer import testcase_event_vaccination
 from api.tests.test_logic_domestic import get_testevents
 
 holder1 = Holder(

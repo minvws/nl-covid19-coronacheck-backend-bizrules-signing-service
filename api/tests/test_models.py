@@ -1,8 +1,7 @@
 from datetime import date, datetime, timezone
 
-from freezegun import freeze_time
 import pytest
-
+from freezegun import freeze_time
 
 from api.models import (
     DomesticSignerAttributes,

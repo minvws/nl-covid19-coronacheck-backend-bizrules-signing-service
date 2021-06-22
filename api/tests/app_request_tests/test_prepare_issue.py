@@ -1,14 +1,13 @@
 import json
 from base64 import b64decode
 
+from fastapi.testclient import TestClient
 from freezegun import freeze_time
 
 from api.app import app
 from api.models import PrepareIssueResponse
 from api.session_store import session_store
 from api.settings import settings
-
-from fastapi.testclient import TestClient
 
 
 @freeze_time("2021-05-20")
