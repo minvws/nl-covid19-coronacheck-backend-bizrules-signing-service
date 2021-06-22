@@ -256,3 +256,56 @@ def test_777771994(mock_signers):  # pylint: disable=unused-argument
             credential="A_QR_CODE",
         ),
     ]
+
+
+@freeze_time("2021-06-22T19:20:00")
+def test_ronnie(mock_signers):  # pylint: disable=unused-argument
+    events = {
+        "protocolVersion": "3.0",
+        "providerIdentifier": "ZZZ",
+        "status": "complete",
+        "holder": {"firstName": "Test", "infix": "", "lastName": "Positief Negatief", "birthDate": "1999-01-01"},
+        "events": [
+            {
+                "type": "vaccination",
+                "unique": None,
+                "isSpecimen": None,
+                "vaccination": {
+                    "date": "2021-06-01",
+                    "hpkCode": "2924528",
+                    "type": "covid",
+                    "manufacturer": "Pfizer/BioNTech",
+                    "brand": "COVID-19 VACCIN PFIZER INJVLST 0,3ML",
+                    "completedByMedicalStatement": None,
+                    "country": "NLD",
+                    "doseNumber": None,
+                    "totalDoses": None,
+                },
+            },
+            {
+                "type": "vaccination",
+                "unique": "7de0ffe5-069a-4b35-a388-80ffece4f1a9",
+                "isSpecimen": False,
+                "vaccination": {
+                    "date": "2021-06-01",
+                    "hpkCode": "2924528",
+                    "type": None,
+                    "manufacturer": None,
+                    "brand": None,
+                    "totalDoses": None,
+                    "doseNumber": None,
+                    "completedByMedicalStatement": None,
+                    "completedByPersonalStatement": None,
+                },
+            },
+        ],
+    }
+
+    events = _create_events([events])
+    events = distill_relevant_events(events)
+
+    signed_domestic = nl_domestic_dynamic.sign(events, base64_json_dump({}), base64_json_dump({}))
+    signed_eu = eu_international.sign(events)
+
+    print(signed_domestic)
+    print(signed_eu)

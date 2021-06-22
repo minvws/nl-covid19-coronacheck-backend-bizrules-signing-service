@@ -1,4 +1,5 @@
 import base64
+import datetime
 import json
 from typing import Union
 
@@ -41,7 +42,7 @@ def _sign(url, data: Union[IssueMessage, StaticIssueMessage], origins) -> Domest
                 type=origin.type,
                 eventTime=origin.eventTime.isoformat(),
                 validFrom=origin.validFrom.isoformat(),
-                expirationTime=origin.expirationTime.isoformat(),
+                expirationTime=(origin.eventTime + datetime.timedelta(days=1461)).isoformat(),
             )
             for origin in origins
         ],

@@ -239,3 +239,19 @@ def derive_print_validity_hours(event: Event) -> int:
 
 def remove_domestic_ineligible_events(events: Events) -> Events:
     return events
+
+
+def is_eligible_for_proof(events: Events) -> bool:
+    if any(vacc.vaccination.doseNumber >= vacc.vaccination.totalDoses for vacc in events.vaccinations):
+        return True
+
+    if len(events.negativetests) > 0:
+        return True
+
+    if len(events.positivetests) > 0:
+        return True
+
+    if len(events.recoveries) > 0:
+        return True
+
+    return False
