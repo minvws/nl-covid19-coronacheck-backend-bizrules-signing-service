@@ -266,7 +266,6 @@ def test_777771998(mock_signers): # pylint: disable=unused-argument
     Current result: two events to sign.
 
     https://docs.google.com/spreadsheets/d/1d66HXvh9bxZTwlTqaxxqE-IKmv22MkB8isZj87a-kaQ/edit#gid=1807675443
-
     Domestic:
     Vaccination = immediately valid.
     Positive test = valid after 11 days.
@@ -322,7 +321,6 @@ def test_777771998(mock_signers): # pylint: disable=unused-argument
         }
         ]
     }
-
     events = _create_events([events])
     events = distill_relevant_events(events)
 
@@ -402,7 +400,6 @@ def test_777771998(mock_signers): # pylint: disable=unused-argument
         ],
         createCredentialMessages="eyJjcmVkZW50aWFsIjogIkFfUVJfQ09ERSJ9",
     )
-
     # # Expected: a negative test for now, so something valid 40 hours. And a recovery in 11 days.
     signed = eu_international.sign(events)
     assert signed == [
@@ -438,7 +435,6 @@ def test_777771999(mock_signers): # pylint: disable=unused-argument
     Current result: two events to sign.
 
     https://docs.google.com/spreadsheets/d/1d66HXvh9bxZTwlTqaxxqE-IKmv22MkB8isZj87a-kaQ/edit#gid=1807675443
-
     Domestic:
     Vaccination = immediately valid.
     Negative test = valid after 11 days.
