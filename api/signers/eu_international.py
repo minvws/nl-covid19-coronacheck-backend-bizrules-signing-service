@@ -32,7 +32,7 @@ def sign_messages(messages_to_eu_signer: List[MessageToEUSigner]) -> List[EUGree
             {
                 "type": message_to_eu_signer.keyUsage,
                 "eventTime": str(get_event_time(message_to_eu_signer).isoformat()),
-                "expirationTime": str(get_eu_expirationtime().isoformat()),
+                "expirationTime": str(get_eu_expirationtime(message_to_eu_signer).isoformat()),
                 "validFrom": str(get_valid_from_time(message_to_eu_signer).isoformat()),
             }
         ]

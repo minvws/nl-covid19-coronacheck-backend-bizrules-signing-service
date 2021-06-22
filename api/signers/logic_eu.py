@@ -25,8 +25,15 @@ Not using datetime.datetime.utcfromtimestamp(42) as that seems to return a timez
 EU_INTERNATIONAL_SPECIMEN_EXPIRATION_TIME = datetime(1970, 1, 1, 0, 0, 42, 0, tzinfo=pytz.utc)
 
 
-def get_eu_expirationtime() -> datetime:
+def get_eu_expirationtime(statement_to_eu_signer: MessageToEUSigner = None) -> datetime:
     expiration_time = datetime.now(pytz.utc) + timedelta(days=settings.EU_INTERNATIONAL_GREENCARD_EXPIRATION_TIME_DAYS)
+
+    if statement_to_eu_signer is not None and statement_to_eu_signer.dgc.r:
+        expiration_time = datetime.now(pytz.utc) + timedelta(
+            days=settings.EU_INTERNATIONAL_POSITIVE_TEST_RECOVERY_DAYS
+            + settings.EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS
+        )
+
     return expiration_time.replace(microsecond=0)
 
 
