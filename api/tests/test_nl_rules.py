@@ -239,7 +239,7 @@ def test_777771994(mock_signers):  # pylint: disable=unused-argument
                     type="recovery",
                     eventTime="2021-06-20T00:00:00+00:00",
                     expirationTime="2021-12-18T01:23:45+00:00",
-                    validFrom="2021-06-20T00:00:00+00:00",
+                    validFrom="2021-07-01T00:00:00+00:00",
                 )
             ],
             credential="A_QR_CODE",
@@ -421,9 +421,9 @@ def test_777771998(mock_signers):  # pylint: disable=unused-argument
             origins=[
                 GreenCardOrigin(
                     type="recovery",
-                    eventTime="2021-06-21T06:00:00+00:00",
+                    eventTime="2021-06-21T00:00:00+00:00",
                     expirationTime="2021-12-18T01:23:45+00:00",
-                    validFrom="2021-07-02T06:00:00+00:00",
+                    validFrom="2021-07-02T00:00:00+00:00",
                 )
             ],
             credential="A_QR_CODE",
