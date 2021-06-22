@@ -3,7 +3,6 @@ import os
 
 from fastapi.testclient import TestClient
 
-from api import log
 from api.app import app
 from api.models import Event, EventType, Holder, UciTestInfo
 
@@ -13,7 +12,7 @@ def test_app_uci_test():
     file_size_before = os.path.getsize("uci.log")
 
     response = client.get("/uci_test")
-    log.error(json.loads(response.content.decode("UTF-8")))
+    # log.error(json.loads(response.content.decode("UTF-8")))
 
     testinfo = UciTestInfo(**json.loads(response.content.decode("UTF-8")))
 

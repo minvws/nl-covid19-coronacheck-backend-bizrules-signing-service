@@ -99,10 +99,5 @@ def is_eligible_for_special_year(event: Event) -> bool:
 
 def remove_eu_ineligible_events(events: Events) -> Events:
     result = Events()
-
-    # if EU signer not enabled, we just remove all events
-    if not settings.EU_INTERNATIONAL_SIGNER_ENABLED:
-        return result
-
     result.events = [event for event in events.events if is_eligible_for_special_year(event)]
     return result

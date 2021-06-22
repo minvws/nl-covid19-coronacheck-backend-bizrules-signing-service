@@ -365,8 +365,8 @@ class Negativetest(BaseModel):  # noqa
                     "nm": self.name,
                     "ma": self.manufacturer,
                     "sc": self.sampleDate,
-                    "tr": self.negativeResult,
-                    "tc": settings.EU_INTERNATIONAL_OVERRIDE_TC,
+                    "tr": "260415000" if self.negativeResult else "260373001",  # 260415000 = not detected
+                    "tc": self.facility,
                     "co": str(self.country),
                 },
             }
@@ -692,7 +692,7 @@ class EuropeanTest(SharedEuropeanFields):
 
     # "In provider results: true/false
     # In EU QR: https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/test-result.json"
-    tr: str = Field(description="testresult.negativeResult", example="")
+    tr: str = Field(description="value based on testresult.negativeResult", example="260415000")
     tc: str = Field(description="testresult.facility", example="")
 
 

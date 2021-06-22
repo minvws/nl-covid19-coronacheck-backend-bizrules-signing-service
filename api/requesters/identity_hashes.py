@@ -63,7 +63,7 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
     generic_data: Dict[str, Any] = {
         "iat": now,  # Current time
         "nbf": now,  # Not valid before
-        "exp": now + timedelta(days=1),  # Expire at
+        "exp": now + timedelta(seconds=settings.IDENTITY_HASH_JWT_VALIDITY_DURATION_SECONDS),  # Expire at
     }
 
     # todo: deal with errors.
@@ -83,7 +83,7 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
         )
 
         unomi_data = {
-            "iss": "jwt.test.coronacheck.nl",  # Issuer Claim
+            "iss": settings.IDENTITY_HASH_JWT_ISSUER_CLAIM,  # Issuer Claim
             "aud": data_provider["unomi_url"],  # Audience Claim
         }
 

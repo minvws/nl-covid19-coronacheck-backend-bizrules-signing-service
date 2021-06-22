@@ -55,7 +55,8 @@ def test_get_pii_happy_flow(requests_mock, current_path):
 
 
 @pytest.mark.skip(reason="Useful for gathering testdata from rvig.")
-@pytest.mark.parametrize("bsn", [999990743, 999994888, 4322630, 4322320])
+# 999990743, 999994888, 4322630, 4322320
+@pytest.mark.parametrize("bsn", [999995844])
 def test_manually(bsn):
     # Invalid BSN is no data found, code 33
     get_pii_from_rvig(bsn)
