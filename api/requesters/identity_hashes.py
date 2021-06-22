@@ -83,7 +83,7 @@ def create_provider_jwt_tokens(bsn: str) -> List[EventDataProviderJWT]:
         )
 
         unomi_data = {
-            "iss": "jwt.test.coronacheck.nl",  # Issuer Claim
+            "iss": settings.IDENTITY_HASH_JWT_ISSUER_CLAIM,  # Issuer Claim
             "aud": data_provider["unomi_url"],  # Audience Claim
         }
 
