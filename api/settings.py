@@ -72,7 +72,10 @@ class AppSettings(BaseSettings):
     DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST: int = 40
     EU_INTERNATIONAL_SIGNING_URL: AnyHttpUrl = Field()
     EU_INTERNATIONAL_GREENCARD_EXPIRATION_TIME_DAYS: int = 28
+    # Date until recovery date is valid
     EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS: int = 180
+    # Number of days after positive test to turn into a valid recovery proof
+    EU_INTERNATIONAL_POSITIVE_TEST_RECOVERY_DAYS = 11
     EU_INTERNATIONAL_OVERRIDE_TC: str = "Facility approved by the State of the Netherlands"
 
     DEDUPLICATION_MARGIN: int = 2
