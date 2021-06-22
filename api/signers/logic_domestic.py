@@ -238,8 +238,4 @@ def derive_print_validity_hours(event: Event) -> int:
 
 
 def remove_domestic_ineligible_events(events: Events) -> Events:
-    # if domestic signer not enabled, we remove all events
-    if not settings.DOMESTIC_NL_SIGNER_ENABLED:
-        return Events()
-
     return events
