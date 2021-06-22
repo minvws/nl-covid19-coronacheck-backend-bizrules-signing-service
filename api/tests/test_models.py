@@ -4,12 +4,14 @@ import pytest
 from freezegun import freeze_time
 
 from api.models import (
+    DomesticSignerAttributes,
     DutchBirthDate,
     EuropeanOnlineSigningRequest,
     EuropeanOnlineSigningRequestNamingSection,
     EventType,
     Holder,
     Iso3166Dash1Alpha2CountryCode,
+    StripType,
     V2Event,
 )
 
@@ -235,3 +237,356 @@ def test_iso3316_1_alpha_3_country():
     assert str(Iso3166Dash1Alpha2CountryCode.validate("ABW")) == "AW"
     assert str(Iso3166Dash1Alpha2CountryCode.validate("CUW")) == "CW"
     assert str(Iso3166Dash1Alpha2CountryCode.validate("SXM")) == "SX"
+
+
+@freeze_time("2020-02-02")
+def test_strikelist():
+
+    # EJ = VD = disclose first name + day
+    striked = DomesticSignerAttributes(
+        **{
+            "isSpecimen": "0",
+            "isPaperProof": StripType.APP_STRIP,
+            "validFrom": str(int(datetime.now().timestamp())),
+            "validForHours": "2",
+            "firstNameInitial": "E",
+            "lastNameInitial": "J",
+            "birthDay": "2",
+            "birthMonth": "3",
+        }
+    ).strike()
+
+    assert striked.dict() == {
+        "birthDay": "2",
+        "birthMonth": "",
+        "firstNameInitial": "E",
+        "isSpecimen": "0",
+        "lastNameInitial": "",
+        "isPaperProof": StripType.APP_STRIP,
+        "validForHours": "2",
+        "validFrom": "1580601600",
+    }
+
+    # UX no data at all:
+    # todo: If you have EVERYTHING you are unique, if you have NOTHING you are unique.
+    striked = DomesticSignerAttributes(
+        **{
+            "isSpecimen": "0",
+            "isPaperProof": StripType.APP_STRIP,
+            "validFrom": str(int(datetime.now().timestamp())),
+            "validForHours": "2",
+            "firstNameInitial": "U",
+            "lastNameInitial": "X",
+            "birthDay": "2",
+            "birthMonth": "3",
+        }
+    ).strike()
+
+    assert striked.dict() == {
+        "birthDay": "",
+        "birthMonth": "",
+        "firstNameInitial": "",
+        "isSpecimen": "0",
+        "lastNameInitial": "",
+        "isPaperProof": StripType.APP_STRIP,
+        "validForHours": "2",
+        "validFrom": str(int(datetime(2020, 2, 2).timestamp())),
+    }
+
+
+holder_test_data = [
+    [
+        {"firstName": "47573", "lastName": "*(%*&", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "", "lastInitial": ""},
+    ],
+    [
+        {"firstName": "À", "lastName": "À", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "A", "lastInitial": "A"},
+    ],
+    [
+        {"firstName": "Á", "lastName": "Á", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "A", "lastInitial": "A"},
+    ],
+    [
+        {"firstName": "Â", "lastName": "Â", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "A", "lastInitial": "A"},
+    ],
+    [
+        {"firstName": "Ã", "lastName": "Ã", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "A", "lastInitial": "A"},
+    ],
+    [
+        {"firstName": "Ä", "lastName": "Ä", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "A", "lastInitial": "A"},
+    ],
+    [
+        {"firstName": "Å", "lastName": "Å", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "A", "lastInitial": "A"},
+    ],
+    [
+        {"firstName": "Æ", "lastName": "Æ", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "A", "lastInitial": "A"},
+    ],
+    [
+        {"firstName": "Ç", "lastName": "Ç", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "C", "lastInitial": "C"},
+    ],
+    [
+        {"firstName": "È", "lastName": "È", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "E", "lastInitial": "E"},
+    ],
+    [
+        {"firstName": "É", "lastName": "É", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "E", "lastInitial": "E"},
+    ],
+    [
+        {"firstName": "Ê", "lastName": "Ê", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "E", "lastInitial": "E"},
+    ],
+    [
+        {"firstName": "Ë", "lastName": "Ë", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "E", "lastInitial": "E"},
+    ],
+    [
+        {"firstName": "Ì", "lastName": "Ì", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "I", "lastInitial": "I"},
+    ],
+    [
+        {"firstName": "Í", "lastName": "Í", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "I", "lastInitial": "I"},
+    ],
+    [
+        {"firstName": "Î", "lastName": "Î", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "I", "lastInitial": "I"},
+    ],
+    [
+        {"firstName": "Ï", "lastName": "Ï", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "I", "lastInitial": "I"},
+    ],
+    [
+        {"firstName": "Ð", "lastName": "Ð", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "D", "lastInitial": "D"},
+    ],
+    [
+        {"firstName": "Ñ", "lastName": "Ñ", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "N", "lastInitial": "N"},
+    ],
+    [
+        {"firstName": "Ò", "lastName": "Ò", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "O", "lastInitial": "O"},
+    ],
+    [
+        {"firstName": "Ó", "lastName": "Ó", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "O", "lastInitial": "O"},
+    ],
+    [
+        {"firstName": "Ô", "lastName": "Ô", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "O", "lastInitial": "O"},
+    ],
+    [
+        {"firstName": "Õ", "lastName": "Õ", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "O", "lastInitial": "O"},
+    ],
+    [
+        {"firstName": "Ö", "lastName": "Ö", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "O", "lastInitial": "O"},
+    ],
+    [
+        {"firstName": "Ø", "lastName": "Ø", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "O", "lastInitial": "O"},
+    ],
+    [
+        {"firstName": "Ù", "lastName": "Ù", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "U", "lastInitial": "U"},
+    ],
+    [
+        {"firstName": "Ú", "lastName": "Ú", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "U", "lastInitial": "U"},
+    ],
+    [
+        {"firstName": "Û", "lastName": "Û", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "U", "lastInitial": "U"},
+    ],
+    [
+        {"firstName": "Ü", "lastName": "Ü", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "U", "lastInitial": "U"},
+    ],
+    [
+        {"firstName": "Ý", "lastName": "Ý", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "Y", "lastInitial": "Y"},
+    ],
+    [
+        {"firstName": "Þ", "lastName": "Þ", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "T", "lastInitial": "T"},
+    ],  # P->T
+    [
+        {"firstName": "ß", "lastName": "ß", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "S", "lastInitial": "S"},
+    ],
+    [
+        {"firstName": "à", "lastName": "à", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "A", "lastInitial": "A"},
+    ],
+    [
+        {"firstName": "á", "lastName": "á", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "A", "lastInitial": "A"},
+    ],
+    [
+        {"firstName": "â", "lastName": "â", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "A", "lastInitial": "A"},
+    ],
+    [
+        {"firstName": "ã", "lastName": "ã", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "A", "lastInitial": "A"},
+    ],
+    [
+        {"firstName": "ä", "lastName": "ä", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "A", "lastInitial": "A"},
+    ],
+    [
+        {"firstName": "å", "lastName": "å", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "A", "lastInitial": "A"},
+    ],
+    [
+        {"firstName": "æ", "lastName": "æ", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "A", "lastInitial": "A"},
+    ],
+    [
+        {"firstName": "ç", "lastName": "ç", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "C", "lastInitial": "C"},
+    ],
+    [
+        {"firstName": "è", "lastName": "è", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "E", "lastInitial": "E"},
+    ],
+    [
+        {"firstName": "é", "lastName": "é", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "E", "lastInitial": "E"},
+    ],
+    [
+        {"firstName": "ê", "lastName": "ê", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "E", "lastInitial": "E"},
+    ],
+    [
+        {"firstName": "ë", "lastName": "ë", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "E", "lastInitial": "E"},
+    ],
+    [
+        {"firstName": "ì", "lastName": "ì", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "I", "lastInitial": "I"},
+    ],
+    [
+        {"firstName": "í", "lastName": "í", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "I", "lastInitial": "I"},
+    ],
+    [
+        {"firstName": "î", "lastName": "î", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "I", "lastInitial": "I"},
+    ],
+    [
+        {"firstName": "ï", "lastName": "ï", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "I", "lastInitial": "I"},
+    ],
+    [
+        {"firstName": "ð", "lastName": "ð", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "D", "lastInitial": "D"},
+    ],  # O->D
+    [
+        {"firstName": "ñ", "lastName": "ñ", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "N", "lastInitial": "N"},
+    ],
+    [
+        {"firstName": "ò", "lastName": "ò", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "O", "lastInitial": "O"},
+    ],
+    [
+        {"firstName": "ó", "lastName": "ó", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "O", "lastInitial": "O"},
+    ],
+    [
+        {"firstName": "ô", "lastName": "ô", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "O", "lastInitial": "O"},
+    ],
+    [
+        {"firstName": "õ", "lastName": "õ", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "O", "lastInitial": "O"},
+    ],
+    [
+        {"firstName": "ö", "lastName": "ö", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "O", "lastInitial": "O"},
+    ],
+    [
+        {"firstName": "ø", "lastName": "ø", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "O", "lastInitial": "O"},
+    ],
+    [
+        {"firstName": "ù", "lastName": "ù", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "U", "lastInitial": "U"},
+    ],
+    [
+        {"firstName": "ú", "lastName": "ú", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "U", "lastInitial": "U"},
+    ],
+    [
+        {"firstName": "û", "lastName": "û", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "U", "lastInitial": "U"},
+    ],
+    [
+        {"firstName": "ü", "lastName": "ü", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "U", "lastInitial": "U"},
+    ],
+    [
+        {"firstName": "ý", "lastName": "ý", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "Y", "lastInitial": "Y"},
+    ],
+    [
+        {"firstName": "þ", "lastName": "þ", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "T", "lastInitial": "T"},
+    ],  # P->T
+    [
+        {"firstName": "ÿ", "lastName": "ÿ", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "Y", "lastInitial": "Y"},
+    ],
+    [
+        {"firstName": "ÿ", "lastName": "ÿ", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "Y", "lastInitial": "Y"},
+    ],
+    # https://www.ernieramaker.nl/raar.php?t=achternamen
+    # todo: is 's not an infix? Are there more similar cases with 's 't etcetera?
+    # Because of mrz (machine readable zone) we can't distinguish between 's and A.B. and such last names.
+    # So 's-Gravezande -> S<GRAVEZANDE.
+    # https://pypi.org/project/mrz/
+    [
+        {"firstName": "Maarten", "lastName": "'s-Gravezande", "birthDate": "1970-01-01", "infix": ""},
+        {"firstInitial": "M", "lastInitial": "S"},
+    ],
+    [
+        {
+            "firstName": "Bert",
+            "lastName": "Gmelig zich noemende en schrijvende Meijling",
+            "birthDate": "1970-01-01",
+            "infix": "",
+        },
+        {"firstInitial": "B", "lastInitial": "G"},
+    ],
+]
+
+
+@pytest.mark.parametrize("holder_dict, expected", holder_test_data)
+def test_first_name_initial(holder_dict: dict, expected: dict):
+    holder = Holder(**holder_dict)
+    assert holder.first_name_initial == expected["firstInitial"]
+
+
+@pytest.mark.parametrize("holder_dict, expected", holder_test_data)
+def test_last_name_initial(holder_dict: dict, expected: dict):
+    holder = Holder(**holder_dict)
+    assert holder.last_name_initial == expected["lastInitial"]
+
+
+def test_eu_holder():
+    holder = Holder(firstName="Henk", lastName="vries", infix="de", birthDate="2000-01-01")
+    assert holder.last_name_eu_normalized == "DE<VRIES"
+
+    holder = Holder(firstName="Henk", lastName="vries", infix="", birthDate="2000-01-01")
+    assert holder.last_name_eu_normalized == "VRIES"

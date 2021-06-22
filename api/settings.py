@@ -44,6 +44,7 @@ class AppSettings(BaseSettings):
     IDENTITY_HASH_JWT_PRIVATE_KEY: str = ""
     IDENTITY_HASH_JWT_PUBLIC_KEY: str = ""
     IDENTITY_HASH_JWT_ISSUER_CLAIM: str = "jwt.test.coronacheck.nl"
+    IDENTITY_HASH_JWT_VALIDITY_DURATION_SECONDS: int = 86400
     RVIG_CERT_FILENAME: str = ""
     RVIG_CERT: str = ""
     RVIG_USERNAME: str = ""
