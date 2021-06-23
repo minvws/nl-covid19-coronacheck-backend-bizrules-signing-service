@@ -257,11 +257,15 @@ class Holder(BaseModel):
         return Holder._eu_normalize(self.firstName)
 
     @property
-    def last_name_eu_normalized(self):
+    def last_name_with_infix(self):
         # Add the infix to EU messages, with a space in between.
         if self.infix:
-            return Holder._eu_normalize(f"{self.infix} {self.lastName}")
-        return Holder._eu_normalize(self.lastName)
+            return f"{self.infix} {self.lastName}"
+        return self.lastName
+
+    @property
+    def last_name_eu_normalized(self):
+        return Holder._eu_normalize(self.last_name_with_infix)
 
     def equal_to(self, other):
         return (
@@ -574,7 +578,7 @@ class Events(BaseModel):
         return EuropeanOnlineSigningRequest(
             **{
                 "nam": {
-                    "fn": any_holder.lastName,
+                    "fn": any_holder.last_name_with_infix,
                     "fnt": any_holder.last_name_eu_normalized,
                     "gn": any_holder.firstName,
                     "gnt": any_holder.first_name_eu_normalized,
@@ -961,6 +965,7 @@ class V2Event(BaseModel):
 
         # https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/test-type.json
 
+        # todo: move to resource file, falls back to unknown
         testtypes_to_code = {
             # Antigen Test
             "antigen": "LP217198-3",
@@ -968,7 +973,6 @@ class V2Event(BaseModel):
             "pcr": "LP6464-4",
             # PCR Test (LAMP)
             "pcr-lamp": "LP6464-4",
-            # todo: to be determined, falls back to unknown
             # "breath": "",
         }
 

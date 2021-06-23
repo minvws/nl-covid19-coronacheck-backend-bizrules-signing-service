@@ -180,7 +180,7 @@ def data_provider_events_results_to_events(data_provider_events_results: List[Da
                 Event(
                     source_provider_identifier=dp_event_result.providerIdentifier,
                     holder=holder,
-                    **dp_event.dict(),  # TODO: Do this properly
+                    **dp_event.dict(),
                 )
             )
 

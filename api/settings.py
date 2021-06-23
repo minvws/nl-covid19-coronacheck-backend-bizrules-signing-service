@@ -56,6 +56,7 @@ class AppSettings(BaseSettings):
     HPK_MAPPING_FILE: str = ""
     HPK_MAPPING: Dict[Optional[str], Any] = {}
 
+    # switches to disable each individual signer
     DOMESTIC_NL_DYNAMIC_SIGNER_ENABLED: bool = True
     DOMESTIC_NL_PRINT_SIGNER_ENABLED: bool = True
     EU_INTERNATIONAL_DYNAMIC_SIGNER_ENABLED: bool = True
@@ -64,23 +65,55 @@ class AppSettings(BaseSettings):
     DOMESTIC_NL_VWS_PREPARE_ISSUE_URL: AnyHttpUrl = Field()
     DOMESTIC_NL_VWS_PAPER_SIGNING_URL: AnyHttpUrl = Field()
     DOMESTIC_NL_VWS_ONLINE_SIGNING_URL: AnyHttpUrl = Field()
+
+    # how many hours a domestic strip is targeted to be valid for
     DOMESTIC_STRIP_VALIDITY_HOURS: int = 24
+
+    # how many hours a printed domestic vaccination proof is valid for
     DOMESTIC_PRINT_PROOF_VALIDITY_HOURS_VACCINATION: int = 2016
+
+    # how many hours a printed domestic recovery proof is valid for
     DOMESTIC_PRINT_PROOF_VALIDITY_HOURS_RECOVERY: int = 2016
+
+    # how many days in advance we issue strips
     DOMESTIC_MAXIMUM_ISSUANCE_DAYS: int = 28
+
+    # how many hours two consecutive stips are randomly overlapped
     DOMESTIC_MAXIMUM_RANDOMIZED_OVERLAP_HOURS: int = 4
-    DOMESTIC_NL_EXPIRY_DAYS_VACCINATION: int = 180
+
+    # how many days a domestic vaccination takes to expire
+    DOMESTIC_NL_EXPIRY_DAYS_VACCINATION: int = 1461
+
+    # how many days after a positive test you are domestically deemed recovered
+    # validFrom = eventDate + DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS
     DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS: int = 11
+
+    # how many days after recovery you are domestically no longer recovered
+    # validUntil = eventDate + DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS +
+    #       DOMESTIC_NL_EXPIRY_DAYS_POSITIVE_TEST
     DOMESTIC_NL_EXPIRY_DAYS_POSITIVE_TEST: int = 180
+
+    # how many hours a negative test domestically is valid
     DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST: int = 40
+
     EU_INTERNATIONAL_SIGNING_URL: AnyHttpUrl = Field()
+
+    # in how many days from now() a (non-recovery) EU DCC is expiring
     EU_INTERNATIONAL_GREENCARD_EXPIRATION_TIME_DAYS: int = 28
-    # Date until recovery date is valid
-    EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS: int = 180
-    # Number of days after positive test to turn into a valid recovery proof
+
+    # in how many days after positive test to start a valid EU recovery proof
+    # validFrom = eventDate + EU_INTERNATIONAL_POSITIVE_TEST_RECOVERY_DAYS days
     EU_INTERNATIONAL_POSITIVE_TEST_RECOVERY_DAYS = 11
+
+    # in how many days after EU recovery, a recovery expires
+    # validUntil = eventDate + EU_INTERNATIONAL_POSITIVE_TEST_RECOVERY_DAYS +
+    #       EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS
+    EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS: int = 180
+
+    # the value that is specified in the TC field of a EU test proof
     EU_INTERNATIONAL_OVERRIDE_TC: str = "Facility approved by the State of the Netherlands"
 
+    # the margin between two (same type) events where we assume these events to be the same event
     DEDUPLICATION_MARGIN: int = 2
 
     # The requests library has a feature that:

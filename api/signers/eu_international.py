@@ -9,8 +9,8 @@ from api.signers.logic_eu import (
     create_eu_signer_message,
     get_eu_expirationtime,
     get_event_time,
-    remove_eu_ineligible_events,
     get_valid_from_time,
+    remove_eu_ineligible_events,
 )
 
 

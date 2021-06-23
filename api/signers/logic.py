@@ -1,6 +1,6 @@
 import json
 import os.path
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Any, Callable, Dict, List, Union
 
 import pytz
@@ -176,7 +176,7 @@ def _identical_vaccinations(vacc1: Event, vacc2: Event) -> bool:
             return False
 
     # check all attributes in attrs: if both have them, they should be identical
-    for attr in ["hpkCode", "type", "manufacturer", "brand"]:
+    for attr in ["type", "manufacturer", "brand"]:
         if getattr(vacc1.vaccination, attr) and getattr(vacc2.vaccination, attr):
             if getattr(vacc1.vaccination, attr) != getattr(vacc2.vaccination, attr):
                 return False
@@ -290,6 +290,8 @@ def _merge_recoveries(base: Event, other: Event) -> Event:
     log.debug(f"merging recoveries {base} with {other}")
 
     base.recovery.sampleDate = min(base.recovery.sampleDate, other.recovery.sampleDate)
+    base.recovery.validFrom = min(base.recovery.validFrom, other.recovery.validFrom)
+    base.recovery.validUntil = min(base.recovery.validUntil, other.recovery.validUntil)
     base.recovery.country = base.recovery.country or other.recovery.country
 
     log.debug(f"merged recovery: {base}")
@@ -324,6 +326,8 @@ def _deduplicate(events: List[Event], events_are_identical_func: Callable, merge
 def deduplicate_events(events: Events) -> Events:
     log.debug(f"deduplicate_events: {len(events.events)}")
 
+    # We see that when data goes from provider one to provider two, data is lost.
+    # Therefore merging is relevant. For example country is lost, or number of vaccinations.
     deduped_vaccinations = _deduplicate(events.vaccinations, _identical_vaccinations, _merge_vaccinations)
     deduped_negative_tests = _deduplicate(events.negativetests, _identical_negative_tests, _merge_negative_tests)
     deduped_positive_tests = _deduplicate(events.positivetests, _identical_positive_tests, _merge_positive_tests)
@@ -446,7 +450,7 @@ def _completed_by_doses_across_brands(vaccs: List[Event]) -> List[Event]:
         if len(by_total_dose[dose]) >= dose:
             best_vacc = by_total_dose[dose][-1]
             # todo: fix typing to something correct.
-            best_vacc.vaccination.doseNumber = dose  # type: ignore
+            best_vacc.vaccination.doseNumber = len(by_total_dose[dose])  # type: ignore
             completions.append(best_vacc)
     if completions:
         log.debug(f"found {len(completions)} vaccinations, completed by doses; selecting most recent one")
@@ -508,6 +512,11 @@ def only_most_recent(events: List[Event]) -> List[Event]:
     return [events[-1]]
 
 
+def not_too_old(events: List[Event], max_hours: int) -> List[Event]:
+    min_event_time = datetime.now(tz=pytz.utc) - timedelta(hours=max_hours)
+    return [event for event in events if event.get_event_time() >= min_event_time]
+
+
 def evaluate_cross_type_events(events: Events) -> Events:
     """
     Logic to deal with cross-type influences
@@ -549,6 +558,7 @@ def filter_redundant_events(events: Events) -> Events:
     vaccinations = relevant_vaccinations(vaccinations)
 
     negative_tests = not_from_future(events.negativetests)
+    negative_tests = not_too_old(negative_tests, settings.DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST)
     negative_tests = only_most_recent(negative_tests)
 
     # positive tests and recoveries are allowed to be from the future
