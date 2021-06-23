@@ -1,3 +1,9 @@
+# Copyright (c) 2020-2021 De Staat der Nederlanden, Ministerie van Volksgezondheid, Welzijn en Sport.
+#
+# Licensed under the EUROPEAN UNION PUBLIC LICENCE v. 1.2
+#
+# SPDX-License-Identifier: EUPL-1.2
+#
 # allow overwriting of private variables for mocking purposes
 # pylint: disable=W0212
 import pytest

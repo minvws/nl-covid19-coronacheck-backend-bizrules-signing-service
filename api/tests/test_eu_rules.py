@@ -1,3 +1,9 @@
+# Copyright (c) 2020-2021 De Staat der Nederlanden, Ministerie van Volksgezondheid, Welzijn en Sport.
+#
+# Licensed under the EUROPEAN UNION PUBLIC LICENCE v. 1.2
+#
+# SPDX-License-Identifier: EUPL-1.2
+#
 """
 Test cases based on:
 https://docs.google.com/spreadsheets/d/1d66HXvh9bxZTwlTqaxxqE-IKmv22MkB8isZj87a-kaQ/edit#gid=1807675443

@@ -1,3 +1,9 @@
+# Copyright (c) 2020-2021 De Staat der Nederlanden, Ministerie van Volksgezondheid, Welzijn en Sport.
+#
+# Licensed under the EUROPEAN UNION PUBLIC LICENCE v. 1.2
+#
+# SPDX-License-Identifier: EUPL-1.2
+#
 from api.models import DutchBirthDate, Event, EventType, Holder
 from api.uci import generate_uci_01, random_unique_identifier, verify_uci_01
 

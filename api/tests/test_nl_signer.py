@@ -1,3 +1,9 @@
+# Copyright (c) 2020-2021 De Staat der Nederlanden, Ministerie van Volksgezondheid, Welzijn en Sport.
+#
+# Licensed under the EUROPEAN UNION PUBLIC LICENCE v. 1.2
+#
+# SPDX-License-Identifier: EUPL-1.2
+#
 import json
 from base64 import b64encode
 from datetime import date, datetime

@@ -1,3 +1,9 @@
+# Copyright (c) 2020-2021 De Staat der Nederlanden, Ministerie van Volksgezondheid, Welzijn en Sport.
+#
+# Licensed under the EUROPEAN UNION PUBLIC LICENCE v. 1.2
+#
+# SPDX-License-Identifier: EUPL-1.2
+#
 # pylint: disable=invalid-name,too-many-lines
 # Naming such as ci are by design.
 # The amount of verbose testcases is by design: this makes it easy to test and inspect the results without additional
