@@ -1,10 +1,16 @@
-# Inge-4
+# nl-covid-19-coronacheck-backend-bizrules-signing-service (internally known als Inge-4)
+
+**NOTE: This repository is a work in progress. If you plan to make non-trivial changes, we recommend to open an issue beforehand where we can discuss your planned changes.**
+
 Inge4 receives (vaccination,recovery,test)Events and based on business rules sends them to the NL and EU signer.
 Unomi and enrichment via rvig are added for the Coronacheck app.
 
-There are various requesters which are all supported: mobile app (coronacheck), inge3 (hkvi) and printportaal.
+There are various requesters which are all supported: mobile app (coronacheck) and printportaal.
 There are various signers: eu, domestic static (paper) and domestic dynamic (app).
 
+### Inge
+
+Note that internally the systems used the names 'Inge-##'; where ## was some sequal number. As the course of the pandemic was unpredictable and often changed - some of those numbers never saw the light of day. For the DCC and Domestic certificates the two key systems (in addition to the website, the RIVM/GGD systems relied on, etc, etc) are the signing service (nl-covid-19-coronacheck-backend-bizrules-signing-service - internally known as inge number 4) and the nl-covid-19-coronacheck-access-holder-glue-service (build number 6).
 
 ## Installation
 Create the required secrets that are used in settings.py. Usually these are stored in 
@@ -12,8 +18,8 @@ Create the required secrets that are used in settings.py. Usually these are stor
 
 This application uses the following secrets / secret keys.
 
-* `inge4_NaCl`: Communication with Inge6.
-* `inge6_NaCl.pub`: Communication with Inge6.
+* `inge4_NaCl`: Communication with nl-covid-19-coronacheck-access-holder-glue-servicee (internally known as Inge6)
+* `inge6_NaCl.pub`: Communication with access holder service.
   
 * `inge4_test.env`: Contains redis secrets. The Env config file contains secrets.
 * `inge4_test_fail.env`: Key used for testing
@@ -25,7 +31,7 @@ This application uses the following secrets / secret keys.
 * `tvs-connect.test.coronacheck.nl.key.nopass`: Communication to RVIG (enrichment for mobile app)
 * `vws_identity_hash_key.key`: Secret key for creating identity hashes
 
-Additionally checking requests from inge4 against a custom set of CA's: SIGNER_CA_CERT_FILE
+Additionally checking requests against a custom set of CA's: SIGNER_CA_CERT_FILE
 
 Not required:
 * `inge6_jwt_private.key`: ...
@@ -142,7 +148,7 @@ listening on port 8001 and start the service again.
 
 
 
-### Run Inge4:
+### Run:
 Set the MOCK_MODE environment variable to True. Do NOT do this in the .env
 but do this in your shell environment.
 
@@ -152,7 +158,7 @@ Bash example:
 Fish example:
 `set -x MOCK_MODE = True`
 
-Then run inge4:
+Then run:
 `make run`
 
 ### Run the end to end test:
@@ -208,3 +214,16 @@ Higher level view of step 2:
 
 - Implementation / Docs: Elger Jonker, Maarten Derickx, Tomas Harreveld, Willem van Asperen, Max Vasterd
 - Process: Nick ten Cate, Anne Jan Brouwer, Mendel Mobach, Ivo Jansch
+
+## Development & Contribution process
+
+The development team works on the repository in a private fork (for reasons of compliance with existing processes) and shares its work as often as possible.
+
+If you plan to make non-trivial changes, we recommend to open an issue beforehand where we can discuss your planned changes. This increases the chance that we might be able to use your contribution (or it avoids doing work if there are reasons why we wouldn't be able to use it).
+
+Note that all commits should be signed using a gpg key.
+
+## Security
+
+Security issues can be reported through a github issue, at https://coronacheck.nl/nl/kwetsbaarheid-melden or confidentially through the https://www.ncsc.nl/contact/kwetsbaarheid-melden.
+

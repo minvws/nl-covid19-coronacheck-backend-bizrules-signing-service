@@ -105,21 +105,4 @@ signer -> inge4: [CreateCredentialMessages]
 inge4 -> app: MobileAppProofOfVaccination(with base64(CreateCredentialMessages))
 deactivate inge4
 
-
-' inge3 -> inge4 : StatementOfVaccination
-' activate inge4
-'     inge4 -> inge4 : Check eligibility
-'     alt not eligible
-'        inge4 -> inge3 : ErrorResponse
-'     end alt
-'     inge4 -> inge4 : minimize data / create PaperSigningRequest
-'     inge4 -> provider : PaperSigningRequest (108x)
-'     alt signing error
-'         inge4 -> inge3 : ErrorResponse
-'     end alt
-'     provider -> inge4: SingleDomesticVaccinationResponse
-'
-'     inge4 -> inge3: SignaturePerProviderResponse
-' deactivate inge4
-
 @enduml

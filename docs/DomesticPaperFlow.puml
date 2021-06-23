@@ -57,7 +57,6 @@ skinparam {
     }
 }
 
-participant "Inge 3" as inge3
 participant "Inge 4 /  Signing Router" as inge4
 participant "RVIG / BVBSN / BRP" as rvig
 participant "DomesticPaperSigningProvider (VWS)" as provider
@@ -65,41 +64,7 @@ participant "DomesticPaperSigningProvider (VWS)" as provider
 
 == ACTORS ==
 
-inge3 --> inge4
 inge4 --> rvig
 inge4 --> provider
-
-== FLOW ==
-
-autonumber
-
-alt enrich pii using BSN
-    inge3 -> inge4: PIIEnrichmentRequest **(encrypted BSN)**
-    activate inge4
-        inge4 -> rvig : OpvragenPersoonsgegevensVraagBericht
-        rvig -> inge4 : OpvragenPersoonsgegevensAntwoordBericht
-        inge4 -> inge4 : minimize data
-        inge4 -> inge3 : EnrichedPII
-    deactivate inge4
-end alt
-
-
-autonumber 100
-
-inge3 -> inge4 : StatementOfVaccination
-activate inge4
-    inge4 -> inge4 : Check eligibility
-    alt not eligible
-       inge4 -> inge3 : ErrorResponse
-    end alt
-    inge4 -> inge4 : minimize data / create PaperSigningRequest
-    inge4 -> provider : PaperSigningRequest (108x)
-    alt signing error
-        inge4 -> inge3 : ErrorResponse
-    end alt
-    provider -> inge4: SingleDomesticVaccinationResponse
-
-    inge4 -> inge3: SignaturePerProviderResponse
-deactivate inge4
 
 @enduml
