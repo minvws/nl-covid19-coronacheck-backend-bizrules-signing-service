@@ -111,8 +111,7 @@ def remove_eu_ineligible_events(events: Events) -> Events:
 
     def _is_dutch_only_test(event: Event) -> bool:
         if isinstance(event.negativetest, Negativetest):
-            if not any(event.negativetest.type.upper().startswith(test_type)
-                       for test_type in special_nl_types):
+            if not any(event.negativetest.type.upper().startswith(test_type) for test_type in special_nl_types):
                 return False
             return True
 
