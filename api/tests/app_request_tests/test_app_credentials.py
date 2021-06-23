@@ -137,7 +137,7 @@ def test_app_credential_request_alt(mock_signers, requests_mock, current_path, r
             "origins": [
                 {
                     "eventTime": "2021-06-08T00:00:00+00:00",
-                    "expirationTime": "2025-06-08T00:00:00+00:00",
+                    "expirationTime": "2021-12-05T00:00:00+00:00",
                     "type": "vaccination",
                     "validFrom": "2021-06-08T00:00:00+00:00",
                 }
