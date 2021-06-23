@@ -16,7 +16,7 @@ def random_unique_identifier() -> str:
     but not too short to allow a https://en.wikipedia.org/wiki/Birthday_attack
 
     We now return 20 positions with 32 options. This is 100 bit security which is way above any threshold.
-    Every character removed is < 5 bits. Above of 96 bits the chance of a colission is minimal in this universe.
+    Every character removed is < 5 bits. Above of 96 bits the chance of a collision is minimal in this universe.
     """
     b32 = base64.b32encode(uuid.uuid4().bytes).decode("UTF-8").replace("=", "")
     return f"{b32[0:20]}42"
