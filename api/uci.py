@@ -4,16 +4,22 @@ import uuid
 
 from api import log
 
-ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/#:"
-REGEX = r"[A-Z0-9:#/]{42,43}"
+REGEX = r"[A-Z0-9:#/]{38}"
 
 
 def random_unique_identifier() -> str:
     """
     This is a GUID that is base32 encoded.
-    Example output: H5EBSWN2UI6XJREDYAOEOVHQU
+    Example output: 7L7MX3WHVNAC7LAP4L7N42#V.
+
+    Shorten the length to match the specified length of UVCI a bit more and have the length,
+    but not too short to allow a https://en.wikipedia.org/wiki/Birthday_attack
+
+    We now return 20 positions with 32 options. This is 100 bit security which is way above any threshold.
+    Every character removed is < 5 bits. Above of 96 bits the chance of a colission is minimal in this universe.
     """
-    return base64.b32encode(uuid.uuid4().bytes).decode("UTF-8").replace("=", "")
+    b32 = base64.b32encode(uuid.uuid4().bytes).decode("UTF-8").replace("=", "")
+    return f"{b32[0:20]}42"
 
 
 def generate_uci_01():
