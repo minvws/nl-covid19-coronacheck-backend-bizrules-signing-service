@@ -256,12 +256,17 @@ class Holder(BaseModel):
     def first_name_eu_normalized(self):
         return Holder._eu_normalize(self.firstName)
 
+
     @property
-    def last_name_eu_normalized(self):
+    def last_name_with_infix(self):
         # Add the infix to EU messages, with a space in between.
         if self.infix:
-            return Holder._eu_normalize(f"{self.infix} {self.lastName}")
-        return Holder._eu_normalize(self.lastName)
+            return f"{self.infix} {self.lastName}"
+        return self.lastName
+
+    @property
+    def last_name_eu_normalized(self):
+        return Holder._eu_normalize(self.last_name_with_infix)
 
     def equal_to(self, other):
         return (
@@ -570,7 +575,7 @@ class Events(BaseModel):
         return EuropeanOnlineSigningRequest(
             **{
                 "nam": {
-                    "fn": any_holder.lastName,
+                    "fn": any_holder.last_name_with_infix,
                     "fnt": any_holder.last_name_eu_normalized,
                     "gn": any_holder.firstName,
                     "gnt": any_holder.first_name_eu_normalized,
