@@ -1,10 +1,10 @@
 import base64
 import json
-from typing import Union, List
+from typing import List, Union
 
 from api import log
 from api.http_utils import request_post_with_retries
-from api.models import DomesticGreenCard, GreenCardOrigin, RichOrigin, IssueMessage, StaticIssueMessage
+from api.models import DomesticGreenCard, GreenCardOrigin, IssueMessage, RichOrigin, StaticIssueMessage
 
 
 def _sign_attributes(url, issue_message: StaticIssueMessage) -> str:

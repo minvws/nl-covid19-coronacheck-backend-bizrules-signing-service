@@ -7,8 +7,8 @@ from api.settings import settings
 from api.signers.logic import distill_relevant_events
 from api.signers.logic_domestic import (
     create_origins_and_attributes,
-    remove_domestic_ineligible_events,
     is_eligible_for_proof,
+    remove_domestic_ineligible_events,
 )
 from api.signers.nl_domestic import _sign
 

@@ -1,6 +1,6 @@
 import json
 from base64 import b64encode
-from typing import Dict, Any
+from typing import Any, Dict
 
 from fastapi.testclient import TestClient
 from freezegun import freeze_time
@@ -15,7 +15,7 @@ def createCredentialsRequestEvents(event: str) -> Dict[str, Any]:
 
 
 @freeze_time("2021-06-09")
-def test_app_print(mock_signers, requests_mock, mocker):
+def test_app_print(mock_signers, requests_mock, mocker):  # noqa # pylint: disable=unused-argument
     mocker.patch("api.uci.random_unique_identifier", return_value="5717YIZIZFD3BMTEFA4CVU1337")
     requests_mock.post("http://testserver/app/print/", real_http=True)
 

@@ -18,7 +18,6 @@ from api.signers import eu_international, nl_domestic_dynamic
 from api.signers.logic import distill_relevant_events
 from api.tests.test_eu_issuing_rules import _create_events
 
-
 # To allow copy pasting tests from
 # Rules: https://docs.google.com/spreadsheets/d/1WkShVLnwZjMZO3kj_RR-ccOTzBTivEmOaIGS53vUlVo/edit#gid=0
 # Tests:
@@ -53,7 +52,7 @@ def dti(data: str) -> datetime:
 
 
 @freeze_time("2021-06-21T01:23:45")
-def test_777771994(mock_signers):  # pylint: disable=unused-argument
+def test_777771994(mock_signers):  # noqa # pylint: disable=unused-argument
     """
     Positive followed by negative test on same day.
 
@@ -260,7 +259,7 @@ def test_777771994(mock_signers):  # pylint: disable=unused-argument
 
 
 @freeze_time("2021-06-21T01:23:45")
-def test_777771998(mock_signers):  # pylint: disable=unused-argument
+def test_777771998(mock_signers):  # noqa # pylint: disable=unused-argument
     """
     Jannsen vaccination followed by positive test 2 weeks later
 
@@ -425,7 +424,7 @@ def test_777771998(mock_signers):  # pylint: disable=unused-argument
 
 
 @freeze_time("2021-06-21T01:23:45")
-def test_777771999(mock_signers):  # pylint: disable=unused-argument
+def test_777771999(mock_signers):  # noqa # pylint: disable=unused-argument
     """
     Jannsen vaccination followed by negative test 2 weeks later
 
@@ -591,7 +590,7 @@ def test_777771999(mock_signers):  # pylint: disable=unused-argument
 
 
 @freeze_time("2021-06-22T19:20:00")
-def test_ronnie(mock_signers):  # pylint: disable=unused-argument
+def test_ronnie(mock_signers):  # noqa # pylint: disable=unused-argument
     events = {
         "protocolVersion": "3.0",
         "providerIdentifier": "ZZZ",
