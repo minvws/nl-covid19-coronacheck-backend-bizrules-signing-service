@@ -626,12 +626,10 @@ def test_very_long_names(mocker):
         ]
     )
 
-    # verify that the event created, which in itself does not comply to any business rules,
-    # has truncated names.
+    # verify that the event has truncated names, any business rules are ignored.
     assert events.toEuropeanOnlineSigningRequest() == EuropeanOnlineSigningRequest(
         ver="1.3.0",
         nam=EuropeanOnlineSigningRequestNamingSection(
-            # 80 chars end here --> --> --> --> --> --> --> --> --> --> --> --> -->
             fn="Červenková PanklováČervenková PanklováČervenková PanklováČervenková PanklováČerv",
             fnt="CERVENKOVA<PANKLOVACERVENKOVA<PANKLOVACERVENKOVA<PANKLOVACERVENKOVA<PANKLOVACERV",
             gn="Červenková PanklováČervenková PanklováČervenková PanklováČervenková PanklováČerv",
