@@ -341,7 +341,11 @@ class Positivetest(BaseModel):  # noqa
                     # date until, in contrast to recoveries, a positive test does not have
                     # a moment until when it's valid. So in this case we're using a configuration
                     # parameter that can be set based on the latest insights.
-                    "du": self.sampleDate + timedelta(days=settings.EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS),
+                    "du": self.sampleDate
+                    + timedelta(
+                        days=settings.EU_INTERNATIONAL_POSITIVE_TEST_RECOVERY_DAYS
+                        + settings.EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS
+                    ),
                     # sampletime
                     "fr": self.sampleDate,
                     "co": str(self.country),

@@ -10,6 +10,7 @@ from api.signers.logic_eu import (
     get_eu_expirationtime,
     get_event_time,
     remove_eu_ineligible_events,
+    get_valid_from_time,
 )
 
 
@@ -31,8 +32,8 @@ def sign_messages(messages_to_eu_signer: List[MessageToEUSigner]) -> List[EUGree
             {
                 "type": message_to_eu_signer.keyUsage,
                 "eventTime": str(get_event_time(message_to_eu_signer).isoformat()),
-                "expirationTime": str(get_eu_expirationtime().isoformat()),
-                "validFrom": str(get_event_time(message_to_eu_signer).isoformat()),
+                "expirationTime": str(get_eu_expirationtime(message_to_eu_signer).isoformat()),
+                "validFrom": str(get_valid_from_time(message_to_eu_signer).isoformat()),
             }
         ]
         greencards.append(EUGreenCard(**{**data, **{"origins": origins}}))
