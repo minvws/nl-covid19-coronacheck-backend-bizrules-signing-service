@@ -25,8 +25,15 @@ Not using datetime.datetime.utcfromtimestamp(42) as that seems to return a timez
 EU_INTERNATIONAL_SPECIMEN_EXPIRATION_TIME = datetime(1970, 1, 1, 0, 0, 42, 0, tzinfo=pytz.utc)
 
 
-def get_eu_expirationtime() -> datetime:
+def get_eu_expirationtime(statement_to_eu_signer: MessageToEUSigner = None) -> datetime:
     expiration_time = datetime.now(pytz.utc) + timedelta(days=settings.EU_INTERNATIONAL_GREENCARD_EXPIRATION_TIME_DAYS)
+
+    if statement_to_eu_signer is not None and statement_to_eu_signer.dgc.r:
+        expiration_time = datetime.now(pytz.utc) + timedelta(
+            days=settings.EU_INTERNATIONAL_POSITIVE_TEST_RECOVERY_DAYS
+            + settings.EU_INTERNATIONAL_POSITIVETEST_RECOVERY_DU_DAYS
+        )
+
     return expiration_time.replace(microsecond=0)
 
 
@@ -49,6 +56,23 @@ def create_eu_signer_message(event: Event) -> MessageToEUSigner:
         # Use a clean events object that only has a single event so there are no interfering other events
         dgc=Events(events=[event]).toEuropeanOnlineSigningRequest(),
     )
+
+
+def get_valid_from_time(statement_to_eu_signer: MessageToEUSigner):
+    dgc = statement_to_eu_signer.dgc
+
+    if dgc.v:
+        valid_from_time = dgc.v[0].dt
+    elif dgc.r:
+        valid_from_time = dgc.r[0].fr + timedelta(days=settings.EU_INTERNATIONAL_POSITIVE_TEST_RECOVERY_DAYS)
+    elif dgc.t:
+        valid_from_time = dgc.t[0].sc
+    else:
+        raise ValueError("Not able to retrieve an event time from the statement to the signer. This is very wrong.")
+
+    if not isinstance(valid_from_time, datetime):
+        valid_from_time = datetime.combine(valid_from_time, datetime.min.time())
+    return logic.TZ.localize(valid_from_time) if valid_from_time.tzinfo is None else valid_from_time
 
 
 def get_event_time(statement_to_eu_signer: MessageToEUSigner):
