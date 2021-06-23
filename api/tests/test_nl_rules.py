@@ -217,7 +217,8 @@ def test_777771994(mock_signers):  # pylint: disable=unused-argument
     test_origins = [o for o in signed.origins if o.type == "test"]
     test = test_origins[0]
     assert dti(test.expirationTime) == dti(test.eventTime) + timedelta(
-        hours=settings.DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST)
+        hours=settings.DOMESTIC_NL_EXPIRY_HOURS_NEGATIVE_TEST
+    )
 
     # -> create_positive_test_rich_origin
     recoveries = [o for o in signed.origins if o.type == "recovery"]
@@ -227,8 +228,8 @@ def test_777771994(mock_signers):  # pylint: disable=unused-argument
         days=settings.DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS
     )
     assert dti(recovery.expirationTime) == dti(recovery.eventTime) + timedelta(
-        days=settings.DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS) + timedelta(
-        days=settings.DOMESTIC_NL_EXPIRY_DAYS_POSITIVE_TEST)
+        days=settings.DOMESTIC_NL_POSITIVE_TEST_RECOVERY_DAYS
+    ) + timedelta(days=settings.DOMESTIC_NL_EXPIRY_DAYS_POSITIVE_TEST)
 
     # Expected: a negative test for now, so something valid 40 hours. And a recovery in 11 days.
     signed = eu_international.sign(events)
@@ -504,7 +505,7 @@ def test_777771999(mock_signers):  # pylint: disable=unused-argument
                 "vaccination": {
                     "date": date(2021, 6, 9),
                     "hpkCode": "2934701",
-                    "type": "1119349007",
+                    "type": "J07BX03",
                     "manufacturer": "ORG-100001417",
                     "brand": "EU/1/20/1525",
                     "completedByMedicalStatement": False,
