@@ -41,7 +41,7 @@ def _sign(url, data: Union[IssueMessage, StaticIssueMessage], origins: List[Rich
                 type=origin.type,
                 eventTime=origin.eventTime.isoformat(),
                 validFrom=origin.validFrom.isoformat(),
-                expirationTime=origin.expirationTime.isoformat()
+                expirationTime=origin.expirationTime.isoformat(),
             )
             for origin in origins
         ],

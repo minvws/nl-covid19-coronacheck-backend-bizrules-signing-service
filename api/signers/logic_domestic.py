@@ -246,7 +246,6 @@ def remove_domestic_ineligible_events(events: Events) -> Events:
 
 
 def is_eligible_for_proof(events: Events) -> bool:
-
     def _eligible_vaccination(vacc: Event) -> bool:
         if not vacc.vaccination.doseNumber:
             return False

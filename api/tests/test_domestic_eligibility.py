@@ -21,9 +21,9 @@ def test_no_fulfilled_vacc():
                     "vaccination": {
                         "date": "2021-06-01",
                         "hpkCode": "2924528",
-                    }
+                    },
                 }
-            ]
+            ],
         }
     ]
 
@@ -49,7 +49,7 @@ def test_fulfilled_vacc():
                     "vaccination": {
                         "date": "2021-05-01",
                         "hpkCode": "2924528",
-                    }
+                    },
                 },
                 {
                     "type": "vaccination",
@@ -58,9 +58,9 @@ def test_fulfilled_vacc():
                     "vaccination": {
                         "date": "2021-06-01",
                         "hpkCode": "2924528",
-                    }
-                }
-            ]
+                    },
+                },
+            ],
         }
     ]
 
@@ -95,7 +95,7 @@ def test_negative_test():
                         "resultDate": "2021-06-01T06:58:47+00:00",
                     },
                 },
-            ]
+            ],
         }
     ]
 
