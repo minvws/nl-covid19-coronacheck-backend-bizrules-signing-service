@@ -13,6 +13,10 @@ from api.models import (
     Iso3166Dash1Alpha2CountryCode,
     StripType,
     V2Event,
+    Events,
+    Event,
+    Recovery,
+    EuropeanRecovery,
 )
 
 
@@ -241,7 +245,6 @@ def test_iso3316_1_alpha_3_country():
 
 @freeze_time("2020-02-02")
 def test_strikelist():
-
     # EJ = VD = disclose first name + day
     striked = DomesticSignerAttributes(
         **{
@@ -590,3 +593,61 @@ def test_eu_holder():
 
     holder = Holder(firstName="Henk", lastName="vries", infix="", birthDate="2000-01-01")
     assert holder.last_name_eu_normalized == "VRIES"
+
+
+def test_very_long_names(mocker):
+    """
+    People can have very long names. The EU allows up to 80 characters.
+    Each such as fn, fnt, gn, gnt has a max of 80.
+    :return:
+    """
+
+    mocker.patch("api.uci.random_unique_identifier", return_value="JLXN4P4ONJH7VMELWYUT42")
+
+    long_name = (
+        "Červenková PanklováČervenková PanklováČervenková PanklováČervenková PanklováČervenková PanklováČerv"
+        "enková PanklováČervenková PanklováČervenková PanklováČervenková PanklováČervenková PanklováČervenko"
+        "vá PanklováČervenková PanklováČervenková PanklováČervenková PanklováČervenková PanklováČervenková P"
+    )
+
+    # Can we make a holder with such a name?
+    Holder(firstName=long_name, lastName=long_name, infix="", birthDate="2000-01-01")
+
+    # Let's make a signing request with holder information:
+
+    events = Events(
+        events=[
+            Event(
+                recovery=Recovery(sampleDate="2020-01-01", validFrom="2020-01-01", validUntil="2020-01-01"),
+                holder=Holder(firstName=long_name, lastName=long_name, infix="", birthDate="2000-01-01"),
+                type="recovery",
+                unique="long name test",
+            )
+        ]
+    )
+
+    # verify that the event created, which in itself does not comply to any business rules,
+    # has truncated names.
+    assert events.toEuropeanOnlineSigningRequest() == EuropeanOnlineSigningRequest(
+        ver="1.3.0",
+        nam=EuropeanOnlineSigningRequestNamingSection(
+            # 80 chars end here --> --> --> --> --> --> --> --> --> --> --> --> -->
+            fn="Červenková PanklováČervenková PanklováČervenková PanklováČervenková PanklováČerv",
+            fnt="CERVENKOVA<PANKLOVACERVENKOVA<PANKLOVACERVENKOVA<PANKLOVACERVENKOVA<PANKLOVACERV",
+            gn="Červenková PanklováČervenková PanklováČervenková PanklováČervenková PanklováČerv",
+            gnt="CERVENKOVA<PANKLOVACERVENKOVA<PANKLOVACERVENKOVA<PANKLOVACERVENKOVA<PANKLOVACERV",
+        ),
+        dob="2000-01-01",
+        v=None,
+        t=None,
+        r=[
+            EuropeanRecovery(
+                tg="840539006",
+                ci="URN:UCI:01:NL:JLXN4P4ONJH7VMELWYUT42#6",
+                co="NL",
+                is_="Ministry of Health Welfare and Sport",
+                fr=date(2020, 1, 1),
+                du=date(2020, 1, 1),
+            )
+        ],
+    )

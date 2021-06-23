@@ -577,11 +577,13 @@ class Events(BaseModel):
 
         return EuropeanOnlineSigningRequest(
             **{
+                # max length is 80 characters
+                # https://github.com/ehn-dcc-development/ehn-dcc-schema/blob/release/1.3.0/DCC.Core.Types.schema.json
                 "nam": {
-                    "fn": any_holder.last_name_with_infix,
-                    "fnt": any_holder.last_name_eu_normalized,
-                    "gn": any_holder.firstName,
-                    "gnt": any_holder.first_name_eu_normalized,
+                    "fn": any_holder.last_name_with_infix[0:80],
+                    "fnt": any_holder.last_name_eu_normalized[0:80],
+                    "gn": any_holder.firstName[0:80],
+                    "gnt": any_holder.first_name_eu_normalized[0:80],
                 },
                 "dob": any_holder.birthDate,
                 "v": _v,
