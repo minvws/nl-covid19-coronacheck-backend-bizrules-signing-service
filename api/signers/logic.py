@@ -513,7 +513,7 @@ def only_most_recent(events: List[Event]) -> List[Event]:
 
 
 def not_too_old(events: List[Event], max_hours: int) -> List[Event]:
-    min_event_time = datetime.now() - timedelta(hours=max_hours)
+    min_event_time = datetime.now(tz=pytz.utc) - timedelta(hours=max_hours)
     return [event for event in events if event.get_event_time() >= min_event_time]
 
 
