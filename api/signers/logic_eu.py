@@ -105,6 +105,18 @@ def is_eligible_for_special_year(event: Event) -> bool:
 
 
 def remove_eu_ineligible_events(events: Events) -> Events:
-    result = Events()
-    result.events = [event for event in events.events if is_eligible_for_special_year(event)]
-    return result
+
+    # TODO retrieve this from a resources file
+    special_nl_types = ["NL:BREATH", "NL:BIKKER"]
+
+    def _is_dutch_only_test(event: Event) -> bool:
+        if isinstance(event.negativetest, Negativetest):
+            if not any(event.negativetest.type.upper().startswith(test_type) for test_type in special_nl_types):
+                return False
+            return True
+
+        return False
+
+    eligible_events = [event for event in events.events if is_eligible_for_special_year(event)]
+    eligible_events = [event for event in eligible_events if not _is_dutch_only_test(event)]
+    return Events(events=eligible_events)
