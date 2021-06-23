@@ -12,8 +12,8 @@ from api.utils import read_file
 
 @freeze_time("2021-05-28")
 def test_app_credential_request(
-    mock_signers, requests_mock, current_path, redis_db
-):  # noqa # pylint: disable=unused-argument
+    mock_signers, requests_mock, current_path, redis_db  # noqa
+):  # pylint: disable=unused-argument
     # mock redis, disableW0212 since we should be able to access private members for mocking
     # # create fake session:
     session_store._redis = redis_db  # pylint: disable=W0212
@@ -81,8 +81,8 @@ def test_app_credential_request(
 
 @freeze_time("2021-06-22")
 def test_app_credential_request_alt(
-    mock_signers, requests_mock, current_path, redis_db
-):  # noqa # pylint: disable=unused-argument
+    mock_signers, requests_mock, current_path, redis_db  # noqa
+):  # pylint: disable=unused-argument
     # Another end to end test.
     # mock redis, disableW0212 since we should be able to access private members for mocking
     # # create fake session:

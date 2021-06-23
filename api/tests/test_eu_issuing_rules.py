@@ -1275,3 +1275,77 @@ def test_specimen_event():
     ]
 
     assert signing_messages == expected_signing_messages
+
+
+@freeze_time("2021-06-13T19:20:21+00:00")
+def test_nl_only_tests():
+    """
+    Test that tests only valid in NL are not used for EU purposes
+    """
+    positive_test = json.loads(
+        """
+        {
+          "protocolVersion": "3.0",
+          "providerIdentifier": "ZZZ",
+          "status": "complete",
+          "holder": {
+            "firstName": "One",
+            "infix": "",
+            "lastName": "Positive Test",
+            "birthDate": "1950-03-01"
+          },
+          "events": [
+            {
+              "type": "negativetest",
+              "unique": "175ff72aadef0723f83fb65758d3f3132d608b47",
+              "isSpecimen": false,
+              "negativetest": {
+                "negativeResult": true,
+                "country": "NLD",
+                "facility": "Some RAT Test Place",
+                "type": "NL:BREATH",
+                "name": "",
+                "manufacturer": "1232",
+                "sampleDate": "2021-06-12T19:26:52+00:00",
+                "resultDate": "2021-06-12T21:02:52+00:00"
+              }
+            },
+            {
+              "type": "negativetest",
+              "unique": "175ff72aadef0723f83fb65758d3f3132d608b47",
+              "isSpecimen": false,
+              "negativetest": {
+                "negativeResult": true,
+                "country": "NLD",
+                "facility": "Some RAT Test Place",
+                "type": "NL:BIKKER",
+                "name": "",
+                "manufacturer": "1232",
+                "sampleDate": "2021-06-12T19:26:52+00:00",
+                "resultDate": "2021-06-12T21:02:52+00:00"
+              }
+            },
+            {
+              "type": "negativetest",
+              "unique": "175ff72aadef0723f83fb65758d3f3132d608b47",
+              "isSpecimen": false,
+              "negativetest": {
+                "negativeResult": true,
+                "country": "NLD",
+                "facility": "Some RAT Test Place",
+                "type": "NL:BIKKER3213",
+                "name": "",
+                "manufacturer": "1232",
+                "sampleDate": "2021-06-12T19:26:52+00:00",
+                "resultDate": "2021-06-12T21:02:52+00:00"
+              }
+            }
+          ]
+        }
+    """
+    )
+    events = _create_events([positive_test])
+
+    events = remove_eu_ineligible_events(events)
+
+    assert len(events.events) == 0
