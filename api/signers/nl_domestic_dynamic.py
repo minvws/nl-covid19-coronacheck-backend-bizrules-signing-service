@@ -29,6 +29,10 @@ def sign(events: Events, prepare_issue_message: str, issue_commitment_message: s
     if not can_continue:
         return None
 
+    # Fix for mypy: origins cannot be Optional in _sign.
+    if not origins:
+        return None
+
     issue_message = IssueMessage(
         **{
             "prepareIssueMessage": json.loads(base64.b64decode(prepare_issue_message).decode("UTF-8")),
