@@ -26,7 +26,8 @@ def create_attributes(event: Event) -> DomesticSignerAttributes:
         birthDay=str(event.holder.birthDate.day) if event.holder.birthDate.day else "",
         birthMonth=str(event.holder.birthDate.month) if event.holder.birthDate.month else "",
     )
-    return attributes.strike()
+    # for print we do not strike initial / birth day / birth month
+    return attributes
 
 
 def sign(events: Events) -> Optional[DomesticPrintProof]:

@@ -206,5 +206,5 @@ Higher level view of step 2:
 
 ## Authors
 
-- Implementation / Docs: Elger Jonker, Maarten Derickx, Tomas Herreveld, Willem van Asperen
+- Implementation / Docs: Elger Jonker, Maarten Derickx, Tomas Harreveld, Willem van Asperen, Max Vasterd
 - Process: Nick ten Cate, Anne Jan Brouwer, Mendel Mobach, Ivo Jansch

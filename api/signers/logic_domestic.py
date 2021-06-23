@@ -94,8 +94,7 @@ def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBl
     # contiguous_blocks -> tijden dat je sowieso een credential krijgt.
     log.debug(f"Creating attributes from {len(contiguous_blocks)} ContiguousOriginsBlock.")
 
-    # # Calculate sets of credentials for every block
-    # todo: visualize what is meant with blocks. Add examples.
+    # Calculate sets of credentials for every block
     rounded_now = logic.floor_hours(datetime.now(tz=pytz.utc))
 
     attributes = []
@@ -130,8 +129,8 @@ def calculate_attributes_from_blocks(contiguous_blocks: List[ContiguousOriginsBl
                 break
 
             # Finally add the credential
-            # TODO: Don't use the first holder, but the applicable holder
             valid_from = expiration_time_scrubber - timedelta(hours=settings.DOMESTIC_STRIP_VALIDITY_HOURS)
+            # we only have one single holder across all origins, pick the first
             holder = overlapping_block.origins[0].holder
 
             # The signer only understands strings.
@@ -205,7 +204,12 @@ def create_attributes(origins: List[RichOrigin]) -> List[DomesticSignerAttribute
 def create_origins_and_attributes(
     events: Events,
 ) -> Tuple[bool, Optional[List[RichOrigin]], Optional[List[DomesticSignerAttributes]]]:
-    # todo: add error structure...
+    """
+    Create the Origins and Attributes. Also returns if the set is complete and we can
+    continue. If there are either no origins or no attributes, we cannot continue and
+    return `(False, None, None)`. Otherwise we return `(True, all the origins, all the
+    attributes)`.
+    """
 
     # Continue with at least one origin
     origins = create_origins(events)
@@ -242,10 +246,15 @@ def remove_domestic_ineligible_events(events: Events) -> Events:
 
 
 def is_eligible_for_proof(events: Events) -> bool:
-    if any(all([vacc.vaccination.doseNumber,
-                vacc.vaccination.totalDoses,
-                vacc.vaccination.doseNumber >= vacc.vaccination.totalDoses])
-           for vacc in events.vaccinations):
+
+    def _eligible_vaccination(vacc: Event) -> bool:
+        if not vacc.vaccination.doseNumber:
+            return False
+        if not vacc.vaccination.totalDoses:
+            return False
+        return vacc.vaccination.doseNumber >= vacc.vaccination.totalDoses
+
+    if any(_eligible_vaccination(vacc) for vacc in events.vaccinations):
         return True
 
     if len(events.negativetests) > 0:

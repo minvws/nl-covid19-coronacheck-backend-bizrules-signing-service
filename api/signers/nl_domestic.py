@@ -1,11 +1,10 @@
 import base64
-import datetime
 import json
-from typing import Union
+from typing import Union, List
 
 from api import log
 from api.http_utils import request_post_with_retries
-from api.models import DomesticGreenCard, GreenCardOrigin, IssueMessage, StaticIssueMessage
+from api.models import DomesticGreenCard, GreenCardOrigin, RichOrigin, IssueMessage, StaticIssueMessage
 
 
 def _sign_attributes(url, issue_message: StaticIssueMessage) -> str:
@@ -27,7 +26,7 @@ def _sign_attributes(url, issue_message: StaticIssueMessage) -> str:
         raise ValueError(f"could not sign attributes; error {qr_response.content}") from no_qr
 
 
-def _sign(url, data: Union[IssueMessage, StaticIssueMessage], origins) -> DomesticGreenCard:
+def _sign(url, data: Union[IssueMessage, StaticIssueMessage], origins: List[RichOrigin]) -> DomesticGreenCard:
     log.debug(f"Signing domestic greencard for {len(origins)}.")
 
     response = request_post_with_retries(
@@ -42,7 +41,7 @@ def _sign(url, data: Union[IssueMessage, StaticIssueMessage], origins) -> Domest
                 type=origin.type,
                 eventTime=origin.eventTime.isoformat(),
                 validFrom=origin.validFrom.isoformat(),
-                expirationTime=(origin.eventTime + datetime.timedelta(days=1461)).isoformat(),
+                expirationTime=origin.expirationTime.isoformat()
             )
             for origin in origins
         ],

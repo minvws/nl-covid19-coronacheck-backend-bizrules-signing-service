@@ -256,7 +256,6 @@ class Holder(BaseModel):
     def first_name_eu_normalized(self):
         return Holder._eu_normalize(self.firstName)
 
-
     @property
     def last_name_with_infix(self):
         # Add the infix to EU messages, with a space in between.
@@ -962,6 +961,7 @@ class V2Event(BaseModel):
 
         # https://github.com/ehn-digital-green-development/ehn-dgc-schema/blob/main/valuesets/test-type.json
 
+        # todo: move to resource file, falls back to unknown
         testtypes_to_code = {
             # Antigen Test
             "antigen": "LP217198-3",
@@ -969,7 +969,6 @@ class V2Event(BaseModel):
             "pcr": "LP6464-4",
             # PCR Test (LAMP)
             "pcr-lamp": "LP6464-4",
-            # todo: to be determined, falls back to unknown
             # "breath": "",
         }
 
