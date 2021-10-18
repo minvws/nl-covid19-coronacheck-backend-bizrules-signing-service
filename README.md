@@ -64,9 +64,9 @@ This app uses various resource files, these are their origins:
 * `partial_issuence_allowlist.csv`: strikelist, removes fields from domestic signing.
 * `hpk-codes.json`: maps hpkcodes to vaccines and manufacturers. Content from https://hpkcode.nl/
 * `required-doses-per-brand.json`: List of how many doses are needed per brand. Created by...
-* `test-type.json`: https://github.com/eu-digital-green-certificates/ehn-dgc-schema/tree/main/valuesets
-* `vaccine-mah-manf.json`: https://github.com/eu-digital-green-certificates/ehn-dgc-schema/tree/main/valuesets
-* `vaccine-medicinal-product.json`: https://github.com/eu-digital-green-certificates/ehn-dgc-schema/tree/main/valuesets
+* `test-type.json`: https://github.com/ehn-dcc-development/ehn-dcc-schema/tree/main/valuesets
+* `vaccine-mah-manf.json`: https://github.com/ehn-dcc-development/ehn-dcc-schema/tree/main/valuesets
+* `vaccine-medicinal-product.json`: https://github.com/ehn-dcc-development/ehn-dcc-schema/tree/main/valuesets
 
 ### Logging
 Edit the inge4_logging.yaml to acceptable settings. The shipped file logs everything including
